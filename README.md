@@ -1,6 +1,6 @@
 
 <p align="center">
-    <img src="DotNetCat/Resources/Icon.ico" width=175 alt="logo">
+    <img src="DotnetCat/Resources/Icon.ico" width=175 alt="logo">
 </p>
 
 # DotnetCat
