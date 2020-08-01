@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>DotnetCat</RootNamespace>
+    <AssemblyName>dncat</AssemblyName>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>x64;x86</Platforms>
+    <StartupObject>DotnetCat.Program</StartupObject>
+    <PublishTrimmed>true</PublishTrimmed>
+    <Authors>vandavey</Authors>
+    <Copyright>Copyright (c) 2020 vandavey</Copyright>
+    <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
+    <Description>Remote shell application</Description>
+    <ApplicationIcon>Resources/Icon.ico</ApplicationIcon>
+    <PackageLicenseFile>Resources/LICENSE.md</PackageLicenseFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
+    <CreateDesktopShortcut>true</CreateDesktopShortcut>
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+</Project>
