@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotnetCat
+namespace DotnetCat.Utils
 {
     /// <summary>
     /// Custom errors specifically related to DotNetCat

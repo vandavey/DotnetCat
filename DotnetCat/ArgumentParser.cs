@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotnetCat.Handlers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -260,12 +261,12 @@ namespace DotnetCat
         }
 
         /// Get application help message as a string
-        private static string GetHelp(string appTitle, string usageText)
+        private static string GetHelp(string appTitle, string usage)
         {
             return string.Join("\r\n", new string[]
             {
                 "DotnetCat (https://github.com/vandavey/DotnetCat)",
-                $"{usageText}\r\n",
+                $"{usage}\r\n",
                 "C# TCP socket command shell application\r\n",
                 "Positional Arguments:",
                 "  TARGET                   Specify remote/local IPv4 address\r\n",

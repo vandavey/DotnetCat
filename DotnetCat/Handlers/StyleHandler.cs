@@ -1,8 +1,9 @@
-﻿using System;
+﻿using DotnetCat.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DotnetCat
+namespace DotnetCat.Handlers
 {
     /// <summary>
     /// Application output style handler

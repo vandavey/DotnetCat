@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net.Sockets;
 
-namespace DotnetCat
+namespace DotnetCat.Nodes
 {
     /// <summary>
     /// SocketShell derived client node

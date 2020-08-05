@@ -1,9 +1,10 @@
-﻿using System;
+﻿using DotnetCat.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Prog = DotnetCat.Program;
 
-namespace DotnetCat
+namespace DotnetCat.Handlers
 {
     /// <summary>
     /// Handler for custom errors/error statuses

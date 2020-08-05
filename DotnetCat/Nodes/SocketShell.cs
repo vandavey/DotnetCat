@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DotnetCat.Handlers;
+using DotnetCat.Pipes;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -6,7 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace DotnetCat
+namespace DotnetCat.Nodes
 {
     /// <summary>
     /// Base class for SocketClient and SocketServer
@@ -208,14 +210,14 @@ namespace DotnetCat
             {
                 _outputPipe = new StreamPipe(Client, NetStream, stream)
                 {
-                    IsTransfer = true
+                    IsFileTransfer = true
                 };
             }
             else
             {
                 _inputPipe = new StreamPipe(Client, stream, NetStream)
                 {
-                    IsTransfer = true
+                    IsFileTransfer = true
                 };
             }
 

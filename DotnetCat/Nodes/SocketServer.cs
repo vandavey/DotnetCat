@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace DotnetCat
+namespace DotnetCat.Nodes
 {
     /// <summary>
     /// SocketShell derived server node

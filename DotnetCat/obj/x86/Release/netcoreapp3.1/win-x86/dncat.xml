@@ -51,56 +51,62 @@
         <member name="M:DotnetCat.ArgumentParser.SetVerbose">
             Enable verbose standard console output
         </member>
-        <member name="M:DotnetCat.ArgumentParser.GetAppTitle(DotnetCat.CommandHandler)">
+        <member name="M:DotnetCat.ArgumentParser.GetAppTitle(DotnetCat.Handlers.CommandHandler)">
             Get program title based on platform
         </member>
         <member name="M:DotnetCat.ArgumentParser.GetHelp(System.String,System.String)">
             Get application help message as a string
         </member>
-        <member name="T:DotnetCat.CommandHandler">
+        <member name="T:DotnetCat.Handlers.CommandHandler">
             <summary>
             Execute special commands on the local system
             </summary>
         </member>
-        <member name="M:DotnetCat.CommandHandler.#ctor">
+        <member name="M:DotnetCat.Handlers.CommandHandler.#ctor">
             Initialize new CommandHandler
         </member>
-        <member name="M:DotnetCat.CommandHandler.GetDefaultShell">
+        <member name="M:DotnetCat.Handlers.CommandHandler.GetDefaultShell">
             Get default command shell for the platform
         </member>
-        <member name="M:DotnetCat.CommandHandler.ExistsOnPath(System.String)">
+        <member name="M:DotnetCat.Handlers.CommandHandler.ExistsOnPath(System.String)">
             Determine if executable exists on environment path
         </member>
-        <member name="M:DotnetCat.CommandHandler.GetShellPath(System.String)">
+        <member name="M:DotnetCat.Handlers.CommandHandler.GetShellPath(System.String)">
             Search environment path for specified shell
         </member>
-        <member name="M:DotnetCat.CommandHandler.GetProfilePath">
+        <member name="M:DotnetCat.Handlers.CommandHandler.GetProfilePath">
             Get file path to the current user's profile
         </member>
-        <member name="T:DotnetCat.Error">
-            <summary>
-            Custom errors specifically related to DotNetCat
-            </summary>
-        </member>
-        <member name="M:DotnetCat.Error.#ctor(System.String,System.String)">
-            Initialize new Client
-        </member>
-        <member name="M:DotnetCat.Error.Build(System.String)">
-            Format Error with the specified argument
-        </member>
-        <member name="T:DotnetCat.ErrorHandler">
+        <member name="T:DotnetCat.Handlers.ErrorHandler">
             <summary>
             Handler for custom errors/error statuses
             </summary>
         </member>
-        <member name="M:DotnetCat.ErrorHandler.#ctor">
+        <member name="M:DotnetCat.Handlers.ErrorHandler.#ctor">
             Initialize new ErrorHandler
         </member>
-        <member name="M:DotnetCat.ErrorHandler.Handle(System.String,System.String,System.Boolean)">
+        <member name="M:DotnetCat.Handlers.ErrorHandler.Handle(System.String,System.String,System.Boolean)">
             Handle special exceptions related to DotNetCat
         </member>
-        <member name="M:DotnetCat.ErrorHandler.IndexOfError(System.String)">
+        <member name="M:DotnetCat.Handlers.ErrorHandler.IndexOfError(System.String)">
             Get the index of an error in Errors
+        </member>
+        <member name="T:DotnetCat.Handlers.StyleHandler">
+            <summary>
+            Application output style handler
+            </summary>
+        </member>
+        <member name="M:DotnetCat.Handlers.StyleHandler.#ctor">
+            Initialize new StyleHandler
+        </member>
+        <member name="M:DotnetCat.Handlers.StyleHandler.Status(System.String,System.String)">
+            Print a custom status to standard output
+        </member>
+        <member name="M:DotnetCat.Handlers.StyleHandler.IsValidLevel(System.String)">
+            Determine if specified status level is valid
+        </member>
+        <member name="M:DotnetCat.Handlers.StyleHandler.IndexOfStatus(System.String)">
+            Get the index of a status in this.Statuses
         </member>
         <member name="T:DotnetCat.ICloseable">
             <summary>
@@ -109,6 +115,120 @@
         </member>
         <member name="M:DotnetCat.ICloseable.Close">
             Release any unmanaged resources
+        </member>
+        <member name="T:DotnetCat.Nodes.SocketClient">
+            <summary>
+            SocketShell derived client node
+            </summary>
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketClient.Connect">
+            Connect to the specified IPv4 address and port number
+        </member>
+        <member name="T:DotnetCat.Nodes.SocketServer">
+            <summary>
+            SocketShell derived server node
+            </summary>
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketServer.#ctor(System.String)">
+            Initialize new SocketServer
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketServer.Listen">
+            Listen for incoming TCP connections
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketServer.Close">
+            Release any unmanaged resources
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketServer.BindListener(System.Net.Sockets.Socket)">
+            Bind the listener socket to an endpoint
+        </member>
+        <member name="T:DotnetCat.Nodes.SocketShell">
+            <summary>
+            Base class for SocketClient and SocketServer
+            </summary>
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.#ctor(System.String,System.String)">
+            Initialize new SocketShell
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.NewTcpSocket">
+            Initialize and return new TCP stream socket
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.StartProcess(System.String)">
+            Initialize and start command shell process
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.GetStartInfo(System.String,System.Boolean)">
+            Get start info to be used with shell process
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.ConnectPipes">
+            Activate communication between pipe streams
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.Close">
+            Release any unmanaged resources
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.InitializePipes">
+            Initialize the stream pipes
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.InitializePipes(System.Diagnostics.Process)">
+            Initialize the stream pipes
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.InitializePipes(System.IO.FileStream)">
+            Initialize the stream pipes
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.OpenFile(System.IO.FileAccess)">
+            Open specified FileStream for reading/writing
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.IsUsingShell">
+            Determine if node is using shell executable
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.IsFileTransfer">
+            Determine if file transfer is specified
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.WaitForExit">
+            Wait for pipes to be disconnected
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.AllPipesConnected">
+            Determine if all pipes are connected
+        </member>
+        <member name="T:DotnetCat.Pipes.FilePipe">
+            <summary>
+            Handle file data communication
+            </summary>
+        </member>
+        <member name="M:DotnetCat.Pipes.FilePipe.#ctor(System.Net.Sockets.TcpClient,System.IO.Stream,System.IO.Stream)">
+            Initialize new FilePipe
+        </member>
+        <member name="T:DotnetCat.Pipes.ShellPipe">
+            <summary>
+            Handle shell process binary communication
+            </summary>
+        </member>
+        <member name="M:DotnetCat.Pipes.ShellPipe.#ctor(System.Net.Sockets.TcpClient,System.IO.Stream,System.IO.Stream)">
+            Initialize new ShellPipe
+        </member>
+        <member name="T:DotnetCat.Pipes.StreamPipe">
+            <summary>
+            Handle binary communication between two streams
+            </summary>
+        </member>
+        <member name="M:DotnetCat.Pipes.StreamPipe.#ctor(System.Net.Sockets.TcpClient,System.IO.Stream,System.IO.Stream)">
+            Initialize new StreamPipe
+        </member>
+        <member name="M:DotnetCat.Pipes.StreamPipe.Connect(System.Threading.CancellationTokenSource)">
+            Activate communication between the pipe streams
+        </member>
+        <member name="M:DotnetCat.Pipes.StreamPipe.Disconnect">
+            Cancel communication between streams
+        </member>
+        <member name="M:DotnetCat.Pipes.StreamPipe.Close">
+            Release any unmanaged resources
+        </member>
+        <member name="M:DotnetCat.Pipes.StreamPipe.ConnectAsync(System.Threading.CancellationToken)">
+            Connect streams and activate async communication
+        </member>
+        <member name="M:DotnetCat.Pipes.StreamPipe.TransferAsync(System.Threading.CancellationToken)">
+            Transfer file data over socket stream
+        </member>
+        <member name="M:DotnetCat.Pipes.StreamPipe.CommunicateAsync(System.Threading.CancellationToken)">
+            Transfer shell process data over socket stream
         </member>
         <member name="T:DotnetCat.Program">
             <summary>
@@ -136,125 +256,24 @@
         <member name="M:DotnetCat.Program.ParseLongArgs">
             Parse named arguments starting with two dashes
         </member>
-        <member name="T:DotnetCat.SocketClient">
+        <member name="T:DotnetCat.Utils.Error">
             <summary>
-            SocketShell derived client node
+            Custom errors specifically related to DotNetCat
             </summary>
         </member>
-        <member name="M:DotnetCat.SocketClient.Connect">
-            Connect to the specified IPv4 address and port number
+        <member name="M:DotnetCat.Utils.Error.#ctor(System.String,System.String)">
+            Initialize new Client
         </member>
-        <member name="T:DotnetCat.SocketServer">
-            <summary>
-            SocketShell derived server node
-            </summary>
+        <member name="M:DotnetCat.Utils.Error.Build(System.String)">
+            Format Error with the specified argument
         </member>
-        <member name="M:DotnetCat.SocketServer.#ctor(System.String)">
-            Initialize new SocketServer
-        </member>
-        <member name="M:DotnetCat.SocketServer.Listen">
-            Listen for incoming TCP connections
-        </member>
-        <member name="M:DotnetCat.SocketServer.Close">
-            Release any unmanaged resources
-        </member>
-        <member name="M:DotnetCat.SocketServer.BindListener(System.Net.Sockets.Socket)">
-            Bind the listener socket to an endpoint
-        </member>
-        <member name="T:DotnetCat.SocketShell">
-            <summary>
-            Base class for SocketClient and SocketServer
-            </summary>
-        </member>
-        <member name="M:DotnetCat.SocketShell.#ctor(System.String,System.String)">
-            Initialize new SocketShell
-        </member>
-        <member name="M:DotnetCat.SocketShell.NewTcpSocket">
-            Initialize and return new TCP stream socket
-        </member>
-        <member name="M:DotnetCat.SocketShell.StartProcess(System.String)">
-            Initialize and start command shell process
-        </member>
-        <member name="M:DotnetCat.SocketShell.GetStartInfo(System.String,System.Boolean)">
-            Get start info to be used with shell process
-        </member>
-        <member name="M:DotnetCat.SocketShell.ConnectPipes">
-            Activate communication between pipe streams
-        </member>
-        <member name="M:DotnetCat.SocketShell.Close">
-            Release any unmanaged resources
-        </member>
-        <member name="M:DotnetCat.SocketShell.InitializePipes">
-            Initialize the stream pipes
-        </member>
-        <member name="M:DotnetCat.SocketShell.InitializePipes(System.Diagnostics.Process)">
-            Initialize the stream pipes
-        </member>
-        <member name="M:DotnetCat.SocketShell.InitializePipes(System.IO.FileStream)">
-            Initialize the stream pipes
-        </member>
-        <member name="M:DotnetCat.SocketShell.OpenFile(System.IO.FileAccess)">
-            Open specified FileStream for reading/writing
-        </member>
-        <member name="M:DotnetCat.SocketShell.IsUsingShell">
-            Determine if node is using shell executable
-        </member>
-        <member name="M:DotnetCat.SocketShell.IsFileTransfer">
-            Determine if file transfer is specified
-        </member>
-        <member name="M:DotnetCat.SocketShell.WaitForExit">
-            Wait for pipes to be disconnected
-        </member>
-        <member name="M:DotnetCat.SocketShell.AllPipesConnected">
-            Determine if all pipes are connected
-        </member>
-        <member name="T:DotnetCat.Status">
+        <member name="T:DotnetCat.Utils.Status">
             <summary>
             Application console status configuration
             </summary>
         </member>
-        <member name="M:DotnetCat.Status.#ctor(System.String,System.String,System.ConsoleColor)">
+        <member name="M:DotnetCat.Utils.Status.#ctor(System.String,System.String,System.ConsoleColor)">
             Initialize new Status
-        </member>
-        <member name="T:DotnetCat.StreamPipe">
-            <summary>
-            Handle binary communication between two streams
-            </summary>
-        </member>
-        <member name="M:DotnetCat.StreamPipe.#ctor(System.Net.Sockets.TcpClient,System.IO.Stream,System.IO.Stream)">
-            Initialize new StreamPipe
-        </member>
-        <member name="M:DotnetCat.StreamPipe.Connect(System.Threading.CancellationTokenSource)">
-            Activate communication between the pipe streams
-        </member>
-        <member name="M:DotnetCat.StreamPipe.Disconnect">
-            Cancel communication between streams
-        </member>
-        <member name="M:DotnetCat.StreamPipe.Close">
-            Release any unmanaged resources
-        </member>
-        <member name="M:DotnetCat.StreamPipe.ConnectAsync(System.Threading.CancellationToken)">
-            Connect streams and activate async communication
-        </member>
-        <member name="M:DotnetCat.StreamPipe.TransferFileAsync(System.Threading.CancellationToken)">
-            Transfer a file over socket stream
-        </member>
-        <member name="T:DotnetCat.StyleHandler">
-            <summary>
-            Application output style handler
-            </summary>
-        </member>
-        <member name="M:DotnetCat.StyleHandler.#ctor">
-            Initialize new StyleHandler
-        </member>
-        <member name="M:DotnetCat.StyleHandler.Status(System.String,System.String)">
-            Print a custom status to standard output
-        </member>
-        <member name="M:DotnetCat.StyleHandler.IsValidLevel(System.String)">
-            Determine if specified status level is valid
-        </member>
-        <member name="M:DotnetCat.StyleHandler.IndexOfStatus(System.String)">
-            Get the index of a status in this.Statuses
         </member>
     </members>
 </doc>

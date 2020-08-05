@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Env = System.Environment;
 
-namespace DotnetCat
+namespace DotnetCat.Handlers
 {
     /// <summary>
     /// Execute special commands on the local system

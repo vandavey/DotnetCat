@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DotnetCat
+namespace DotnetCat.Pipes
 {
     /// <summary>
     /// Handle binary communication between two streams
@@ -19,13 +19,13 @@ namespace DotnetCat
         private CancellationTokenSource _cts;
 
         /// Initialize new StreamPipe
-        public StreamPipe(TcpClient client, Stream source, Stream dest)
+        public StreamPipe(TcpClient client, Stream src, Stream dest)
         {
             if (client == null)
             {
                 throw new ArgumentNullException("client");
             }
-            else if (source == null)
+            else if (src == null)
             {
                 throw new ArgumentNullException("source");
             }
@@ -36,36 +36,36 @@ namespace DotnetCat
 
             _client = client;
 
-            this.SourceStream = source;
+            this.SourceStream = src;
             this.DestStream = dest;
             this.IsConnected = false;
-            this.IsTransfer = false;
+            this.IsFileTransfer = false;
         }
 
         public Stream SourceStream { get; }
 
         public Stream DestStream { get; }
 
-        public bool IsTransfer { get; set; }
+        public bool IsFileTransfer { get; set; }
 
         public bool IsConnected { get; private set; }
 
         /// Activate communication between the pipe streams
-        public void Connect(CancellationTokenSource cts = null)
+        public virtual void Connect(CancellationTokenSource cts = null)
         {
             _cts = cts ?? new CancellationTokenSource();
             _worker = ConnectAsync(_cts.Token);
         }
 
         /// Cancel communication between streams
-        public void Disconnect()
+        public virtual void Disconnect()
         {
             _cts?.Cancel();
             IsConnected = false;
         }
 
         /// Release any unmanaged resources
-        public void Close()
+        public virtual void Close()
         {
             SourceStream?.Dispose();
             DestStream?.Dispose();
@@ -84,10 +84,9 @@ namespace DotnetCat
         }
 
         /// Connect streams and activate async communication
-        private async Task ConnectAsync(CancellationToken token)
+        protected async Task ConnectAsync(CancellationToken token)
         {
             // TODO: fix issue with linux line-ending issues
-
             if (SourceStream == null)
             {
                 throw new ArgumentNullException("SourceStream");
@@ -99,16 +98,37 @@ namespace DotnetCat
 
             IsConnected = true;
 
-            if (IsTransfer)
+            if (IsFileTransfer)
             {
-                await TransferFileAsync(token);
-                return;
+                await TransferAsync(token);
             }
 
+            await CommunicateAsync(token);
+        }
+
+        /// Transfer file data over socket stream
+        protected async Task TransferAsync(CancellationToken token)
+        {
+            StringBuilder data = new StringBuilder();
+
+            using (StreamReader reader = new StreamReader(SourceStream))
+            using (StreamWriter writer = new StreamWriter(DestStream))
+            {
+                data.Append(await reader.ReadToEndAsync());
+
+                await writer.WriteAsync(data, token);
+                await writer.FlushAsync();
+            }
+
+            Disconnect();
+        }
+
+        /// Transfer shell process data over socket stream
+        protected async Task CommunicateAsync(CancellationToken token)
+        {
             int bytesRead;
             byte[] buff = new byte[1024];
 
-            // Primary data communication loop
             while (_client.Connected)
             {
                 if (token.IsCancellationRequested)
@@ -130,23 +150,6 @@ namespace DotnetCat
                 await DestStream.WriteAsync(buff, 0, bytesRead, token);
                 await DestStream.FlushAsync(token);
             }
-        }
-
-        /// Transfer a file over socket stream
-        private async Task TransferFileAsync(CancellationToken token)
-        {
-            StringBuilder data = new StringBuilder();
-
-            using (StreamReader reader = new StreamReader(SourceStream))
-            using (StreamWriter writer = new StreamWriter(DestStream))
-            {
-                data.Append(await reader.ReadToEndAsync());
-
-                await writer.WriteAsync(data, token);
-                await writer.FlushAsync();
-            }
-
-            Disconnect();
         }
     }
 }

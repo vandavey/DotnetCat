@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DotnetCat
+namespace DotnetCat.Utils
 {
     /// <summary>
     /// Application console status configuration
