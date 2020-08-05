@@ -7,9 +7,9 @@ namespace DotnetCat
     /// <summary>
     /// SocketShell derived client node
     /// </summary>
-    class SocketClient : SocketShell, IPipeHandler
+    class SocketClient : SocketShell, ICloseable
     {
-        public SocketClient() : base(null)
+        public SocketClient(string tansferType) : base(tansferType)
         {
         }
 
@@ -24,7 +24,7 @@ namespace DotnetCat
                 if (Program.IsUsingExec)
                 {
                     bool hasStarted = StartProcess(
-                        Shell ?? Cmd.DefaultShell()
+                        Shell ?? Cmd.GetDefaultShell()
                     );
 
                     if (!hasStarted)

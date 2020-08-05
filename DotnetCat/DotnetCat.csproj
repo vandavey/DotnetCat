@@ -1,40 +1,54 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Application Properties -->
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>DotnetCat</RootNamespace>
-    <AssemblyName>dncat</AssemblyName>
-    <Configurations>Debug;Release</Configurations>
-    <Platforms>x64;x86</Platforms>
-    <StartupObject>DotnetCat.Program</StartupObject>
-    <PublishTrimmed>true</PublishTrimmed>
-    <Authors>vandavey</Authors>
-    <Copyright>Copyright (c) 2020 vandavey</Copyright>
-    <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
-    <Description>Remote shell application</Description>
     <ApplicationIcon>Resources/Icon.ico</ApplicationIcon>
+    <AssemblyName>dncat</AssemblyName>
+    <Authors>vandavey</Authors>
+    <Configurations>Debug;Linux;Release</Configurations>
+    <Copyright>Copyright (c) 2020 vandavey</Copyright>
+    <Description>Remote shell application</Description>
+    <OutputType>Exe</OutputType>
     <PackageLicenseFile>Resources/LICENSE.md</PackageLicenseFile>
+    <Platforms>x64;x86</Platforms>
+    <PublishTrimmed>true</PublishTrimmed>
+    <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
+    <RootNamespace>DotnetCat</RootNamespace>
+    <StartupObject>DotnetCat.Program</StartupObject>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <!-- Win-x64:::Debug -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <PlatformTarget>x64</PlatformTarget>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <WarningLevel>3</WarningLevel>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PublishSingleFile>true</PublishSingleFile>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <WarningLevel>3</WarningLevel>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <PlatformTarget>x86</PlatformTarget>
-    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+  <!-- Win-x64:::Release -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PlatformTarget>x64</PlatformTarget>
     <PublishSingleFile>true</PublishSingleFile>
-    <CreateDesktopShortcut>true</CreateDesktopShortcut>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+
+  <!-- Win-x86:::Release -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PlatformTarget>x86</PlatformTarget>
+    <PublishSingleFile>true</PublishSingleFile>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+
+  <!-- Linux-x64:::Linux -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Linux|x64'">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PlatformTarget>x64</PlatformTarget>
+    <PublishSingleFile>true</PublishSingleFile>
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
     <WarningLevel>3</WarningLevel>
   </PropertyGroup>
 </Project>

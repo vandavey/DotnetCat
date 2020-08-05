@@ -13,8 +13,10 @@ namespace DotnetCat
 
         public static string Node { get; set; }
 
+        public static string TransferType { get; set; }
+
         public static bool Verbose { get; set; }
-        
+
         public static List<string> Args { get; set; }
 
         public static SocketServer Server { get; set; }
@@ -59,37 +61,26 @@ namespace DotnetCat
             Verbose = false;
 
             int index;
+            Args = args.ToList();
 
-            List<string> lowArgs = args.Select(argument =>
-            {
-                return argument.ToLower();
-            })
-            .ToList();
+            List<string> lowerArgs = new List<string>();
+            Args.ForEach(arg => lowerArgs.Add(arg.ToLower()));
 
-            if ((index = lowArgs.IndexOf("-noexit")) > -1)
+            if ((index = lowerArgs.IndexOf("-noexit")) > -1)
             {
-                Args = Args.Where(argument =>
-                {
-                    return Array.IndexOf(args, argument) != index;
-                })
-                .ToList();
-            }
-            else
-            {
-                Args = args.ToList();
+                Args.RemoveAt(index);
             }
 
-            Node = NodeType();
+            Node = GetNodeType();
+            TransferType = GetTransferType();
 
             if (Node == "server")
             {
-                Server = new SocketServer();
-                Client = null;
+                Server = new SocketServer(TransferType);
             }
             else
             {
-                Client = new SocketClient();
-                Server = null;
+                Client = new SocketClient(TransferType);
             }
         }
 
@@ -139,17 +130,36 @@ namespace DotnetCat
         }
 
         /// Determine the node type from the command line argumentss
-        private static string NodeType()
+        private static string GetNodeType()
         {
             int index = Parser.IndexOfArgs("--listen", "-l");
 
-            if (index > -1)
+            if ((index > -1) || (Parser.IndexOfFlag('l') > -1))
             {
                 return "server";
             }
 
-            index = Parser.IndexOfFlag('l');
-            return (index > -1) ? "server" : "client";
+            return "client";
+        }
+
+        /// Determine if the user is tranferring files
+        private static string GetTransferType()
+        {
+            int recvIndex = Parser.IndexOfArgs("-r", "--recv");
+
+            if ((recvIndex > -1) || (Parser.IndexOfFlag('r') > -1))
+            {
+                return "recv";
+            }
+
+            int sendIndex = Parser.IndexOfArgs("-s", "--send");
+
+            if ((sendIndex > -1) || (Parser.IndexOfFlag('s') > -1))
+            {
+                return "send";
+            }
+
+            return null;
         }
 
         /// Parse named arguments starting with one dash
@@ -194,6 +204,20 @@ namespace DotnetCat
                     IsUsingExec = true;
                 }
 
+                if (item.chars.Contains('r'))
+                {
+                    Parser.SetFilePath(Parser.ArgsValueAt(item.valIndex));
+                    Parser.UpdateArgs(item.keyIndex, 'r');
+                    Args.RemoveAt(item.valIndex);
+                }
+
+                if (item.chars.Contains('s'))
+                {
+                    Parser.SetFilePath(Parser.ArgsValueAt(item.valIndex));
+                    Parser.UpdateArgs(item.keyIndex, 'r');
+                    Args.RemoveAt(item.valIndex);
+                }
+
                 if (Parser.ArgsValueAt(item.keyIndex) == "-")
                 {
                     Args.RemoveAt(Parser.IndexOfArgs("-"));
@@ -231,6 +255,16 @@ namespace DotnetCat
                     Parser.SetExec(Parser.ArgsValueAt(item.valIndex));
                     Parser.RemoveNamedArg("exec");
                     IsUsingExec = true;
+                }
+                else if (item.keyName == "recv")
+                {
+                    Parser.SetFilePath(Parser.ArgsValueAt(item.valIndex));
+                    Parser.RemoveNamedArg("recv");
+                }
+                else if (item.keyName == "send")
+                {
+                    Parser.SetFilePath(Parser.ArgsValueAt(item.valIndex));
+                    Parser.RemoveNamedArg("send");
                 }
                 else if (item.keyName == "listen")
                 {

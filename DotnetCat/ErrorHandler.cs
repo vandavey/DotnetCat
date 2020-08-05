@@ -27,6 +27,8 @@ namespace DotnetCat
                 new Error("bind", "The endpoint {} is already in use"),
                 new Error("flag", "Missing value for named argument(s): {} "),
                 new Error("closed", "The connection was closed by {}"),
+                new Error("combo", "{}"),
+                new Error("path", "Unable to locate file path {}"),
                 new Error("port", "{} cannot be parsed as a valid port"),
                 new Error("process", "Unable to run the process {}"),
                 new Error("required", "Missing required argument(s): {}"),

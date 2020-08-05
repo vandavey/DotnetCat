@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Env = System.Environment;
 
@@ -11,13 +14,10 @@ namespace DotnetCat
     /// <summary>
     /// Execute special commands on the local system
     /// </summary>
-    class CommandHandler : ICloseable
+    class CommandHandler
     {
-        private readonly List<string> _commands;
         private readonly List<string> _envPath;
         private readonly List<string> _extensions;
-
-        private StreamReader _reader;
 
         /// Initialize new CommandHandler
         public CommandHandler()
@@ -29,28 +29,17 @@ namespace DotnetCat
             {
                 "exe", "ps1", "py", "sh", "bat"
             };
-
-            _commands = new List<string>
-            {
-                "about", "download", "upload"
-            };
         }
 
-        /// Determine if specified command is DotNetCat keyword
-        public bool IsSpecialCommand(string cmd)
+        public bool IsWindowsPlatform
         {
-            if (_commands.Contains(cmd.ToLower()))
-            {
-                return true;
-            }
-
-            return false;
+            get => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         }
 
         /// Get default command shell for the platform
-        public string DefaultShell()
+        public string GetDefaultShell()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (!IsWindowsPlatform)
             {
                 if (!ExistsOnPath("/bin/bash").exists)
                 {
@@ -118,17 +107,12 @@ namespace DotnetCat
         /// Get file path to the current user's profile
         public string GetProfilePath()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (IsWindowsPlatform)
             {
                 return Env.GetEnvironmentVariable("USERPROFILE");
             }
 
             return Env.GetEnvironmentVariable("HOME");
-        }
-
-        public void Close()
-        {
-            _reader?.Close();
         }
     }
 }

@@ -9,14 +9,15 @@ namespace DotnetCat
     /// <summary>
     /// SocketShell derived server node
     /// </summary>
-    class SocketServer : SocketShell, IPipeHandler
+    class SocketServer : SocketShell, ICloseable
     {
         private Socket _listener;
 
         /// Initialize new SocketServer
-        public SocketServer() : base(IPAddress.Any)
+        public SocketServer(string tansferType) : base(tansferType)
         {
             _listener = null;
+            this.Address = IPAddress.Any;
         }
 
         /// Listen for incoming TCP connections
@@ -35,14 +36,18 @@ namespace DotnetCat
 
                 if (Program.IsUsingExec)
                 {
-                    bool hasStarted = StartProcess(
-                        Shell ?? Cmd.DefaultShell()
-                    );
+                    Shell ??= Cmd.GetDefaultShell();
+                    bool hasStarted = StartProcess(Shell);
 
                     if (!hasStarted)
                     {
                         Error.Handle("process", Shell);
                     }
+                }
+
+                if (TransferType != null)
+                {
+
                 }
 
                 ipEP = Client.Client.RemoteEndPoint as IPEndPoint;

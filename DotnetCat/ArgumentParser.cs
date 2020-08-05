@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using Prog = DotnetCat.Program;
@@ -11,46 +12,21 @@ namespace DotnetCat
     /// </summary>
     class ArgumentParser
     {
-        readonly CommandHandler _cmd;
+        private readonly CommandHandler _cmd;
 
         /// Initialize new ArgumentParser
         public ArgumentParser()
         {
             _cmd = new CommandHandler();
+            string appTitle = GetAppTitle(_cmd);
 
-            this.UsageText = "Usage: dncat [OPTIONS] TARGET";
-            this.HelpText = GetHelp(this.UsageText);
+            this.UsageText = $"Usage: {appTitle} [OPTIONS] TARGET";
+            this.HelpText = GetHelp(appTitle, this.UsageText);
         }
 
         public string UsageText { get; }
 
         public string HelpText { get; }
-
-        /// Get application help message as a string
-        private static string GetHelp(string usageText)
-        {
-            return string.Join("\r\n", new string[]
-            {
-                "DotnetCat (https://github.com/vandavey/DotnetCat)",
-                $"{usageText}\r\n",
-                "C# TCP socket command shell application\r\n",
-                "Positional Arguments:",
-                "  TARGET                   Specify remote/local IPv4 address\r\n",
-                "Optional Arguments:",
-                "  -h/-?,   --help          Show this help message and exit",
-                "  -v,      --verbose       Enable verbose console output",
-                "  -l,      --listen        Listen for incoming connections",
-                "  -p PORT, --port PORT     Specify port to use as socket.",
-                "                           (Default: 4444)",
-                "  -e EXEC, --exec EXEC     Specify command shell executable",
-                "  -r PATH, --recv PATH     Receive remote file or folder",
-                "  -s PATH, --send PATH     Send local file or folder\r\n",
-                "Usage Examples:",
-                "  dncat.exe -le cmd.exe",
-                "  dncat.exe -vp 5555 -e powershell.exe 127.0.0.1",
-                "  dncat.exe -vlp 8152 0.0.0.0\r\n"
-            });
-        }
 
         /// Print application help message to console output
         public void PrintHelp()
@@ -189,7 +165,7 @@ namespace DotnetCat
 
             if (!exists)
             {
-                Prog.Error.Handle("shell", shell, true);
+                Prog.Error.Handle("shell", shell, usage: true);
             }
 
             if (Prog.Node == "server")
@@ -199,6 +175,29 @@ namespace DotnetCat
             else
             {
                 Prog.Client.Shell = path;
+            }
+        }
+
+        /// Specify file path to use for file stream
+        public void SetFilePath(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                throw new ArgumentNullException("path");
+            }
+
+            if (!File.Exists(path) && !Directory.Exists(path))
+            {
+                Prog.Error.Handle("path", path);
+            }
+
+            if (Prog.Node == "server")
+            {
+                Prog.Server.FilePath = path;
+            }
+            else
+            {
+                Prog.Client.FilePath = path;
             }
         }
 
@@ -252,6 +251,38 @@ namespace DotnetCat
             {
                 Prog.Client.Verbose = true;
             }
+        }
+
+        /// Get program title based on platform
+        private static string GetAppTitle(CommandHandler cmd)
+        {
+            return cmd.IsWindowsPlatform ? "dncat.exe" : "dncat";
+        }
+
+        /// Get application help message as a string
+        private static string GetHelp(string appTitle, string usageText)
+        {
+            return string.Join("\r\n", new string[]
+            {
+                "DotnetCat (https://github.com/vandavey/DotnetCat)",
+                $"{usageText}\r\n",
+                "C# TCP socket command shell application\r\n",
+                "Positional Arguments:",
+                "  TARGET                   Specify remote/local IPv4 address\r\n",
+                "Optional Arguments:",
+                "  -h/-?,   --help          Show this help message and exit",
+                "  -v,      --verbose       Enable verbose console output",
+                "  -l,      --listen        Listen for incoming connections",
+                "  -p PORT, --port PORT     Specify port to use for socket.",
+                "                           (Default: 4444)",
+                "  -e EXEC, --exec EXEC     Specify command shell executable",
+                "  -r PATH, --recv PATH     Receive remote file or folder",
+                "  -s PATH, --send PATH     Send local file or folder\r\n",
+                "Usage Examples:",
+                $"  {appTitle} -le /bin/bash",
+                $"  {appTitle} -ve powershell.exe -p 5555 127.0.0.1",
+                $"  {appTitle} -p 8152 127.0.0.1\r\n"
+            });
         }
     }
 }

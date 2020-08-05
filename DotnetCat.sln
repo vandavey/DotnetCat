@@ -8,16 +8,22 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Linux|x64 = Linux|x64
+		Linux|x86 = Linux|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Debug|x64.ActiveCfg = Debug|x64
-		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Debug|x64.Build.0 = Debug|x64
+		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Debug|x64.ActiveCfg = Release|x64
+		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Debug|x64.Build.0 = Release|x64
 		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Debug|x86.ActiveCfg = Debug|x86
 		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Debug|x86.Build.0 = Debug|x86
-		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Release|x64.ActiveCfg = Release|x64
-		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Release|x64.Build.0 = Release|x64
+		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Linux|x64.ActiveCfg = Linux|x64
+		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Linux|x64.Build.0 = Linux|x64
+		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Linux|x86.ActiveCfg = Linux|x86
+		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Linux|x86.Build.0 = Linux|x86
+		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Release|x64.ActiveCfg = Debug|x64
+		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Release|x64.Build.0 = Debug|x64
 		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Release|x86.ActiveCfg = Release|x86
 		{88C24379-AE50-44CE-9B66-4DFB95FE51D5}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection

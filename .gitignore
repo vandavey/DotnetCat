@@ -1,17 +1,17 @@
 # Ignore by file extension
-*.dll
-*.pdb
-*.cache
 *.assets
-*.dgspec
-*.props
-*.targets
-*.suo
+*.cache
 *.class
-*.dll.config
 *.com
+*.dgspec
+*.dll
+*.dll.config
+*.pdb
+*.props
+*.suo
+*.targets
 
-# Ignore (recursively) IDE specific directories
+# Ignore IDE specific directories
+.idea/
 .vs/
 .vscode/
-.idea/

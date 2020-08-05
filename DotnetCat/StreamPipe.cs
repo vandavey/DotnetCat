@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +14,6 @@ namespace DotnetCat
     {
         private readonly TcpClient _client;
 
-        private int _bytesRead;
         private Task _worker;
 
         private CancellationTokenSource _cts;
@@ -35,16 +35,18 @@ namespace DotnetCat
             }
 
             _client = client;
-            _bytesRead = -1;
 
             this.SourceStream = source;
             this.DestStream = dest;
             this.IsConnected = false;
+            this.IsTransfer = false;
         }
 
         public Stream SourceStream { get; }
 
         public Stream DestStream { get; }
+
+        public bool IsTransfer { get; set; }
 
         public bool IsConnected { get; private set; }
 
@@ -84,6 +86,8 @@ namespace DotnetCat
         /// Connect streams and activate async communication
         private async Task ConnectAsync(CancellationToken token)
         {
+            // TODO: fix issue with linux line-ending issues
+
             if (SourceStream == null)
             {
                 throw new ArgumentNullException("SourceStream");
@@ -94,9 +98,17 @@ namespace DotnetCat
             }
 
             IsConnected = true;
+
+            if (IsTransfer)
+            {
+                await TransferFileAsync(token);
+                return;
+            }
+
+            int bytesRead;
             byte[] buff = new byte[1024];
 
-            // Primary stream communication loop
+            // Primary data communication loop
             while (_client.Connected)
             {
                 if (token.IsCancellationRequested)
@@ -105,19 +117,36 @@ namespace DotnetCat
                     break;
                 }
 
-                _bytesRead = await SourceStream.ReadAsync(
+                bytesRead = await SourceStream.ReadAsync(
                     buff, 0, buff.Length, token
                 );
 
-                if (!_client.Connected || (_bytesRead <= 0))
+                if (!_client.Connected || (bytesRead <= 0))
                 {
                     Disconnect();
                     break;
                 }
 
-                await DestStream.WriteAsync(buff, 0, _bytesRead, token);
+                await DestStream.WriteAsync(buff, 0, bytesRead, token);
                 await DestStream.FlushAsync(token);
             }
+        }
+
+        /// Transfer a file over socket stream
+        private async Task TransferFileAsync(CancellationToken token)
+        {
+            StringBuilder data = new StringBuilder();
+
+            using (StreamReader reader = new StreamReader(SourceStream))
+            using (StreamWriter writer = new StreamWriter(DestStream))
+            {
+                data.Append(await reader.ReadToEndAsync());
+
+                await writer.WriteAsync(data, token);
+                await writer.FlushAsync();
+            }
+
+            Disconnect();
         }
     }
 }
