@@ -1,50 +1,54 @@
-﻿using DotnetCat.Handlers;
-using DotnetCat.Nodes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotnetCat.Handlers;
+using DotnetCat.Nodes;
 
 namespace DotnetCat
 {
+
     /// <summary>
     /// Primary application startup opbject
     /// </summary>
     class Program
     {
         private static StyleHandler _style;
+        private static ErrorHandler _error;
 
-        public static string Node { get; set; }
+        private static SocketClient _client;
+        private static SocketServer _server;
+
+        private static ArgumentParser _parser;
+
+        public static bool IsUsingExec { get; set; }
 
         public static string TransferType { get; set; }
 
-        public static bool Verbose { get; set; }
-
         public static List<string> Args { get; set; }
 
-        public static SocketServer Server { get; set; }
-        
-        public static SocketClient Client { get; set; }
+        public static SocketShell SockShell { get; set; }
 
-        public static ArgumentParser Parser { get; set; }
+        public static string Usage { get => _parser.UsageText; }
 
-        public static ErrorHandler Error { get; set; }
-
-        public static bool IsUsingExec { get; set; }
+        public static bool IsVerbose
+        {
+            get => SockShell?.IsVerbose ?? false;
+        }
 
         /// Primary application entry point
         private static void Main(string[] args)
         {
-            Parser = new ArgumentParser();
+            _parser = new ArgumentParser();
 
-            if ((args.Count() == 0) || Parser.NeedsHelp(args))
+            if ((args.Count() == 0) || _parser.NeedsHelp(args))
             {
-                Parser.PrintHelp();
+                _parser.PrintHelp();
             }
 
-            InitializeProperties(args);
-            InitializeNode();
+            InitializeNode(args);
+            ConnectNode();
 
-            if (Verbose)
+            if (SockShell.IsVerbose)
             {
                 _style.Status("Exiting DotnetCat");
             }
@@ -53,14 +57,13 @@ namespace DotnetCat
             Environment.Exit(0);
         }
 
-        /// Initialize static properties and fields
-        private static void InitializeProperties(string[] args)
+        /// Initialize node fields and properties
+        private static void InitializeNode(string[] args)
         {
             _style = new StyleHandler();
-            Error = new ErrorHandler();
+            _error = new ErrorHandler();
 
             IsUsingExec = false;
-            Verbose = false;
 
             int index;
             Args = args.ToList();
@@ -73,30 +76,30 @@ namespace DotnetCat
                 Args.RemoveAt(index);
             }
 
-            Node = GetNodeType();
+            string nodeType = GetNodeType();
             TransferType = GetTransferType();
 
-            if (Node == "server")
+            if (nodeType == "server")
             {
-                Server = new SocketServer(TransferType);
+                SockShell = _server = new SocketServer();
             }
             else
             {
-                Client = new SocketClient(TransferType);
+                SockShell = _client = new SocketClient();
             }
         }
 
-        /// Parse command line arguments and initialize nodes
-        private static void InitializeNode()
+        /// Parse arguments and initiate connection
+        private static void ConnectNode()
         {
             ParseShortArgs();
             ParseLongArgs();
 
             int size = Args.Count;
 
-            if ((size == 0) && (Node != "server"))
+            if ((size == 0) && (SockShell != _server))
             {
-                Error.Handle("required", "TARGET", true);
+                _error.Handle("required", "TARGET", true);
             }
 
             if (size > 1)
@@ -105,38 +108,38 @@ namespace DotnetCat
 
                 if (Args[0].StartsWith('-'))
                 {
-                    Error.Handle("unknown", argsStr, true);
+                    _error.Handle("unknown", argsStr, true);
                 }
 
-                Error.Handle("validation", argsStr, true);
+                _error.Handle("validation", argsStr, true);
             }
 
             if (size != 0)
             {
-                if (!Parser.AddressIsValid(Args[0]))
+                if (!_parser.AddressIsValid(Args[0]))
                 {
-                    Error.Handle("address", Args[0], true);
+                    _error.Handle("address", Args[0], true);
                 }
 
-                Parser.SetAddress(Args[0]);
+                SockShell = _parser.SetAddress(SockShell, Args[0]);
             }
 
-            if (Node == "server")
+            if (SockShell is SocketServer)
             {
-                Server.Listen();
+                _server.Listen();
             }
             else
             {
-                Client.Connect();
+                _client.Connect();
             }
         }
 
         /// Determine the node type from the command line argumentss
         private static string GetNodeType()
         {
-            int index = Parser.IndexOfArgs("--listen", "-l");
+            int index = _parser.IndexOfArgs("--listen", "-l");
 
-            if ((index > -1) || (Parser.IndexOfFlag('l') > -1))
+            if ((index > -1) || (_parser.IndexOfFlag('l') > -1))
             {
                 return "server";
             }
@@ -147,16 +150,16 @@ namespace DotnetCat
         /// Determine if the user is tranferring files
         private static string GetTransferType()
         {
-            int recvIndex = Parser.IndexOfArgs("-r", "--recv");
+            int recvIndex = _parser.IndexOfArgs("-r", "--recv");
 
-            if ((recvIndex > -1) || (Parser.IndexOfFlag('r') > -1))
+            if ((recvIndex > -1) || (_parser.IndexOfFlag('r') > -1))
             {
                 return "recv";
             }
 
-            int sendIndex = Parser.IndexOfArgs("-s", "--send");
+            int sendIndex = _parser.IndexOfArgs("-s", "--send");
 
-            if ((sendIndex > -1) || (Parser.IndexOfFlag('s') > -1))
+            if ((sendIndex > -1) || (_parser.IndexOfFlag('s') > -1))
             {
                 return "send";
             }
@@ -171,7 +174,7 @@ namespace DotnetCat
 
             var query = from arg in args
                         let chars = arg.ToList()
-                        let keyIndex = Parser.IndexOfArgs(arg)
+                        let keyIndex = _parser.IndexOfArgs(arg)
                         let valIndex = keyIndex + 1
                         where arg.StartsWith('-')
                             && !arg.StartsWith("--")
@@ -181,48 +184,37 @@ namespace DotnetCat
             {
                 if (item.chars.Contains('l'))
                 {
-                    Parser.UpdateArgs(item.keyIndex, 'l');
+                    _parser.UpdateArgs(item.keyIndex, 'l');
                 }
 
                 if (item.chars.Contains('v'))
                 {
-                    Parser.SetVerbose();
-                    Parser.UpdateArgs(item.keyIndex, 'v');
-                    Verbose = true;
+                    SetVerbose(item.keyIndex, false);
                 }
 
                 if (item.chars.Contains('p'))
                 {
-                    Parser.SetPort(Parser.ArgsValueAt(item.valIndex));
-                    Parser.UpdateArgs(item.keyIndex, 'p');
-                    Args.RemoveAt(item.valIndex);
+                    SetPort(item.keyIndex, item.valIndex, false);
                 }
 
                 if (item.chars.Contains('e'))
                 {
-                    Parser.SetExec(Parser.ArgsValueAt(item.valIndex));
-                    Parser.UpdateArgs(item.keyIndex, 'e');
-                    Args.RemoveAt(item.valIndex);
-                    IsUsingExec = true;
+                    SetExec(item.keyIndex, item.valIndex, false);
                 }
 
                 if (item.chars.Contains('r'))
                 {
-                    Parser.SetFilePath(Parser.ArgsValueAt(item.valIndex));
-                    Parser.UpdateArgs(item.keyIndex, 'r');
-                    Args.RemoveAt(item.valIndex);
+                    SetRecv(item.keyIndex, item.valIndex, false);
                 }
 
                 if (item.chars.Contains('s'))
                 {
-                    Parser.SetFilePath(Parser.ArgsValueAt(item.valIndex));
-                    Parser.UpdateArgs(item.keyIndex, 'r');
-                    Args.RemoveAt(item.valIndex);
+                    SetSend(item.keyIndex, item.valIndex, true);
                 }
 
-                if (Parser.ArgsValueAt(item.keyIndex) == "-")
+                if (_parser.ArgsValueAt(item.keyIndex) == "-")
                 {
-                    Args.RemoveAt(Parser.IndexOfArgs("-"));
+                    Args.RemoveAt(_parser.IndexOfArgs("-"));
                 }
             }
         }
@@ -234,7 +226,7 @@ namespace DotnetCat
 
             var query = from arg in args
                         let keyName = arg.Replace("--", "")
-                        let keyIndex = Parser.IndexOfArgs(arg)
+                        let keyIndex = _parser.IndexOfArgs(arg)
                         let valIndex = keyIndex + 1
                         where arg.StartsWith("--")
                         select new { keyName, keyIndex, valIndex };
@@ -243,36 +235,113 @@ namespace DotnetCat
             {
                 if (item.keyName == "verbose")
                 {
-                    Parser.SetVerbose();
-                    Args.RemoveAt(item.keyIndex);
-                    Verbose = true;
+                    SetVerbose(item.keyIndex, true);
                 }
                 else if (item.keyName == "port")
                 {
-                    Parser.SetPort(Parser.ArgsValueAt(item.valIndex));
-                    Parser.RemoveNamedArg("port");
+                    SetPort(item.keyIndex, item.valIndex, true);
                 }
                 else if (item.keyName == "exec")
                 {
-                    Parser.SetExec(Parser.ArgsValueAt(item.valIndex));
-                    Parser.RemoveNamedArg("exec");
-                    IsUsingExec = true;
+                    SetExec(item.keyIndex, item.valIndex, true);
                 }
                 else if (item.keyName == "recv")
                 {
-                    Parser.SetFilePath(Parser.ArgsValueAt(item.valIndex));
-                    Parser.RemoveNamedArg("recv");
+                    SetRecv(item.keyIndex, item.valIndex, true);
                 }
                 else if (item.keyName == "send")
                 {
-                    Parser.SetFilePath(Parser.ArgsValueAt(item.valIndex));
-                    Parser.RemoveNamedArg("send");
+                    SetSend(item.keyIndex, item.valIndex, true);
                 }
                 else if (item.keyName == "listen")
                 {
                     Args.RemoveAt(item.keyIndex);
                 }
             }
+        }
+
+        /// Set the socket shell executable path
+        private static void SetExec(int keyIndex, int valIndex, bool isLong)
+        {
+            string exec = _parser.ArgsValueAt(valIndex);
+            SockShell = _parser.SetExec(SockShell, exec);
+
+            if (isLong)
+            {
+                _parser.RemoveNamedArg("exec");
+            }
+            else
+            {
+                _parser.UpdateArgs(keyIndex, 'e');
+                Args.RemoveAt(valIndex);
+            }
+
+            IsUsingExec = true;
+        }
+
+        /// Set the socket shell port value
+        private static void SetPort(int keyIndex, int valIndex, bool isLong)
+        {
+            string port = _parser.ArgsValueAt(valIndex);
+            SockShell = _parser.SetPort(SockShell, port);
+
+            if (isLong)
+            {
+                _parser.RemoveNamedArg("port");
+                return;
+            }
+
+            _parser.UpdateArgs(keyIndex, 'p');
+            Args.RemoveAt(valIndex);
+        }
+
+        /// Set file tranfer type of socket shell to "recv"
+        private static void SetRecv(int keyIndex, int valIndex, bool isLong)
+        {
+            string path = _parser.ArgsValueAt(valIndex);
+            SockShell = _parser.SetFilePath(SockShell, path);
+
+            if (isLong)
+            {
+                _parser.RemoveNamedArg("recv");
+                return;
+            }
+
+            _parser.UpdateArgs(keyIndex, 'r');
+            Args.RemoveAt(valIndex);
+        }
+
+        /// Set file tranfer type of socket shell to "send"
+        private static void SetSend(int keyIndex, int valIndex, bool isLong)
+        {
+            string path = _parser.ArgsValueAt(valIndex);
+            SockShell = _parser.SetFilePath(SockShell, path);
+
+            if (isLong)
+            {
+                _parser.RemoveNamedArg("send");
+                return;
+            }
+
+            _parser.UpdateArgs(keyIndex, 's');
+            Args.RemoveAt(valIndex);
+        }
+
+        /// Enable verbose standard output
+        private static void SetVerbose(int keyIndex, bool isLong)
+        {
+            SockShell = _parser.SetVerbose(SockShell);
+
+            if (isLong)
+            {
+                Args.RemoveAt(keyIndex);
+            }
+            else
+            {
+                _parser.UpdateArgs(keyIndex, 'v');
+            }
+
+            SockShell.IsVerbose = true;
         }
     }
 }

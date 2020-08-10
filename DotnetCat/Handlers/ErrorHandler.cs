@@ -1,8 +1,9 @@
-﻿using DotnetCat.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Prog = DotnetCat.Program;
+using DotnetCat.Nodes;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Handlers
 {
@@ -28,7 +29,6 @@ namespace DotnetCat.Handlers
                 new Error("bind", "The endpoint {} is already in use"),
                 new Error("flag", "Missing value for named argument(s): {} "),
                 new Error("closed", "The connection was closed by {}"),
-                new Error("combo", "{}"),
                 new Error("path", "Unable to locate file path {}"),
                 new Error("port", "{} cannot be parsed as a valid port"),
                 new Error("process", "Unable to run the process {}"),
@@ -41,16 +41,22 @@ namespace DotnetCat.Handlers
         }
 
         /// Handle special exceptions related to DotNetCat
-        public void Handle(string name, string arg = null, bool usage = false)
+        public void Handle(string name, string arg)
+        {
+            Handle(name, arg, false);
+        }
+
+        /// Handle special exceptions related to DotNetCat
+        public void Handle(string name, string arg, bool showUsage)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentNullException("name");
             }
 
-            int index;
+            int index = IndexOfError(name);
 
-            if ((index = IndexOfError(name)) == -1)
+            if (index == -1)
             {
                 throw new ArgumentException("Invalid error name");
             }
@@ -60,9 +66,9 @@ namespace DotnetCat.Handlers
                 throw new ArgumentNullException("arg");
             }
 
-            if (usage)
+            if (showUsage)
             {
-                Console.WriteLine(Prog.Parser.UsageText);
+                Console.WriteLine(Prog.Usage);
             }
 
             Console.ForegroundColor = _status.Color;
@@ -73,7 +79,7 @@ namespace DotnetCat.Handlers
             _errors[index].Build(arg);
             Console.WriteLine(_errors[index].Message);
 
-            if (Prog.Verbose)
+            if (Prog.IsVerbose)
             {
                 _style.Status("Exiting DotnetCat");
             }

@@ -9,12 +9,12 @@ namespace DotnetCat.Nodes
     /// </summary>
     class SocketClient : SocketShell, ICloseable
     {
-        public SocketClient(string tansferType) : base(tansferType)
+        public SocketClient() : base()
         {
         }
 
         /// Connect to the specified IPv4 address and port number
-        public void Connect()
+        public override void Connect()
         {
             try
             {
@@ -24,18 +24,18 @@ namespace DotnetCat.Nodes
                 if (Program.IsUsingExec)
                 {
                     bool hasStarted = StartProcess(
-                        Shell ?? Cmd.GetDefaultShell()
+                        Executable ?? Cmd.GetDefaultShell()
                     );
 
                     if (!hasStarted)
                     {
-                        Error.Handle("process", Shell);
+                        Error.Handle("process", Executable);
                     }
                 }
 
                 Style.Status($"Connected to {Address}:{Port}");
 
-                ConnectPipes();
+                Connect();
                 WaitForExit();
             }
             catch (Exception ex)

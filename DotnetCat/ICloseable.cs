@@ -3,11 +3,14 @@
 namespace DotnetCat
 {
     /// <summary>
-    /// Interface for releasing unmanaged resources
+    /// Interface for connecting/releasing resources
     /// </summary>
     interface ICloseable
     {
-        /// Release any unmanaged resources
+        /// Connect the specified resources
+        void Connect();
+
+        /// Release the specified resources
         void Close();
     }
 }

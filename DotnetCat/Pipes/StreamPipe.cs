@@ -8,74 +8,64 @@ using System.Threading.Tasks;
 namespace DotnetCat.Pipes
 {
     /// <summary>
-    /// Handle binary communication between two streams
+    /// Handle stream communication operations
     /// </summary>
     class StreamPipe : ICloseable
     {
-        private readonly TcpClient _client;
-
-        private Task _worker;
-
-        private CancellationTokenSource _cts;
-
         /// Initialize new StreamPipe
-        public StreamPipe(TcpClient client, Stream src, Stream dest)
+        protected StreamPipe()
         {
-            if (client == null)
-            {
-                throw new ArgumentNullException("client");
-            }
-            else if (src == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            else if (dest == null)
-            {
-                throw new ArgumentNullException("dest");
-            }
-
-            _client = client;
-
-            this.SourceStream = src;
-            this.DestStream = dest;
             this.IsConnected = false;
-            this.IsFileTransfer = false;
+            this.Client = Program.SockShell.Client;
         }
 
-        public Stream SourceStream { get; }
+        public bool IsConnected { get; protected set; }
 
-        public Stream DestStream { get; }
+        protected Task Worker { get; set; }
 
-        public bool IsFileTransfer { get; set; }
+        protected StreamReader Source { get; set; }
 
-        public bool IsConnected { get; private set; }
+        protected StreamWriter Destination { get; set; }
+
+        protected TcpClient Client { get; set; }
+
+        protected CancellationTokenSource CTS { get; set; }
 
         /// Activate communication between the pipe streams
-        public virtual void Connect(CancellationTokenSource cts = null)
+        public virtual void Connect()
         {
-            _cts = cts ?? new CancellationTokenSource();
-            _worker = ConnectAsync(_cts.Token);
+            if (Source == null)
+            {
+                throw new ArgumentNullException("Source");
+            }
+            else if (Destination == null)
+            {
+                throw new ArgumentNullException("Dest");
+            }
+
+            CTS = new CancellationTokenSource();
+            Worker = ConnectAsync(CTS.Token);
         }
 
-        /// Cancel communication between streams
+        /// Cancel communication throughout pipe
         public virtual void Disconnect()
         {
-            _cts?.Cancel();
             IsConnected = false;
+            CTS?.Cancel();
         }
 
         /// Release any unmanaged resources
         public virtual void Close()
         {
-            SourceStream?.Dispose();
-            DestStream?.Dispose();
+            Source?.Dispose();
+            Destination?.Dispose();
 
-            _cts?.Dispose();
-            _client?.Dispose();
+            CTS?.Dispose();
+            Client?.Dispose();
 
             try
             {
-                _worker?.Dispose();
+                Worker?.Dispose();
             }
             catch (InvalidOperationException)
             {
@@ -84,52 +74,17 @@ namespace DotnetCat.Pipes
         }
 
         /// Connect streams and activate async communication
-        protected async Task ConnectAsync(CancellationToken token)
+        private async Task ConnectAsync(CancellationToken token)
         {
-            // TODO: fix issue with linux line-ending issues
-            if (SourceStream == null)
-            {
-                throw new ArgumentNullException("SourceStream");
-            }
-            else if (DestStream == null)
-            {
-                throw new ArgumentNullException("DestStream");
-            }
+            // TODO: fix issue with linux line endings
+            StringBuilder streamData = new StringBuilder();
+            Memory<char> buffer = new Memory<char>(new char[1024]);
 
+            int charsRead;
             IsConnected = true;
 
-            if (IsFileTransfer)
-            {
-                await TransferAsync(token);
-            }
-
-            await CommunicateAsync(token);
-        }
-
-        /// Transfer file data over socket stream
-        protected async Task TransferAsync(CancellationToken token)
-        {
-            StringBuilder data = new StringBuilder();
-
-            using (StreamReader reader = new StreamReader(SourceStream))
-            using (StreamWriter writer = new StreamWriter(DestStream))
-            {
-                data.Append(await reader.ReadToEndAsync());
-
-                await writer.WriteAsync(data, token);
-                await writer.FlushAsync();
-            }
-
-            Disconnect();
-        }
-
-        /// Transfer shell process data over socket stream
-        protected async Task CommunicateAsync(CancellationToken token)
-        {
-            int bytesRead;
-            byte[] buff = new byte[1024];
-
-            while (_client.Connected)
+            // Primary data communication loop
+            while (Client.Connected)
             {
                 if (token.IsCancellationRequested)
                 {
@@ -137,19 +92,22 @@ namespace DotnetCat.Pipes
                     break;
                 }
 
-                bytesRead = await SourceStream.ReadAsync(
-                    buff, 0, buff.Length, token
-                );
+                charsRead = await Source.ReadAsync(buffer, token);
+                streamData.Append(buffer.ToArray(), 0, charsRead);
 
-                if (!_client.Connected || (bytesRead <= 0))
+                if (!Client.Connected || (charsRead <= 0))
                 {
                     Disconnect();
                     break;
                 }
 
-                await DestStream.WriteAsync(buff, 0, bytesRead, token);
-                await DestStream.FlushAsync(token);
+                await Destination.WriteAsync(streamData, token);
+                await Destination.FlushAsync();
+
+                streamData.Clear();
             }
+
+            Close();
         }
     }
 }

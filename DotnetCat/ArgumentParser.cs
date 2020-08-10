@@ -1,9 +1,10 @@
-﻿using DotnetCat.Handlers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using DotnetCat.Handlers;
+using DotnetCat.Nodes;
 using Prog = DotnetCat.Program;
 
 namespace DotnetCat
@@ -14,11 +15,13 @@ namespace DotnetCat
     class ArgumentParser
     {
         private readonly CommandHandler _cmd;
+        private readonly ErrorHandler _error;
 
         /// Initialize new ArgumentParser
         public ArgumentParser()
         {
             _cmd = new CommandHandler();
+            _error = new ErrorHandler();
             string appTitle = GetAppTitle(_cmd);
 
             this.UsageText = $"Usage: {appTitle} [OPTIONS] TARGET";
@@ -71,7 +74,7 @@ namespace DotnetCat
         {
             if ((index < 0) || (index >= Prog.Args.Count))
             {
-                Prog.Error.Handle("flag", Prog.Args[index - 1], true);
+                _error.Handle("flag", Prog.Args[index - 1], true);
             }
 
             return Prog.Args[index];
@@ -81,9 +84,9 @@ namespace DotnetCat
         public bool NeedsHelp(string[] args)
         {
             int index = -1;
-            
+
             List<int> query = (from arg in args
-                               let chars = arg.ToLower().ToList()
+                               let chars = arg.ToList()
                                where arg.ToLower() == "-h"
                                    || arg.ToLower() == "--help"
                                    || (arg.StartsWith('-')
@@ -100,11 +103,11 @@ namespace DotnetCat
         {
             flag = flag.StartsWith("--") ? flag : $"--{flag}";
             int index = IndexOfArgs(flag);
-            
+
             Prog.Args.RemoveAt(index);
             Prog.Args.RemoveAt(index++);
         }
-        
+
         /// Update a character of an argument in Program.Args
         public void UpdateArgs(int index, char character)
         {
@@ -126,13 +129,12 @@ namespace DotnetCat
                 {
                     throw ex;
                 }
-
                 return false;
             }
         }
 
         /// Specify local/remote IPv4 address to use
-        public void SetAddress(string addr)
+        public SocketShell SetAddress(SocketShell shell, string addr)
         {
             if (string.IsNullOrEmpty(addr))
             {
@@ -141,46 +143,34 @@ namespace DotnetCat
 
             if (!AddressIsValid(addr))
             {
-                Prog.Error.Handle("address", addr, true);
+                _error.Handle("address", addr, true);
             }
 
-            if (Prog.Node == "server")
-            {
-                Prog.Server.Address = IPAddress.Parse(addr);
-            }
-            else
-            {
-                Prog.Client.Address = IPAddress.Parse(addr);
-            }
+            shell.Address = IPAddress.Parse(addr);
+            return shell;
         }
 
-        /// Specify shell executable to use for command execution
-        public void SetExec(string shell)
+        /// Specify shell executable for command execution
+        public SocketShell SetExec(SocketShell shell, string exec)
         {
-            if (string.IsNullOrEmpty(shell))
+            if (string.IsNullOrEmpty(exec))
             {
                 throw new ArgumentNullException("shell");
             }
 
-            (bool exists, string path) = _cmd.ExistsOnPath(shell);
+            (bool exists, string path) = _cmd.ExistsOnPath(exec);
 
             if (!exists)
             {
-                Prog.Error.Handle("shell", shell, usage: true);
+                _error.Handle("shell", exec, true);
             }
 
-            if (Prog.Node == "server")
-            {
-                Prog.Server.Shell = path;
-            }
-            else
-            {
-                Prog.Client.Shell = path;
-            }
+            shell.Executable = path;
+            return shell;
         }
 
-        /// Specify file path to use for file stream
-        public void SetFilePath(string path)
+        /// Specify file path for file stream manipulation
+        public SocketShell SetFilePath(SocketShell shell, string path)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -189,32 +179,26 @@ namespace DotnetCat
 
             if (!File.Exists(path) && !Directory.Exists(path))
             {
-                Prog.Error.Handle("path", path);
+                _error.Handle("path", path);
             }
 
-            if (Prog.Node == "server")
-            {
-                Prog.Server.FilePath = path;
-            }
-            else
-            {
-                Prog.Client.FilePath = path;
-            }
+            shell.FilePath = path;
+            return shell;
         }
 
-        /// Specify string value of port to use for connection
-        public void SetPort(string portString)
+        /// Specify the port to use with socket
+        public SocketShell SetPort(SocketShell shell, string port)
         {
-            int port = -1;
-
-            if (string.IsNullOrEmpty(portString))
+            if (string.IsNullOrEmpty(port))
             {
                 throw new ArgumentNullException("portString");
             }
 
+            int portNum = -1;
+
             try
             {
-                port = int.Parse(portString);
+                portNum = int.Parse(port);
             }
             catch (Exception ex)
             {
@@ -222,36 +206,31 @@ namespace DotnetCat
                 {
                     throw ex;
                 }
-
-                Prog.Error.Handle("port", portString);
+                _error.Handle("port", port);
             }
 
-            if ((port < 0) || (port > 65535))
+            if ((portNum < 0) || (portNum > 65535))
             {
-                Prog.Error.Handle("port", portString);
+                _error.Handle("port", port);
             }
 
-            if (Prog.Node == "server")
+            if (shell is SocketServer)
             {
-                Prog.Server.Port = port;
+                shell.Port = portNum;
             }
             else
             {
-                Prog.Client.Port = int.Parse(portString);
+                shell.Port = int.Parse(port);
             }
+
+            return shell;
         }
 
         /// Enable verbose standard console output
-        public void SetVerbose()
+        public SocketShell SetVerbose(SocketShell shell)
         {
-            if (Prog.Node == "server")
-            {
-                Prog.Server.Verbose = true;
-            }
-            else
-            {
-                Prog.Client.Verbose = true;
-            }
+            shell.IsVerbose = true;
+            return shell;
         }
 
         /// Get program title based on platform
@@ -261,7 +240,7 @@ namespace DotnetCat
         }
 
         /// Get application help message as a string
-        private static string GetHelp(string appTitle, string usage)
+        private static string GetHelp(string title, string usage)
         {
             return string.Join("\r\n", new string[]
             {
@@ -280,9 +259,9 @@ namespace DotnetCat
                 "  -r PATH, --recv PATH     Receive remote file or folder",
                 "  -s PATH, --send PATH     Send local file or folder\r\n",
                 "Usage Examples:",
-                $"  {appTitle} -le /bin/bash",
-                $"  {appTitle} -ve powershell.exe -p 5555 127.0.0.1",
-                $"  {appTitle} -p 8152 127.0.0.1\r\n"
+                $"  {title} -le /bin/bash",
+                $"  {title} -ve powershell.exe -p 5555 127.0.0.1",
+                $"  {title} -p 8152 127.0.0.1\r\n"
             });
         }
     }

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 
 namespace DotnetCat.Nodes
 {
@@ -14,17 +13,16 @@ namespace DotnetCat.Nodes
         private Socket _listener;
 
         /// Initialize new SocketServer
-        public SocketServer(string tansferType) : base(tansferType)
+        public SocketServer() : base(address: IPAddress.Any)
         {
             _listener = null;
-            this.Address = IPAddress.Any;
         }
 
         /// Listen for incoming TCP connections
         public void Listen()
         {
-            IPEndPoint ipEP;
-            BindListener(_listener = NewTcpSocket());
+            IPEndPoint endPoint;
+            BindListener(_listener = CreateTcpSocket());
 
             try
             {
@@ -36,28 +34,25 @@ namespace DotnetCat.Nodes
 
                 if (Program.IsUsingExec)
                 {
-                    Shell ??= Cmd.GetDefaultShell();
-                    bool hasStarted = StartProcess(Shell);
+                    Executable ??= Cmd.GetDefaultShell();
+                    bool hasStarted = StartProcess(Executable);
 
                     if (!hasStarted)
                     {
-                        Error.Handle("process", Shell);
+                        Error.Handle("process", Executable);
                     }
                 }
 
-                if (TransferType != null)
-                {
+                endPoint = Client.Client.RemoteEndPoint as IPEndPoint;
+                Style.Status($"Connected to {endPoint}");
 
-                }
-
-                ipEP = Client.Client.RemoteEndPoint as IPEndPoint;
-                Style.Status($"Connection established with {ipEP}");
-
-                ConnectPipes();
+                Connect();
                 WaitForExit();
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex);
+
                 if (ex is SocketException)
                 {
                     Error.Handle("socket", $"{Address}:{Port}");
