@@ -35,7 +35,7 @@ namespace DotnetCat.Nodes
 
                 Style.Status($"Connected to {Address}:{Port}");
 
-                Connect();
+                base.Connect();
                 WaitForExit();
             }
             catch (Exception ex)

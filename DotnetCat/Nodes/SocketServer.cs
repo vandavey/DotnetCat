@@ -46,7 +46,7 @@ namespace DotnetCat.Nodes
                 endPoint = Client.Client.RemoteEndPoint as IPEndPoint;
                 Style.Status($"Connected to {endPoint}");
 
-                Connect();
+                base.Connect();
                 WaitForExit();
             }
             catch (Exception ex)
