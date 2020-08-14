@@ -34,20 +34,6 @@ namespace DotnetCat
 
         public string Usage { get; }
 
-        /// Get the local system's platform
-        public Platform SysPlatform
-        {
-            get
-            {
-                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    return Platform.Linux;
-                }
-
-                return Platform.Windows;
-            }
-        }
-
         public static string GetUsage()
         {
             string appTitle = GetAppTitle();
