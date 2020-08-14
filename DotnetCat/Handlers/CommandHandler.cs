@@ -12,11 +12,17 @@ using Env = System.Environment;
 namespace DotnetCat.Handlers
 {
     /// <summary>
+    /// Specify platform node currently using
+    /// </summary>
+    enum Platform { Windows, Linux }
+
+    /// <summary>
     /// Execute special commands on the local system
     /// </summary>
     class CommandHandler
     {
         private readonly List<string> _envPath;
+
         private readonly List<string> _extensions;
 
         /// Initialize new CommandHandler
@@ -27,19 +33,14 @@ namespace DotnetCat.Handlers
 
             _extensions = new List<string>
             {
-                "exe", "ps1", "py", "sh", "bat"
+                "exe", "bat", "ps1", "py", "sh"
             };
         }
 
-        public bool IsWindowsPlatform
-        {
-            get => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        }
-
         /// Get default command shell for the platform
-        public string GetDefaultShell()
+        public string GetDefaultShell(Platform platform)
         {
-            if (!IsWindowsPlatform)
+            if (platform == Platform.Linux)
             {
                 if (!ExistsOnPath("/bin/bash").exists)
                 {
@@ -105,9 +106,9 @@ namespace DotnetCat.Handlers
         }
 
         /// Get file path to the current user's profile
-        public string GetProfilePath()
+        public string GetProfilePath(Platform platform)
         {
-            if (IsWindowsPlatform)
+            if (platform == Platform.Windows)
             {
                 return Env.GetEnvironmentVariable("USERPROFILE");
             }

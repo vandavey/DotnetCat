@@ -5,59 +5,47 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotnetCat.Handlers;
 
 namespace DotnetCat.Pipes
 {
     /// <summary>
-    /// Handle file data streams
+    /// Specify if node will send/receive files
+    /// </summary>
+    enum NodeAction { Send, Receive, None }
+
+    /// <summary>
+    /// Handle file data communication
     /// </summary>
     class FilePipe : StreamPipe, ICloseable
     {
+        private readonly ErrorHandler _error;
+
         /// Initialize new FilePipe
-        public FilePipe(StreamReader source, string path) : base()
+        public FilePipe(StreamReader src, string path) : base()
         {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            else if (string.IsNullOrEmpty(path))
-            {
-                throw new ArgumentNullException("filePath");
-            }
+            _error = new ErrorHandler();
 
-            this.DestPath = path;
-            this.Source = source;
-            this.TransferType = "recv";
+            this.Source = src ?? throw new ArgumentNullException("src");
+            this.NodeAction = NodeAction.Receive;
 
+            this.Dest = new StreamWriter(CreateFile(path, _error));
             this.Client = Program.SockShell.Client;
-            this.Destination = new StreamWriter(CreateFile(path));
         }
 
         /// Initialize new FilePipe
         public FilePipe(string path, StreamWriter dest) : base()
         {
-            if (string.IsNullOrEmpty(path))
-            {
-                throw new ArgumentNullException("filePath");
-            }
-            else if (dest == null)
-            {
-                throw new ArgumentNullException("dest");
-            }
+            _error = new ErrorHandler();
 
-            this.SourcePath = path;
-            this.Destination = dest;
-            this.TransferType = "send";
+            this.Dest = dest ?? throw new ArgumentNullException("dest");
+            this.NodeAction = NodeAction.Send;
 
-            FileStream stream = OpenFile(path);
-            this.Source = new StreamReader(stream);
+            this.Source = new StreamReader(OpenFile(path, _error));
+            this.Client = Program.SockShell.Client;
         }
 
-        public string SourcePath { get; set; }
-
-        public string DestPath { get; set; }
-
-        public string TransferType { get; set; }
+        public NodeAction NodeAction { get; }
 
         /// Activate communication between the pipe streams
         public override void Connect()
@@ -66,9 +54,9 @@ namespace DotnetCat.Pipes
             {
                 throw new ArgumentNullException("Source");
             }
-            else if (Destination == null)
+            else if (Dest == null)
             {
-                throw new ArgumentNullException("Destination");
+                throw new ArgumentNullException("Dest");
             }
 
             CTS = new CancellationTokenSource();
@@ -76,19 +64,43 @@ namespace DotnetCat.Pipes
         }
 
         /// Create and open new file for writing
-        private static FileStream CreateFile(string filePath)
+        private static FileStream CreateFile(string path, ErrorHandler error)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                error.Handle("emptypath", "-r/--recv");
+            }
+
+            DirectoryInfo info = Directory.GetParent(path);
+
+            if (!Directory.Exists(info.FullName))
+            {
+                error.Handle("dirpath", info.FullName);
+            }
+
             return new FileStream(
-                filePath, FileMode.Create, FileAccess.Write,
+                path, FileMode.Create, FileAccess.Write,
                 FileShare.Write, bufferSize: 1024, useAsync: true
             );
         }
 
         /// Open specified FileStream for reading/writing
-        private static FileStream OpenFile(string filePath)
+        private static FileStream OpenFile(string path, ErrorHandler error)
         {
+            if (string.IsNullOrEmpty(path))
+            {
+                error.Handle("emptypath", "-s/--send");
+            }
+
+            FileInfo info = new FileInfo(path);
+
+            if (!File.Exists(info.FullName))
+            {
+                error.Handle("filepath", info.FullName);
+            }
+
             return new FileStream(
-                filePath, FileMode.Open, FileAccess.Read,
+                path, FileMode.Open, FileAccess.Read,
                 FileShare.Read, bufferSize: 4096, useAsync: true
             );
         }
@@ -96,15 +108,15 @@ namespace DotnetCat.Pipes
         /// Activate async communication
         private async Task ConnectAsync(CancellationToken token)
         {
+            StringBuilder data = new StringBuilder();
             IsConnected = true;
 
-            StringBuilder data = new StringBuilder();
             data.Append(await Source.ReadToEndAsync());
+            await Dest.WriteAsync(data, token);
 
-            await Destination.WriteAsync(data, token);
-            await Destination.FlushAsync();
-
+            await Dest.FlushAsync();
             Disconnect();
+
             Close();
         }
     }

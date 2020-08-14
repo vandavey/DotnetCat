@@ -12,6 +12,11 @@ using DotnetCat.Pipes;
 namespace DotnetCat.Nodes
 {
     /// <summary>
+    /// Specify the type of pipes to initialized
+    /// </summary>
+    enum PipeType { Default, Shell, Transfer }
+
+    /// <summary>
     /// Base class for SocketClient and SocketServer
     /// </summary>
     class SocketShell : ICloseable
@@ -24,7 +29,7 @@ namespace DotnetCat.Nodes
         private StreamWriter _netWriter;
 
         /// Initialize new SocketShell
-        public SocketShell(IPAddress address = null)
+        protected SocketShell(IPAddress address = null)
         {
             _pipes = new List<StreamPipe>();
 
@@ -38,7 +43,7 @@ namespace DotnetCat.Nodes
             this.Client = new TcpClient();
         }
 
-        public string FilePath { get; set; }
+        public string ShellPath { get; set; }
 
         public IPAddress Address { get; set; }
 
@@ -47,6 +52,8 @@ namespace DotnetCat.Nodes
         public string Executable { get; set; }
 
         public bool IsVerbose { get; set; }
+
+        public Platform SysPlatform { get => Program.SysPlatform; }
 
         public TcpClient Client { get; set; }
 
@@ -58,26 +65,23 @@ namespace DotnetCat.Nodes
 
         protected NetworkStream NetStream { get; set; }
 
-        protected FileStream IOStream { get; set; }
+        protected bool IsUsingShell { get => Executable != null; }
 
-        protected bool ShellHasExited
+        /// Determine if file transfer is specified
+        protected bool IsFileTransfer
         {
-            get => IsUsingShell() && _shellProc.HasExited;
+            get => Program.SocketAction != NodeAction.None;
         }
 
-        /// Initialize new TCP stream socket
-        public Socket CreateTcpSocket()
+        private bool ShellHasExited
         {
-            return new Socket(
-                AddressFamily.InterNetwork,
-                SocketType.Stream, ProtocolType.Tcp
-            );
+            get => IsUsingShell && _shellProc.HasExited;
         }
 
         /// Initialize and start command shell process
         public bool StartProcess(string shell = null)
         {
-            Executable ??= Cmd.GetDefaultShell();
+            Executable ??= Cmd.GetDefaultShell(SysPlatform);
 
             if (!Cmd.ExistsOnPath(shell).exists)
             {
@@ -97,15 +101,15 @@ namespace DotnetCat.Nodes
         {
             ProcessStartInfo startInfo = new ProcessStartInfo(shell)
             {
-                WorkingDirectory = Cmd.GetProfilePath(),
                 CreateNoWindow = true,
-                UseShellExecute = false,
+                RedirectStandardError = true,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
-                RedirectStandardError = true
+                UseShellExecute = false,
+                WorkingDirectory = Cmd.GetProfilePath(SysPlatform)
             };
 
-            if (Cmd.IsWindowsPlatform)
+            if (SysPlatform == Platform.Windows)
             {
                 startInfo.LoadUserProfile = true;
             }
@@ -121,16 +125,51 @@ namespace DotnetCat.Nodes
                 throw new ArgumentNullException("NetStream");
             }
 
-            if (IsUsingShell() && IsFileTransfer())
+            if (IsUsingShell && IsFileTransfer)
             {
                 Error.Handle("combo", "--exec, --recv/--send");
             }
 
-            if (IsUsingShell())
+            if (IsUsingShell)
+            {
+                AddPipes(PipeType.Shell);
+            }
+            else if (IsFileTransfer)
+            {
+                AddPipes(PipeType.Transfer);
+            }
+            else
+            {
+                AddPipes(PipeType.Default);
+            }
+
+            _pipes.ForEach(pipe => pipe?.Connect());
+        }
+
+        /// Release any unmanaged resources
+        public virtual void Close()
+        {
+            _pipes.ForEach(pipe => pipe?.Close());
+
+            _shellProc?.Dispose();
+            _netReader?.Dispose();
+            _netWriter?.Dispose();
+
+            Client?.Dispose();
+            NetStream?.Dispose();
+        }
+
+        /// Initialize specified pipes
+        protected void AddPipes(PipeType option)
+        {
+            _netReader = new StreamReader(NetStream);
+            _netWriter = new StreamWriter(NetStream);
+
+            if (option == PipeType.Shell)
             {
                 AddShellPipes();
             }
-            else if (IsFileTransfer())
+            else if (option == PipeType.Transfer)
             {
                 AddFilePipes();
             }
@@ -138,87 +177,6 @@ namespace DotnetCat.Nodes
             {
                 AddDefaultPipes();
             }
-
-            ConnectPipes(_pipes);
-        }
-
-        /// Release any unmanaged resources
-        public virtual void Close()
-        {
-            _shellProc?.Dispose();
-            _netReader?.Dispose();
-            _netWriter?.Dispose();
-
-            _pipes.ForEach(pipe => pipe?.Close());
-
-            Client?.Dispose();
-            NetStream?.Dispose();
-            IOStream?.Dispose();
-        }
-
-        /// Initialize StreamPipes
-        protected void AddDefaultPipes()
-        {
-            Stream consoleStdin = Console.OpenStandardInput();
-            Stream consoleStdout = Console.OpenStandardOutput();
-
-            StreamReader stdin = new StreamReader(consoleStdin);
-            StreamWriter stdout = new StreamWriter(consoleStdout);
-
-            InitStreamHandlers(NetStream);
-
-            _pipes.Add(new ShellPipe(stdin, _netWriter));
-            _pipes.Add(new ShellPipe(_netReader, stdout));
-        }
-
-        /// Initialize ShellPipes
-        protected void AddShellPipes()
-        {
-            StreamWriter shellStdin = _shellProc.StandardInput;
-            StreamReader shellStdout = _shellProc.StandardOutput;
-            StreamReader shellErr = _shellProc.StandardError;
-
-            InitStreamHandlers(NetStream);
-
-            _pipes.Add(new ShellPipe(_netReader, shellStdin));
-            _pipes.Add(new ShellPipe(shellStdout, _netWriter));
-            _pipes.Add(new ShellPipe(shellErr, _netWriter));
-        }
-
-        /// Initialize socket stream reader and writer
-        protected void InitStreamHandlers(NetworkStream stream)
-        {
-            _netReader = new StreamReader(stream);
-            _netWriter = new StreamWriter(stream);
-        }
-
-        /// Initialize FilePipes
-        protected void AddFilePipes()
-        {
-            if (Program.TransferType == "recv")
-            {
-                _netReader = new StreamReader(NetStream);
-                _pipes.Add(new FilePipe(_netReader, FilePath));
-                return;
-            }
-
-            _netWriter = new StreamWriter(NetStream);
-            _pipes.Add(new FilePipe(FilePath, _netWriter));
-        }
-
-        /// Call the Connect method for all StreamPipes
-        protected void ConnectPipes(List<StreamPipe> pipes)
-        {
-            pipes.ForEach(pipe => pipe?.Connect());
-        }
-
-        /// Determine if node is using shell executable
-        protected bool IsUsingShell() => Executable != null;
-
-        /// Determine if file transfer is specified
-        protected bool IsFileTransfer()
-        {
-            return Program.TransferType != null;
         }
 
         /// Wait for pipes to be disconnected
@@ -235,8 +193,47 @@ namespace DotnetCat.Nodes
             }
         }
 
+        /// Initialize ShellPipes
+        private void AddShellPipes()
+        {
+            StreamWriter shellStdin = _shellProc.StandardInput;
+            StreamReader shellStdout = _shellProc.StandardOutput;
+            StreamReader shellErr = _shellProc.StandardError;
+
+            _pipes.Add(new ShellPipe(_netReader, shellStdin));
+            _pipes.Add(new ShellPipe(shellStdout, _netWriter));
+            _pipes.Add(new ShellPipe(shellErr, _netWriter));
+        }
+
+        /// Initialize FilePipes
+        private void AddFilePipes()
+        {
+            if (Program.SocketAction == NodeAction.Receive)
+            {
+                _netReader = new StreamReader(NetStream);
+                _pipes.Add(new FilePipe(_netReader, ShellPath));
+                return;
+            }
+
+            _netWriter = new StreamWriter(NetStream);
+            _pipes.Add(new FilePipe(ShellPath, _netWriter));
+        }
+
+        /// Initialize StreamPipes
+        private void AddDefaultPipes()
+        {
+            Stream consoleStdin = Console.OpenStandardInput();
+            Stream consoleStdout = Console.OpenStandardOutput();
+
+            StreamReader stdin = new StreamReader(consoleStdin);
+            StreamWriter stdout = new StreamWriter(consoleStdout);
+
+            _pipes.Add(new ShellPipe(stdin, _netWriter));
+            _pipes.Add(new ShellPipe(_netReader, stdout));
+        }
+
         /// Determine if all pipes are connected
-        protected bool AllPipesConnected()
+        private bool AllPipesConnected()
         {
             int nullCount = _pipes.Where(x => x == null).Count();
 

@@ -24,7 +24,7 @@ namespace DotnetCat.Nodes
                 if (Program.IsUsingExec)
                 {
                     bool hasStarted = StartProcess(
-                        Executable ?? Cmd.GetDefaultShell()
+                        Executable ?? Cmd.GetDefaultShell(SysPlatform)
                     );
 
                     if (!hasStarted)
@@ -54,7 +54,7 @@ namespace DotnetCat.Nodes
             }
             finally
             {
-                Close();
+                base.Close();
             }
         }
     }

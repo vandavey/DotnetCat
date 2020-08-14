@@ -21,7 +21,7 @@ namespace DotnetCat.Pipes
             }
 
             this.Source = source;
-            this.Destination = dest;
+            this.Dest = dest;
             this.Client = Program.SockShell.Client;
         }
     }

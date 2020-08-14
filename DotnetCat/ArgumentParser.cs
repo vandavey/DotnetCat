@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using DotnetCat.Handlers;
 using DotnetCat.Nodes;
 using Prog = DotnetCat.Program;
@@ -15,6 +16,7 @@ namespace DotnetCat
     class ArgumentParser
     {
         private readonly CommandHandler _cmd;
+
         private readonly ErrorHandler _error;
 
         /// Initialize new ArgumentParser
@@ -22,20 +24,40 @@ namespace DotnetCat
         {
             _cmd = new CommandHandler();
             _error = new ErrorHandler();
-            string appTitle = GetAppTitle(_cmd);
+            string appTitle = GetAppTitle();
 
-            this.UsageText = $"Usage: {appTitle} [OPTIONS] TARGET";
-            this.HelpText = GetHelp(appTitle, this.UsageText);
+            this.Usage = $"Usage: {appTitle} [OPTIONS] TARGET";
+            this.Help = GetHelp(appTitle, this.Usage);
         }
 
-        public string UsageText { get; }
+        public string Help { get; }
 
-        public string HelpText { get; }
+        public string Usage { get; }
+
+        /// Get the local system's platform
+        public Platform SysPlatform
+        {
+            get
+            {
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    return Platform.Linux;
+                }
+
+                return Platform.Windows;
+            }
+        }
+
+        public static string GetUsage()
+        {
+            string appTitle = GetAppTitle();
+            return $"Usage: {appTitle} [OPTIONS] TARGET";
+        }
 
         /// Print application help message to console output
         public void PrintHelp()
         {
-            Console.WriteLine(HelpText);
+            Console.WriteLine(Help);
             Environment.Exit(0);
         }
 
@@ -179,10 +201,10 @@ namespace DotnetCat
 
             if (!File.Exists(path) && !Directory.Exists(path))
             {
-                _error.Handle("path", path);
+                _error.Handle("filepath", path);
             }
 
-            shell.FilePath = path;
+            shell.ShellPath = path;
             return shell;
         }
 
@@ -234,18 +256,23 @@ namespace DotnetCat
         }
 
         /// Get program title based on platform
-        private static string GetAppTitle(CommandHandler cmd)
+        private static string GetAppTitle()
         {
-            return cmd.IsWindowsPlatform ? "dncat.exe" : "dncat";
+            if (Prog.SysPlatform == Platform.Windows)
+            {
+                return "dncat.exe";
+            }
+
+            return "dncat";
         }
 
         /// Get application help message as a string
-        private static string GetHelp(string title, string usage)
+        private static string GetHelp(string appTitle, string appUsage)
         {
             return string.Join("\r\n", new string[]
             {
                 "DotnetCat (https://github.com/vandavey/DotnetCat)",
-                $"{usage}\r\n",
+                $"{appUsage}\r\n",
                 "C# TCP socket command shell application\r\n",
                 "Positional Arguments:",
                 "  TARGET                   Specify remote/local IPv4 address\r\n",
@@ -259,9 +286,9 @@ namespace DotnetCat
                 "  -r PATH, --recv PATH     Receive remote file or folder",
                 "  -s PATH, --send PATH     Send local file or folder\r\n",
                 "Usage Examples:",
-                $"  {title} -le /bin/bash",
-                $"  {title} -ve powershell.exe -p 5555 127.0.0.1",
-                $"  {title} -p 8152 127.0.0.1\r\n"
+                $"  {appTitle} -le /bin/bash",
+                $"  {appTitle} -ve powershell.exe -p 5555 127.0.0.1",
+                $"  {appTitle} -p 8152 127.0.0.1\r\n"
             });
         }
     }

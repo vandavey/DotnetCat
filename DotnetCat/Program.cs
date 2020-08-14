@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using DotnetCat.Handlers;
 using DotnetCat.Nodes;
+using DotnetCat.Pipes;
 
 namespace DotnetCat
 {
-
     /// <summary>
     /// Primary application startup opbject
     /// </summary>
@@ -20,19 +21,31 @@ namespace DotnetCat
 
         private static ArgumentParser _parser;
 
-        public static bool IsUsingExec { get; set; }
+        enum NodeType { Client, Server }
 
-        public static string TransferType { get; set; }
+        public static bool IsUsingExec { get; set; }
 
         public static List<string> Args { get; set; }
 
-        public static SocketShell SockShell { get; set; }
+        public static NodeAction SocketAction { get; set; }
 
-        public static string Usage { get => _parser.UsageText; }
+        public static SocketShell SockShell { get; set; }
 
         public static bool IsVerbose
         {
             get => SockShell?.IsVerbose ?? false;
+        }
+
+        public static Platform SysPlatform
+        {
+            get
+            {
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    return Platform.Linux;
+                }
+                return Platform.Windows;
+            }
         }
 
         /// Primary application entry point
@@ -76,10 +89,9 @@ namespace DotnetCat
                 Args.RemoveAt(index);
             }
 
-            string nodeType = GetNodeType();
-            TransferType = GetTransferType();
+            SocketAction = GetNodeAction();
 
-            if (nodeType == "server")
+            if (GetNodeType() == NodeType.Server)
             {
                 SockShell = _server = new SocketServer();
             }
@@ -135,36 +147,36 @@ namespace DotnetCat
         }
 
         /// Determine the node type from the command line argumentss
-        private static string GetNodeType()
+        private static NodeType GetNodeType()
         {
             int index = _parser.IndexOfArgs("--listen", "-l");
 
             if ((index > -1) || (_parser.IndexOfFlag('l') > -1))
             {
-                return "server";
+                return NodeType.Server;
             }
 
-            return "client";
+            return NodeType.Client;
         }
 
         /// Determine if the user is tranferring files
-        private static string GetTransferType()
+        private static NodeAction GetNodeAction()
         {
             int recvIndex = _parser.IndexOfArgs("-r", "--recv");
 
             if ((recvIndex > -1) || (_parser.IndexOfFlag('r') > -1))
             {
-                return "recv";
+                return NodeAction.Receive;
             }
 
             int sendIndex = _parser.IndexOfArgs("-s", "--send");
 
             if ((sendIndex > -1) || (_parser.IndexOfFlag('s') > -1))
             {
-                return "send";
+                return NodeAction.Send;
             }
 
-            return null;
+            return NodeAction.None;
         }
 
         /// Parse named arguments starting with one dash
@@ -209,7 +221,7 @@ namespace DotnetCat
 
                 if (item.chars.Contains('s'))
                 {
-                    SetSend(item.keyIndex, item.valIndex, true);
+                    SetSend(item.keyIndex, item.valIndex, false);
                 }
 
                 if (_parser.ArgsValueAt(item.keyIndex) == "-")

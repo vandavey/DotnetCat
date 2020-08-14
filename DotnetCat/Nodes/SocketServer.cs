@@ -21,8 +21,8 @@ namespace DotnetCat.Nodes
         /// Listen for incoming TCP connections
         public void Listen()
         {
-            IPEndPoint endPoint;
-            BindListener(_listener = CreateTcpSocket());
+            IPEndPoint remoteEP;
+            BindListener(new IPEndPoint(Address, Port));
 
             try
             {
@@ -34,7 +34,7 @@ namespace DotnetCat.Nodes
 
                 if (Program.IsUsingExec)
                 {
-                    Executable ??= Cmd.GetDefaultShell();
+                    Executable ??= Cmd.GetDefaultShell(SysPlatform);
                     bool hasStarted = StartProcess(Executable);
 
                     if (!hasStarted)
@@ -43,8 +43,8 @@ namespace DotnetCat.Nodes
                     }
                 }
 
-                endPoint = Client.Client.RemoteEndPoint as IPEndPoint;
-                Style.Status($"Connected to {endPoint}");
+                remoteEP = Client.Client.RemoteEndPoint as IPEndPoint;
+                Style.Status($"Connected to {remoteEP}");
 
                 base.Connect();
                 WaitForExit();
@@ -79,16 +79,26 @@ namespace DotnetCat.Nodes
         }
 
         /// Bind the listener socket to an endpoint
-        private void BindListener(Socket socket)
+        private void BindListener(IPEndPoint endPoint)
         {
+            if (endPoint == null)
+            {
+                throw new ArgumentNullException("endPoint");
+            }
+
+            _listener = new Socket(
+                AddressFamily.InterNetwork,
+                SocketType.Stream, ProtocolType.Tcp
+            );
+
             try
             {
-                socket.Bind(new IPEndPoint(Address, Port));
+                _listener.Bind(endPoint);
             }
             catch (SocketException)
             {
                 Close();
-                Error.Handle("bind", $"{Address}:{Port}");
+                Error.Handle("bind", endPoint.ToString());
             }
         }
     }

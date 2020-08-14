@@ -13,6 +13,7 @@ namespace DotnetCat.Handlers
     class ErrorHandler
     {
         private readonly Status _status;
+
         private readonly StyleHandler _style;
 
         private readonly List<Error> _errors;
@@ -27,9 +28,11 @@ namespace DotnetCat.Handlers
             {
                 new Error("address", "{} cannot be parsed as an IPv4 address"),
                 new Error("bind", "The endpoint {} is already in use"),
-                new Error("flag", "Missing value for named argument(s): {} "),
                 new Error("closed", "The connection was closed by {}"),
-                new Error("path", "Unable to locate file path {}"),
+                new Error("dirpath", "Unable to locate parent directory {}"),
+                new Error("emptypath", "A value is required for option {}"),
+                new Error("filepath", "Unable to locate file path {}"),
+                new Error("flag", "Missing value for named argument(s): {} "),
                 new Error("port", "{} cannot be parsed as a valid port"),
                 new Error("process", "Unable to run the process {}"),
                 new Error("required", "Missing required argument(s): {}"),
@@ -68,7 +71,7 @@ namespace DotnetCat.Handlers
 
             if (showUsage)
             {
-                Console.WriteLine(Prog.Usage);
+                Console.WriteLine(ArgumentParser.GetUsage());
             }
 
             Console.ForegroundColor = _status.Color;

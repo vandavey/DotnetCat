@@ -12,6 +12,9 @@
         <member name="M:DotnetCat.ArgumentParser.#ctor">
             Initialize new ArgumentParser
         </member>
+        <member name="P:DotnetCat.ArgumentParser.SysPlatform">
+            Get the local system's platform
+        </member>
         <member name="M:DotnetCat.ArgumentParser.PrintHelp">
             Print application help message to console output
         </member>
@@ -51,11 +54,16 @@
         <member name="M:DotnetCat.ArgumentParser.SetVerbose(DotnetCat.Nodes.SocketShell)">
             Enable verbose standard console output
         </member>
-        <member name="M:DotnetCat.ArgumentParser.GetAppTitle(DotnetCat.Handlers.CommandHandler)">
+        <member name="M:DotnetCat.ArgumentParser.GetAppTitle">
             Get program title based on platform
         </member>
         <member name="M:DotnetCat.ArgumentParser.GetHelp(System.String,System.String)">
             Get application help message as a string
+        </member>
+        <member name="T:DotnetCat.Handlers.Platform">
+            <summary>
+            Specify platform node currently using
+            </summary>
         </member>
         <member name="T:DotnetCat.Handlers.CommandHandler">
             <summary>
@@ -65,7 +73,7 @@
         <member name="M:DotnetCat.Handlers.CommandHandler.#ctor">
             Initialize new CommandHandler
         </member>
-        <member name="M:DotnetCat.Handlers.CommandHandler.GetDefaultShell">
+        <member name="M:DotnetCat.Handlers.CommandHandler.GetDefaultShell(DotnetCat.Handlers.Platform)">
             Get default command shell for the platform
         </member>
         <member name="M:DotnetCat.Handlers.CommandHandler.ExistsOnPath(System.String)">
@@ -74,7 +82,7 @@
         <member name="M:DotnetCat.Handlers.CommandHandler.GetShellPath(System.String)">
             Search environment path for specified shell
         </member>
-        <member name="M:DotnetCat.Handlers.CommandHandler.GetProfilePath">
+        <member name="M:DotnetCat.Handlers.CommandHandler.GetProfilePath(DotnetCat.Handlers.Platform)">
             Get file path to the current user's profile
         </member>
         <member name="T:DotnetCat.Handlers.ErrorHandler">
@@ -144,8 +152,13 @@
         <member name="M:DotnetCat.Nodes.SocketServer.Close">
             Release any unmanaged resources
         </member>
-        <member name="M:DotnetCat.Nodes.SocketServer.BindListener(System.Net.Sockets.Socket)">
+        <member name="M:DotnetCat.Nodes.SocketServer.BindListener(System.Net.IPEndPoint)">
             Bind the listener socket to an endpoint
+        </member>
+        <member name="T:DotnetCat.Nodes.PipeType">
+            <summary>
+            Specify the type of pipes to initialized
+            </summary>
         </member>
         <member name="T:DotnetCat.Nodes.SocketShell">
             <summary>
@@ -155,8 +168,8 @@
         <member name="M:DotnetCat.Nodes.SocketShell.#ctor(System.Net.IPAddress)">
             Initialize new SocketShell
         </member>
-        <member name="M:DotnetCat.Nodes.SocketShell.CreateTcpSocket">
-            Initialize new TCP stream socket
+        <member name="P:DotnetCat.Nodes.SocketShell.IsFileTransfer">
+            Determine if file transfer is specified
         </member>
         <member name="M:DotnetCat.Nodes.SocketShell.StartProcess(System.String)">
             Initialize and start command shell process
@@ -170,36 +183,32 @@
         <member name="M:DotnetCat.Nodes.SocketShell.Close">
             Release any unmanaged resources
         </member>
-        <member name="M:DotnetCat.Nodes.SocketShell.AddDefaultPipes">
-            Initialize StreamPipes
-        </member>
-        <member name="M:DotnetCat.Nodes.SocketShell.AddShellPipes">
-            Initialize ShellPipes
-        </member>
-        <member name="M:DotnetCat.Nodes.SocketShell.InitStreamHandlers(System.Net.Sockets.NetworkStream)">
-            Initialize socket stream reader and writer
-        </member>
-        <member name="M:DotnetCat.Nodes.SocketShell.AddFilePipes">
-            Initialize FilePipes
-        </member>
-        <member name="M:DotnetCat.Nodes.SocketShell.ConnectPipes(System.Collections.Generic.List{DotnetCat.Pipes.StreamPipe})">
-            Call the Connect method for all StreamPipes
-        </member>
-        <member name="M:DotnetCat.Nodes.SocketShell.IsUsingShell">
-            Determine if node is using shell executable
-        </member>
-        <member name="M:DotnetCat.Nodes.SocketShell.IsFileTransfer">
-            Determine if file transfer is specified
+        <member name="M:DotnetCat.Nodes.SocketShell.AddPipes(DotnetCat.Nodes.PipeType)">
+            Initialize specified pipes
         </member>
         <member name="M:DotnetCat.Nodes.SocketShell.WaitForExit">
             Wait for pipes to be disconnected
         </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.AddShellPipes">
+            Initialize ShellPipes
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.AddFilePipes">
+            Initialize FilePipes
+        </member>
+        <member name="M:DotnetCat.Nodes.SocketShell.AddDefaultPipes">
+            Initialize StreamPipes
+        </member>
         <member name="M:DotnetCat.Nodes.SocketShell.AllPipesConnected">
             Determine if all pipes are connected
         </member>
+        <member name="T:DotnetCat.Pipes.NodeAction">
+            <summary>
+            Specify if node will send/receive files
+            </summary>
+        </member>
         <member name="T:DotnetCat.Pipes.FilePipe">
             <summary>
-            Handle file data streams
+            Handle file data communication
             </summary>
         </member>
         <member name="M:DotnetCat.Pipes.FilePipe.#ctor(System.IO.StreamReader,System.String)">
@@ -211,10 +220,10 @@
         <member name="M:DotnetCat.Pipes.FilePipe.Connect">
             Activate communication between the pipe streams
         </member>
-        <member name="M:DotnetCat.Pipes.FilePipe.CreateFile(System.String)">
+        <member name="M:DotnetCat.Pipes.FilePipe.CreateFile(System.String,DotnetCat.Handlers.ErrorHandler)">
             Create and open new file for writing
         </member>
-        <member name="M:DotnetCat.Pipes.FilePipe.OpenFile(System.String)">
+        <member name="M:DotnetCat.Pipes.FilePipe.OpenFile(System.String,DotnetCat.Handlers.ErrorHandler)">
             Open specified FileStream for reading/writing
         </member>
         <member name="M:DotnetCat.Pipes.FilePipe.ConnectAsync(System.Threading.CancellationToken)">
@@ -265,7 +274,7 @@
         <member name="M:DotnetCat.Program.GetNodeType">
             Determine the node type from the command line argumentss
         </member>
-        <member name="M:DotnetCat.Program.GetTransferType">
+        <member name="M:DotnetCat.Program.GetNodeAction">
             Determine if the user is tranferring files
         </member>
         <member name="M:DotnetCat.Program.ParseShortArgs">

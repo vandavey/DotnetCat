@@ -25,7 +25,7 @@ namespace DotnetCat.Pipes
 
         protected StreamReader Source { get; set; }
 
-        protected StreamWriter Destination { get; set; }
+        protected StreamWriter Dest { get; set; }
 
         protected TcpClient Client { get; set; }
 
@@ -38,7 +38,7 @@ namespace DotnetCat.Pipes
             {
                 throw new ArgumentNullException("Source");
             }
-            else if (Destination == null)
+            else if (Dest == null)
             {
                 throw new ArgumentNullException("Dest");
             }
@@ -58,7 +58,7 @@ namespace DotnetCat.Pipes
         public virtual void Close()
         {
             Source?.Dispose();
-            Destination?.Dispose();
+            Dest?.Dispose();
 
             CTS?.Dispose();
             Client?.Dispose();
@@ -101,8 +101,8 @@ namespace DotnetCat.Pipes
                     break;
                 }
 
-                await Destination.WriteAsync(streamData, token);
-                await Destination.FlushAsync();
+                await Dest.WriteAsync(streamData, token);
+                await Dest.FlushAsync();
 
                 streamData.Clear();
             }
