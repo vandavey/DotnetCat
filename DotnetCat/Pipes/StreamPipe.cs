@@ -117,14 +117,5 @@ namespace DotnetCat.Pipes
 
             Close();
         }
-
-        /// Get the current working dir
-        private string GetShellCwd()
-        {
-            //if ()
-            /*string directory = Directory.GetCurrentDirectory();
-            return directory;*/
-            return null;
-        }
     }
 }
