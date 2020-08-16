@@ -6,7 +6,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using DotnetCat.Handlers;
 using DotnetCat.Nodes;
-using Prog = DotnetCat.Program;
+using DotnetCat.Utils;
 
 namespace DotnetCat
 {
@@ -34,10 +34,15 @@ namespace DotnetCat
 
         public string Usage { get; }
 
+        public List<string> Args
+        {
+            get => Program.Args;
+            set => Program.Args = value;
+        }
+
         public static string GetUsage()
         {
-            string appTitle = GetAppTitle();
-            return $"Usage: {appTitle} [OPTIONS] TARGET";
+            return $"Usage: {GetAppTitle()} [OPTIONS] TARGET";
         }
 
         /// Print application help message to console output
@@ -47,80 +52,78 @@ namespace DotnetCat
             Environment.Exit(0);
         }
 
-        /// Get the index of an argument in Program.Args
-        public int IndexOfArgs(string name, string abrev = null)
+        /// Get the index of an argument in cmd-line arguments
+        public int IndexOfArgs(string name, string flag = null)
         {
-            int index = -1;
-            abrev = string.IsNullOrEmpty(abrev) ? name : abrev;
+            flag ??= name;
+            int argIndex = -1;
 
-            List<int> query = (from arg in Prog.Args
-                               where arg.ToLower() == abrev.ToLower()
+            List<int> query = (from arg in Args
+                               where arg.ToLower() == flag.ToLower()
                                    || arg.ToLower() == name.ToLower()
-                               select Prog.Args.IndexOf(arg)).ToList();
+                               select Args.IndexOf(arg)).ToList();
 
-            query.ForEach(x => index = x);
-            return index;
+            query.ForEach(index => argIndex = index);
+            return argIndex;
         }
 
         /// Get index of an argument containing specified character
-        public int IndexOfFlag(char letter)
+        public int IndexOfFlag(char flag)
         {
-            int index = -1;
+            int flagIndex = -1;
 
-            List<int> query = (from arg in Prog.Args
+            List<int> query = (from arg in Args
                                where arg.StartsWith("-")
                                    && !arg.StartsWith("--")
-                                   && arg.Contains(letter)
-                               select Prog.Args.IndexOf(arg)).ToList();
+                                   && arg.Contains(flag)
+                               select Args.IndexOf(arg)).ToList();
 
-            query.ForEach(x => index = x);
-            return index;
+            query.ForEach(index => flagIndex = index);
+            return flagIndex;
         }
 
-        /// Get value of an argument in Program.Args
+        /// Get value of an argument in cmd-line arguments
         public string ArgsValueAt(int index)
         {
-            if ((index < 0) || (index >= Prog.Args.Count))
+            if ((index < 0) || (index >= Args.Count))
             {
-                _error.Handle("flag", Prog.Args[index - 1], true);
+                _error.Handle(ErrorType.NamedArg, Args[index - 1], true);
             }
 
-            return Prog.Args[index];
+            return Args[index];
         }
 
-        /// Check for help flag in command line arguments
+        /// Check for help flag in cmd-line arguments
         public bool NeedsHelp(string[] args)
         {
-            int index = -1;
+            int argIndex = -1;
 
             List<int> query = (from arg in args
-                               let chars = arg.ToList()
-                               where arg.ToLower() == "-h"
-                                   || arg.ToLower() == "--help"
-                                   || (arg.StartsWith('-')
-                                       && (chars.Contains('h')
-                                           || chars.Contains('?')))
-                               select args.ToList().IndexOf(arg)).ToList();
+                               where arg.ToLower() == "--help"
+                                   || (arg[0] == '-'
+                                       && arg[1] != '-'
+                                       && (arg.Contains('h')
+                                           || arg.Contains('?')))
+                               select Array.IndexOf(args, arg)).ToList();
 
-            query.ForEach(x => index = x);
-            return index > -1;
+            query.ForEach(index => argIndex = index);
+            return argIndex > -1;
         }
 
-        /// Remove a named argument from Program.Args
-        public void RemoveNamedArg(string flag)
+        /// Remove named argument/value in cmd-line arguments
+        public void RemoveNamedArg(string arg)
         {
-            flag = flag.StartsWith("--") ? flag : $"--{flag}";
-            int index = IndexOfArgs(flag);
+            arg = arg.StartsWith("--") ? arg : $"--{arg}";
+            int index = IndexOfArgs(arg);
 
-            Prog.Args.RemoveAt(index);
-            Prog.Args.RemoveAt(index++);
+            Args.RemoveAt(index);
+            Args.RemoveAt(index++);
         }
 
-        /// Update a character of an argument in Program.Args
-        public void UpdateArgs(int index, char character)
+        /// Update character of a cmd-line argument
+        public void UpdateArgs(int index, char flag)
         {
-            string ch = character.ToString();
-            Prog.Args[index] = Prog.Args[index].Replace(ch, "");
+            Args[index] = Args[index].Replace($"{flag}", "");
         }
 
         /// Determine if specified address is a valid IPV4 address
@@ -151,7 +154,7 @@ namespace DotnetCat
 
             if (!AddressIsValid(addr))
             {
-                _error.Handle("address", addr, true);
+                _error.Handle(ErrorType.InvalidAddress, addr, true);
             }
 
             shell.Address = IPAddress.Parse(addr);
@@ -170,7 +173,7 @@ namespace DotnetCat
 
             if (!exists)
             {
-                _error.Handle("shell", exec, true);
+                _error.Handle(ErrorType.ShellPath, exec, true);
             }
 
             shell.Executable = path;
@@ -187,14 +190,14 @@ namespace DotnetCat
 
             if (!File.Exists(path) && !Directory.Exists(path))
             {
-                _error.Handle("filepath", path);
+                _error.Handle(ErrorType.FilePath, path);
             }
 
             shell.ShellPath = path;
             return shell;
         }
 
-        /// Specify the port to use with socket
+        /// Specify the port to use for connection
         public SocketShell SetPort(SocketShell shell, string port)
         {
             if (string.IsNullOrEmpty(port))
@@ -214,12 +217,12 @@ namespace DotnetCat
                 {
                     throw ex;
                 }
-                _error.Handle("port", port);
+                _error.Handle(ErrorType.InvalidPort, port);
             }
 
             if ((portNum < 0) || (portNum > 65535))
             {
-                _error.Handle("port", port);
+                _error.Handle(ErrorType.InvalidPort, port);
             }
 
             if (shell is SocketServer)
@@ -234,7 +237,7 @@ namespace DotnetCat
             return shell;
         }
 
-        /// Enable verbose standard console output
+        /// Enable verbose program console output
         public SocketShell SetVerbose(SocketShell shell)
         {
             shell.IsVerbose = true;
@@ -244,7 +247,7 @@ namespace DotnetCat
         /// Get program title based on platform
         private static string GetAppTitle()
         {
-            if (Prog.SysPlatform == Platform.Windows)
+            if (Program.GetPlatform() == Platform.Windows)
             {
                 return "dncat.exe";
             }
@@ -259,7 +262,7 @@ namespace DotnetCat
             {
                 "DotnetCat (https://github.com/vandavey/DotnetCat)",
                 $"{appUsage}\r\n",
-                "C# TCP socket command shell application\r\n",
+                "Remote command shell application\r\n",
                 "Positional Arguments:",
                 "  TARGET                   Specify remote/local IPv4 address\r\n",
                 "Optional Arguments:",
@@ -272,9 +275,9 @@ namespace DotnetCat
                 "  -r PATH, --recv PATH     Receive remote file or folder",
                 "  -s PATH, --send PATH     Send local file or folder\r\n",
                 "Usage Examples:",
-                $"  {appTitle} -le /bin/bash",
-                $"  {appTitle} -ve powershell.exe -p 5555 127.0.0.1",
-                $"  {appTitle} -p 8152 127.0.0.1\r\n"
+                $"  {appTitle} 10.0.0.152",
+                $"  {appTitle} -le powershell.exe -p 4444 127.0.0.1",
+                $"  {appTitle} -ve /bin/bash 192.168.1.9\r\n",
             });
         }
     }

@@ -6,16 +6,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Handlers;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Pipes
 {
-    /// <summary>
-    /// Specify if node will send/receive files
-    /// </summary>
-    enum NodeAction { Send, Receive, None }
+    enum NodeAction { SendFile, RecvFile, None }
 
     /// <summary>
-    /// Handle file data communication
+    /// Handle file data communication operations
     /// </summary>
     class FilePipe : StreamPipe, ICloseable
     {
@@ -27,7 +25,7 @@ namespace DotnetCat.Pipes
             _error = new ErrorHandler();
 
             this.Source = src ?? throw new ArgumentNullException("src");
-            this.NodeAction = NodeAction.Receive;
+            this.NodeAction = NodeAction.RecvFile;
 
             this.Dest = new StreamWriter(CreateFile(path, _error));
             this.Client = Program.SockShell.Client;
@@ -39,7 +37,7 @@ namespace DotnetCat.Pipes
             _error = new ErrorHandler();
 
             this.Dest = dest ?? throw new ArgumentNullException("dest");
-            this.NodeAction = NodeAction.Send;
+            this.NodeAction = NodeAction.SendFile;
 
             this.Source = new StreamReader(OpenFile(path, _error));
             this.Client = Program.SockShell.Client;
@@ -68,14 +66,14 @@ namespace DotnetCat.Pipes
         {
             if (string.IsNullOrEmpty(path))
             {
-                error.Handle("emptypath", "-r/--recv");
+                error.Handle(ErrorType.EmptyPath, "-r/--recv");
             }
 
             DirectoryInfo info = Directory.GetParent(path);
 
             if (!Directory.Exists(info.FullName))
             {
-                error.Handle("dirpath", info.FullName);
+                error.Handle(ErrorType.DirectoryPath, info.FullName);
             }
 
             return new FileStream(
@@ -89,14 +87,14 @@ namespace DotnetCat.Pipes
         {
             if (string.IsNullOrEmpty(path))
             {
-                error.Handle("emptypath", "-s/--send");
+                error.Handle(ErrorType.EmptyPath, "-s/--send");
             }
 
             FileInfo info = new FileInfo(path);
 
             if (!File.Exists(info.FullName))
             {
-                error.Handle("filepath", info.FullName);
+                error.Handle(ErrorType.FilePath, info.FullName);
             }
 
             return new FileStream(

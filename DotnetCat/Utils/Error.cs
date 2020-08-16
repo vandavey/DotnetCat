@@ -2,19 +2,38 @@
 
 namespace DotnetCat.Utils
 {
+    enum ErrorType : int
+    {
+        ArgCombination,
+        ArgValidation,
+        ConnectionLost,
+        ConnectionRefused,
+        DirectoryPath,
+        EmptyPath,
+        FilePath,
+        InvalidAddress,
+        InvalidPort,
+        NamedArg,
+        RequiredArg,
+        ShellPath,
+        ShellProcess,
+        SocketBind,
+        UnknownArg
+    }
+
     /// <summary>
     /// Custom errors specifically related to DotNetCat
     /// </summary>
     class Error
     {
         /// Initialize new Client
-        public Error(string name, string message)
+        public Error(ErrorType type, string msg)
         {
-            this.Name = name;
-            this.Message = message;
+            this.TypeName = type;
+            this.Message = msg;
         }
 
-        public string Name { get; }
+        public ErrorType TypeName { get; }
 
         public bool IsBuilt { get => !Message.Contains("{}"); }
 

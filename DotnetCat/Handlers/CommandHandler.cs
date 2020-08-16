@@ -11,17 +11,14 @@ using Env = System.Environment;
 
 namespace DotnetCat.Handlers
 {
-    /// <summary>
-    /// Specify platform node currently using
-    /// </summary>
-    enum Platform { Windows, Linux }
+    enum Platform { Linux, Windows }
 
     /// <summary>
     /// Execute special commands on the local system
     /// </summary>
     class CommandHandler
     {
-        private readonly List<string> _envPath;
+        private readonly List<string> _envPaths;
 
         private readonly List<string> _extensions;
 
@@ -29,7 +26,7 @@ namespace DotnetCat.Handlers
         public CommandHandler()
         {
             string path = Env.GetEnvironmentVariable("PATH");
-            _envPath = path.Split(Path.PathSeparator).ToList();
+            _envPaths = path.Split(Path.PathSeparator).ToList();
 
             _extensions = new List<string>
             {
@@ -66,9 +63,9 @@ namespace DotnetCat.Handlers
                 return (true, Path.GetFullPath(shell));
             }
 
-            string path;
+            string path = GetShellPath(shell);
 
-            if ((path = GetShellPath(shell)) != null)
+            if (path != null)
             {
                 return (true, path);
             }
@@ -92,13 +89,13 @@ namespace DotnetCat.Handlers
         /// Search environment path for specified shell
         public string GetShellPath(string shell)
         {
-            foreach (string path in _envPath)
+            foreach (string envPath in _envPaths)
             {
-                string testPath = Path.Combine(path, shell);
+                string path = Path.Combine(envPath, shell);
 
-                if (File.Exists(testPath))
+                if (File.Exists(Path.GetFullPath(path)))
                 {
-                    return testPath;
+                    return path;
                 }
             }
 

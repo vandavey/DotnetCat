@@ -49,14 +49,14 @@ namespace DotnetCat.Handlers
         /// Get the index of a status in this.Statuses
         private int IndexOfStatus(string level)
         {
-            int index = -1;
+            int statusIndex = -1;
 
             List<int> query = (from stat in Statuses
                                where stat.Level == level.ToLower()
                                select Statuses.IndexOf(stat)).ToList();
 
-            query.ForEach(x => index = x);
-            return index;
+            query.ForEach(index => statusIndex = index);
+            return statusIndex;
         }
     }
 }

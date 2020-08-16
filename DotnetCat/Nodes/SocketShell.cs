@@ -8,14 +8,10 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using DotnetCat.Handlers;
 using DotnetCat.Pipes;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Nodes
 {
-    /// <summary>
-    /// Specify the type of pipes to initialized
-    /// </summary>
-    enum PipeType { Default, Shell, Transfer }
-
     /// <summary>
     /// Base class for SocketClient and SocketServer
     /// </summary>
@@ -41,7 +37,11 @@ namespace DotnetCat.Nodes
             this.Style = new StyleHandler();
             this.Error = new ErrorHandler();
             this.Client = new TcpClient();
+
+            SysPlatform = Program.GetPlatform();
         }
+
+        public enum PipeType { Default, Shell, Transfer }
 
         public string ShellPath { get; set; }
 
@@ -53,7 +53,7 @@ namespace DotnetCat.Nodes
 
         public bool IsVerbose { get; set; }
 
-        public Platform SysPlatform { get => Program.SysPlatform; }
+        public Platform SysPlatform { get; set; }
 
         public TcpClient Client { get; set; }
 
@@ -85,12 +85,12 @@ namespace DotnetCat.Nodes
 
             if (!Cmd.ExistsOnPath(shell).exists)
             {
-                Error.Handle("shell", shell, true);
+                Error.Handle(ErrorType.ShellPath, shell, true);
             }
 
             _shellProc = new Process
             {
-                StartInfo = GetStartInfo(shell)
+                StartInfo = GetStartInfo(shell),
             };
 
             return _shellProc.Start();
@@ -102,11 +102,11 @@ namespace DotnetCat.Nodes
             ProcessStartInfo startInfo = new ProcessStartInfo(shell)
             {
                 CreateNoWindow = true,
+                WorkingDirectory = Cmd.GetProfilePath(SysPlatform),
                 RedirectStandardError = true,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
-                WorkingDirectory = Cmd.GetProfilePath(SysPlatform)
             };
 
             if (SysPlatform == Platform.Windows)
@@ -127,7 +127,8 @@ namespace DotnetCat.Nodes
 
             if (IsUsingShell && IsFileTransfer)
             {
-                Error.Handle("combo", "--exec, --recv/--send");
+                string message = "--exec, --recv/--send";
+                Error.Handle(ErrorType.ArgCombination, message);
             }
 
             if (IsUsingShell)
@@ -208,7 +209,7 @@ namespace DotnetCat.Nodes
         /// Initialize FilePipes
         private void AddFilePipes()
         {
-            if (Program.SocketAction == NodeAction.Receive)
+            if (Program.SocketAction == NodeAction.RecvFile)
             {
                 _netReader = new StreamReader(NetStream);
                 _pipes.Add(new FilePipe(_netReader, ShellPath));

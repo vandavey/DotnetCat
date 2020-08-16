@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Nodes
 {
@@ -39,7 +40,7 @@ namespace DotnetCat.Nodes
 
                     if (!hasStarted)
                     {
-                        Error.Handle("process", Executable);
+                        Error.Handle(ErrorType.ShellProcess, Executable);
                     }
                 }
 
@@ -55,12 +56,12 @@ namespace DotnetCat.Nodes
 
                 if (ex is SocketException)
                 {
-                    Error.Handle("socket", $"{Address}:{Port}");
+                    Error.Handle(ErrorType.ConnectionRefused, $"{Address}:{Port}");
                 }
 
                 if (ex is IOException)
                 {
-                    Error.Handle("closed", Address.ToString());
+                    Error.Handle(ErrorType.ConnectionLost, $"{Address}");
                 }
 
                 throw ex;
@@ -98,7 +99,7 @@ namespace DotnetCat.Nodes
             catch (SocketException)
             {
                 Close();
-                Error.Handle("bind", endPoint.ToString());
+                Error.Handle(ErrorType.SocketBind, $"{endPoint}");
             }
         }
     }

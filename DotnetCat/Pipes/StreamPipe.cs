@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotnetCat.Handlers;
 
 namespace DotnetCat.Pipes
 {
@@ -17,9 +18,12 @@ namespace DotnetCat.Pipes
         {
             this.IsConnected = false;
             this.Client = Program.SockShell.Client;
+            OSPlatform = Program.GetPlatform();
         }
 
         public bool IsConnected { get; protected set; }
+
+        protected Platform OSPlatform { get; }
 
         protected Task Worker { get; set; }
 
@@ -76,7 +80,6 @@ namespace DotnetCat.Pipes
         /// Connect streams and activate async communication
         private async Task ConnectAsync(CancellationToken token)
         {
-            // TODO: fix issue with linux line endings
             StringBuilder streamData = new StringBuilder();
             Memory<char> buffer = new Memory<char>(new char[1024]);
 
@@ -101,6 +104,11 @@ namespace DotnetCat.Pipes
                     break;
                 }
 
+                if (OSPlatform == Platform.Linux)
+                {
+                    streamData.Replace("\r\n", "\n");
+                }
+
                 await Dest.WriteAsync(streamData, token);
                 await Dest.FlushAsync();
 
@@ -108,6 +116,15 @@ namespace DotnetCat.Pipes
             }
 
             Close();
+        }
+
+        /// Get the current working dir
+        private string GetShellCwd()
+        {
+            //if ()
+            /*string directory = Directory.GetCurrentDirectory();
+            return directory;*/
+            return null;
         }
     }
 }

@@ -4,7 +4,7 @@ using System.IO;
 namespace DotnetCat.Pipes
 {
     /// <summary>
-    /// Handle shell process output streams
+    /// Handle shell process communication operations
     /// </summary>
     class ShellPipe : StreamPipe, ICloseable
     {

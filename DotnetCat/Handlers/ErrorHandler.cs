@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Prog = DotnetCat.Program;
 using DotnetCat.Nodes;
 using DotnetCat.Utils;
 
@@ -23,46 +22,19 @@ namespace DotnetCat.Handlers
         {
             _style = new StyleHandler();
             _status = new Status("error", "[x]", ConsoleColor.Red);
-
-            _errors = new List<Error>
-            {
-                new Error("address", "{} cannot be parsed as an IPv4 address"),
-                new Error("bind", "The endpoint {} is already in use"),
-                new Error("closed", "The connection was closed by {}"),
-                new Error("dirpath", "Unable to locate parent directory {}"),
-                new Error("emptypath", "A value is required for option {}"),
-                new Error("filepath", "Unable to locate file path {}"),
-                new Error("flag", "Missing value for named argument(s): {} "),
-                new Error("port", "{} cannot be parsed as a valid port"),
-                new Error("process", "Unable to run the process {}"),
-                new Error("required", "Missing required argument(s): {}"),
-                new Error("shell", "Unable to locate the shell executable {}"),
-                new Error("socket", "Unable to connect to {}"),
-                new Error("unknown", "Received unknown argument(s): {}"),
-                new Error("validation", "Unable to validate argument(s): {}")
-            };
+            _errors = GetErrors();
         }
 
         /// Handle special exceptions related to DotNetCat
-        public void Handle(string name, string arg)
+        public void Handle(ErrorType type, string arg)
         {
-            Handle(name, arg, false);
+            Handle(type, arg, false);
         }
 
         /// Handle special exceptions related to DotNetCat
-        public void Handle(string name, string arg, bool showUsage)
+        public void Handle(ErrorType type, string arg, bool showUsage)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentNullException("name");
-            }
-
-            int index = IndexOfError(name);
-
-            if (index == -1)
-            {
-                throw new ArgumentException("Invalid error name");
-            }
+            int index = IndexOfError(type);
 
             if ((arg == null) && !_errors[index].IsBuilt)
             {
@@ -82,7 +54,7 @@ namespace DotnetCat.Handlers
             _errors[index].Build(arg);
             Console.WriteLine(_errors[index].Message);
 
-            if (Prog.IsVerbose)
+            if (Program.IsVerbose)
             {
                 _style.Status("Exiting DotnetCat");
             }
@@ -92,16 +64,54 @@ namespace DotnetCat.Handlers
         }
 
         /// Get the index of an error in Errors
-        private int IndexOfError(string name)
+        private int IndexOfError(ErrorType type)
         {
-            int index = -1;
+            int errorIndex = -1;
 
             List<int> query = (from error in _errors
-                               where error.Name.ToLower() == name.ToLower()
+                               where error.TypeName == type
                                select _errors.IndexOf(error)).ToList();
 
-            query.ForEach(x => index = x);
-            return index;
+            query.ForEach(index => errorIndex = index);
+            return errorIndex;
+        }
+
+        /// Get errors related to DotnetCat
+        private static List<Error> GetErrors()
+        {
+            return new List<Error>
+            {
+                new Error(ErrorType.ArgCombination,
+                    msg: "The following arguments can't be combined: {}"),
+                new Error(ErrorType.ArgValidation,
+                    msg: "Unable to validate argument(s): {}"),
+                new Error(ErrorType.ConnectionLost,
+                    msg: "The connection was unexpectedly closed by {}"),
+                new Error(ErrorType.ConnectionRefused,
+                    msg: "Unable to connect to {}"),
+                new Error(ErrorType.DirectoryPath,
+                    msg: "Unable to locate parent directory {}"),
+                new Error(ErrorType.EmptyPath,
+                    msg: "A value is required for option {}"),
+                new Error(ErrorType.FilePath,
+                    msg: "Unable to locate file path {}"),
+                new Error(ErrorType.InvalidAddress,
+                    msg: "{} cannot be parsed as an IPv4 address"),
+                new Error(ErrorType.InvalidPort,
+                    msg: "{} cannot be parsed as a valid port"),
+                new Error(ErrorType.NamedArg,
+                    msg: "Missing value for named argument(s): {} "),
+                new Error(ErrorType.RequiredArg,
+                    msg: "Missing required argument(s): {}"),
+                new Error(ErrorType.ShellPath,
+                    msg: "Unable to locate the shell executable {}"),
+                new Error(ErrorType.ShellProcess,
+                    msg: "Unable to run the process {}"),
+                new Error(ErrorType.SocketBind,
+                    msg: "The endpoint {} is already in use"),
+                new Error(ErrorType.UnknownArg,
+                    msg: "Received unknown argument(s): {}"),
+            };
         }
     }
 }

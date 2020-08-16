@@ -1,6 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Nodes
 {
@@ -18,7 +22,11 @@ namespace DotnetCat.Nodes
         {
             try
             {
-                Client.Connect(Address, Port);
+                if (!Client.ConnectAsync(Address, Port).Wait(3000))
+                {
+                    throw new AggregateException();
+                }
+
                 NetStream = Client.GetStream();
 
                 if (Program.IsUsingExec)
@@ -29,7 +37,7 @@ namespace DotnetCat.Nodes
 
                     if (!hasStarted)
                     {
-                        Error.Handle("process", Executable);
+                        Error.Handle(ErrorType.ShellProcess, Executable);
                     }
                 }
 
@@ -40,14 +48,14 @@ namespace DotnetCat.Nodes
             }
             catch (Exception ex)
             {
-                if (ex is SocketException)
+                if (ex is AggregateException)
                 {
-                    Error.Handle("socket", $"{Address}:{Port}");
+                    Error.Handle(ErrorType.ConnectionRefused, $"{Address}:{Port}");
                 }
 
                 if (ex is IOException)
                 {
-                    Error.Handle("closed", Address.ToString());
+                    Error.Handle(ErrorType.ConnectionLost, $"{Address}");
                 }
 
                 throw ex;
