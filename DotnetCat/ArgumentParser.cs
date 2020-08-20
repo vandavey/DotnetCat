@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using DotnetCat.Handlers;
 using DotnetCat.Nodes;
@@ -10,6 +11,8 @@ using DotnetCat.Utils;
 
 namespace DotnetCat
 {
+    enum ArgumentType { Flag, Named }
+
     /// <summary>
     /// Command line argument parser and validator
     /// </summary>
@@ -24,6 +27,7 @@ namespace DotnetCat
         {
             _cmd = new CommandHandler();
             _error = new ErrorHandler();
+
             string appTitle = GetAppTitle();
 
             this.Usage = $"Usage: {appTitle} [OPTIONS] TARGET";
@@ -38,6 +42,12 @@ namespace DotnetCat
         {
             get => Program.Args;
             set => Program.Args = value;
+        }
+
+        public SocketShell SockShell
+        {
+            get => Program.SockShell;
+            set => Program.SockShell = value;
         }
 
         public static string GetUsage()
@@ -100,7 +110,8 @@ namespace DotnetCat
 
             List<int> query = (from arg in args
                                where arg.ToLower() == "--help"
-                                   || (arg[0] == '-'
+                                   || (arg.Length > 1
+                                       && arg[0] == '-'
                                        && arg[1] != '-'
                                        && (arg.Contains('h')
                                            || arg.Contains('?')))
@@ -117,7 +128,7 @@ namespace DotnetCat
             int index = IndexOfArgs(arg);
 
             Args.RemoveAt(index);
-            Args.RemoveAt(index++);
+            Args.RemoveAt(index + 1);
         }
 
         /// Update character of a cmd-line argument
@@ -126,13 +137,50 @@ namespace DotnetCat
             Args[index] = Args[index].Replace($"{flag}", "");
         }
 
-        /// Determine if specified address is a valid IPV4 address
-        public bool AddressIsValid(string addr)
+        /// Enable verbose standard output
+        public void SetVerbose(int argIndex, ArgumentType type)
         {
+            SockShell.IsVerbose = true;
+
+            if (type == ArgumentType.Named)
+            {
+                Args.RemoveAt(argIndex);
+            }
+            else
+            {
+                UpdateArgs(argIndex, 'v');
+            }
+        }
+
+        /// Specify the local or remote host
+        public void SetAddress(string address)
+        {
+            if (string.IsNullOrEmpty(address))
+            {
+                throw new ArgumentNullException("addr");
+            }
+
+            (bool isValid, IPAddress addr) = IsValidAddress(address);
+
+            if (!isValid)
+            {
+                _error.Handle(ErrorType.InvalidAddress, address, true);
+            }
+
+            SockShell.Address = addr;
+        }
+
+        /// Determine if specified address is valid
+        public (bool valid, IPAddress) IsValidAddress(string address)
+        {
+            if (string.IsNullOrEmpty(address))
+            {
+                return (false, null);
+            }
+
             try
             {
-                IPAddress.Parse(addr);
-                return true;
+                return (true, IPAddress.Parse(address));
             }
             catch (Exception ex)
             {
@@ -140,35 +188,61 @@ namespace DotnetCat
                 {
                     throw ex;
                 }
-                return false;
             }
+
+            IPAddress addr = ResolveHostName(address);
+
+            if (addr != null)
+            {
+                return (true, addr);
+            }
+
+            return (false, null);
         }
 
-        /// Specify local/remote IPv4 address to use
-        public SocketShell SetAddress(SocketShell shell, string addr)
+        /// Resolve the IPv4 address of given hostname
+        public IPAddress ResolveHostName(string hostName)
         {
-            if (string.IsNullOrEmpty(addr))
+            IPHostEntry dnsAns;
+            string machineName = Environment.MachineName.ToLower();
+
+            try
             {
-                throw new ArgumentNullException("addr");
+                dnsAns = Dns.GetHostEntry(hostName);
+            }
+            catch (SocketException)
+            {
+                return null;
             }
 
-            if (!AddressIsValid(addr))
+            if (dnsAns.HostName.ToLower() != machineName)
             {
-                _error.Handle(ErrorType.InvalidAddress, addr, true);
+                foreach (IPAddress addr in dnsAns.AddressList)
+                {
+                    if (addr.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        return addr;
+                    }
+                }
+                return null;
             }
 
-            shell.Address = IPAddress.Parse(addr);
-            return shell;
+            Socket socket = new Socket(
+                AddressFamily.InterNetwork,
+                SocketType.Dgram, ProtocolType.Udp
+            );
+
+            using (socket)
+            {
+                socket.Connect("8.8.8.8", 53);
+                return (socket.LocalEndPoint as IPEndPoint).Address;
+            }
         }
 
         /// Specify shell executable for command execution
-        public SocketShell SetExec(SocketShell shell, string exec)
+        public void SetExec(int argIndex, ArgumentType type)
         {
-            if (string.IsNullOrEmpty(exec))
-            {
-                throw new ArgumentNullException("shell");
-            }
-
+            string exec = ArgsValueAt(argIndex + 1);
             (bool exists, string path) = _cmd.ExistsOnPath(exec);
 
             if (!exists)
@@ -176,12 +250,54 @@ namespace DotnetCat
                 _error.Handle(ErrorType.ShellPath, exec, true);
             }
 
-            shell.Executable = path;
-            return shell;
+            Program.IsUsingExec = true;
+            SockShell.Executable = path;
+
+            if (type == ArgumentType.Named)
+            {
+                RemoveNamedArg("exec");
+            }
+            else
+            {
+                UpdateArgs(argIndex, 'e');
+                Args.RemoveAt(argIndex + 1);
+            }
+        }
+
+        /// Set file tranfer type of socket shell to "recv"
+        public void SetRecv(int argIndex, ArgumentType type)
+        {
+            string path = ArgsValueAt(argIndex + 1);
+            SetFilePath(path);
+
+            if (type == ArgumentType.Named)
+            {
+                RemoveNamedArg("recv");
+                return;
+            }
+
+            UpdateArgs(argIndex, 'r');
+            Args.RemoveAt(argIndex + 1);
+        }
+
+        /// Set file tranfer type of socket shell to "send"
+        public void SetSend(int argIndex, ArgumentType type)
+        {
+            string path = ArgsValueAt(argIndex + 1);
+            SetFilePath(path);
+
+            if (type == ArgumentType.Named)
+            {
+                RemoveNamedArg("send");
+                return;
+            }
+
+            UpdateArgs(argIndex, 's');
+            Args.RemoveAt(argIndex + 1);
         }
 
         /// Specify file path for file stream manipulation
-        public SocketShell SetFilePath(SocketShell shell, string path)
+        public void SetFilePath(string path)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -193,23 +309,23 @@ namespace DotnetCat
                 _error.Handle(ErrorType.FilePath, path);
             }
 
-            shell.ShellPath = path;
-            return shell;
+            SockShell.ShellPath = path;
         }
 
         /// Specify the port to use for connection
-        public SocketShell SetPort(SocketShell shell, string port)
+        public void SetPort(int argIndex, ArgumentType type)
         {
-            if (string.IsNullOrEmpty(port))
-            {
-                throw new ArgumentNullException("portString");
-            }
-
             int portNum = -1;
+            string port = ArgsValueAt(argIndex + 1);
 
             try
             {
                 portNum = int.Parse(port);
+
+                if ((portNum < 0) || (portNum > 65535))
+                {
+                    throw new FormatException();
+                }
             }
             catch (Exception ex)
             {
@@ -220,34 +336,22 @@ namespace DotnetCat
                 _error.Handle(ErrorType.InvalidPort, port);
             }
 
-            if ((portNum < 0) || (portNum > 65535))
+            SockShell.Port = portNum;
+
+            if (type == ArgumentType.Named)
             {
-                _error.Handle(ErrorType.InvalidPort, port);
+                RemoveNamedArg("port");
+                return;
             }
 
-            if (shell is SocketServer)
-            {
-                shell.Port = portNum;
-            }
-            else
-            {
-                shell.Port = int.Parse(port);
-            }
-
-            return shell;
-        }
-
-        /// Enable verbose program console output
-        public SocketShell SetVerbose(SocketShell shell)
-        {
-            shell.IsVerbose = true;
-            return shell;
+            UpdateArgs(argIndex, 'p');
+            Args.RemoveAt(argIndex + 1);
         }
 
         /// Get program title based on platform
         private static string GetAppTitle()
         {
-            if (Program.GetPlatform() == Platform.Windows)
+            if (Program.SysPlatform == Platform.Windows)
             {
                 return "dncat.exe";
             }
@@ -275,8 +379,8 @@ namespace DotnetCat
                 "  -r PATH, --recv PATH     Receive remote file or folder",
                 "  -s PATH, --send PATH     Send local file or folder\r\n",
                 "Usage Examples:",
-                $"  {appTitle} 10.0.0.152",
-                $"  {appTitle} -le powershell.exe -p 4444 127.0.0.1",
+                $"  {appTitle} -le powershell.exe",
+                $"  {appTitle} 10.0.0.152 -p 4444 localhost",
                 $"  {appTitle} -ve /bin/bash 192.168.1.9\r\n",
             });
         }

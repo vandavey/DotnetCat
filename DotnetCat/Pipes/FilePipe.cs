@@ -15,7 +15,7 @@ namespace DotnetCat.Pipes
     /// <summary>
     /// Handle file data communication operations
     /// </summary>
-    class FilePipe : StreamPipe, ICloseable
+    class FilePipe : StreamPipe, IConnectable
     {
         private readonly ErrorHandler _error;
 
@@ -23,24 +23,20 @@ namespace DotnetCat.Pipes
         public FilePipe(StreamReader src, string path) : base()
         {
             _error = new ErrorHandler();
-
             this.Source = src ?? throw new ArgumentNullException("src");
-            this.NodeAction = NodeAction.RecvFile;
 
+            this.NodeAction = NodeAction.RecvFile;
             this.Dest = new StreamWriter(CreateFile(path, _error));
-            this.Client = Program.SockShell.Client;
         }
 
         /// Initialize new FilePipe
         public FilePipe(string path, StreamWriter dest) : base()
         {
             _error = new ErrorHandler();
-
             this.Dest = dest ?? throw new ArgumentNullException("dest");
-            this.NodeAction = NodeAction.SendFile;
 
+            this.NodeAction = NodeAction.SendFile;
             this.Source = new StreamReader(OpenFile(path, _error));
-            this.Client = Program.SockShell.Client;
         }
 
         public NodeAction NodeAction { get; }
@@ -115,7 +111,7 @@ namespace DotnetCat.Pipes
             await Dest.FlushAsync();
             Disconnect();
 
-            Close();
+            Dispose();
         }
     }
 }

@@ -33,23 +33,32 @@
         <member name="M:DotnetCat.ArgumentParser.UpdateArgs(System.Int32,System.Char)">
             Update character of a cmd-line argument
         </member>
-        <member name="M:DotnetCat.ArgumentParser.AddressIsValid(System.String)">
-            Determine if specified address is a valid IPV4 address
+        <member name="M:DotnetCat.ArgumentParser.SetVerbose(System.Int32,DotnetCat.ArgumentType)">
+            Enable verbose standard output
         </member>
-        <member name="M:DotnetCat.ArgumentParser.SetAddress(DotnetCat.Nodes.SocketShell,System.String)">
-            Specify local/remote IPv4 address to use
+        <member name="M:DotnetCat.ArgumentParser.SetAddress(System.String)">
+            Specify the local or remote host
         </member>
-        <member name="M:DotnetCat.ArgumentParser.SetExec(DotnetCat.Nodes.SocketShell,System.String)">
+        <member name="M:DotnetCat.ArgumentParser.IsValidAddress(System.String)">
+            Determine if specified address is valid
+        </member>
+        <member name="M:DotnetCat.ArgumentParser.ResolveHostName(System.String)">
+            Resolve the IPv4 address of given hostname
+        </member>
+        <member name="M:DotnetCat.ArgumentParser.SetExec(System.Int32,DotnetCat.ArgumentType)">
             Specify shell executable for command execution
         </member>
-        <member name="M:DotnetCat.ArgumentParser.SetFilePath(DotnetCat.Nodes.SocketShell,System.String)">
+        <member name="M:DotnetCat.ArgumentParser.SetRecv(System.Int32,DotnetCat.ArgumentType)">
+            Set file tranfer type of socket shell to "recv"
+        </member>
+        <member name="M:DotnetCat.ArgumentParser.SetSend(System.Int32,DotnetCat.ArgumentType)">
+            Set file tranfer type of socket shell to "send"
+        </member>
+        <member name="M:DotnetCat.ArgumentParser.SetFilePath(System.String)">
             Specify file path for file stream manipulation
         </member>
-        <member name="M:DotnetCat.ArgumentParser.SetPort(DotnetCat.Nodes.SocketShell,System.String)">
+        <member name="M:DotnetCat.ArgumentParser.SetPort(System.Int32,DotnetCat.ArgumentType)">
             Specify the port to use for connection
-        </member>
-        <member name="M:DotnetCat.ArgumentParser.SetVerbose(DotnetCat.Nodes.SocketShell)">
-            Enable verbose program console output
         </member>
         <member name="M:DotnetCat.ArgumentParser.GetAppTitle">
             Get program title based on platform
@@ -79,7 +88,7 @@
         </member>
         <member name="T:DotnetCat.Handlers.ErrorHandler">
             <summary>
-            Handler for custom errors/error statuses
+            Handler for custom DotnetCat errors
             </summary>
         </member>
         <member name="M:DotnetCat.Handlers.ErrorHandler.#ctor">
@@ -114,16 +123,13 @@
         <member name="M:DotnetCat.Handlers.StyleHandler.IndexOfStatus(System.String)">
             Get the index of a status in this.Statuses
         </member>
-        <member name="T:DotnetCat.ICloseable">
+        <member name="T:DotnetCat.IConnectable">
             <summary>
-            Interface for connecting/releasing resources
+            Interface to connect and release resources
             </summary>
         </member>
-        <member name="M:DotnetCat.ICloseable.Connect">
+        <member name="M:DotnetCat.IConnectable.Connect">
             Connect the specified resources
-        </member>
-        <member name="M:DotnetCat.ICloseable.Close">
-            Release the specified resources
         </member>
         <member name="T:DotnetCat.Nodes.SocketClient">
             <summary>
@@ -141,10 +147,10 @@
         <member name="M:DotnetCat.Nodes.SocketServer.#ctor">
             Initialize new SocketServer
         </member>
-        <member name="M:DotnetCat.Nodes.SocketServer.Listen">
+        <member name="M:DotnetCat.Nodes.SocketServer.Connect">
             Listen for incoming TCP connections
         </member>
-        <member name="M:DotnetCat.Nodes.SocketServer.Close">
+        <member name="M:DotnetCat.Nodes.SocketServer.Dispose">
             Release any unmanaged resources
         </member>
         <member name="M:DotnetCat.Nodes.SocketServer.BindListener(System.Net.IPEndPoint)">
@@ -170,7 +176,7 @@
         <member name="M:DotnetCat.Nodes.SocketShell.Connect">
             Activate communication between pipe streams
         </member>
-        <member name="M:DotnetCat.Nodes.SocketShell.Close">
+        <member name="M:DotnetCat.Nodes.SocketShell.Dispose">
             Release any unmanaged resources
         </member>
         <member name="M:DotnetCat.Nodes.SocketShell.AddPipes(DotnetCat.Nodes.SocketShell.PipeType)">
@@ -189,7 +195,7 @@
             Initialize StreamPipes
         </member>
         <member name="M:DotnetCat.Nodes.SocketShell.AllPipesConnected">
-            Determine if all pipes are connected
+            Determine if all pipes are connected/active
         </member>
         <member name="T:DotnetCat.Pipes.FilePipe">
             <summary>
@@ -220,7 +226,7 @@
             </summary>
         </member>
         <member name="M:DotnetCat.Pipes.ShellPipe.#ctor(System.IO.StreamReader,System.IO.StreamWriter)">
-            Initialize new TextPipe
+            Initialize new ShellPipe
         </member>
         <member name="T:DotnetCat.Pipes.StreamPipe">
             <summary>
@@ -236,14 +242,17 @@
         <member name="M:DotnetCat.Pipes.StreamPipe.Disconnect">
             Cancel communication throughout pipe
         </member>
-        <member name="M:DotnetCat.Pipes.StreamPipe.Close">
+        <member name="M:DotnetCat.Pipes.StreamPipe.Dispose">
             Release any unmanaged resources
         </member>
         <member name="M:DotnetCat.Pipes.StreamPipe.ConnectAsync(System.Threading.CancellationToken)">
             Connect streams and activate async communication
         </member>
-        <member name="M:DotnetCat.Pipes.StreamPipe.GetShellCwd">
-            Get the current working dir
+        <member name="M:DotnetCat.Pipes.StreamPipe.FixLineEndings(System.Text.StringBuilder)">
+            Fix line terminators based on OS platform
+        </member>
+        <member name="M:DotnetCat.Pipes.StreamPipe.IsClearCmd(System.String)">
+            Determine if data contains clear command
         </member>
         <member name="T:DotnetCat.Program">
             <summary>
@@ -252,6 +261,9 @@
         </member>
         <member name="M:DotnetCat.Program.Main(System.String[])">
             Primary application entry point
+        </member>
+        <member name="M:DotnetCat.Program.GetPlatform">
+            Determine if OS platform is Windows or Unix
         </member>
         <member name="M:DotnetCat.Program.InitializeNode(System.String[])">
             Initialize node fields and properties
@@ -265,26 +277,11 @@
         <member name="M:DotnetCat.Program.GetNodeAction">
             Determine if the user is tranferring files
         </member>
-        <member name="M:DotnetCat.Program.ParseShortArgs">
+        <member name="M:DotnetCat.Program.ParseFlagArgs">
             Parse named arguments starting with one dash
         </member>
-        <member name="M:DotnetCat.Program.ParseLongArgs">
+        <member name="M:DotnetCat.Program.ParseNamedArgs">
             Parse named arguments starting with two dashes
-        </member>
-        <member name="M:DotnetCat.Program.SetExec(System.Int32,System.Int32,System.Boolean)">
-            Set the socket shell executable path
-        </member>
-        <member name="M:DotnetCat.Program.SetPort(System.Int32,System.Int32,System.Boolean)">
-            Set the socket shell port value
-        </member>
-        <member name="M:DotnetCat.Program.SetRecv(System.Int32,System.Int32,System.Boolean)">
-            Set file tranfer type of socket shell to "recv"
-        </member>
-        <member name="M:DotnetCat.Program.SetSend(System.Int32,System.Int32,System.Boolean)">
-            Set file tranfer type of socket shell to "send"
-        </member>
-        <member name="M:DotnetCat.Program.SetVerbose(System.Int32,System.Boolean)">
-            Enable verbose standard output
         </member>
         <member name="T:DotnetCat.Utils.Error">
             <summary>

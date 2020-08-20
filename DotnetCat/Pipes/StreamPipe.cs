@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -11,29 +12,36 @@ namespace DotnetCat.Pipes
     /// <summary>
     /// Handle stream communication operations
     /// </summary>
-    class StreamPipe : ICloseable
+    class StreamPipe : IConnectable
     {
+        private readonly string[] _clearCommands;
+
         /// Initialize new StreamPipe
         protected StreamPipe()
         {
-            this.IsConnected = false;
+            _clearCommands = new string[]
+            {
+                "cls", "clear", "clear-screen"
+            };
+
             this.Client = Program.SockShell.Client;
-            OSPlatform = Program.GetPlatform();
+            this.OSPlatform = Program.SysPlatform;
+            this.IsConnected = false;
         }
 
         public bool IsConnected { get; protected set; }
 
-        protected Platform OSPlatform { get; }
+        protected TcpClient Client { get; }
 
-        protected Task Worker { get; set; }
+        protected Platform OSPlatform { get; }
 
         protected StreamReader Source { get; set; }
 
         protected StreamWriter Dest { get; set; }
 
-        protected TcpClient Client { get; set; }
-
         protected CancellationTokenSource CTS { get; set; }
+
+        protected Task Worker { get; set; }
 
         /// Activate communication between the pipe streams
         public virtual void Connect()
@@ -59,7 +67,7 @@ namespace DotnetCat.Pipes
         }
 
         /// Release any unmanaged resources
-        public virtual void Close()
+        public virtual void Dispose()
         {
             Source?.Dispose();
             Dest?.Dispose();
@@ -80,8 +88,11 @@ namespace DotnetCat.Pipes
         /// Connect streams and activate async communication
         private async Task ConnectAsync(CancellationToken token)
         {
-            StringBuilder streamData = new StringBuilder();
             Memory<char> buffer = new Memory<char>(new char[1024]);
+
+            StringBuilder data = new StringBuilder();
+            StringBuilder newLine = new StringBuilder().AppendLine();
+            //StringBuilder newLine = data.AppendLine();
 
             int charsRead;
             IsConnected = true;
@@ -96,7 +107,7 @@ namespace DotnetCat.Pipes
                 }
 
                 charsRead = await Source.ReadAsync(buffer, token);
-                streamData.Append(buffer.ToArray(), 0, charsRead);
+                data.Append(buffer.ToArray(), 0, charsRead);
 
                 if (!Client.Connected || (charsRead <= 0))
                 {
@@ -104,18 +115,47 @@ namespace DotnetCat.Pipes
                     break;
                 }
 
-                if (OSPlatform == Platform.Linux)
+                FixLineEndings(data);
+
+                if (IsClearCmd(data.ToString()))
                 {
-                    streamData.Replace("\r\n", "\n");
+                    await Dest.WriteAsync(newLine, token);
+                }
+                else
+                {
+                    await Dest.WriteAsync(data, token);
                 }
 
-                await Dest.WriteAsync(streamData, token);
                 await Dest.FlushAsync();
-
-                streamData.Clear();
+                data.Clear();
             }
 
-            Close();
+            Dispose();
+        }
+
+        /// Fix line terminators based on OS platform
+        private StringBuilder FixLineEndings(StringBuilder data)
+        {
+            if (OSPlatform == Platform.Windows)
+            {
+                return data;
+            }
+
+            return data.Replace("\r\n", "\n");
+        }
+
+        /// Determine if data contains clear command
+        private bool IsClearCmd(string data)
+        {
+            data = data.Replace(Environment.NewLine, "");
+
+            if (_clearCommands.Contains(data.Trim()))
+            {
+                Console.Clear();
+                return true;
+            }
+
+            return false;
         }
     }
 }

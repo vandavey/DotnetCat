@@ -9,7 +9,7 @@ namespace DotnetCat.Nodes
     /// <summary>
     /// SocketShell derived server node
     /// </summary>
-    class SocketServer : SocketShell, ICloseable
+    class SocketServer : SocketShell, IConnectable
     {
         private Socket _listener;
 
@@ -20,7 +20,7 @@ namespace DotnetCat.Nodes
         }
 
         /// Listen for incoming TCP connections
-        public void Listen()
+        public override void Connect()
         {
             IPEndPoint remoteEP;
             BindListener(new IPEndPoint(Address, Port));
@@ -52,8 +52,6 @@ namespace DotnetCat.Nodes
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-
                 if (ex is SocketException)
                 {
                     Error.Handle(ErrorType.ConnectionRefused, $"{Address}:{Port}");
@@ -68,15 +66,15 @@ namespace DotnetCat.Nodes
             }
             finally
             {
-                Close();
+                Dispose();
             }
         }
 
         /// Release any unmanaged resources
-        public override void Close()
+        public override void Dispose()
         {
             _listener?.Dispose();
-            base.Close();
+            base.Dispose();
         }
 
         /// Bind the listener socket to an endpoint
@@ -98,7 +96,7 @@ namespace DotnetCat.Nodes
             }
             catch (SocketException)
             {
-                Close();
+                Dispose();
                 Error.Handle(ErrorType.SocketBind, $"{endPoint}");
             }
         }

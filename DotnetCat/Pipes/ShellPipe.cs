@@ -6,23 +6,13 @@ namespace DotnetCat.Pipes
     /// <summary>
     /// Handle shell process communication operations
     /// </summary>
-    class ShellPipe : StreamPipe, ICloseable
+    class ShellPipe : StreamPipe, IConnectable
     {
-        /// Initialize new TextPipe
-        public ShellPipe(StreamReader source, StreamWriter dest) : base()
+        /// Initialize new ShellPipe
+        public ShellPipe(StreamReader src, StreamWriter dest) : base()
         {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            else if (dest == null)
-            {
-                throw new ArgumentNullException("dest");
-            }
-
-            this.Source = source;
-            this.Dest = dest;
-            this.Client = Program.SockShell.Client;
+            this.Source = src ?? throw new ArgumentNullException("src");
+            this.Dest = dest ?? throw new ArgumentNullException("dest");
         }
     }
 }

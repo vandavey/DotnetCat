@@ -15,7 +15,7 @@ namespace DotnetCat.Nodes
     /// <summary>
     /// Base class for SocketClient and SocketServer
     /// </summary>
-    class SocketShell : ICloseable
+    class SocketShell : IConnectable
     {
         private readonly List<StreamPipe> _pipes;
 
@@ -28,6 +28,7 @@ namespace DotnetCat.Nodes
         protected SocketShell(IPAddress address = null)
         {
             _pipes = new List<StreamPipe>();
+            this.SysPlatform = Program.SysPlatform;
 
             this.Address = address;
             this.Port = 4444;
@@ -37,11 +38,9 @@ namespace DotnetCat.Nodes
             this.Style = new StyleHandler();
             this.Error = new ErrorHandler();
             this.Client = new TcpClient();
-
-            SysPlatform = Program.GetPlatform();
         }
 
-        public enum PipeType { Default, Shell, Transfer }
+        public enum PipeType { Default, File, Shell }
 
         public string ShellPath { get; set; }
 
@@ -53,9 +52,9 @@ namespace DotnetCat.Nodes
 
         public bool IsVerbose { get; set; }
 
-        public Platform SysPlatform { get; set; }
-
         public TcpClient Client { get; set; }
+
+        protected Platform SysPlatform { get; }
 
         protected CommandHandler Cmd { get; }
 
@@ -137,7 +136,7 @@ namespace DotnetCat.Nodes
             }
             else if (IsFileTransfer)
             {
-                AddPipes(PipeType.Transfer);
+                AddPipes(PipeType.File);
             }
             else
             {
@@ -148,9 +147,9 @@ namespace DotnetCat.Nodes
         }
 
         /// Release any unmanaged resources
-        public virtual void Close()
+        public virtual void Dispose()
         {
-            _pipes.ForEach(pipe => pipe?.Close());
+            _pipes.ForEach(pipe => pipe?.Dispose());
 
             _shellProc?.Dispose();
             _netReader?.Dispose();
@@ -166,17 +165,17 @@ namespace DotnetCat.Nodes
             _netReader = new StreamReader(NetStream);
             _netWriter = new StreamWriter(NetStream);
 
-            if (option == PipeType.Shell)
+            switch (option)
             {
-                AddShellPipes();
-            }
-            else if (option == PipeType.Transfer)
-            {
-                AddFilePipes();
-            }
-            else
-            {
-                AddDefaultPipes();
+                case PipeType.Shell:
+                    AddShellPipes();
+                    break;
+                case PipeType.File:
+                    AddFilePipes();
+                    break;
+                case PipeType.Default:
+                    AddDefaultPipes();
+                    break;
             }
         }
 
@@ -233,7 +232,7 @@ namespace DotnetCat.Nodes
             _pipes.Add(new ShellPipe(_netReader, stdout));
         }
 
-        /// Determine if all pipes are connected
+        /// Determine if all pipes are connected/active
         private bool AllPipesConnected()
         {
             int nullCount = _pipes.Where(x => x == null).Count();

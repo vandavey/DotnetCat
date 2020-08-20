@@ -11,7 +11,7 @@ namespace DotnetCat.Nodes
     /// <summary>
     /// SocketShell derived client node
     /// </summary>
-    class SocketClient : SocketShell, ICloseable
+    class SocketClient : SocketShell, IConnectable
     {
         public SocketClient() : base()
         {
@@ -62,7 +62,7 @@ namespace DotnetCat.Nodes
             }
             finally
             {
-                base.Close();
+                base.Dispose();
             }
         }
     }

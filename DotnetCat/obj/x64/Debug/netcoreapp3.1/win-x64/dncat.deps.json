@@ -9,101 +9,101 @@
     ".NETCoreApp,Version=v3.1/win-x64": {
       "dncat/1.0.0": {
         "dependencies": {
-          "runtimepack.Microsoft.NETCore.App.Runtime.win-x64": "3.1.6"
+          "runtimepack.Microsoft.NETCore.App.Runtime.win-x64": "3.1.7"
         },
         "runtime": {
           "dncat.dll": {}
         }
       },
-      "runtimepack.Microsoft.NETCore.App.Runtime.win-x64/3.1.6": {
+      "runtimepack.Microsoft.NETCore.App.Runtime.win-x64/3.1.7": {
         "runtime": {
           "Microsoft.Win32.Primitives.dll": {
             "assemblyVersion": "4.1.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "Microsoft.Win32.Registry.dll": {
             "assemblyVersion": "4.1.3.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Collections.Concurrent.dll": {
             "assemblyVersion": "4.0.15.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Collections.NonGeneric.dll": {
             "assemblyVersion": "4.1.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.ComponentModel.Primitives.dll": {
             "assemblyVersion": "4.2.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.ComponentModel.dll": {
             "assemblyVersion": "4.0.4.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Console.dll": {
             "assemblyVersion": "4.1.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Diagnostics.Process.dll": {
             "assemblyVersion": "4.2.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Diagnostics.Tools.dll": {
             "assemblyVersion": "4.1.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.IO.FileSystem.dll": {
             "assemblyVersion": "4.1.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Linq.dll": {
             "assemblyVersion": "4.2.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Net.NameResolution.dll": {
             "assemblyVersion": "4.1.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Net.Primitives.dll": {
             "assemblyVersion": "4.1.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Net.Sockets.dll": {
             "assemblyVersion": "4.2.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Private.Uri.dll": {
             "assemblyVersion": "4.0.6.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Runtime.Extensions.dll": {
             "assemblyVersion": "4.2.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Runtime.InteropServices.RuntimeInformation.dll": {
             "assemblyVersion": "4.0.4.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Runtime.dll": {
             "assemblyVersion": "4.2.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Security.Claims.dll": {
             "assemblyVersion": "4.1.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Security.Cryptography.Algorithms.dll": {
             "assemblyVersion": "4.3.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Security.Principal.Windows.dll": {
             "assemblyVersion": "4.1.3.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "System.Security.Principal.dll": {
             "assemblyVersion": "4.1.2.0",
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           }
         },
         "native": {
@@ -115,7 +115,7 @@
           },
           "System.Private.CoreLib.dll": {
             "assemblyVersion": "4.0.0.0",
-            "fileVersion": "4.700.20.26901"
+            "fileVersion": "4.700.20.36602"
           },
           "api-ms-win-core-console-l1-1-0.dll": {
             "fileVersion": "10.0.17134.12"
@@ -238,40 +238,40 @@
             "fileVersion": "10.0.17134.12"
           },
           "clrcompression.dll": {
-            "fileVersion": "4.700.20.31603"
+            "fileVersion": "4.700.20.37001"
           },
           "clretwrc.dll": {
-            "fileVersion": "4.700.20.26901"
+            "fileVersion": "4.700.20.36602"
           },
           "clrjit.dll": {
-            "fileVersion": "4.700.20.26901"
+            "fileVersion": "4.700.20.36602"
           },
           "coreclr.dll": {
-            "fileVersion": "4.700.20.26901"
+            "fileVersion": "4.700.20.36602"
           },
           "dbgshim.dll": {
-            "fileVersion": "4.700.20.26901"
+            "fileVersion": "4.700.20.36602"
           },
           "hostfxr.dll": {
-            "fileVersion": "3.100.620.31604"
+            "fileVersion": "3.100.720.37104"
           },
           "hostpolicy.dll": {
-            "fileVersion": "3.100.620.31604"
+            "fileVersion": "3.100.720.37104"
           },
           "mscordaccore.dll": {
-            "fileVersion": "4.700.20.26901"
+            "fileVersion": "4.700.20.36602"
           },
-          "mscordaccore_amd64_amd64_4.700.20.26901.dll": {
-            "fileVersion": "4.700.20.26901"
+          "mscordaccore_amd64_amd64_4.700.20.36602.dll": {
+            "fileVersion": "4.700.20.36602"
           },
           "mscordbi.dll": {
-            "fileVersion": "4.700.20.26901"
+            "fileVersion": "4.700.20.36602"
           },
           "mscorrc.debug.dll": {
-            "fileVersion": "4.700.20.26901"
+            "fileVersion": "4.700.20.36602"
           },
           "mscorrc.dll": {
-            "fileVersion": "4.700.20.26901"
+            "fileVersion": "4.700.20.36602"
           },
           "ucrtbase.dll": {
             "fileVersion": "10.0.17134.12"
@@ -286,7 +286,7 @@
       "serviceable": false,
       "sha512": ""
     },
-    "runtimepack.Microsoft.NETCore.App.Runtime.win-x64/3.1.6": {
+    "runtimepack.Microsoft.NETCore.App.Runtime.win-x64/3.1.7": {
       "type": "runtimepack",
       "serviceable": false,
       "sha512": ""

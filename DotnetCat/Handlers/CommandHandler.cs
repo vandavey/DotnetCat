@@ -11,7 +11,7 @@ using Env = System.Environment;
 
 namespace DotnetCat.Handlers
 {
-    enum Platform { Linux, Windows }
+    enum Platform { Unix, Windows }
 
     /// <summary>
     /// Execute special commands on the local system
@@ -37,7 +37,7 @@ namespace DotnetCat.Handlers
         /// Get default command shell for the platform
         public string GetDefaultShell(Platform platform)
         {
-            if (platform == Platform.Linux)
+            if (platform == Platform.Unix)
             {
                 if (!ExistsOnPath("/bin/bash").exists)
                 {

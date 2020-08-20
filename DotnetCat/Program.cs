@@ -15,10 +15,8 @@ namespace DotnetCat
     class Program
     {
         private static StyleHandler _style;
-        private static ErrorHandler _error;
 
-        private static SocketClient _client;
-        private static SocketServer _server;
+        private static ErrorHandler _error;
 
         private static ArgumentParser _parser;
 
@@ -31,6 +29,8 @@ namespace DotnetCat
         public static NodeAction SocketAction { get; set; }
 
         public static SocketShell SockShell { get; set; }
+
+        public static Platform SysPlatform { get; } = GetPlatform();
 
         public static bool IsVerbose
         {
@@ -50,7 +50,7 @@ namespace DotnetCat
             InitializeNode(args);
             ConnectNode();
 
-            if (SockShell.IsVerbose)
+            if (SockShell?.IsVerbose ?? IsVerbose)
             {
                 _style.Status("Exiting DotnetCat");
             }
@@ -59,11 +59,31 @@ namespace DotnetCat
             Environment.Exit(0);
         }
 
+        /// Determine if OS platform is Windows or Unix
+        private static Platform GetPlatform()
+        {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return Platform.Unix;
+            }
+
+            return Platform.Windows;
+        }
+
         /// Initialize node fields and properties
         private static void InitializeNode(string[] args)
         {
             _style = new StyleHandler();
             _error = new ErrorHandler();
+
+            if (args.Contains("-"))
+            {
+                _error.Handle(ErrorType.ArgValidation, "-", true);
+            }
+            else if (args.Contains("--"))
+            {
+                _error.Handle(ErrorType.ArgValidation, "--", true);
+            }
 
             IsUsingExec = false;
             Args = args.ToList();
@@ -82,33 +102,23 @@ namespace DotnetCat
 
             if (GetNodeType() == NodeType.Server)
             {
-                SockShell = _server = new SocketServer();
+                SockShell = new SocketServer();
             }
             else
             {
-                SockShell = _client = new SocketClient();
+                SockShell = new SocketClient();
             }
-        }
-
-        public static Platform GetPlatform()
-        {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return Platform.Linux;
-            }
-
-            return Platform.Windows;
         }
 
         /// Parse arguments and initiate connection
         private static void ConnectNode()
         {
-            ParseShortArgs();
-            ParseLongArgs();
+            ParseFlagArgs();
+            ParseNamedArgs();
 
             int size = Args.Count;
 
-            if ((size == 0) && (SockShell != _server))
+            if ((size == 0) && (SockShell is SocketClient))
             {
                 _error.Handle(ErrorType.RequiredArg, "TARGET", true);
             }
@@ -130,21 +140,15 @@ namespace DotnetCat
                 {
                     _error.Handle(ErrorType.UnknownArg, Args[0], true);
                 }
-                else if (!_parser.AddressIsValid(Args[0]))
+                else if (!_parser.IsValidAddress(Args[0]).valid)
                 {
                     _error.Handle(ErrorType.InvalidAddress, Args[0], true);
                 }
-                SockShell = _parser.SetAddress(SockShell, Args[0]);
+
+                _parser.SetAddress(Args[0]);
             }
 
-            if (SockShell is SocketServer)
-            {
-                _server.Listen();
-            }
-            else
-            {
-                _client.Connect();
-            }
+            SockShell.Connect();
         }
 
         /// Determine the node type from the command line argumentss
@@ -181,158 +185,71 @@ namespace DotnetCat
         }
 
         /// Parse named arguments starting with one dash
-        private static void ParseShortArgs()
+        private static void ParseFlagArgs()
         {
             var query = from arg in Args.ToList()
-                        let argIndex = _parser.IndexOfArgs(arg)
-                        let valIndex = argIndex + 1
+                        let index = _parser.IndexOfArgs(arg)
                         where arg[0] == '-'
                             && arg[1] != '-'
-                        select new { arg, argIndex, valIndex };
+                        select new { arg, index };
 
             foreach (var item in query)
             {
                 if (item.arg.Contains('l'))
-                    _parser.UpdateArgs(item.argIndex, 'l');
+                    _parser.UpdateArgs(item.index, 'l');
 
                 if (item.arg.Contains('v'))
-                    SetVerbose(item.argIndex, false);
+                    _parser.SetVerbose(item.index, ArgumentType.Flag);
 
                 if (item.arg.Contains('p'))
-                    SetPort(item.argIndex, item.valIndex, false);
+                    _parser.SetPort(item.index, ArgumentType.Flag);
 
                 if (item.arg.Contains('e'))
-                    SetExec(item.argIndex, item.valIndex, false);
+                    _parser.SetExec(item.index, ArgumentType.Flag);
 
                 if (item.arg.Contains('r'))
-                    SetRecv(item.argIndex, item.valIndex, false);
+                    _parser.SetRecv(item.index, ArgumentType.Flag);
 
                 if (item.arg.Contains('s'))
-                    SetSend(item.argIndex, item.valIndex, false);
+                    _parser.SetSend(item.index, ArgumentType.Flag);
 
-                if (_parser.ArgsValueAt(item.argIndex) == "-")
+                if (_parser.ArgsValueAt(item.index) == "-")
                     Args.RemoveAt(_parser.IndexOfArgs("-"));
             }
         }
 
         /// Parse named arguments starting with two dashes
-        private static void ParseLongArgs()
+        private static void ParseNamedArgs()
         {
             var query = from arg in Args.ToList()
-                        let argName = arg.Replace("--", "")
-                        let argIndex = _parser.IndexOfArgs(arg)
-                        let valIndex = argIndex + 1
+                        let index = _parser.IndexOfArgs(arg)
                         where arg.StartsWith("--")
-                        select new { argName, argIndex, valIndex };
+                        select new { arg, index };
 
             foreach (var item in query)
             {
-                switch (item.argName)
+                switch (item.arg)
                 {
-                    case "verbose":
-                        SetVerbose(item.argIndex, true);
+                    case "--verbose":
+                        _parser.SetVerbose(item.index, ArgumentType.Named);
                         break;
-                    case "port":
-                        SetPort(item.argIndex, item.valIndex, true);
+                    case "--port":
+                        _parser.SetPort(item.index, ArgumentType.Named);
                         break;
-                    case "exec":
-                        SetExec(item.argIndex, item.valIndex, true);
+                    case "--exec":
+                        _parser.SetExec(item.index, ArgumentType.Named);
                         break;
-                    case "recv":
-                        SetRecv(item.argIndex, item.valIndex, true);
+                    case "--recv":
+                        _parser.SetRecv(item.index, ArgumentType.Named);
                         break;
-                    case "send":
-                        SetSend(item.argIndex, item.valIndex, true);
+                    case "--send":
+                        _parser.SetSend(item.index, ArgumentType.Named);
                         break;
-                    case "listen":
-                        Args.RemoveAt(item.argIndex);
+                    case "--listen":
+                        Args.RemoveAt(item.index);
                         break;
                 }
             }
-        }
-
-        /// Set the socket shell executable path
-        private static void SetExec(int argIndex, int valIndex, bool isLong)
-        {
-            string exec = _parser.ArgsValueAt(valIndex);
-            SockShell = _parser.SetExec(SockShell, exec);
-
-            if (isLong)
-            {
-                _parser.RemoveNamedArg("exec");
-            }
-            else
-            {
-                _parser.UpdateArgs(argIndex, 'e');
-                Args.RemoveAt(valIndex);
-            }
-
-            IsUsingExec = true;
-        }
-
-        /// Set the socket shell port value
-        private static void SetPort(int argIndex, int valIndex, bool isLong)
-        {
-            string port = _parser.ArgsValueAt(valIndex);
-            SockShell = _parser.SetPort(SockShell, port);
-
-            if (isLong)
-            {
-                _parser.RemoveNamedArg("port");
-                return;
-            }
-
-            _parser.UpdateArgs(argIndex, 'p');
-            Args.RemoveAt(valIndex);
-        }
-
-        /// Set file tranfer type of socket shell to "recv"
-        private static void SetRecv(int argIndex, int valIndex, bool isLong)
-        {
-            string path = _parser.ArgsValueAt(valIndex);
-            SockShell = _parser.SetFilePath(SockShell, path);
-
-            if (isLong)
-            {
-                _parser.RemoveNamedArg("recv");
-                return;
-            }
-
-            _parser.UpdateArgs(argIndex, 'r');
-            Args.RemoveAt(valIndex);
-        }
-
-        /// Set file tranfer type of socket shell to "send"
-        private static void SetSend(int argIndex, int valIndex, bool isLong)
-        {
-            string path = _parser.ArgsValueAt(valIndex);
-            SockShell = _parser.SetFilePath(SockShell, path);
-
-            if (isLong)
-            {
-                _parser.RemoveNamedArg("send");
-                return;
-            }
-
-            _parser.UpdateArgs(argIndex, 's');
-            Args.RemoveAt(valIndex);
-        }
-
-        /// Enable verbose standard output
-        private static void SetVerbose(int argIndex, bool isLong)
-        {
-            SockShell = _parser.SetVerbose(SockShell);
-
-            if (isLong)
-            {
-                Args.RemoveAt(argIndex);
-            }
-            else
-            {
-                _parser.UpdateArgs(argIndex, 'v');
-            }
-
-            SockShell.IsVerbose = true;
         }
     }
 }

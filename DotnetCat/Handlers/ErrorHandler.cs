@@ -7,7 +7,7 @@ using DotnetCat.Utils;
 namespace DotnetCat.Handlers
 {
     /// <summary>
-    /// Handler for custom errors/error statuses
+    /// Handler for custom DotnetCat errors
     /// </summary>
     class ErrorHandler
     {
@@ -47,7 +47,6 @@ namespace DotnetCat.Handlers
             }
 
             Console.ForegroundColor = _status.Color;
-
             Console.Write($"{_status.Symbol} ");
             Console.ResetColor();
 
@@ -86,17 +85,17 @@ namespace DotnetCat.Handlers
                 new Error(ErrorType.ArgValidation,
                     msg: "Unable to validate argument(s): {}"),
                 new Error(ErrorType.ConnectionLost,
-                    msg: "The connection was unexpectedly closed by {}"),
+                    msg: "The connection was unexpectedly closed by {}'"),
                 new Error(ErrorType.ConnectionRefused,
                     msg: "Unable to connect to {}"),
                 new Error(ErrorType.DirectoryPath,
-                    msg: "Unable to locate parent directory {}"),
+                    msg: "Unable to locate parent directory '{}'"),
                 new Error(ErrorType.EmptyPath,
-                    msg: "A value is required for option {}"),
+                    msg: "A value is required for option(s): {}"),
                 new Error(ErrorType.FilePath,
-                    msg: "Unable to locate file path {}"),
+                    msg: "Unable to locate file path '{}'"),
                 new Error(ErrorType.InvalidAddress,
-                    msg: "{} cannot be parsed as an IPv4 address"),
+                    msg: "Unable to resolve hostname {}"),
                 new Error(ErrorType.InvalidPort,
                     msg: "{} cannot be parsed as a valid port"),
                 new Error(ErrorType.NamedArg,
