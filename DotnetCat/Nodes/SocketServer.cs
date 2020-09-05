@@ -35,7 +35,7 @@ namespace DotnetCat.Nodes
 
                 if (Program.IsUsingExec)
                 {
-                    Executable ??= Cmd.GetDefaultShell(SysPlatform);
+                    Executable ??= Cmd.GetDefaultShell(PlatformType);
                     bool hasStarted = StartProcess(Executable);
 
                     if (!hasStarted)
@@ -54,7 +54,8 @@ namespace DotnetCat.Nodes
             {
                 if (ex is SocketException)
                 {
-                    Error.Handle(ErrorType.ConnectionRefused, $"{Address}:{Port}");
+                    string endPoint = $"{Address}:{Port}";
+                    Error.Handle(ErrorType.ConnectionRefused, endPoint);
                 }
 
                 if (ex is IOException)

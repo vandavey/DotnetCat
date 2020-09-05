@@ -28,7 +28,7 @@ namespace DotnetCat.Nodes
         protected SocketShell(IPAddress address = null)
         {
             _pipes = new List<StreamPipe>();
-            this.SysPlatform = Program.SysPlatform;
+            this.PlatformType = Program.PlatformType;
 
             this.Address = address;
             this.Port = 4444;
@@ -54,7 +54,7 @@ namespace DotnetCat.Nodes
 
         public TcpClient Client { get; set; }
 
-        protected Platform SysPlatform { get; }
+        protected Platform PlatformType { get; }
 
         protected CommandHandler Cmd { get; }
 
@@ -66,10 +66,9 @@ namespace DotnetCat.Nodes
 
         protected bool IsUsingShell { get => Executable != null; }
 
-        /// Determine if file transfer is specified
         protected bool IsFileTransfer
         {
-            get => Program.SocketAction != NodeAction.None;
+            get => Program.IOActionType != IOAction.None;
         }
 
         private bool ShellHasExited
@@ -80,7 +79,7 @@ namespace DotnetCat.Nodes
         /// Initialize and start command shell process
         public bool StartProcess(string shell = null)
         {
-            Executable ??= Cmd.GetDefaultShell(SysPlatform);
+            Executable ??= Cmd.GetDefaultShell(PlatformType);
 
             if (!Cmd.ExistsOnPath(shell).exists)
             {
@@ -101,14 +100,14 @@ namespace DotnetCat.Nodes
             ProcessStartInfo startInfo = new ProcessStartInfo(shell)
             {
                 CreateNoWindow = true,
-                WorkingDirectory = Cmd.GetProfilePath(SysPlatform),
+                WorkingDirectory = Cmd.GetProfilePath(PlatformType),
                 RedirectStandardError = true,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
             };
 
-            if (SysPlatform == Platform.Windows)
+            if (PlatformType == Platform.Windows)
             {
                 startInfo.LoadUserProfile = true;
             }
@@ -126,7 +125,7 @@ namespace DotnetCat.Nodes
 
             if (IsUsingShell && IsFileTransfer)
             {
-                string message = "--exec, --recv/--send";
+                string message = "--exec, --output/--send";
                 Error.Handle(ErrorType.ArgCombination, message);
             }
 
@@ -198,17 +197,17 @@ namespace DotnetCat.Nodes
         {
             StreamWriter shellStdin = _shellProc.StandardInput;
             StreamReader shellStdout = _shellProc.StandardOutput;
-            StreamReader shellErr = _shellProc.StandardError;
+            StreamReader shellStderr = _shellProc.StandardError;
 
             _pipes.Add(new ShellPipe(_netReader, shellStdin));
             _pipes.Add(new ShellPipe(shellStdout, _netWriter));
-            _pipes.Add(new ShellPipe(shellErr, _netWriter));
+            _pipes.Add(new ShellPipe(shellStderr, _netWriter));
         }
 
         /// Initialize FilePipes
         private void AddFilePipes()
         {
-            if (Program.SocketAction == NodeAction.RecvFile)
+            if (Program.IOActionType == IOAction.Output)
             {
                 _netReader = new StreamReader(NetStream);
                 _pipes.Add(new FilePipe(_netReader, ShellPath));
@@ -222,11 +221,11 @@ namespace DotnetCat.Nodes
         /// Initialize StreamPipes
         private void AddDefaultPipes()
         {
-            Stream consoleStdin = Console.OpenStandardInput();
-            Stream consoleStdout = Console.OpenStandardOutput();
+            Stream stdinStream = Console.OpenStandardInput();
+            Stream stdoutStream = Console.OpenStandardOutput();
 
-            StreamReader stdin = new StreamReader(consoleStdin);
-            StreamWriter stdout = new StreamWriter(consoleStdout);
+            StreamReader stdin = new StreamReader(stdinStream);
+            StreamWriter stdout = new StreamWriter(stdoutStream);
 
             _pipes.Add(new ShellPipe(stdin, _netWriter));
             _pipes.Add(new ShellPipe(_netReader, stdout));

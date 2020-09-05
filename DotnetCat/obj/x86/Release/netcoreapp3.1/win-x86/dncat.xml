@@ -15,11 +15,11 @@
         <member name="M:DotnetCat.ArgumentParser.PrintHelp">
             Print application help message to console output
         </member>
-        <member name="M:DotnetCat.ArgumentParser.IndexOfArgs(System.String,System.String)">
-            Get the index of an argument in cmd-line arguments
+        <member name="M:DotnetCat.ArgumentParser.IndexOfAlias(System.Char)">
+            Get index of cmd-line argument with the specified char
         </member>
-        <member name="M:DotnetCat.ArgumentParser.IndexOfFlag(System.Char)">
-            Get index of an argument containing specified character
+        <member name="M:DotnetCat.ArgumentParser.IndexOfFlag(System.String,System.Nullable{System.Char})">
+            Get the index of argument in cmd-line arguments
         </member>
         <member name="M:DotnetCat.ArgumentParser.ArgsValueAt(System.Int32)">
             Get value of an argument in cmd-line arguments
@@ -27,14 +27,17 @@
         <member name="M:DotnetCat.ArgumentParser.NeedsHelp(System.String[])">
             Check for help flag in cmd-line arguments
         </member>
-        <member name="M:DotnetCat.ArgumentParser.RemoveNamedArg(System.String)">
+        <member name="M:DotnetCat.ArgumentParser.RemoveFlag(System.String,System.Boolean)">
             Remove named argument/value in cmd-line arguments
         </member>
-        <member name="M:DotnetCat.ArgumentParser.UpdateArgs(System.Int32,System.Char)">
-            Update character of a cmd-line argument
+        <member name="M:DotnetCat.ArgumentParser.RemoveAlias(System.Int32,System.Char)">
+            Remove character of a cmd-line argument
         </member>
         <member name="M:DotnetCat.ArgumentParser.SetVerbose(System.Int32,DotnetCat.ArgumentType)">
             Enable verbose standard output
+        </member>
+        <member name="M:DotnetCat.ArgumentParser.SetRecurse(System.Int32,DotnetCat.ArgumentType)">
+            Transfer directory children recursively
         </member>
         <member name="M:DotnetCat.ArgumentParser.SetAddress(System.String)">
             Specify the local or remote host
@@ -48,11 +51,11 @@
         <member name="M:DotnetCat.ArgumentParser.SetExec(System.Int32,DotnetCat.ArgumentType)">
             Specify shell executable for command execution
         </member>
-        <member name="M:DotnetCat.ArgumentParser.SetRecv(System.Int32,DotnetCat.ArgumentType)">
-            Set file tranfer type of socket shell to "recv"
+        <member name="M:DotnetCat.ArgumentParser.SetOutput(System.Int32,DotnetCat.ArgumentType)">
+            Specify file path to output received data
         </member>
         <member name="M:DotnetCat.ArgumentParser.SetSend(System.Int32,DotnetCat.ArgumentType)">
-            Set file tranfer type of socket shell to "send"
+            Specify path of file to send
         </member>
         <member name="M:DotnetCat.ArgumentParser.SetFilePath(System.String)">
             Specify file path for file stream manipulation
@@ -60,11 +63,11 @@
         <member name="M:DotnetCat.ArgumentParser.SetPort(System.Int32,DotnetCat.ArgumentType)">
             Specify the port to use for connection
         </member>
+        <member name="M:DotnetCat.ArgumentParser.GetHelp(System.String)">
+            Get application help message as a string
+        </member>
         <member name="M:DotnetCat.ArgumentParser.GetAppTitle">
             Get program title based on platform
-        </member>
-        <member name="M:DotnetCat.ArgumentParser.GetHelp(System.String,System.String)">
-            Get application help message as a string
         </member>
         <member name="T:DotnetCat.Handlers.CommandHandler">
             <summary>
@@ -163,9 +166,6 @@
         </member>
         <member name="M:DotnetCat.Nodes.SocketShell.#ctor(System.Net.IPAddress)">
             Initialize new SocketShell
-        </member>
-        <member name="P:DotnetCat.Nodes.SocketShell.IsFileTransfer">
-            Determine if file transfer is specified
         </member>
         <member name="M:DotnetCat.Nodes.SocketShell.StartProcess(System.String)">
             Initialize and start command shell process
@@ -274,13 +274,13 @@
         <member name="M:DotnetCat.Program.GetNodeType">
             Determine the node type from the command line argumentss
         </member>
-        <member name="M:DotnetCat.Program.GetNodeAction">
+        <member name="M:DotnetCat.Program.GetIOAction">
             Determine if the user is tranferring files
         </member>
-        <member name="M:DotnetCat.Program.ParseFlagArgs">
+        <member name="M:DotnetCat.Program.ParseCharArgs">
             Parse named arguments starting with one dash
         </member>
-        <member name="M:DotnetCat.Program.ParseNamedArgs">
+        <member name="M:DotnetCat.Program.ParseFlagArgs">
             Parse named arguments starting with two dashes
         </member>
         <member name="T:DotnetCat.Utils.Error">

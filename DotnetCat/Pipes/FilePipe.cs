@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +8,7 @@ using DotnetCat.Utils;
 
 namespace DotnetCat.Pipes
 {
-    enum NodeAction { SendFile, RecvFile, None }
+    enum IOAction { None, Output, Transmit }
 
     /// <summary>
     /// Handle file data communication operations
@@ -23,9 +21,11 @@ namespace DotnetCat.Pipes
         public FilePipe(StreamReader src, string path) : base()
         {
             _error = new ErrorHandler();
-            this.Source = src ?? throw new ArgumentNullException("src");
 
-            this.NodeAction = NodeAction.RecvFile;
+            this.Source = src ?? throw new ArgumentNullException("src");
+            this.FilePath = path ?? throw new ArgumentNullException("path");
+
+            this.IOActionType = IOAction.Output;
             this.Dest = new StreamWriter(CreateFile(path, _error));
         }
 
@@ -33,13 +33,19 @@ namespace DotnetCat.Pipes
         public FilePipe(string path, StreamWriter dest) : base()
         {
             _error = new ErrorHandler();
+
+            this.FilePath = path ?? throw new ArgumentNullException("path");
             this.Dest = dest ?? throw new ArgumentNullException("dest");
 
-            this.NodeAction = NodeAction.SendFile;
+            this.IOActionType = IOAction.Transmit;
             this.Source = new StreamReader(OpenFile(path, _error));
         }
 
-        public NodeAction NodeAction { get; }
+        public string FilePath { get; }
+
+        public IOAction IOActionType { get; }
+
+        public bool Verbose { get => Program.IsVerbose; }
 
         /// Activate communication between the pipe streams
         public override void Connect()
@@ -62,7 +68,7 @@ namespace DotnetCat.Pipes
         {
             if (string.IsNullOrEmpty(path))
             {
-                error.Handle(ErrorType.EmptyPath, "-r/--recv");
+                error.Handle(ErrorType.EmptyPath, "-o/--output");
             }
 
             DirectoryInfo info = Directory.GetParent(path);
@@ -102,15 +108,41 @@ namespace DotnetCat.Pipes
         /// Activate async communication
         private async Task ConnectAsync(CancellationToken token)
         {
+            StyleHandler style = new StyleHandler();
             StringBuilder data = new StringBuilder();
+
             IsConnected = true;
 
+            if (Verbose)
+            {
+                if (IOActionType == IOAction.Transmit)
+                {
+                    style.Status("Beginning file transmission...");
+                }
+                else
+                {
+                    style.Status($"Writing socket data to {FilePath}...");
+                }
+            }
+
             data.Append(await Source.ReadToEndAsync());
+
             await Dest.WriteAsync(data, token);
-
             await Dest.FlushAsync();
-            Disconnect();
 
+            if (Verbose)
+            {
+                if (IOActionType == IOAction.Transmit)
+                {
+                    style.Status($"{FilePath} data successfully sent");
+                }
+                else
+                {
+                    style.Status($"Data successfully written to {FilePath}");
+                }
+            }
+
+            Disconnect();
             Dispose();
         }
     }

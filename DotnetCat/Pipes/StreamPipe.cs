@@ -25,7 +25,7 @@ namespace DotnetCat.Pipes
             };
 
             this.Client = Program.SockShell.Client;
-            this.OSPlatform = Program.SysPlatform;
+            this.PlatformType = Program.PlatformType;
             this.IsConnected = false;
         }
 
@@ -33,7 +33,7 @@ namespace DotnetCat.Pipes
 
         protected TcpClient Client { get; }
 
-        protected Platform OSPlatform { get; }
+        protected Platform PlatformType { get; }
 
         protected StreamReader Source { get; set; }
 
@@ -92,7 +92,6 @@ namespace DotnetCat.Pipes
 
             StringBuilder data = new StringBuilder();
             StringBuilder newLine = new StringBuilder().AppendLine();
-            //StringBuilder newLine = data.AppendLine();
 
             int charsRead;
             IsConnected = true;
@@ -136,7 +135,7 @@ namespace DotnetCat.Pipes
         /// Fix line terminators based on OS platform
         private StringBuilder FixLineEndings(StringBuilder data)
         {
-            if (OSPlatform == Platform.Windows)
+            if (PlatformType == Platform.Windows)
             {
                 return data;
             }

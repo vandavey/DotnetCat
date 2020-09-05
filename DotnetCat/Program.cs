@@ -26,11 +26,11 @@ namespace DotnetCat
 
         public static List<string> Args { get; set; }
 
-        public static NodeAction SocketAction { get; set; }
+        public static IOAction IOActionType { get; set; }
 
         public static SocketShell SockShell { get; set; }
 
-        public static Platform SysPlatform { get; } = GetPlatform();
+        public static Platform PlatformType { get; set; }
 
         public static bool IsVerbose
         {
@@ -41,6 +41,7 @@ namespace DotnetCat
         private static void Main(string[] args)
         {
             _parser = new ArgumentParser();
+            PlatformType = GetPlatform();
 
             if ((args.Count() == 0) || _parser.NeedsHelp(args))
             {
@@ -98,7 +99,7 @@ namespace DotnetCat
                 Args.RemoveAt(index);
             }
 
-            SocketAction = GetNodeAction();
+            IOActionType = GetIOAction();
 
             if (GetNodeType() == NodeType.Server)
             {
@@ -113,8 +114,8 @@ namespace DotnetCat
         /// Parse arguments and initiate connection
         private static void ConnectNode()
         {
+            ParseCharArgs();
             ParseFlagArgs();
-            ParseNamedArgs();
 
             int size = Args.Count;
 
@@ -154,9 +155,9 @@ namespace DotnetCat
         /// Determine the node type from the command line argumentss
         private static NodeType GetNodeType()
         {
-            int index = _parser.IndexOfArgs("--listen", "-l");
+            int index = _parser.IndexOfFlag("--listen", 'l');
 
-            if ((index > -1) || (_parser.IndexOfFlag('l') > -1))
+            if ((index > -1) || (_parser.IndexOfAlias('l') > -1))
             {
                 return NodeType.Server;
             }
@@ -165,30 +166,30 @@ namespace DotnetCat
         }
 
         /// Determine if the user is tranferring files
-        private static NodeAction GetNodeAction()
+        private static IOAction GetIOAction()
         {
-            int recvIndex = _parser.IndexOfArgs("--recv", "-r");
+            int outIndex = _parser.IndexOfFlag("--output", 'o');
 
-            if ((recvIndex > -1) || (_parser.IndexOfFlag('r') > -1))
+            if ((outIndex > -1) || (_parser.IndexOfAlias('o') > -1))
             {
-                return NodeAction.RecvFile;
+                return IOAction.Output;
             }
 
-            int sendIndex = _parser.IndexOfArgs("--send", "-s");
+            int sendIndex = _parser.IndexOfFlag("--send", 's');
 
-            if ((sendIndex > -1) || (_parser.IndexOfFlag('s') > -1))
+            if ((sendIndex > -1) || (_parser.IndexOfAlias('s') > -1))
             {
-                return NodeAction.SendFile;
+                return IOAction.Transmit;
             }
 
-            return NodeAction.None;
+            return IOAction.None;
         }
 
         /// Parse named arguments starting with one dash
-        private static void ParseFlagArgs()
+        private static void ParseCharArgs()
         {
             var query = from arg in Args.ToList()
-                        let index = _parser.IndexOfArgs(arg)
+                        let index = _parser.IndexOfFlag(arg)
                         where arg[0] == '-'
                             && arg[1] != '-'
                         select new { arg, index };
@@ -196,33 +197,36 @@ namespace DotnetCat
             foreach (var item in query)
             {
                 if (item.arg.Contains('l'))
-                    _parser.UpdateArgs(item.index, 'l');
+                    _parser.RemoveAlias(item.index, 'l');
 
                 if (item.arg.Contains('v'))
-                    _parser.SetVerbose(item.index, ArgumentType.Flag);
-
-                if (item.arg.Contains('p'))
-                    _parser.SetPort(item.index, ArgumentType.Flag);
-
-                if (item.arg.Contains('e'))
-                    _parser.SetExec(item.index, ArgumentType.Flag);
+                    _parser.SetVerbose(item.index, ArgumentType.Alias);
 
                 if (item.arg.Contains('r'))
-                    _parser.SetRecv(item.index, ArgumentType.Flag);
+                    _parser.SetRecurse(item.index, ArgumentType.Alias);
+
+                if (item.arg.Contains('p'))
+                    _parser.SetPort(item.index, ArgumentType.Alias);
+
+                if (item.arg.Contains('e'))
+                    _parser.SetExec(item.index, ArgumentType.Alias);
+
+                if (item.arg.Contains('o'))
+                    _parser.SetOutput(item.index, ArgumentType.Alias);
 
                 if (item.arg.Contains('s'))
-                    _parser.SetSend(item.index, ArgumentType.Flag);
+                    _parser.SetSend(item.index, ArgumentType.Alias);
 
                 if (_parser.ArgsValueAt(item.index) == "-")
-                    Args.RemoveAt(_parser.IndexOfArgs("-"));
+                    Args.RemoveAt(_parser.IndexOfFlag("-"));
             }
         }
 
         /// Parse named arguments starting with two dashes
-        private static void ParseNamedArgs()
+        private static void ParseFlagArgs()
         {
             var query = from arg in Args.ToList()
-                        let index = _parser.IndexOfArgs(arg)
+                        let index = _parser.IndexOfFlag(arg)
                         where arg.StartsWith("--")
                         select new { arg, index };
 
@@ -230,23 +234,26 @@ namespace DotnetCat
             {
                 switch (item.arg)
                 {
-                    case "--verbose":
-                        _parser.SetVerbose(item.index, ArgumentType.Named);
-                        break;
-                    case "--port":
-                        _parser.SetPort(item.index, ArgumentType.Named);
-                        break;
-                    case "--exec":
-                        _parser.SetExec(item.index, ArgumentType.Named);
-                        break;
-                    case "--recv":
-                        _parser.SetRecv(item.index, ArgumentType.Named);
-                        break;
-                    case "--send":
-                        _parser.SetSend(item.index, ArgumentType.Named);
-                        break;
                     case "--listen":
                         Args.RemoveAt(item.index);
+                        break;
+                    case "--verbose":
+                        _parser.SetVerbose(item.index, ArgumentType.Flag);
+                        break;
+                    case "--recurse":
+                        _parser.SetRecurse(item.index, ArgumentType.Flag);
+                        break;
+                    case "--port":
+                        _parser.SetPort(item.index, ArgumentType.Flag);
+                        break;
+                    case "--exec":
+                        _parser.SetExec(item.index, ArgumentType.Flag);
+                        break;
+                    case "--output":
+                        _parser.SetOutput(item.index, ArgumentType.Flag);
+                        break;
+                    case "--send":
+                        _parser.SetSend(item.index, ArgumentType.Flag);
                         break;
                 }
             }

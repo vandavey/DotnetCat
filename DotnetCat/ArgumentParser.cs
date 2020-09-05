@@ -7,11 +7,12 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using DotnetCat.Handlers;
 using DotnetCat.Nodes;
+using DotnetCat.Pipes;
 using DotnetCat.Utils;
 
 namespace DotnetCat
 {
-    enum ArgumentType { Flag, Named }
+    enum ArgumentType { Alias, Flag }
 
     /// <summary>
     /// Command line argument parser and validator
@@ -28,15 +29,15 @@ namespace DotnetCat
             _cmd = new CommandHandler();
             _error = new ErrorHandler();
 
-            string appTitle = GetAppTitle();
-
-            this.Usage = $"Usage: {appTitle} [OPTIONS] TARGET";
-            this.Help = GetHelp(appTitle, this.Usage);
+            this.Help = GetHelp(GetUsage());
         }
 
         public string Help { get; }
 
-        public string Usage { get; }
+        public IOAction IOActionType
+        {
+            get => Program.IOActionType;
+        }
 
         public List<string> Args
         {
@@ -62,34 +63,34 @@ namespace DotnetCat
             Environment.Exit(0);
         }
 
-        /// Get the index of an argument in cmd-line arguments
-        public int IndexOfArgs(string name, string flag = null)
+        /// Get index of cmd-line argument with the specified char
+        public int IndexOfAlias(char alias)
         {
-            flag ??= name;
-            int argIndex = -1;
+            List<int> query = (from arg in Args
+                               where arg.Contains(alias)
+                                   && arg[0] == '-'
+                                   && arg[1] != '-'
+                               select Args.IndexOf(arg)).ToList();
+
+            return (query.Count() > 0) ? query[0] : -1;
+        }
+
+        /// Get the index of argument in cmd-line arguments
+        public int IndexOfFlag(string flag, char? alias = null)
+        {
+            if (flag == "-")
+            {
+                return Args.IndexOf(flag);
+            }
+
+            alias ??= (flag.Length == 2) ? flag[1] : flag[2];
 
             List<int> query = (from arg in Args
                                where arg.ToLower() == flag.ToLower()
-                                   || arg.ToLower() == name.ToLower()
+                                   || arg == $"-{alias}"
                                select Args.IndexOf(arg)).ToList();
 
-            query.ForEach(index => argIndex = index);
-            return argIndex;
-        }
-
-        /// Get index of an argument containing specified character
-        public int IndexOfFlag(char flag)
-        {
-            int flagIndex = -1;
-
-            List<int> query = (from arg in Args
-                               where arg.StartsWith("-")
-                                   && !arg.StartsWith("--")
-                                   && arg.Contains(flag)
-                               select Args.IndexOf(arg)).ToList();
-
-            query.ForEach(index => flagIndex = index);
-            return flagIndex;
+            return (query.Count() > 0) ? query[0] : -1;
         }
 
         /// Get value of an argument in cmd-line arguments
@@ -106,35 +107,34 @@ namespace DotnetCat
         /// Check for help flag in cmd-line arguments
         public bool NeedsHelp(string[] args)
         {
-            int argIndex = -1;
+            List<string> query = (from arg in args
+                                  where arg.ToLower() == "--help"
+                                      || (arg.Length > 1
+                                          && arg[0] == '-'
+                                          && arg[1] != '-'
+                                          && (arg.Contains('h')
+                                              || arg.Contains('?')))
+                                  select arg).ToList();
 
-            List<int> query = (from arg in args
-                               where arg.ToLower() == "--help"
-                                   || (arg.Length > 1
-                                       && arg[0] == '-'
-                                       && arg[1] != '-'
-                                       && (arg.Contains('h')
-                                           || arg.Contains('?')))
-                               select Array.IndexOf(args, arg)).ToList();
-
-            query.ForEach(index => argIndex = index);
-            return argIndex > -1;
+            return query.Count() > 0;
         }
 
         /// Remove named argument/value in cmd-line arguments
-        public void RemoveNamedArg(string arg)
+        public void RemoveFlag(string arg, bool noValue = false)
         {
-            arg = arg.StartsWith("--") ? arg : $"--{arg}";
-            int index = IndexOfArgs(arg);
+            int index = IndexOfFlag(arg);
+            int length = noValue ? 1 : 2;
 
-            Args.RemoveAt(index);
-            Args.RemoveAt(index + 1);
+            for (int i = 0; i < length; i++)
+            {
+                Args.RemoveAt(index);
+            }
         }
 
-        /// Update character of a cmd-line argument
-        public void UpdateArgs(int index, char flag)
+        /// Remove character of a cmd-line argument
+        public void RemoveAlias(int index, char alias)
         {
-            Args[index] = Args[index].Replace($"{flag}", "");
+            Args[index] = Args[index].Replace($"{alias}", "");
         }
 
         /// Enable verbose standard output
@@ -142,13 +142,26 @@ namespace DotnetCat
         {
             SockShell.IsVerbose = true;
 
-            if (type == ArgumentType.Named)
+            if (type == ArgumentType.Flag)
             {
                 Args.RemoveAt(argIndex);
             }
             else
             {
-                UpdateArgs(argIndex, 'v');
+                RemoveAlias(argIndex, 'v');
+            }
+        }
+
+        /// Transfer directory children recursively
+        public void SetRecurse(int argIndex, ArgumentType type)
+        {
+            if (type == ArgumentType.Flag)
+            {
+                Args.RemoveAt(argIndex);
+            }
+            else
+            {
+                RemoveAlias(argIndex, 'r');
             }
         }
 
@@ -191,31 +204,30 @@ namespace DotnetCat
             }
 
             IPAddress addr = ResolveHostName(address);
-
-            if (addr != null)
-            {
-                return (true, addr);
-            }
-
-            return (false, null);
+            return (addr == null) ? (false, null) : (true, addr);
         }
 
         /// Resolve the IPv4 address of given hostname
         public IPAddress ResolveHostName(string hostName)
         {
             IPHostEntry dnsAns;
-            string machineName = Environment.MachineName.ToLower();
+            string machineName = Environment.MachineName;
 
             try
             {
                 dnsAns = Dns.GetHostEntry(hostName);
+
+                if (dnsAns.AddressList.Contains(IPAddress.Loopback))
+                {
+                    return IPAddress.Loopback;
+                }
             }
             catch (SocketException)
             {
                 return null;
             }
 
-            if (dnsAns.HostName.ToLower() != machineName)
+            if (dnsAns.HostName.ToLower() != machineName.ToLower())
             {
                 foreach (IPAddress addr in dnsAns.AddressList)
                 {
@@ -253,46 +265,45 @@ namespace DotnetCat
             Program.IsUsingExec = true;
             SockShell.Executable = path;
 
-            if (type == ArgumentType.Named)
+            if (type == ArgumentType.Alias)
             {
-                RemoveNamedArg("exec");
-            }
-            else
-            {
-                UpdateArgs(argIndex, 'e');
-                Args.RemoveAt(argIndex + 1);
-            }
-        }
-
-        /// Set file tranfer type of socket shell to "recv"
-        public void SetRecv(int argIndex, ArgumentType type)
-        {
-            string path = ArgsValueAt(argIndex + 1);
-            SetFilePath(path);
-
-            if (type == ArgumentType.Named)
-            {
-                RemoveNamedArg("recv");
+                RemoveFlag("--exec");
                 return;
             }
 
-            UpdateArgs(argIndex, 'r');
+            RemoveAlias(argIndex, 'e');
             Args.RemoveAt(argIndex + 1);
         }
 
-        /// Set file tranfer type of socket shell to "send"
-        public void SetSend(int argIndex, ArgumentType type)
+        /// Specify file path to output received data
+        public void SetOutput(int argIndex, ArgumentType type)
         {
             string path = ArgsValueAt(argIndex + 1);
             SetFilePath(path);
 
-            if (type == ArgumentType.Named)
+            if (type == ArgumentType.Flag)
             {
-                RemoveNamedArg("send");
+                RemoveFlag("--output");
                 return;
             }
 
-            UpdateArgs(argIndex, 's');
+            RemoveAlias(argIndex, 'o');
+            Args.RemoveAt(argIndex + 1);
+        }
+
+        /// Specify path of file to send
+        public void SetSend(int argIndex, ArgumentType type)
+        {
+            string path = ArgsValueAt(argIndex + 1);
+            SetFilePath(Path.GetFullPath(path));
+
+            if (type == ArgumentType.Flag)
+            {
+                RemoveFlag("--send");
+                return;
+            }
+
+            RemoveAlias(argIndex, 's');
             Args.RemoveAt(argIndex + 1);
         }
 
@@ -304,7 +315,7 @@ namespace DotnetCat
                 throw new ArgumentNullException("path");
             }
 
-            if (!File.Exists(path) && !Directory.Exists(path))
+            if (!File.Exists(path) && !Directory.GetParent(path).Exists)
             {
                 _error.Handle(ErrorType.FilePath, path);
             }
@@ -338,30 +349,21 @@ namespace DotnetCat
 
             SockShell.Port = portNum;
 
-            if (type == ArgumentType.Named)
+            if (type == ArgumentType.Flag)
             {
-                RemoveNamedArg("port");
+                RemoveFlag("--port");
                 return;
             }
 
-            UpdateArgs(argIndex, 'p');
+            RemoveAlias(argIndex, 'p');
             Args.RemoveAt(argIndex + 1);
         }
 
-        /// Get program title based on platform
-        private static string GetAppTitle()
-        {
-            if (Program.SysPlatform == Platform.Windows)
-            {
-                return "dncat.exe";
-            }
-
-            return "dncat";
-        }
-
         /// Get application help message as a string
-        private static string GetHelp(string appTitle, string appUsage)
+        private static string GetHelp(string appUsage)
         {
+            string appTitle = GetAppTitle();
+
             return string.Join("\r\n", new string[]
             {
                 "DotnetCat (https://github.com/vandavey/DotnetCat)",
@@ -370,19 +372,30 @@ namespace DotnetCat
                 "Positional Arguments:",
                 "  TARGET                   Specify remote/local IPv4 address\r\n",
                 "Optional Arguments:",
-                "  -h/-?,   --help          Show this help message and exit",
-                "  -v,      --verbose       Enable verbose console output",
-                "  -l,      --listen        Listen for incoming connections",
-                "  -p PORT, --port PORT     Specify port to use for socket.",
-                "                           (Default: 4444)",
-                "  -e EXEC, --exec EXEC     Specify command shell executable",
-                "  -r PATH, --recv PATH     Receive remote file or folder",
-                "  -s PATH, --send PATH     Send local file or folder\r\n",
+                "  -h/-?,   --help           Show this help message and exit",
+                "  -v,      --verbose        Enable verbose console output",
+                "  -l,      --listen         Listen for incoming connections",
+                "  -r,      --recurse        Transfer a directory recursively",
+                "  -p PORT, --port PORT      Specify port to use for socket.",
+                "                            (Default: 4444)",
+                "  -e EXEC, --exec EXEC      Specify command shell executable",
+                "  -o PATH, --output PATH    Receive file from remote host",
+                "  -s PATH, --send PATH      Send local file or folder\r\n",
                 "Usage Examples:",
                 $"  {appTitle} -le powershell.exe",
                 $"  {appTitle} 10.0.0.152 -p 4444 localhost",
                 $"  {appTitle} -ve /bin/bash 192.168.1.9\r\n",
             });
+        }
+
+        /// Get program title based on platform
+        private static string GetAppTitle()
+        {
+            if (Program.PlatformType == Platform.Unix)
+            {
+                return "dncat";
+            }
+            return "dncat.exe";
         }
     }
 }

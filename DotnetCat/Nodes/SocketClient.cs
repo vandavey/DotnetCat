@@ -1,9 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 using DotnetCat.Utils;
 
 namespace DotnetCat.Nodes
@@ -32,7 +28,7 @@ namespace DotnetCat.Nodes
                 if (Program.IsUsingExec)
                 {
                     bool hasStarted = StartProcess(
-                        Executable ?? Cmd.GetDefaultShell(SysPlatform)
+                        Executable ?? Cmd.GetDefaultShell(PlatformType)
                     );
 
                     if (!hasStarted)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DotnetCat.Nodes;
 using DotnetCat.Utils;
 
 namespace DotnetCat.Handlers
@@ -20,9 +19,9 @@ namespace DotnetCat.Handlers
         /// Initialize new ErrorHandler
         public ErrorHandler()
         {
-            _style = new StyleHandler();
-            _status = new Status("error", "[x]", ConsoleColor.Red);
             _errors = GetErrors();
+            _status = new Status("error", "[x]", ConsoleColor.Red);
+            _style = new StyleHandler();
         }
 
         /// Handle special exceptions related to DotNetCat
@@ -63,16 +62,13 @@ namespace DotnetCat.Handlers
         }
 
         /// Get the index of an error in Errors
-        private int IndexOfError(ErrorType type)
+        private int IndexOfError(ErrorType errorType)
         {
-            int errorIndex = -1;
-
             List<int> query = (from error in _errors
-                               where error.TypeName == type
+                               where error.TypeName == errorType
                                select _errors.IndexOf(error)).ToList();
 
-            query.ForEach(index => errorIndex = index);
-            return errorIndex;
+            return (query.Count() > 0) ? query[0] : -1;
         }
 
         /// Get errors related to DotnetCat
