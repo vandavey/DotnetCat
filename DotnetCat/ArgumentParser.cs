@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
 using DotnetCat.Handlers;
 using DotnetCat.Nodes;
 using DotnetCat.Pipes;
@@ -264,7 +265,7 @@ namespace DotnetCat
             Program.IsUsingExec = true;
             SockShell.Executable = path;
 
-            if (type == ArgumentType.Alias)
+            if (type == ArgumentType.Flag)
             {
                 RemoveFlag("--exec");
                 return;

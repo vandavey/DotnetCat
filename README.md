@@ -51,4 +51,4 @@ The entire DotnetCat repository can be downloaded [here](https://github.com/vand
 
 ## Licensing
 
-The DotnetCat application source code is available [here](https://github.com/vandavey/DotnetCat) and licensed under the [MIT license](DotnetCat/Resources/LICENSE.md).
+The DotnetCat application source code is available [here](https://github.com/vandavey/DotnetCat) and licensed under the [MIT license](LICENSE.md).
