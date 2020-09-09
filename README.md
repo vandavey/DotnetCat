@@ -5,35 +5,10 @@
 
 # DotnetCat
 
-Remote command shell application written in C#, targeting the [.NET Core 3.1 runtime](https://dotnet.microsoft.com/download/dotnet-core/current/runtime).
+Remote command shell application written in C#,
+targeting the [.NET Core 3.1 runtime](https://dotnet.microsoft.com/download/dotnet-core/current/runtime).
 
-## Basic Usage
-
-* Linux Systems
-  
-    ```bash
-    dncat [OPTIONS] TARGET
-    ```
-
-* Windows Systems
-
-    ```bat
-    dncat.exe [OPTIONS] TARGET
-    ```
-
-## Available Arguments
-
-| Argument         | Type       | Description                        | Default |
-|:----------------:|:----------:|:----------------------------------:|:-------:|
-|`TARGET`          | *Required* | Target IPv4 address or host name   | *N/A*   |
-|`-h/-?, --help`   | *Optional* | Display the application help menu  | *False* |
-|`-v, --verbose`   | *Optional* | Enable verbose console output      | *False* |
-|`-l, --listen`    | *Optional* | Listen for an incoming connection  | *False* |
-|`-r, --recurse`   | *Optional* | Send entire directory recursively  | *False* |
-|`-p/--port PORT`  | *Optional* | Primary local/remote port number   | *4444*  |
-|`-e/--exec EXEC`  | *Optional* | Command shell executable file path | *N/A*   |
-|`-o/--output PATH`| *Optional* | Send file data to remote host      | *N/A*   |
-|`-s/--send PATH`  | *Optional* | Receive file data from remote host | *N/A*   |
+***
 
 ## Downloads
 
@@ -47,8 +22,46 @@ To download an all-in-one executable, select one of the options below:
 
 ### Full Repository
 
-The entire DotnetCat repository can be downloaded [here](https://github.com/vandavey/DotnetCat/archive/master.zip), or by clicking the green download button at the top of the page.
+The entire DotnetCat repository can be downloaded [here](https://github.com/vandavey/DotnetCat/archive/master.zip),
+or by clicking the green download button at the top of the page.
+
+***
+
+## Basic Usage
+
+* Linux Systems
+
+    ```bash
+    dncat [OPTIONS] TARGET
+    ```
+
+* Windows Systems
+
+    ```bat
+    dncat.exe [OPTIONS] TARGET
+    ```
+
+***
+
+## Available Arguments
+
+All available DotnetCat arguments are listed in the following table:
+
+| Argument           | Type       | Description                | Default |
+|:------------------:|:----------:|:--------------------------:|:-------:|
+| `TARGET`           | *Required* | Target address or host     | *N/A*   |
+| `-p/--port PORT`   | *Optional* | Primary local/remote port  | *4444*  |
+| `-e/--exec EXEC`   | *Optional* | Command shell executable   | *N/A*   |
+| `-o/--output PATH` | *Optional* | Receive a remote file      | *N/A*   |
+| `-s/--send PATH`   | *Optional* | Send local file/directory  | *N/A*   |
+| `-l, --listen`     | *Optional* | Listen for a connection    | *False* |
+| `-v, --verbose`    | *Optional* | Enable verbose output      | *False* |
+| `-r, --recurse`    | *Optional* | Send directory recursively | *False* |
+| `-h/-?, --help`    | *Optional* | Display the help menu      | *False* |
+
+***
 
 ## Licensing
 
-The DotnetCat application source code is available [here](https://github.com/vandavey/DotnetCat) and licensed under the [MIT license](LICENSE.md).
+The DotnetCat application source code is available [here](https://github.com/vandavey/DotnetCat)
+and licensed under the [MIT license](LICENSE.md).
