@@ -5,12 +5,14 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotnetCat.Contracts;
+using DotnetCat.Enums;
 using DotnetCat.Handlers;
 
-namespace DotnetCat.Pipes
+namespace DotnetCat.Pipelines
 {
     /// <summary>
-    /// Handle stream communication operations
+    /// Base class for all pipelines in DotnetCat.Pipelines
     /// </summary>
     class StreamPipe : IConnectable
     {
@@ -25,15 +27,15 @@ namespace DotnetCat.Pipes
             };
 
             this.Client = Program.SockShell.Client;
-            this.PlatformType = Program.PlatformType;
-            this.IsConnected = false;
+            this.Platform = Program.Platform;
+            this.Connected = false;
         }
 
-        public bool IsConnected { get; protected set; }
+        public bool Connected { get; protected set; }
 
         protected TcpClient Client { get; }
 
-        protected Platform PlatformType { get; }
+        protected PlatformType Platform { get; }
 
         protected StreamReader Source { get; set; }
 
@@ -48,11 +50,11 @@ namespace DotnetCat.Pipes
         {
             if (Source == null)
             {
-                throw new ArgumentNullException("Source");
+                throw new ArgumentNullException(nameof(Source));
             }
             else if (Dest == null)
             {
-                throw new ArgumentNullException("Dest");
+                throw new ArgumentNullException(nameof(Dest));
             }
 
             CTS = new CancellationTokenSource();
@@ -62,7 +64,7 @@ namespace DotnetCat.Pipes
         /// Cancel communication throughout pipe
         public virtual void Disconnect()
         {
-            IsConnected = false;
+            Connected = false;
             CTS?.Cancel();
         }
 
@@ -94,7 +96,7 @@ namespace DotnetCat.Pipes
             StringBuilder newLine = new StringBuilder().AppendLine();
 
             int charsRead;
-            IsConnected = true;
+            Connected = true;
 
             // Primary data communication loop
             while (Client.Connected)
@@ -135,7 +137,7 @@ namespace DotnetCat.Pipes
         /// Fix line terminators based on OS platform
         private StringBuilder FixLineEndings(StringBuilder data)
         {
-            if (PlatformType == Platform.Windows)
+            if (Platform == PlatformType.Windows)
             {
                 return data;
             }

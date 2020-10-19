@@ -28,8 +28,10 @@ namespace DotnetCat.Handlers
         {
             if (!this.IsValidLevel(level))
             {
-                string errMsg = "Level must be info, out, or warning";
-                throw new ArgumentException(errMsg, paramName: "errMsg");
+                throw new ArgumentException(
+                    message: "Level must be 'info', 'out', or 'warning'",
+                    paramName: nameof(level)
+                );
             }
 
             int index = IndexOfStatus(level);

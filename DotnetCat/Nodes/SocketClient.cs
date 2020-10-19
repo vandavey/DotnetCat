@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
-using DotnetCat.Utils;
+using DotnetCat.Contracts;
+using DotnetCat.Enums;
 
 namespace DotnetCat.Nodes
 {
@@ -18,17 +19,17 @@ namespace DotnetCat.Nodes
         {
             try
             {
-                if (!Client.ConnectAsync(Address, Port).Wait(3000))
+                if (!Client.ConnectAsync(Address, Port).Wait(3500))
                 {
                     throw new AggregateException();
                 }
 
                 NetStream = Client.GetStream();
 
-                if (Program.IsUsingExec)
+                if (Program.UsingShell)
                 {
                     bool hasStarted = StartProcess(
-                        Executable ?? Cmd.GetDefaultShell(PlatformType)
+                        Executable ?? Cmd.GetDefaultShell(Platform)
                     );
 
                     if (!hasStarted)
@@ -46,12 +47,18 @@ namespace DotnetCat.Nodes
             {
                 if (ex is AggregateException)
                 {
-                    Error.Handle(ErrorType.ConnectionRefused, $"{Address}:{Port}");
+                    Error.Handle(
+                        ErrorType.ConnectionRefused,
+                        $"{Address}:{Port}"
+                    );
                 }
 
                 if (ex is IOException)
                 {
-                    Error.Handle(ErrorType.ConnectionLost, $"{Address}");
+                    Error.Handle(
+                        ErrorType.ConnectionLost,
+                        Address.ToString()
+                    );
                 }
 
                 throw ex;

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using DotnetCat.Enums;
 using DotnetCat.Handlers;
 using DotnetCat.Nodes;
-using DotnetCat.Pipes;
-using DotnetCat.Utils;
 
 namespace DotnetCat
 {
@@ -20,28 +19,28 @@ namespace DotnetCat
 
         private static ArgumentParser _parser;
 
-        public enum NodeType { Client, Server }
+        public static bool Recursive { get; set; }
 
-        public static bool IsUsingExec { get; set; }
+        public static bool UsingShell { get; set; }
 
         public static List<string> Args { get; set; }
 
-        public static IOAction IOActionType { get; set; }
+        public static IOActionType IOAction { get; set; }
+
+        public static PlatformType Platform { get; set; }
 
         public static SocketShell SockShell { get; set; }
 
-        public static Platform PlatformType { get; set; }
-
-        public static bool IsVerbose
+        public static bool Verbose
         {
-            get => SockShell?.IsVerbose ?? false;
+            get => SockShell?.Verbose ?? false;
         }
 
         /// Primary application entry point
         private static void Main(string[] args)
         {
             _parser = new ArgumentParser();
-            PlatformType = GetPlatform();
+            Platform = GetPlatform();
 
             if ((args.Count() == 0) || _parser.NeedsHelp(args))
             {
@@ -51,7 +50,7 @@ namespace DotnetCat
             InitializeNode(args);
             ConnectNode();
 
-            if (SockShell?.IsVerbose ?? IsVerbose)
+            if (SockShell?.Verbose ?? Verbose)
             {
                 _style.Status("Exiting DotnetCat");
             }
@@ -61,14 +60,14 @@ namespace DotnetCat
         }
 
         /// Determine if OS platform is Windows or Unix
-        private static Platform GetPlatform()
+        private static PlatformType GetPlatform()
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return Platform.Unix;
+                return PlatformType.Unix;
             }
 
-            return Platform.Windows;
+            return PlatformType.Windows;
         }
 
         /// Initialize node fields and properties
@@ -86,7 +85,7 @@ namespace DotnetCat
                 _error.Handle(ErrorType.ArgValidation, "--", true);
             }
 
-            IsUsingExec = false;
+            UsingShell = false;
             Args = args.ToList();
 
             List<string> lowerArgs = new List<string>();
@@ -99,7 +98,7 @@ namespace DotnetCat
                 Args.RemoveAt(index);
             }
 
-            IOActionType = GetIOAction();
+            IOAction = GetIOAction();
 
             if (GetNodeType() == NodeType.Server)
             {
@@ -143,7 +142,7 @@ namespace DotnetCat
                 }
                 else if (!_parser.IsValidAddress(Args[0]).valid)
                 {
-                    _error.Handle(ErrorType.InvalidAddress, Args[0], true);
+                    _error.Handle(ErrorType.InvalidAddr, Args[0], true);
                 }
 
                 _parser.SetAddress(Args[0]);
@@ -166,23 +165,23 @@ namespace DotnetCat
         }
 
         /// Determine if the user is tranferring files
-        private static IOAction GetIOAction()
+        private static IOActionType GetIOAction()
         {
             int outIndex = _parser.IndexOfFlag("--output", 'o');
 
             if ((outIndex > -1) || (_parser.IndexOfAlias('o') > -1))
             {
-                return IOAction.Output;
+                return IOActionType.WriteFile;
             }
 
             int sendIndex = _parser.IndexOfFlag("--send", 's');
 
             if ((sendIndex > -1) || (_parser.IndexOfAlias('s') > -1))
             {
-                return IOAction.Transmit;
+                return IOActionType.ReadFile;
             }
 
-            return IOAction.None;
+            return IOActionType.None;
         }
 
         /// Parse named arguments starting with one dash

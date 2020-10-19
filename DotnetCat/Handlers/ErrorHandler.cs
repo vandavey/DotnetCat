@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotnetCat.Enums;
 using DotnetCat.Utils;
 
 namespace DotnetCat.Handlers
@@ -35,9 +36,9 @@ namespace DotnetCat.Handlers
         {
             int index = IndexOfError(type);
 
-            if ((arg == null) && !_errors[index].IsBuilt)
+            if ((arg == null) && !_errors[index].Built)
             {
-                throw new ArgumentNullException("arg");
+                throw new ArgumentNullException(nameof(arg));
             }
 
             if (showUsage)
@@ -52,7 +53,7 @@ namespace DotnetCat.Handlers
             _errors[index].Build(arg);
             Console.WriteLine(_errors[index].Message);
 
-            if (Program.IsVerbose)
+            if (Program.Verbose)
             {
                 _style.Status("Exiting DotnetCat");
             }
@@ -90,7 +91,7 @@ namespace DotnetCat.Handlers
                     msg: "A value is required for option(s): {}"),
                 new Error(ErrorType.FilePath,
                     msg: "Unable to locate file path '{}'"),
-                new Error(ErrorType.InvalidAddress,
+                new Error(ErrorType.InvalidAddr,
                     msg: "Unable to resolve hostname {}"),
                 new Error(ErrorType.InvalidPort,
                     msg: "{} cannot be parsed as a valid port"),

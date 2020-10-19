@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using DotnetCat.Enums;
 using Env = System.Environment;
 
 namespace DotnetCat.Handlers
 {
-    enum Platform { Unix, Windows }
-
     /// <summary>
     /// Execute special commands on the local system
     /// </summary>
@@ -29,9 +28,9 @@ namespace DotnetCat.Handlers
         }
 
         /// Get default command shell for the platform
-        public string GetDefaultShell(Platform platform)
+        public string GetDefaultShell(PlatformType platform)
         {
-            if (platform == Platform.Unix)
+            if (platform == PlatformType.Unix)
             {
                 if (!ExistsOnPath("/bin/bash").exists)
                 {
@@ -97,9 +96,9 @@ namespace DotnetCat.Handlers
         }
 
         /// Get file path to the current user's profile
-        public string GetProfilePath(Platform platform)
+        public string GetProfilePath(PlatformType platform)
         {
-            if (platform == Platform.Windows)
+            if (platform == PlatformType.Windows)
             {
                 return Env.GetEnvironmentVariable("USERPROFILE");
             }

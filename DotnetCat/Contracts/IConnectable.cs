@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace DotnetCat
+namespace DotnetCat.Contracts
 {
     /// <summary>
-    /// Interface to connect and release resources
+    /// Enforce mechanisms to connect/release resources
     /// </summary>
     interface IConnectable : IDisposable
     {

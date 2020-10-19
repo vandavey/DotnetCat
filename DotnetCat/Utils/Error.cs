@@ -1,26 +1,8 @@
 ﻿using System;
+using DotnetCat.Enums;
 
 namespace DotnetCat.Utils
 {
-    enum ErrorType : int
-    {
-        ArgCombination,
-        ArgValidation,
-        ConnectionLost,
-        ConnectionRefused,
-        DirectoryPath,
-        EmptyPath,
-        FilePath,
-        InvalidAddress,
-        InvalidPort,
-        NamedArg,
-        RequiredArg,
-        ShellPath,
-        ShellProcess,
-        SocketBind,
-        UnknownArg
-    }
-
     /// <summary>
     /// Custom errors specifically related to DotNetCat
     /// </summary>
@@ -35,7 +17,7 @@ namespace DotnetCat.Utils
 
         public ErrorType TypeName { get; }
 
-        public bool IsBuilt { get => !Message.Contains("{}"); }
+        public bool Built { get => !Message.Contains("{}"); }
 
         public string Message { get; private set; }
 
@@ -44,11 +26,14 @@ namespace DotnetCat.Utils
         {
             if (string.IsNullOrEmpty(argument))
             {
-                throw new ArgumentNullException("argument");
+                throw new ArgumentNullException(nameof(argument));
             }
-            else if (IsBuilt)
+            else if (Built)
             {
-                throw new ArgumentException("No formatting required");
+                throw new ArgumentException(
+                    "Argument does not require formatting",
+                    paramName: nameof(argument)
+                );
             }
 
             Message = Message.Replace("{}", argument);

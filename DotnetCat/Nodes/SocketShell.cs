@@ -6,9 +6,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using DotnetCat.Contracts;
+using DotnetCat.Enums;
 using DotnetCat.Handlers;
-using DotnetCat.Pipes;
-using DotnetCat.Utils;
+using DotnetCat.Pipelines;
 
 namespace DotnetCat.Nodes
 {
@@ -28,11 +29,11 @@ namespace DotnetCat.Nodes
         protected SocketShell(IPAddress address = null)
         {
             _pipes = new List<StreamPipe>();
-            this.PlatformType = Program.PlatformType;
+            this.Platform = Program.Platform;
 
             this.Address = address;
             this.Port = 4444;
-            this.IsVerbose = false;
+            this.Verbose = false;
 
             this.Cmd = new CommandHandler();
             this.Style = new StyleHandler();
@@ -40,9 +41,9 @@ namespace DotnetCat.Nodes
             this.Client = new TcpClient();
         }
 
-        public enum PipeType { Default, File, Shell }
+        protected enum PipeType { Default, FileSys, Shell }
 
-        public string ShellPath { get; set; }
+        public string FilePath { get; set; }
 
         public IPAddress Address { get; set; }
 
@@ -50,11 +51,11 @@ namespace DotnetCat.Nodes
 
         public string Executable { get; set; }
 
-        public bool IsVerbose { get; set; }
+        public bool Verbose { get; set; }
 
         public TcpClient Client { get; set; }
 
-        protected Platform PlatformType { get; }
+        protected PlatformType Platform { get; }
 
         protected CommandHandler Cmd { get; }
 
@@ -64,22 +65,17 @@ namespace DotnetCat.Nodes
 
         protected NetworkStream NetStream { get; set; }
 
-        protected bool IsUsingShell { get => Executable != null; }
+        protected bool UsingShell { get => Executable != null; }
 
-        protected bool IsFileTransfer
+        protected bool FileSysTransfer
         {
-            get => Program.IOActionType != IOAction.None;
-        }
-
-        private bool ShellHasExited
-        {
-            get => IsUsingShell && _shellProc.HasExited;
+            get => Program.IOAction != IOActionType.None;
         }
 
         /// Initialize and start command shell process
         public bool StartProcess(string shell = null)
         {
-            Executable ??= Cmd.GetDefaultShell(PlatformType);
+            Executable ??= Cmd.GetDefaultShell(Platform);
 
             if (!Cmd.ExistsOnPath(shell).exists)
             {
@@ -100,14 +96,14 @@ namespace DotnetCat.Nodes
             ProcessStartInfo startInfo = new ProcessStartInfo(shell)
             {
                 CreateNoWindow = true,
-                WorkingDirectory = Cmd.GetProfilePath(PlatformType),
+                WorkingDirectory = Cmd.GetProfilePath(Platform),
                 RedirectStandardError = true,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
             };
 
-            if (PlatformType == Platform.Windows)
+            if (Platform == PlatformType.Windows)
             {
                 startInfo.LoadUserProfile = true;
             }
@@ -120,22 +116,22 @@ namespace DotnetCat.Nodes
         {
             if (NetStream == null)
             {
-                throw new ArgumentNullException("NetStream");
+                throw new ArgumentNullException(nameof(NetStream));
             }
 
-            if (IsUsingShell && IsFileTransfer)
+            if (UsingShell && FileSysTransfer)
             {
                 string message = "--exec, --output/--send";
                 Error.Handle(ErrorType.ArgCombination, message);
             }
 
-            if (IsUsingShell)
+            if (UsingShell)
             {
                 AddPipes(PipeType.Shell);
             }
-            else if (IsFileTransfer)
+            else if (FileSysTransfer)
             {
-                AddPipes(PipeType.File);
+                AddPipes(PipeType.FileSys);
             }
             else
             {
@@ -169,8 +165,8 @@ namespace DotnetCat.Nodes
                 case PipeType.Shell:
                     AddShellPipes();
                     break;
-                case PipeType.File:
-                    AddFilePipes();
+                case PipeType.FileSys:
+                    AddIOPipes();
                     break;
                 case PipeType.Default:
                     AddDefaultPipes();
@@ -185,7 +181,7 @@ namespace DotnetCat.Nodes
             {
                 Task.Delay(100).Wait();
 
-                if (ShellHasExited || !AllPipesConnected())
+                if (ShellExited() || !AllPipesConnected())
                 {
                     break;
                 }
@@ -204,18 +200,26 @@ namespace DotnetCat.Nodes
             _pipes.Add(new ShellPipe(shellStderr, _netWriter));
         }
 
-        /// Initialize FilePipes
-        private void AddFilePipes()
+        /// Initialize IOPipes derived pipes
+        private void AddIOPipes()
         {
-            if (Program.IOActionType == IOAction.Output)
+            if (Program.IOAction == IOActionType.None)
+            {
+                throw new ArgumentException(nameof(Program.IOAction));
+            }
+
+            if (Program.IOAction == IOActionType.WriteFile)
             {
                 _netReader = new StreamReader(NetStream);
-                _pipes.Add(new FilePipe(_netReader, ShellPath));
+                _pipes.Add(new FilePipe(_netReader, FilePath));
                 return;
             }
 
+            if (Program.Recursive)
+            {
+            }
             _netWriter = new StreamWriter(NetStream);
-            _pipes.Add(new FilePipe(ShellPath, _netWriter));
+            _pipes.Add(new FilePipe(FilePath, _netWriter));
         }
 
         /// Initialize StreamPipes
@@ -231,19 +235,25 @@ namespace DotnetCat.Nodes
             _pipes.Add(new ShellPipe(_netReader, stdout));
         }
 
+        /// Determine if command-shell has exited
+        private bool ShellExited()
+        {
+            return UsingShell && _shellProc.HasExited;
+        }
+
         /// Determine if all pipes are connected/active
         private bool AllPipesConnected()
         {
             int nullCount = _pipes.Where(x => x == null).Count();
 
-            if ((_pipes.Count == 0) || (nullCount == _pipes.Count()))
+            if ((_pipes.Count == 0) || (nullCount == _pipes.Count))
             {
                 return false;
             }
 
             foreach (StreamPipe pipe in _pipes)
             {
-                if ((pipe != null) && !pipe.IsConnected)
+                if ((pipe != null) && !pipe.Connected)
                 {
                     return false;
                 }

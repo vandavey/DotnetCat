@@ -2,7 +2,8 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using DotnetCat.Utils;
+using DotnetCat.Contracts;
+using DotnetCat.Enums;
 
 namespace DotnetCat.Nodes
 {
@@ -33,9 +34,9 @@ namespace DotnetCat.Nodes
                 Client.Client = _listener.Accept();
                 NetStream = Client.GetStream();
 
-                if (Program.IsUsingExec)
+                if (Program.UsingShell)
                 {
-                    Executable ??= Cmd.GetDefaultShell(PlatformType);
+                    Executable ??= Cmd.GetDefaultShell(Platform);
                     bool hasStarted = StartProcess(Executable);
 
                     if (!hasStarted)
@@ -83,7 +84,7 @@ namespace DotnetCat.Nodes
         {
             if (endPoint == null)
             {
-                throw new ArgumentNullException("endPoint");
+                throw new ArgumentNullException(nameof(endPoint));
             }
 
             _listener = new Socket(

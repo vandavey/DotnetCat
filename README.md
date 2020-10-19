@@ -7,23 +7,6 @@
 Remote command shell application written in C#,
 targeting the [.NET Core 3.1 runtime](https://dotnet.microsoft.com/download/dotnet-core/current/runtime).
 
-## Downloads
-
-### All-In-One Executables
-
-To download an all-in-one executable, select one of the options below:
-
-* [Windows-x64](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Win-x64.zip)
-* [Windows-x86](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Win-x86.zip)
-* [Linux-x64](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Linux-x64.zip)
-
-### Full Repository
-
-The entire DotnetCat repository can be downloaded [here](https://github.com/vandavey/DotnetCat/archive/master.zip),
-or by clicking the green download button at the top of the page.
-
-***
-
 ## Basic Usage
 
 * Linux Systems
@@ -38,8 +21,6 @@ or by clicking the green download button at the top of the page.
     dncat.exe [OPTIONS] TARGET
     ```
 
-***
-
 ## Available Arguments
 
 All available DotnetCat arguments are listed in the following table:
@@ -51,14 +32,30 @@ All available DotnetCat arguments are listed in the following table:
 | `-e/--exec EXEC`   | *Optional* | Command shell executable   | *N/A*   |
 | `-o/--output PATH` | *Optional* | Receive a remote file      | *N/A*   |
 | `-s/--send PATH`   | *Optional* | Send local file/directory  | *N/A*   |
-| `-l, --listen`     | *Optional* | Listen for a connection    | *False* |
+| `-l, --listen`     | *Optional* | Listen for connection      | *False* |
 | `-v, --verbose`    | *Optional* | Enable verbose output      | *False* |
 | `-r, --recurse`    | *Optional* | Send directory recursively | *False* |
 | `-h/-?, --help`    | *Optional* | Display the help menu      | *False* |
 
 ***
 
-## Licensing
+## Download Options
+
+### All-In-One Executables
+
+To download an all-in-one executable, select one of the options below:
+
+* [Windows-x64](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Win-x64.zip)
+* [Windows-x86](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Win-x86.zip)
+* [Linux-x64](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Linux-x64.zip)
+
+### Full Repository
+
+The entire DotnetCat source code repository can be downloaded [here](https://github.com/vandavey/DotnetCat/archive/master.zip).
+
+***
+
+## Copyright & Licensing
 
 The DotnetCat application source code is available [here](https://github.com/vandavey/DotnetCat)
 and licensed under the [MIT license](LICENSE.md).

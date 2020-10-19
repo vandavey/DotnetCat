@@ -4,16 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
-using DotnetCat.Handlers;
+using DotnetCat.Enums;
 using DotnetCat.Nodes;
-using DotnetCat.Pipes;
-using DotnetCat.Utils;
 
-namespace DotnetCat
+namespace DotnetCat.Handlers
 {
-    enum ArgumentType { Alias, Flag }
-
     /// <summary>
     /// Command line argument parser and validator
     /// </summary>
@@ -34,9 +29,9 @@ namespace DotnetCat
 
         public string Help { get; }
 
-        public IOAction IOActionType
+        public IOActionType IOAction
         {
-            get => Program.IOActionType;
+            get => Program.IOAction;
         }
 
         public List<string> Args
@@ -140,7 +135,7 @@ namespace DotnetCat
         /// Enable verbose standard output
         public void SetVerbose(int argIndex, ArgumentType type)
         {
-            SockShell.IsVerbose = true;
+            SockShell.Verbose = true;
 
             if (type == ArgumentType.Flag)
             {
@@ -155,6 +150,8 @@ namespace DotnetCat
         /// Transfer directory children recursively
         public void SetRecurse(int argIndex, ArgumentType type)
         {
+            Program.Recursive = true;
+
             if (type == ArgumentType.Flag)
             {
                 Args.RemoveAt(argIndex);
@@ -170,14 +167,14 @@ namespace DotnetCat
         {
             if (string.IsNullOrEmpty(address))
             {
-                throw new ArgumentNullException("addr");
+                throw new ArgumentNullException(nameof(address));
             }
 
             (bool isValid, IPAddress addr) = IsValidAddress(address);
 
             if (!isValid)
             {
-                _error.Handle(ErrorType.InvalidAddress, address, true);
+                _error.Handle(ErrorType.InvalidAddr, address, true);
             }
 
             SockShell.Address = addr;
@@ -262,7 +259,7 @@ namespace DotnetCat
                 _error.Handle(ErrorType.ShellPath, exec, true);
             }
 
-            Program.IsUsingExec = true;
+            Program.UsingShell = true;
             SockShell.Executable = path;
 
             if (type == ArgumentType.Flag)
@@ -312,7 +309,7 @@ namespace DotnetCat
         {
             if (string.IsNullOrEmpty(path))
             {
-                throw new ArgumentNullException("path");
+                throw new ArgumentNullException(nameof(path));
             }
 
             if (!File.Exists(path) && !Directory.GetParent(path).Exists)
@@ -320,7 +317,7 @@ namespace DotnetCat
                 _error.Handle(ErrorType.FilePath, path);
             }
 
-            SockShell.ShellPath = path;
+            SockShell.FilePath = path;
         }
 
         /// Specify the port to use for connection
@@ -376,7 +373,7 @@ namespace DotnetCat
                 "  -v,      --verbose        Enable verbose console output",
                 "  -l,      --listen         Listen for incoming connections",
                 "  -r,      --recurse        Transfer a directory recursively",
-                "  -p PORT, --port PORT      Specify port to use for socket.",
+                "  -p PORT, --port PORT      Specify port to use for endpoint.",
                 "                            (Default: 4444)",
                 "  -e EXEC, --exec EXEC      Specify command shell executable",
                 "  -o PATH, --output PATH    Receive file from remote host",
@@ -391,7 +388,7 @@ namespace DotnetCat
         /// Get program title based on platform
         private static string GetAppTitle()
         {
-            if (Program.PlatformType == Platform.Unix)
+            if (Program.Platform == PlatformType.Unix)
             {
                 return "dncat";
             }
