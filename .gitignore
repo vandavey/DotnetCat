@@ -1,4 +1,4 @@
-# Ignore by file extension
+# Ignore patterns
 *.assets
 *.cache
 *.class
@@ -10,11 +10,12 @@
 *.props
 *.suo
 *.targets
+*.user
 
-# Ignore IDE specific directories
+# Ignore directories
+.atom/
+.dist/
 .idea/
 .vs/
 .vscode/
-
-# Ignore misc. directories
-DotnetCat/obj/Debug/
+DotnetCat/obj/*

@@ -41,13 +41,14 @@ All available DotnetCat arguments are listed in the following table:
 
 ## Download Options
 
-### All-In-One Executables
+### Standalone Executable
 
-To download an all-in-one executable, select one of the options below:
+To download a prebuilt, standalone executable, select one of the options below:
 
 * [Windows-x64](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Win-x64.zip)
 * [Windows-x86](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Win-x86.zip)
 * [Linux-x64](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Linux-x64.zip)
+* [Linux-arm64](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Linux-arm64.zip)
 
 ### Full Repository
 
