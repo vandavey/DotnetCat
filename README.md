@@ -56,6 +56,12 @@ The entire DotnetCat source code repository can be downloaded [here](https://git
 
 ***
 
+### Remarks
+
+This application is still in development, please use caution.
+
+***
+
 ## Copyright & Licensing
 
 The DotnetCat application source code is available [here](https://github.com/vandavey/DotnetCat)

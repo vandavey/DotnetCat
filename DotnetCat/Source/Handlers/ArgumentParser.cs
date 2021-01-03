@@ -284,12 +284,6 @@ namespace DotnetCat.Handlers
         /// Specify file path to output socket data
         public void SetCollect(int argIndex, Argument type)
         {
-            // Index out of bounds check
-            if ((argIndex < 0) || (argIndex > (Args.Count() - 1)))
-            {
-
-            }
-
             string path = ArgsValueAt(argIndex + 1);
             SetFilePath(path);
 

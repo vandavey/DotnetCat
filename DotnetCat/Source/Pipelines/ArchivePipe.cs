@@ -23,7 +23,9 @@ namespace DotnetCat.Pipelines
                 Error.Handle(Except.EmptyPath, "-s/--send");
             }
 
-            // TODO: initialize this.Source/this.Dest
+            /**
+            * TODO: initialize this.Source/this.Dest
+            **/ 
             _zipCreated = false;
             _zipPath = $"{path}.~dncat.zip";
 
@@ -91,6 +93,9 @@ namespace DotnetCat.Pipelines
         /// Unpack and cleanup archive files
         protected void Unzip()
         {
+            /**
+            * TODO: Change logic to call PathInfo, test/implement
+            **/
             if (FileFound)
             {
                 ZipFile.ExtractToDirectory(_zipPath, FilePath);
@@ -100,7 +105,6 @@ namespace DotnetCat.Pipelines
             FileInfo info = new FileInfo(FilePath);
             //PathInfo()
 
-            // TODO: change logic to call PathInfo?
             if (!File.Exists(_zipPath))
             {
                 throw new FileNotFoundException(_zipPath);
