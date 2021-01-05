@@ -10,6 +10,8 @@ using DotnetCat.Contracts;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
 using DotnetCat.Pipelines;
+using ArgNullException = System.ArgumentNullException;
+using Env = System.Environment;
 
 namespace DotnetCat.Nodes
 {
@@ -20,25 +22,28 @@ namespace DotnetCat.Nodes
     {
         private List<StreamPipe> _pipes;
 
-        private Process _shellProc;
+        private Process _process;
 
         private StreamReader _netReader;
         private StreamWriter _netWriter;
 
         /// Initialize new object
-        protected SocketNode(IPAddress address = null)
+        protected SocketNode()
         {
-            _pipes = null;
-            this.OS = Program.OS;
+            Port = 4444;
+            Verbose = false;
+            OS = Program.OS;
 
-            this.Addr = address;
-            this.Port = 4444;
-            this.Verbose = false;
+            Cmd = new CommandHandler();
+            Style = new StyleHandler();
+            Error = new ErrorHandler();
+            Client = new TcpClient();
+        }
 
-            this.Cmd = new CommandHandler();
-            this.Style = new StyleHandler();
-            this.Error = new ErrorHandler();
-            this.Client = new TcpClient();
+        /// Initialize new object
+        protected SocketNode(IPAddress address) : this()
+        {
+            Addr = address;
         }
 
         protected enum PipeType : short { Default, File, Shell }
@@ -55,9 +60,9 @@ namespace DotnetCat.Nodes
 
         public TcpClient Client { get; set; }
 
-        protected bool UsingShell => Exe != null;
+        protected bool UsingExe => Exe != null;
 
-        protected bool FSTransfer => Program.NetOpt != Communicate.None;
+        protected bool FSTransfer => Program.FileComm != Communicate.None;
 
         protected Platform OS { get; }
 
@@ -70,57 +75,68 @@ namespace DotnetCat.Nodes
         protected NetworkStream NetStream { get; set; }
 
         /// Initialize and run an executable process
-        public bool Start(string shell = null)
+        public bool Start(string exe = null)
         {
             Exe ??= Cmd.GetDefaultExe(OS);
 
             // Invalid executable path
-            if (!Cmd.ExistsOnPath(shell).exists)
+            if (!Cmd.ExistsOnPath(exe).exists)
             {
-                Error.Handle(Except.ShellPath, shell, true);
+                Error.Handle(Except.ExecPath, exe, true);
             }
 
-            _shellProc = new Process { StartInfo = GetStartInfo(shell) };
-            return _shellProc.Start();
+            _process = new Process
+            {
+                StartInfo = GetStartInfo(exe)
+            };
+            return _process.Start();
         }
 
-        /// Get start info to be used with shell process
+        /// Get start info to be used with executable process
         public ProcessStartInfo GetStartInfo(string shell)
         {
-            ProcessStartInfo startInfo = new ProcessStartInfo(shell)
+            _ = shell ?? throw new ArgNullException(nameof(shell));
+
+            // Exe process startup information
+            ProcessStartInfo info = new ProcessStartInfo(shell)
             {
                 CreateNoWindow = true,
-                WorkingDirectory = Cmd.GetProfilePath(OS),
                 RedirectStandardError = true,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
+
+                // Load user profile path
+                WorkingDirectory = OS switch
+                {
+                    Platform.Nix => Env.GetEnvironmentVariable("HOME"),
+                    Platform.Win => Env.GetEnvironmentVariable("USERPROFILE"),
+                    _ => Env.CurrentDirectory
+                }
             };
 
-            if (OS == Platform.Windows)
+            // Profile loading only supported on Windows
+            if (OS is Platform.Win)
             {
-                startInfo.LoadUserProfile = true;
+                info.LoadUserProfile = true;
             }
-            return startInfo;
+            return info;
         }
 
         /// Activate communication between pipe streams
         public virtual void Connect()
         {
-            if (NetStream == null)
-            {
-                throw new ArgumentNullException(nameof(NetStream));
-            }
+            _ = NetStream ?? throw new ArgNullException(nameof(NetStream));
 
             // Invalid argument combination
-            if (UsingShell && FSTransfer)
+            if (UsingExe && FSTransfer)
             {
                 string message = "--exec, --output/--send";
-                Error.Handle(Except.ArgCombination, message);
+                Error.Handle(Except.ArgsCombo, message);
             }
 
             // Initialize and connect pipelines
-            if (UsingShell)
+            if (UsingExe)
             {
                 AddPipes(PipeType.Shell);
             }
@@ -132,15 +148,15 @@ namespace DotnetCat.Nodes
             {
                 AddPipes(PipeType.Default);
             }
-            _pipes.ForEach(pipe => pipe?.Connect());
+            _pipes?.ForEach(pipe => pipe?.Connect());
         }
 
         /// Release any unmanaged resources
         public virtual void Dispose()
         {
-            _pipes.ForEach(pipe => pipe?.Dispose());
+            _pipes?.ForEach(pipe => pipe?.Dispose());
 
-            _shellProc?.Dispose();
+            _process?.Dispose();
             _netReader?.Dispose();
             _netWriter?.Dispose();
 
@@ -149,14 +165,11 @@ namespace DotnetCat.Nodes
         }
 
         /// Initialize socket stream pipelines
-        protected void AddPipes(PipeType option)
+        protected void AddPipes(PipeType type)
         {
-            if (NetStream == null)
-            {
-                throw new ArgumentNullException(nameof(NetStream));
-            }
+            _ = NetStream ?? throw new ArgNullException(nameof(NetStream));
 
-            // Can't perform stream read/write operations
+            // Can't perform socket read/write operations
             if (!NetStream.CanRead || !NetStream.CanWrite)
             {
                 string msg = "Can't perform stream read/write operations";
@@ -166,29 +179,26 @@ namespace DotnetCat.Nodes
             _netReader = new StreamReader(NetStream);
             _netWriter = new StreamWriter(NetStream);
 
-            // Initialize the socket pipeline(s)
-            _pipes = option switch
+            // Initialize socket pipeline(s)
+            _pipes = type switch
             {
-                PipeType.File => new List<StreamPipe>
-                {
-                    GetIOPipe()
-                },
                 PipeType.Shell => new List<StreamPipe>
                 {
-                    new ShellPipe(_netReader, _shellProc.StandardInput),
-                    new ShellPipe(_shellProc.StandardOutput, _netWriter),
-                    new ShellPipe(_shellProc.StandardError, _netWriter)
+                    new ProcessPipe(_netReader, _process.StandardInput),
+                    new ProcessPipe(_process.StandardOutput, _netWriter),
+                    new ProcessPipe(_process.StandardError, _netWriter)
                 },
+                PipeType.File => new List<StreamPipe> { GetIOPipe() },
                 _ => GetDefaultPipes()
             };
         }
 
         /// Wait for pipeline(s) to be disconnected
-        protected void WaitForExit()
+        protected void WaitForExit(int msDelay = 100)
         {
             while (Client.Connected)
             {
-                Task.Delay(100).Wait();
+                Task.Delay(msDelay).Wait();
 
                 // Check if exe exited or pipelines disconnected
                 if (ProcessExited() || !PipelinesConnected())
@@ -196,18 +206,24 @@ namespace DotnetCat.Nodes
                     break;
                 }
             }
+
+            // Connection closed status
+            if (Verbose)
+            {
+                Style.Status($"Connection to {Addr}:{Port} closed");
+            }
         }
 
         /// Initialize file transmission and collection pipelines
         private StreamPipe GetIOPipe()
         {
-            if (Program.NetOpt == Communicate.None)
+            if (Program.FileComm is Communicate.None)
             {
-                throw new ArgumentException(nameof(Program.NetOpt));
+                throw new ArgumentException(nameof(Program.FileComm));
             }
 
             // Receiving file data
-            if (Program.NetOpt == Communicate.Collect)
+            if (Program.FileComm is Communicate.Collect)
             {
                 return new FilePipe(_netReader, FilePath);
             }
@@ -228,15 +244,15 @@ namespace DotnetCat.Nodes
 
             return new List<StreamPipe>
             {
-                new ShellPipe(new StreamReader(stdin), _netWriter),
-                new ShellPipe(_netReader, new StreamWriter(stdout))
+                new ProcessPipe(new StreamReader(stdin), _netWriter),
+                new ProcessPipe(_netReader, new StreamWriter(stdout))
             };
         }
 
         /// Determine if command-shell has exited
         private bool ProcessExited()
         {
-            return UsingShell && _shellProc.HasExited;
+            return UsingExe && _process.HasExited;
         }
 
         /// Determine if all pipelines are connected/active

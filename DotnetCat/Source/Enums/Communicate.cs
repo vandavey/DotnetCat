@@ -1,12 +1,12 @@
 ﻿namespace DotnetCat.Enums
 {
     /// <summary>
-    /// Socket communication operation enumeration type
+    /// Socket/file communication operation enumeration type
     /// </summary>
     enum Communicate : short
     {
-        Collect,
-        Transmit,
-        None
+        None,      // No file|<->|socket stream data redirection
+        Collect,   // Redirect socket stream data to file stream
+        Transmit,  // Redirect file stream data to socket stream
     }
 }

@@ -25,7 +25,7 @@ namespace DotnetCat
 
         public static bool UsingExe { get; set; }
 
-        public static Communicate NetOpt { get; set; }
+        public static Communicate FileComm { get; set; }
 
         public static Platform OS { get; set; }
 
@@ -39,7 +39,7 @@ namespace DotnetCat
             _parser = new ArgumentParser();
             OS = GetPlatform();
 
-            // Display help information
+            // Display help info and exit
             if ((args.Count() == 0) || _parser.NeedsHelp(args))
             {
                 _parser.PrintHelp();
@@ -63,32 +63,34 @@ namespace DotnetCat
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return Platform.Unix;
+                return Platform.Nix;
             }
-            return Platform.Windows;
+            return Platform.Win;
         }
 
         /// Initialize node fields and properties
         private static void InitializeNode(string[] args)
         {
-            _style = new StyleHandler();
-            _error = new ErrorHandler();
+            _style ??= new StyleHandler();
+            _error ??= new ErrorHandler();
 
-            // Check for incomplete options
+            // Check for incomplete alias
             if (args.Contains("-"))
             {
-                _error.Handle(Except.ArgValidation, "-", true);
+                _error.Handle(Except.InvalidArgs, "-", true);
             }
-            else if (args.Contains("--"))
+
+            // Check for incomplete flag
+            if (args.Contains("--"))
             {
-                _error.Handle(Except.ArgValidation, "--", true);
+                _error.Handle(Except.InvalidArgs, "--", true);
             }
 
             UsingExe = false;
             Args = args.ToList();
 
             List<string> lowerArgs = new List<string>();
-            Args.ForEach(arg => lowerArgs.Add(arg.ToLower()));
+            Args?.ForEach(arg => lowerArgs.Add(arg.ToLower()));
 
             int index;
 
@@ -97,10 +99,10 @@ namespace DotnetCat
             {
                 Args.RemoveAt(index);
             }
-            NetOpt = GetCommunication();
+            FileComm = GetCommunication();
 
             // Determine if node is client/server
-            if (GetNode() == Node.Server)
+            if (GetNode() is Node.Server)
             {
                 SockNode = new ServerNode();
                 return;
@@ -121,7 +123,7 @@ namespace DotnetCat
                 {
                     if (SockNode is ClientNode)
                     {
-                        _error.Handle(Except.RequiredArg, "TARGET", true);
+                        _error.Handle(Except.RequiredArgs, "TARGET", true);
                     }
                     break;
                 }
@@ -129,9 +131,10 @@ namespace DotnetCat
                 {
                     if (Args[0].StartsWith('-'))
                     {
-                        _error.Handle(Except.UnknownArg, Args[0], true);
+                        _error.Handle(Except.UnknownArgs, Args[0], true);
                     }
-                    else if (!_parser.IsValidAddress(Args[0]).valid)
+
+                    if (!_parser.IsValidAddress(Args[0]).valid)
                     {
                         _error.Handle(Except.InvalidAddr, Args[0], true);
                     }
@@ -144,9 +147,9 @@ namespace DotnetCat
 
                     if (Args[0].StartsWith('-'))
                     {
-                        _error.Handle(Except.UnknownArg, argsStr, true);
+                        _error.Handle(Except.UnknownArgs, argsStr, true);
                     }
-                    _error.Handle(Except.ArgValidation, argsStr, true);
+                    _error.Handle(Except.InvalidArgs, argsStr, true);
                     break;
                 }
             }

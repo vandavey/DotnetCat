@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using DotnetCat.Contracts;
 using DotnetCat.Enums;
+using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Nodes
 {
@@ -23,8 +24,9 @@ namespace DotnetCat.Nodes
         /// Listen for incoming TCP connections
         public override void Connect()
         {
-            IPEndPoint remoteEP;
+            // Bind listener socket to local endpoint
             BindListener(new IPEndPoint(Addr, Port));
+            IPEndPoint remoteEP;
 
             try
             {
@@ -42,7 +44,7 @@ namespace DotnetCat.Nodes
 
                     if (!hasStarted)
                     {
-                        Error.Handle(Except.ShellProcess, Exe);
+                        Error.Handle(Except.ExecProcess, Exe);
                     }
                 }
 
@@ -52,23 +54,17 @@ namespace DotnetCat.Nodes
                 base.Connect();
                 WaitForExit();
             }
-            catch (SocketException) // Connection refused
-            {
-                string endPoint = $"{Addr}:{Port}";
-                Error.Handle(Except.ConnectionRefused, endPoint);
-            }
-            catch (IOException) // Connection lost
-            {
-                Error.Handle(Except.ConnectionLost, $"{Addr}");
-            }
-            catch (Exception ex) // Unhandled exception
-            {
-                throw ex;
-            }
-            finally // Free unmanaged resources
+            catch (SocketException ex) // Connection refused
             {
                 Dispose();
+                Error.Handle(Except.ConnectionRefused, $"{Addr}:{Port}", ex);
             }
+            catch (IOException ex) // Connection lost
+            {
+                Dispose();
+                Error.Handle(Except.ConnectionLost, $"{Addr}", ex);
+            }
+            Dispose();
         }
 
         /// Release any unmanaged resources
@@ -79,24 +75,22 @@ namespace DotnetCat.Nodes
         }
 
         /// Bind the listener socket to an endpoint
-        private void BindListener(IPEndPoint endPoint)
+        private void BindListener(IPEndPoint ep)
         {
-            if (endPoint == null)
-            {
-                throw new ArgumentNullException(nameof(endPoint));
-            }
+            _ = ep ?? throw new ArgNullException(nameof(ep));
 
             _listener = new Socket(AddressFamily.InterNetwork,
                                    SocketType.Stream,
                                    ProtocolType.Tcp);
             try
             {
-                _listener.Bind(endPoint);
+                _listener.Bind(ep);
+                return;
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
                 Dispose();
-                Error.Handle(Except.SocketBind, $"{endPoint}");
+                Error.Handle(Except.SocketBind, ep.ToString(), ex);
             }
         }
     }

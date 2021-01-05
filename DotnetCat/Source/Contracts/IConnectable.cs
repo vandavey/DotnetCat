@@ -3,11 +3,12 @@
 namespace DotnetCat.Contracts
 {
     /// <summary>
-    /// Enforce mechanisms to connect/release resources
+    /// Enforce mechanisms to connect and dispose of
+    /// any unmanaged object resources
     /// </summary>
     interface IConnectable : IDisposable
     {
-        /// Connect the specified resources
+        /// Connect the unmanaged resources
         void Connect();
     }
 }

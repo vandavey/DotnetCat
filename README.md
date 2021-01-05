@@ -1,6 +1,6 @@
 <p align="center">
-    <img src="DotnetCat/Resources/Icon.ico" width=175 alt="logo">
-</p>
+<img src="DotnetCat/Resources/Icon.ico" width=175 alt="logo">
+    </p>
 
 # DotnetCat
 
@@ -17,7 +17,7 @@ targeting the [.NET Core 3.1 runtime](https://dotnet.microsoft.com/download/dotn
 
 * Windows Systems
 
-    ```bat
+    ```powershell
     dncat.exe [OPTIONS] TARGET
     ```
 
@@ -36,6 +36,9 @@ All available DotnetCat arguments are listed in the following table:
 | `-v, --verbose`    | *Optional* | Enable verbose output      | *False* |
 | `-r, --recurse`    | *Optional* | Send directory recursively | *False* |
 | `-h/-?, --help`    | *Optional* | Display the help menu      | *False* |
+
+> Note: The `-r/--recurse` option is still in development and should be avoided
+  in the meantime
 
 ***
 
@@ -56,7 +59,7 @@ The entire DotnetCat source code repository can be downloaded [here](https://git
 
 ***
 
-### Remarks
+## Remarks
 
 This application is still in development, please use caution.
 

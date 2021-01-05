@@ -16,51 +16,47 @@ namespace DotnetCat.Pipelines
     /// </summary>
     class FilePipe : StreamPipe, IConnectable
     {
-        private readonly List<string> _zipExt = new List<string>
-        {
-            "zip", "tar", "gz", "7z"
-        };
+        private readonly List<string> _zipExt;
 
         /// Initialize new object
-        public FilePipe(StreamReader src, string path) : base()
+        public FilePipe(StreamReader src, string path) : this()
         {
             if (string.IsNullOrEmpty(path))
             {
                 throw new ArgNullException(nameof(path));
             }
 
-            this.Source = src ?? throw new ArgNullException(nameof(src));
-            this.FilePath = path;
-            this.Error = new ErrorHandler();
+            Source = src ?? throw new ArgNullException(nameof(src));
+            FilePath = path;
 
-            this.PathType = GetFileType(path);
-            this.Dest = new StreamWriter(CreateFile(path, Error));
-            this.IOAction = Communicate.Collect;
+            PathType = GetFileType(path);
+            Dest = new StreamWriter(CreateFile(path, Error));
         }
 
         /// Initialize new object
-        public FilePipe(string path, StreamWriter dest) : base()
+        public FilePipe(string path, StreamWriter dest) : this()
         {
             if (string.IsNullOrEmpty(path))
             {
                 throw new ArgNullException(nameof(path));
             }
 
-            this.Dest = dest ?? throw new ArgNullException(nameof(dest));
-            this.FilePath = path;
-            this.Error = new ErrorHandler();
+            Dest = dest ?? throw new ArgNullException(nameof(dest));
+            FilePath = path;
 
-            this.PathType = GetFileType(path);
-            this.Source = new StreamReader(OpenFile(path, Error));
-            this.IOAction = Communicate.Transmit;
+            PathType = GetFileType(path);
+            Source = new StreamReader(OpenFile(path, Error));
         }
 
         /// Initialize new object
         protected FilePipe() : base()
         {
-            this.Error = new ErrorHandler();
-            this.IOAction = Communicate.Transmit;
-            this.FilePath = null;
+            _zipExt = new List<string>
+            {
+                "zip", "tar", "gz", "7z"
+            };
+            IOAction = Communicate.Collect;
+            Error = new ErrorHandler();
         }
 
         public bool Verbose => Program.Verbose;
@@ -80,15 +76,8 @@ namespace DotnetCat.Pipelines
         /// Activate communication between the pipe streams
         public override void Connect()
         {
-            if (Source == null)
-            {
-                throw new ArgNullException(nameof(Source));
-            }
-
-            if (Dest == null)
-            {
-                throw new ArgNullException(nameof(Dest));
-            }
+            _ = Source ?? throw new ArgNullException(nameof(Source));
+            _ = Dest ?? throw new ArgNullException(nameof(Dest));
 
             CTS = new CancellationTokenSource();
             Worker = ConnectAsync(CTS.Token);
@@ -111,7 +100,7 @@ namespace DotnetCat.Pipelines
             FileInfo fileInfo = new FileInfo(path);
 
             // Check whether file is normal/archive
-            if (fileInfo.Attributes == FileAttributes.Archive)
+            if (fileInfo.Attributes is FileAttributes.Archive)
             {
                 if (!_zipExt.Contains(fileInfo.Extension))
                 {
@@ -188,7 +177,7 @@ namespace DotnetCat.Pipelines
             // Print connection started info
             if (Verbose)
             {
-                if (IOAction == Communicate.Transmit)
+                if (IOAction is Communicate.Transmit)
                 {
                     style.Status("Beginning file transmission...");
                 }
@@ -205,7 +194,7 @@ namespace DotnetCat.Pipelines
             // Print connection completed info
             if (Verbose)
             {
-                if (IOAction == Communicate.Transmit)
+                if (IOAction is Communicate.Transmit)
                 {
                     style.Status($"'{FilePath}' contents successfully sent");
                 }

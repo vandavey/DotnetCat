@@ -24,7 +24,7 @@ namespace DotnetCat.Handlers
             _cmd = new CommandHandler();
             _error = new ErrorHandler();
 
-            this.Help = GetHelp(GetUsage());
+            Help = GetHelp(GetUsage());
         }
 
         public string Help { get; }
@@ -100,9 +100,8 @@ namespace DotnetCat.Handlers
         {
             if ((index < 0) || (index >= Args.Count))
             {
-                _error.Handle(Except.NamedArg, Args[index - 1], true);
+                _error.Handle(Except.NamedArgs, Args[index - 1], true);
             }
-
             return Args[index];
         }
 
@@ -136,6 +135,10 @@ namespace DotnetCat.Handlers
         /// Remove character of a cmd-line argument
         public void RemoveAlias(int index, char alias)
         {
+            if (index < 0 || (index >= Args.Count()))
+            {
+                throw new IndexOutOfRangeException($"{nameof(index)}");
+            }
             Args[index] = Args[index].Replace(alias.ToString(), "");
         }
 
@@ -144,7 +147,7 @@ namespace DotnetCat.Handlers
         {
             SockNode.Verbose = true;
 
-            if (type == Argument.Flag)
+            if (type is Argument.Flag)
             {
                 Args.RemoveAt(argIndex);
             }
@@ -159,7 +162,7 @@ namespace DotnetCat.Handlers
         {
             Program.Recursive = true;
 
-            if (type == Argument.Flag)
+            if (type is Argument.Flag)
             {
                 Args.RemoveAt(argIndex);
             }
@@ -176,14 +179,12 @@ namespace DotnetCat.Handlers
             {
                 throw new ArgumentNullException(nameof(address));
             }
-
             (bool isValid, IPAddress addr) = IsValidAddress(address);
 
             if (!isValid)
             {
                 _error.Handle(Except.InvalidAddr, address, true);
             }
-
             SockNode.Addr = addr;
         }
 
@@ -195,21 +196,16 @@ namespace DotnetCat.Handlers
                 return (false, null);
             }
 
-            // Parse address string as IP
             try
             {
+                // Parse address string as IP address
                 return (true, IPAddress.Parse(address));
             }
-            catch (Exception ex)
+            catch (FormatException)
             {
-                if (!(ex is FormatException))
-                {
-                    throw ex;
-                }
+                IPAddress addr = ResolveHostName(address);
+                return (addr == null) ? (false, addr) : (true, addr);
             }
-
-            IPAddress addr = ResolveHostName(address);
-            return (addr == null) ? (false, null) : (true, addr);
         }
 
         /// Resolve the IPv4 address of given hostname
@@ -237,7 +233,7 @@ namespace DotnetCat.Handlers
             {
                 foreach (IPAddress addr in dnsAns.AddressList)
                 {
-                    if (addr.AddressFamily == AddressFamily.InterNetwork)
+                    if (addr.AddressFamily is AddressFamily.InterNetwork)
                     {
                         return addr;
                     }
@@ -264,14 +260,14 @@ namespace DotnetCat.Handlers
             // Failed to locate executable
             if (!exists)
             {
-                _error.Handle(Except.ShellPath, exec, true);
+                _error.Handle(Except.ExecPath, exec, true);
             }
 
             Program.UsingExe = true;
             SockNode.Exe = path;
 
             // Remove argument flag
-            if (type == Argument.Flag)
+            if (type is Argument.Flag)
             {
                 RemoveFlag("--exec");
                 return;
@@ -287,7 +283,7 @@ namespace DotnetCat.Handlers
             string path = ArgsValueAt(argIndex + 1);
             SetFilePath(path);
 
-            if (type == Argument.Flag)
+            if (type is Argument.Flag)
             {
                 RemoveFlag("--output");
                 return;
@@ -302,7 +298,7 @@ namespace DotnetCat.Handlers
         {
             SetFilePath(Path.GetFullPath(ArgsValueAt(argIndex + 1)));
 
-            if (type == Argument.Flag)
+            if (type is Argument.Flag)
             {
                 RemoveFlag("--send");
                 return;
@@ -331,29 +327,23 @@ namespace DotnetCat.Handlers
         /// Specify the port to use for connection
         public void SetPort(int argIndex, Argument type)
         {
-            int portNum = -1;
+            int iPort = -1;
             string port = ArgsValueAt(argIndex + 1);
 
             try
             {
-                portNum = int.Parse(port);
-
-                if ((portNum < 0) || (portNum > 65535))
+                if (((iPort = int.Parse(port)) < 0) || (iPort > 65535))
                 {
                     throw new FormatException();
                 }
             }
-            catch (Exception ex)
+            catch (FormatException ex) // Invalid port number
             {
-                if (!(ex is FormatException))
-                {
-                    throw ex;
-                }
-                _error.Handle(Except.InvalidPort, port);
+                _error.Handle(Except.InvalidPort, port, ex);
             }
-            SockNode.Port = portNum;
+            SockNode.Port = iPort;
 
-            if (type == Argument.Flag)
+            if (type is Argument.Flag)
             {
                 RemoveFlag("--port");
                 return;
@@ -395,7 +385,7 @@ namespace DotnetCat.Handlers
         /// Get program title based on platform
         private static string GetAppTitle()
         {
-            if (Program.OS == Platform.Unix)
+            if (Program.OS is Platform.Nix)
             {
                 return "dncat";
             }

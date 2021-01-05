@@ -1,11 +1,11 @@
 ﻿namespace DotnetCat.Enums
 {
     /// <summary>
-    /// Command-line argument enumeration type
+    /// Command-line named argument enumeration type
     /// </summary>
     enum Argument : short
     {
-        Alias,
-        Flag
+        Alias,  // Conscise argument form (prefix: '-')
+        Flag    // Verbose argument form (prefix: '--')
     }
 }

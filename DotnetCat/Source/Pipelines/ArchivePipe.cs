@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using DotnetCat.Contracts;
 using DotnetCat.Enums;
+using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Pipelines
 {
@@ -24,32 +25,29 @@ namespace DotnetCat.Pipelines
             }
 
             /**
-            * TODO: initialize this.Source/this.Dest
+            * TODO: initialize Source/Dest
             **/ 
             _zipCreated = false;
             _zipPath = $"{path}.~dncat.zip";
 
-            this.FilePath = path;
-            this.PathType = GetFileType(path);
+            FilePath = path;
+            PathType = GetFileType(path);
 
-            if (PathType == FileType.None)
+            if (PathType is FileType.None)
             {
                 Error.Handle(Except.FilePath, path);
             }
             else
             {
-                this.FileFound = true;
+                FileFound = true;
             }
-            this.Source = new StreamReader(OpenFile(path, Error));
+            Source = new StreamReader(OpenFile(path, Error));
         }
 
         /// Activate pipline data flow between pipes
         public override void Connect()
         {
-            if (Source == null)
-            {
-                throw new ArgumentNullException(nameof(Source));
-            }
+            _ = Source ?? throw new ArgNullException(nameof(Source));
 
             ToZipFile();
             base.Connect();
@@ -75,6 +73,7 @@ namespace DotnetCat.Pipelines
 
             if (!Directory.Exists(FilePath))
             {
+                Dispose();
                 Error.Handle(Except.FilePath, FilePath);
             }
 
@@ -86,7 +85,8 @@ namespace DotnetCat.Pipelines
             }
             catch (Exception ex)
             {
-                throw ex;
+                Dispose();
+                Error.Handle(Except.Unhandled, ex.GetType().Name, ex);
             }
         }
 
@@ -109,12 +109,9 @@ namespace DotnetCat.Pipelines
             {
                 throw new FileNotFoundException(_zipPath);
             }
+            _ = FilePath ?? throw new ArgumentNullException(nameof(FilePath));
 
-            if (FilePath == null)
-            {
-                throw new ArgumentNullException(nameof(FilePath));
-            }
-            else if (!Directory.GetParent(FilePath).Exists)
+            if (!Directory.GetParent(FilePath).Exists)
             {
                 string parent = Directory.GetParent(FilePath).FullName;
                 Error.Handle(Except.DirectoryPath, parent);

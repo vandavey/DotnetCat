@@ -5,7 +5,7 @@
     /// </summary>
     enum Node : short
     {
-        Client,
-        Server
+        Client,  // TCP socket client (connect)
+        Server   // TCP socket server (listen)
     }
 }
