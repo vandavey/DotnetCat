@@ -10,7 +10,7 @@ namespace DotnetCat.Pipelines
     /// <summary>
     /// Pipeline class for directory/archive related data
     /// </summary>
-    class ArchivePipe : FilePipe, IConnectable
+    class ArchivePipe : FilePipe, IErrorHandled
     {
         private readonly string _zipPath;
 
@@ -21,7 +21,7 @@ namespace DotnetCat.Pipelines
         {
             if (string.IsNullOrEmpty(path))
             {
-                Error.Handle(Except.EmptyPath, "-s/--send");
+                PipeError(Except.EmptyPath, "-s/--send");
             }
 
             /**
@@ -35,13 +35,13 @@ namespace DotnetCat.Pipelines
 
             if (PathType is FileType.None)
             {
-                Error.Handle(Except.FilePath, path);
+                PipeError(Except.FilePath, path);
             }
             else
             {
                 FileFound = true;
             }
-            Source = new StreamReader(OpenFile(path, Error));
+            Source = new StreamReader(OpenFile(path));
         }
 
         /// Activate pipline data flow between pipes
@@ -51,6 +51,13 @@ namespace DotnetCat.Pipelines
 
             ToZipFile();
             base.Connect();
+        }
+
+        /// Dispose of unmanaged resources and handle error
+        public override void PipeError(Except type, string arg,
+                                                    Exception ex = null) {
+            Dispose();
+            Error.Handle(type, arg, ex);
         }
 
         /// Release any unmanaged resources
@@ -68,25 +75,23 @@ namespace DotnetCat.Pipelines
         {
             if (string.IsNullOrEmpty(FilePath))
             {
-                throw new ArgumentNullException(nameof(FilePath));
+                throw new ArgNullException(nameof(FilePath));
             }
 
+            // File path not found
             if (!Directory.Exists(FilePath))
             {
-                Dispose();
-                Error.Handle(Except.FilePath, FilePath);
+                PipeError(Except.FilePath, FilePath);
             }
 
-            // Create the archive file
-            try
+            try // Create the archive file
             {
                 ZipFile.CreateFromDirectory(FilePath, _zipPath);
                 _zipCreated = true;
             }
             catch (Exception ex)
             {
-                Dispose();
-                Error.Handle(Except.Unhandled, ex.GetType().Name, ex);
+                PipeError(Except.Unhandled, ex.GetType().Name, ex);
             }
         }
 
@@ -94,7 +99,8 @@ namespace DotnetCat.Pipelines
         protected void Unzip()
         {
             /**
-            * TODO: Change logic to call PathInfo, test/implement
+            * TODO:: Change logic to call PathInfo, test/implement
+            *     :: [ NOT READY FOR USE ]
             **/
             if (FileFound)
             {
@@ -103,32 +109,31 @@ namespace DotnetCat.Pipelines
                 return;
             }
             FileInfo info = new FileInfo(FilePath);
-            //PathInfo()
 
             if (!File.Exists(_zipPath))
             {
                 throw new FileNotFoundException(_zipPath);
             }
-            _ = FilePath ?? throw new ArgumentNullException(nameof(FilePath));
+            _ = FilePath ?? throw new ArgNullException(nameof(FilePath));
 
             if (!Directory.GetParent(FilePath).Exists)
             {
                 string parent = Directory.GetParent(FilePath).FullName;
-                Error.Handle(Except.DirectoryPath, parent);
+                PipeError(Except.DirectoryPath, parent);
             }
 
             ZipFile.ExtractToDirectory(_zipPath, FilePath);
             File.Delete(_zipPath);
         }
 
-        /// Test if file path is valid
+        /// Determine file type of path if it exists
         private (bool exists, FileType type) PathInfo(string path)
         {
             FileType type = GetFileType(path);
 
             if (string.IsNullOrEmpty(path))
             {
-                Error.Handle(Except.EmptyPath, path);
+                PipeError(Except.EmptyPath, path);
             }
 
             if (File.Exists(path) || Directory.Exists(path))

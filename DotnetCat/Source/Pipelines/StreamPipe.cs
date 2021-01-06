@@ -108,7 +108,7 @@ namespace DotnetCat.Pipelines
                     Disconnect();
                     break;
                 }
-                FixLineEndings(data);
+                FixLineEndings(data); // Normalize EOL sequences
 
                 // Clear console buffer if requested
                 if (IsClearCmd(data.ToString()))
@@ -123,17 +123,15 @@ namespace DotnetCat.Pipelines
                 await Dest.FlushAsync();
                 data.Clear();
             }
+
+            Console.WriteLine();
             Dispose();
         }
 
         /// Fix line terminators based on OS platform
         private StringBuilder FixLineEndings(StringBuilder data)
         {
-            if (OS is Platform.Win)
-            {
-                return data;
-            }
-            return data.Replace("\r\n", "\n");
+            return (OS is Platform.Win) ? data : data.Replace("\r\n", "\n");
         }
 
         /// Determine if data contains clear command

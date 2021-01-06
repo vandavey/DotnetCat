@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotnetCat.Enums;
 using DotnetCat.Utils;
+using Env = System.Environment;
 
 namespace DotnetCat.Handlers
 {
@@ -13,15 +14,12 @@ namespace DotnetCat.Handlers
     {
         private readonly Status _status;
 
-        private readonly StyleHandler _style;
-
         private readonly List<Error> _errors;
 
         /// Initialize new object
         public ErrorHandler()
         {
             _status = new Status(ConsoleColor.Red, "error", "[x]");
-            _style = new StyleHandler();
             _errors = GetErrors();
         }
 
@@ -56,25 +54,28 @@ namespace DotnetCat.Handlers
             Console.WriteLine(_errors[index].Message);
 
             // Print exception info and/or exit message
-            if (Program.Verbose)
+            if (Program.Debug && (ex != null))
             {
-                if (ex != null)
+                string header = $"----[ {ex.GetType().FullName} ]----";
+
+                Console.WriteLine(string.Join(Env.NewLine, new string[]
                 {
-                    string head = $"----[ {ex.GetType().Name} ]----";
-                    string foot = new string('-', head.Length);
-
-                    Console.WriteLine($"{head}\n{ex}\n{foot}");
-                }
-                _style.Status("Exiting DotnetCat");
+                    header,
+                    ex.ToString(),
+                    new string('-', header.Length)
+                }));
             }
-
-            Console.WriteLine();
-            Environment.Exit(1);
+            else
+            {
+                Console.WriteLine();
+            }
+            Env.Exit(1);
         }
 
         /// Get the index of an error in Errors
         private int IndexOfError(Except errorType)
         {
+            // Error list query
             List<int> query = (from error in _errors
                                where error.TypeName == errorType
                                select _errors.IndexOf(error)).ToList();

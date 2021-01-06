@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
@@ -13,31 +15,40 @@ namespace DotnetCat
     /// </summary>
     class Program
     {
-        private static StyleHandler _style;
-
         private static ErrorHandler _error;
 
         private static ArgumentParser _parser;
 
         public static bool Verbose => SockNode?.Verbose ?? false;
 
+        public static bool Debug { get; set; }
+
         public static bool Recursive { get; set; }
 
         public static bool UsingExe { get; set; }
 
-        public static Communicate FileComm { get; set; }
+        public static TransferOpt Transfer { get; set; }
 
         public static Platform OS { get; set; }
 
         public static List<string> Args { get; set; }
 
-        public static SocketNode SockNode { get; set; }
+        public static Node SockNode { get; set; }
 
         /// Primary application entry point
         private static void Main(string[] args)
         {
+            _error = new ErrorHandler();
             _parser = new ArgumentParser();
-            OS = GetPlatform();
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                OS = Platform.Win;
+            }
+            else
+            {
+                OS = Platform.Nix;
+            }
 
             // Display help info and exit
             if ((args.Count() == 0) || _parser.NeedsHelp(args))
@@ -48,30 +59,13 @@ namespace DotnetCat
             InitializeNode(args);
             Connect();
 
-            // Display exit message
-            if (SockNode?.Verbose ?? Verbose)
-            {
-                _style.Status("Exiting DotnetCat");
-            }
-
             Console.WriteLine();
             Environment.Exit(0);
-        }
-
-        /// Determine if OS platform is Windows or Unix
-        private static Platform GetPlatform()
-        {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return Platform.Nix;
-            }
-            return Platform.Win;
         }
 
         /// Initialize node fields and properties
         private static void InitializeNode(string[] args)
         {
-            _style ??= new StyleHandler();
             _error ??= new ErrorHandler();
 
             // Check for incomplete alias
@@ -99,10 +93,12 @@ namespace DotnetCat
             {
                 Args.RemoveAt(index);
             }
-            FileComm = GetCommunication();
+            
+            Transfer = GetTransferOpts();
+            index = _parser.IndexOfFlag("--listen", 'l');
 
             // Determine if node is client/server
-            if (GetNode() is Node.Server)
+            if ((index > -1) || (_parser.IndexOfAlias('l') > -1))
             {
                 SockNode = new ServerNode();
                 return;
@@ -110,11 +106,31 @@ namespace DotnetCat
             SockNode = new ClientNode();
         }
 
+        /// Get the file/socket communication operation type
+        private static TransferOpt GetTransferOpts()
+        {
+            int outIndex = _parser.IndexOfFlag("--output", 'o');
+
+            // Receive file data
+            if ((outIndex > -1) || (_parser.IndexOfAlias('o') > -1))
+            {
+                return TransferOpt.Collect;
+            }
+            int sendIndex = _parser.IndexOfFlag("--send", 's');
+
+            // Send file data
+            if ((sendIndex > -1) || (_parser.IndexOfAlias('s') > -1))
+            {
+                return TransferOpt.Transmit;
+            }
+            return TransferOpt.None;
+        }
+
         /// Parse arguments and initiate connection
         private static void Connect()
         {
-            ParseCharArgs();
-            ParseFlagArgs();
+            _parser.ParseCharArgs();
+            _parser.ParseFlagArgs();
 
             // Validate remaining cmd-line arguments
             switch (Args.Count)
@@ -134,14 +150,28 @@ namespace DotnetCat
                         _error.Handle(Except.UnknownArgs, Args[0], true);
                     }
 
-                    if (!_parser.IsValidAddress(Args[0]).valid)
+                    bool isValid;
+                    IPAddress addr = null;
+
+                    try // Parse string as IP address
+                    {
+                        SockNode.Addr = IPAddress.Parse(Args[0]);
+                        isValid = true;
+                    }
+                    catch (FormatException)
+                    {
+                        SockNode.Addr = ResolveHostName(Args[0]);
+                        isValid = addr != null;
+                    }
+
+                    // Invalid destination host
+                    if (!isValid)
                     {
                         _error.Handle(Except.InvalidAddr, Args[0], true);
                     }
-                    _parser.SetAddress(Args[0]);
                     break;
                 }
-                default: // Additional unexpected arguments
+                default: // Unexpected arguments
                 {
                     string argsStr = string.Join(", ", Args);
 
@@ -156,112 +186,48 @@ namespace DotnetCat
             SockNode.Connect();
         }
 
-        /// Determine the node type from the command line arguments
-        private static Node GetNode()
+        /// Resolve the IPv4 address of given hostname
+        private static IPAddress ResolveHostName(string hostName)
         {
-            int index = _parser.IndexOfFlag("--listen", 'l');
+            IPHostEntry dnsAns;
+            string machineName = Environment.MachineName;
 
-            if ((index > -1) || (_parser.IndexOfAlias('l') > -1))
+            try // Resolve host name as IP address
             {
-                return Node.Server;
-            }
-            return Node.Client;
-        }
+                dnsAns = Dns.GetHostEntry(hostName);
 
-        /// Get the file/socket communication operation type
-        private static Communicate GetCommunication()
-        {
-            int outIndex = _parser.IndexOfFlag("--output", 'o');
-
-            // Receive file data
-            if ((outIndex > -1) || (_parser.IndexOfAlias('o') > -1))
-            {
-                return Communicate.Collect;
-            }
-            int sendIndex = _parser.IndexOfFlag("--send", 's');
-
-            // Send file data
-            if ((sendIndex > -1) || (_parser.IndexOfAlias('s') > -1))
-            {
-                return Communicate.Transmit;
-            }
-            return Communicate.None;
-        }
-
-        /// Parse named arguments starting with one dash
-        private static void ParseCharArgs()
-        {
-            // Locate all char flag arguments
-            var query = from arg in Args.ToList()
-                        let index = _parser.IndexOfFlag(arg)
-                        where arg[0] == '-'
-                            && arg[1] != '-'
-                        select new { arg, index };
-
-            foreach (var item in query)
-            {
-                if (item.arg.Contains('l'))
-                    _parser.RemoveAlias(item.index, 'l');
-
-                if (item.arg.Contains('v'))
-                    _parser.SetVerbose(item.index, Argument.Alias);
-
-                if (item.arg.Contains('r'))
-                    _parser.SetRecurse(item.index, Argument.Alias);
-
-                if (item.arg.Contains('p'))
-                    _parser.SetPort(item.index, Argument.Alias);
-
-                if (item.arg.Contains('e'))
-                    _parser.SetExec(item.index, Argument.Alias);
-
-                if (item.arg.Contains('o'))
-                    _parser.SetCollect(item.index, Argument.Alias);
-
-                if (item.arg.Contains('s'))
-                    _parser.SetTransmit(item.index, Argument.Alias);
-
-                if (_parser.ArgsValueAt(item.index) == "-")
-                    Args.RemoveAt(_parser.IndexOfFlag("-"));
-            }
-        }
-
-        /// Parse named arguments starting with two dashes
-        private static void ParseFlagArgs()
-        {
-            // Locate all flag arguments
-            var query = from arg in Args.ToList()
-                        let index = _parser.IndexOfFlag(arg)
-                        where arg.StartsWith("--")
-                        select new { arg, index };
-
-            foreach (var item in query)
-            {
-                switch (item.arg)
+                if (dnsAns.AddressList.Contains(IPAddress.Loopback))
                 {
-                    case "--listen":
-                        Args.RemoveAt(item.index);
-                        break;
-                    case "--verbose":
-                        _parser.SetVerbose(item.index, Argument.Flag);
-                        break;
-                    case "--recurse":
-                        _parser.SetRecurse(item.index, Argument.Flag);
-                        break;
-                    case "--port":
-                        _parser.SetPort(item.index, Argument.Flag);
-                        break;
-                    case "--exec":
-                        _parser.SetExec(item.index, Argument.Flag);
-                        break;
-                    case "--output":
-                        _parser.SetCollect(item.index, Argument.Flag);
-                        break;
-                    case "--send":
-                        _parser.SetTransmit(item.index, Argument.Flag);
-                        break;
+                    return IPAddress.Loopback;
                 }
             }
+            catch (SocketException) // No DNS entries found
+            {
+                return null;
+            }
+
+            if (dnsAns.HostName.ToLower() != machineName.ToLower())
+            {
+                foreach (IPAddress addr in dnsAns.AddressList)
+                {
+                    if (addr.AddressFamily is AddressFamily.InterNetwork)
+                    {
+                        return addr;
+                    }
+                }
+                return null;
+            }
+
+            Socket socket = new Socket(AddressFamily.InterNetwork,
+                                       SocketType.Dgram,
+                                       ProtocolType.Udp);
+            // Perform DNS query
+            using (socket)
+            {
+                socket.Connect("8.8.8.8", 53);
+                return (socket.LocalEndPoint as IPEndPoint).Address;
+            }
         }
+
     }
 }

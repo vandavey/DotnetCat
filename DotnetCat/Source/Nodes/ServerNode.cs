@@ -11,7 +11,7 @@ namespace DotnetCat.Nodes
     /// <summary>
     /// Server node for TCP socket connections
     /// </summary>
-    class ServerNode : SocketNode, IConnectable
+    class ServerNode : Node, IErrorHandled
     {
         private Socket _listener;
 
@@ -26,9 +26,9 @@ namespace DotnetCat.Nodes
         {
             // Bind listener socket to local endpoint
             BindListener(new IPEndPoint(Addr, Port));
-            IPEndPoint remoteEP;
+            IPEndPoint remoteEP = null;
 
-            try
+            try // Listen for connection
             {
                 _listener.Listen(1);
                 Style.Status("Listening for incoming connections...");
@@ -36,7 +36,7 @@ namespace DotnetCat.Nodes
                 Client.Client = _listener.Accept();
                 NetStream = Client.GetStream();
 
-                // Start the executable process
+                // Start executable process
                 if (Program.UsingExe)
                 {
                     Exe ??= Cmd.GetDefaultExe(OS);
@@ -44,7 +44,7 @@ namespace DotnetCat.Nodes
 
                     if (!hasStarted)
                     {
-                        Error.Handle(Except.ExecProcess, Exe);
+                        PipeError(Except.ExecProcess, Exe);
                     }
                 }
 
@@ -53,18 +53,26 @@ namespace DotnetCat.Nodes
 
                 base.Connect();
                 WaitForExit();
+
+                // Connection closed status
+                Style.Status($"Connection to {remoteEP.Address} closed");
             }
             catch (SocketException ex) // Connection refused
             {
-                Dispose();
-                Error.Handle(Except.ConnectionRefused, $"{Addr}:{Port}", ex);
+                PipeError(Except.ConnectionRefused, $"{remoteEP}", ex);
             }
             catch (IOException ex) // Connection lost
             {
-                Dispose();
-                Error.Handle(Except.ConnectionLost, $"{Addr}", ex);
+                PipeError(Except.ConnectionLost, $"{remoteEP}", ex);
             }
             Dispose();
+        }
+
+        /// Dispose of unmanaged resources and handle error
+        public override void PipeError(Except type, string arg,
+                                                    Exception ex = null) {
+            Dispose();
+            Error.Handle(type, arg, ex);
         }
 
         /// Release any unmanaged resources
@@ -82,15 +90,14 @@ namespace DotnetCat.Nodes
             _listener = new Socket(AddressFamily.InterNetwork,
                                    SocketType.Stream,
                                    ProtocolType.Tcp);
-            try
+
+            try // Bind socket to endpoint
             {
                 _listener.Bind(ep);
-                return;
             }
             catch (SocketException ex)
             {
-                Dispose();
-                Error.Handle(Except.SocketBind, ep.ToString(), ex);
+                PipeError(Except.SocketBind, ep.ToString(), ex);
             }
         }
     }

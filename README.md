@@ -1,6 +1,6 @@
 <p align="center">
-<img src="DotnetCat/Resources/Icon.ico" width=175 alt="logo">
-    </p>
+    <img src="DotnetCat/Resources/Icon.ico" width=175 alt="logo">
+</p>
 
 # DotnetCat
 
@@ -25,20 +25,21 @@ targeting the [.NET Core 3.1 runtime](https://dotnet.microsoft.com/download/dotn
 
 All available DotnetCat arguments are listed in the following table:
 
-| Argument           | Type       | Description                | Default |
-|:------------------:|:----------:|:--------------------------:|:-------:|
-| `TARGET`           | *Required* | Target address or host     | *N/A*   |
-| `-p/--port PORT`   | *Optional* | Primary local/remote port  | *4444*  |
-| `-e/--exec EXEC`   | *Optional* | Command shell executable   | *N/A*   |
-| `-o/--output PATH` | *Optional* | Receive a remote file      | *N/A*   |
-| `-s/--send PATH`   | *Optional* | Send local file/directory  | *N/A*   |
-| `-l, --listen`     | *Optional* | Listen for connection      | *False* |
-| `-v, --verbose`    | *Optional* | Enable verbose output      | *False* |
-| `-r, --recurse`    | *Optional* | Send directory recursively | *False* |
-| `-h/-?, --help`    | *Optional* | Display the help menu      | *False* |
+| Argument           | Type       | Description                 | Default |
+|:------------------:|:----------:|:---------------------------:|:-------:|
+| `TARGET`           | *Required* | Target address or host      | *N/A*   |
+| `-p/--port PORT`   | *Optional* | Primary local/remote port   | *4444*  |
+| `-e/--exec EXEC`   | *Optional* | Command shell executable    | *N/A*   |
+| `-o/--output PATH` | *Optional* | Receive a remote file       | *N/A*   |
+| `-s/--send PATH`   | *Optional* | Send local file/directory   | *N/A*   |
+| `-l, --listen`     | *Optional* | Listen for connection       | *False* |
+| `-v, --verbose`    | *Optional* | Enable verbose output       | *False* |
+| `-r, --recurse`    | *Optional* | Send directory recursively  | *False* |
+| `-d, --debug`      | *Optional* | Enable verbose error output | *False* |
+| `-h/-?, --help`    | *Optional* | Display the help menu       | *False* |
 
-> Note: The `-r/--recurse` option is still in development and should be avoided
-  in the meantime
+> *Note*: The `-r/--recurse` option is still in development and should be avoided
+  in the meantime.
 
 ***
 
