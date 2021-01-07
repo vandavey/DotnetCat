@@ -4,13 +4,14 @@ using System.Net;
 using System.Net.Sockets;
 using DotnetCat.Contracts;
 using DotnetCat.Enums;
+using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Nodes
 {
     /// <summary>
     /// Server node for TCP socket connections
     /// </summary>
-    class ServerNode : SocketNode, IConnectable
+    class ServerNode : Node, IErrorHandled
     {
         private Socket _listener;
 
@@ -23,10 +24,11 @@ namespace DotnetCat.Nodes
         /// Listen for incoming TCP connections
         public override void Connect()
         {
-            IPEndPoint remoteEP;
+            // Bind listener socket to local endpoint
             BindListener(new IPEndPoint(Addr, Port));
+            IPEndPoint remoteEP = null;
 
-            try
+            try // Listen for connection
             {
                 _listener.Listen(1);
                 Style.Status("Listening for incoming connections...");
@@ -34,7 +36,7 @@ namespace DotnetCat.Nodes
                 Client.Client = _listener.Accept();
                 NetStream = Client.GetStream();
 
-                // Start the executable process
+                // Start executable process
                 if (Program.UsingExe)
                 {
                     Exe ??= Cmd.GetDefaultExe(OS);
@@ -42,7 +44,7 @@ namespace DotnetCat.Nodes
 
                     if (!hasStarted)
                     {
-                        Error.Handle(Except.ShellProcess, Exe);
+                        PipeError(Except.ExecProcess, Exe);
                     }
                 }
 
@@ -51,24 +53,26 @@ namespace DotnetCat.Nodes
 
                 base.Connect();
                 WaitForExit();
+
+                // Connection closed status
+                Style.Status($"Connection to {remoteEP.Address} closed");
             }
-            catch (SocketException) // Connection refused
+            catch (SocketException ex) // Connection refused
             {
-                string endPoint = $"{Addr}:{Port}";
-                Error.Handle(Except.ConnectionRefused, endPoint);
+                PipeError(Except.ConnectionRefused, $"{remoteEP}", ex);
             }
-            catch (IOException) // Connection lost
+            catch (IOException ex) // Connection lost
             {
-                Error.Handle(Except.ConnectionLost, $"{Addr}");
+                PipeError(Except.ConnectionLost, $"{remoteEP}", ex);
             }
-            catch (Exception ex) // Unhandled exception
-            {
-                throw ex;
-            }
-            finally // Free unmanaged resources
-            {
-                Dispose();
-            }
+            Dispose();
+        }
+
+        /// Dispose of unmanaged resources and handle error
+        public override void PipeError(Except type, string arg,
+                                                    Exception ex = null) {
+            Dispose();
+            Error.Handle(type, arg, ex);
         }
 
         /// Release any unmanaged resources
@@ -79,24 +83,21 @@ namespace DotnetCat.Nodes
         }
 
         /// Bind the listener socket to an endpoint
-        private void BindListener(IPEndPoint endPoint)
+        private void BindListener(IPEndPoint ep)
         {
-            if (endPoint == null)
-            {
-                throw new ArgumentNullException(nameof(endPoint));
-            }
+            _ = ep ?? throw new ArgNullException(nameof(ep));
 
             _listener = new Socket(AddressFamily.InterNetwork,
                                    SocketType.Stream,
                                    ProtocolType.Tcp);
-            try
+
+            try // Bind socket to endpoint
             {
-                _listener.Bind(endPoint);
+                _listener.Bind(ep);
             }
-            catch (SocketException)
+            catch (SocketException ex)
             {
-                Dispose();
-                Error.Handle(Except.SocketBind, $"{endPoint}");
+                PipeError(Except.SocketBind, ep.ToString(), ex);
             }
         }
     }

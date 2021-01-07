@@ -8,17 +8,17 @@ namespace DotnetCat.Utils
     class Status
     {
         /// Initialize new object
-        public Status(string level, string symbol, ConsoleColor color)
+        public Status(ConsoleColor color, string level, string symbol)
         {
-            this.Level = level;
-            this.Symbol = symbol;
-            this.Color = color;
+            Color = color;
+            Level = level;
+            Symbol = symbol;
         }
+
+        public ConsoleColor Color { get; }
 
         public string Level { get; }
 
         public string Symbol { get; }
-
-        public ConsoleColor Color { get; }
     }
 }

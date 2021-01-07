@@ -5,7 +5,7 @@
     /// </summary>
     enum Platform : short
     {
-        Unix,
-        Windows
+        Nix,  // Unix based operating system
+        Win   // Windows based operating system
     }
 }

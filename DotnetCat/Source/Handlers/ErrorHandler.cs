@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotnetCat.Enums;
 using DotnetCat.Utils;
+using Env = System.Environment;
 
 namespace DotnetCat.Handlers
 {
@@ -13,27 +14,24 @@ namespace DotnetCat.Handlers
     {
         private readonly Status _status;
 
-        private readonly StyleHandler _style;
-
         private readonly List<Error> _errors;
 
         /// Initialize new object
         public ErrorHandler()
         {
+            _status = new Status(ConsoleColor.Red, "error", "[x]");
             _errors = GetErrors();
-            _status = new Status("error", "[x]", ConsoleColor.Red);
-            _style = new StyleHandler();
         }
 
         /// Handle special exceptions related to DotNetCat
-        public void Handle(Except type, string arg)
+        public void Handle(Except type, string arg, Exception ex = null)
         {
-            Handle(type, arg, false);
+            Handle(type, arg, false, ex);
         }
 
         /// Handle special exceptions related to DotNetCat
-        public void Handle(Except type, string arg, bool showUsage)
-        {
+        public void Handle(Except type, string arg, bool showUsage,
+                                                    Exception ex = null) {
             int index = IndexOfError(type);
 
             // Ensure error message is built
@@ -55,18 +53,29 @@ namespace DotnetCat.Handlers
             _errors[index].Build(arg);
             Console.WriteLine(_errors[index].Message);
 
-            if (Program.Verbose)
+            // Print exception info and/or exit message
+            if (Program.Debug && (ex != null))
             {
-                _style.Status("Exiting DotnetCat");
-            }
+                string header = $"----[ {ex.GetType().FullName} ]----";
 
-            Console.WriteLine();
-            Environment.Exit(1);
+                Console.WriteLine(string.Join(Env.NewLine, new string[]
+                {
+                    header,
+                    ex.ToString(),
+                    new string('-', header.Length)
+                }));
+            }
+            else
+            {
+                Console.WriteLine();
+            }
+            Env.Exit(1);
         }
 
         /// Get the index of an error in Errors
         private int IndexOfError(Except errorType)
         {
+            // Error list query
             List<int> query = (from error in _errors
                                where error.TypeName == errorType
                                select _errors.IndexOf(error)).ToList();
@@ -79,9 +88,9 @@ namespace DotnetCat.Handlers
         {
             return new List<Error>
             {
-                new Error(Except.ArgCombination,
+                new Error(Except.ArgsCombo,
                          "The following arguments can't be combined: {}"),
-                new Error(Except.ArgValidation,
+                new Error(Except.InvalidArgs,
                          "Unable to validate argument(s): {}"),
                 new Error(Except.ConnectionLost,
                          "The connection was unexpectedly closed by {}"),
@@ -97,18 +106,20 @@ namespace DotnetCat.Handlers
                          "Unable to resolve hostname '{}'"),
                 new Error(Except.InvalidPort,
                          "{} cannot be parsed as a valid port"),
-                new Error(Except.NamedArg,
+                new Error(Except.NamedArgs,
                          "Missing value for named argument(s): {} "),
-                new Error(Except.RequiredArg,
+                new Error(Except.RequiredArgs,
                          "Missing required argument(s): {}"),
-                new Error(Except.ShellPath,
-                         "Unable to locate the shell executable {}"),
-                new Error(Except.ShellProcess,
-                         "Unable to run the process {}"),
+                new Error(Except.ExecPath,
+                         "Unable to locate executable file '{}'"),
+                new Error(Except.ExecProcess,
+                         "Unable to launch executable process {}"),
                 new Error(Except.SocketBind,
                          "The endpoint {} is already in use"),
-                new Error(Except.UnknownArg,
-                         "Received unknown argument(s): {}"),
+                new Error(Except.Unhandled,
+                         "Unhandled exception occurred: {}"),
+                new Error(Except.UnknownArgs,
+                         "Received unknown argument(s): {}")
             };
         }
     }

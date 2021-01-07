@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
 using DotnetCat.Enums;
+using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Pipelines
 {
@@ -24,17 +25,14 @@ namespace DotnetCat.Pipelines
             {
                 "cls", "clear", "clear-screen"
             };
-
-            this.Client = Program.SockNode.Client;
-            this.OS = Program.OS;
-            this.Connected = false;
+            Connected = false;
         }
 
         public bool Connected { get; protected set; }
 
-        protected Platform OS { get; }
+        protected Platform OS => Program.OS;
 
-        protected TcpClient Client { get; }
+        protected TcpClient Client => Program.SockNode.Client;
 
         protected CancellationTokenSource CTS { get; set; }
 
@@ -47,14 +45,8 @@ namespace DotnetCat.Pipelines
         /// Activate communication between the pipe streams
         public virtual void Connect()
         {
-            if (Source == null)
-            {
-                throw new ArgumentNullException(nameof(Source));
-            }
-            else if (Dest == null)
-            {
-                throw new ArgumentNullException(nameof(Dest));
-            }
+            _ = Source ?? throw new ArgNullException(nameof(Source));
+            _ = Dest ?? throw new ArgNullException(nameof(Dest));
 
             CTS = new CancellationTokenSource();
             Worker = ConnectAsync(CTS.Token);
@@ -110,14 +102,15 @@ namespace DotnetCat.Pipelines
                 charsRead = await Source.ReadAsync(buffer, token);
                 data.Append(buffer.ToArray(), 0, charsRead);
 
-                // Client disconnected or finished data collection
+                // Client disconnected
                 if (!Client.Connected || (charsRead <= 0))
                 {
                     Disconnect();
                     break;
                 }
-                FixLineEndings(data);
+                FixLineEndings(data); // Normalize EOL sequences
 
+                // Clear console buffer if requested
                 if (IsClearCmd(data.ToString()))
                 {
                     await Dest.WriteAsync(newLine, token);
@@ -130,18 +123,15 @@ namespace DotnetCat.Pipelines
                 await Dest.FlushAsync();
                 data.Clear();
             }
+
+            Console.WriteLine();
             Dispose();
         }
 
         /// Fix line terminators based on OS platform
         private StringBuilder FixLineEndings(StringBuilder data)
         {
-            if (OS == Platform.Windows)
-            {
-                return data;
-            }
-
-            return data.Replace("\r\n", "\n");
+            return (OS is Platform.Win) ? data : data.Replace("\r\n", "\n");
         }
 
         /// Determine if data contains clear command
@@ -149,12 +139,12 @@ namespace DotnetCat.Pipelines
         {
             data = data.Replace(Environment.NewLine, "");
 
+            // Clear current console buffer
             if (_clearCommands.Contains(data.Trim()))
             {
                 Console.Clear();
                 return true;
             }
-
             return false;
         }
     }

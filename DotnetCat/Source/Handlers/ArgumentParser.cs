@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using DotnetCat.Enums;
 using DotnetCat.Nodes;
 
@@ -14,6 +12,8 @@ namespace DotnetCat.Handlers
     /// </summary>
     class ArgumentParser
     {
+        private readonly string _appTitle;
+
         private readonly CommandHandler _cmd;
 
         private readonly ErrorHandler _error;
@@ -24,7 +24,8 @@ namespace DotnetCat.Handlers
             _cmd = new CommandHandler();
             _error = new ErrorHandler();
 
-            this.Help = GetHelp(GetUsage());
+            _appTitle = (OS is Platform.Nix) ? "dncat" : "dncat.exe";
+            Help = GetHelp(_appTitle, GetUsage(_appTitle));
         }
 
         public string Help { get; }
@@ -35,15 +36,21 @@ namespace DotnetCat.Handlers
             set => Program.Args = value;
         }
 
-        public SocketNode SockNode
+        public Node SockNode
         {
             get => Program.SockNode;
             set => Program.SockNode = value;
         }
 
-        public static string GetUsage()
+        private Platform OS => Program.OS;
+
+        private bool Debug { set => Program.Debug = value; }
+
+        private bool Recursive { set => Program.Recursive = value; }
+
+        public static string GetUsage(string appTitle = "dncat")
         {
-            return $"Usage: {GetAppTitle()} [OPTIONS] TARGET";
+            return $"Usage: {appTitle} [OPTIONS] TARGET";
         }
 
         /// Print application help message to console output
@@ -53,9 +60,144 @@ namespace DotnetCat.Handlers
             Environment.Exit(0);
         }
 
+        /// Parse named arguments starting with one dash
+        public void ParseCharArgs()
+        {
+            // Locate all char flag arguments
+            var query = from arg in Args.ToList()
+                        let index = IndexOfFlag(arg)
+                        where arg[0] == '-'
+                            && arg[1] != '-'
+                        select new { arg, index };
+
+            foreach (var item in query)
+            {
+                if (item.arg.Contains('l')) // Listen for connection
+                {
+                    RemoveAlias(item.index, 'l');
+                }
+
+                if (item.arg.Contains('v')) // Verbose output
+                {
+                    SockNode.Verbose = true;
+                    RemoveAlias(item.index, 'v');
+                }
+
+                if (item.arg.Contains('d')) // Debug output
+                {
+                    Debug = SockNode.Verbose = true;
+                    RemoveAlias(item.index, 'd');
+                }
+
+                if (item.arg.Contains('r')) // Recursive transfer
+                {
+                    Recursive = true;
+                    RemoveAlias(item.index, 'r');
+                }
+
+                if (item.arg.Contains('p')) // Connection port
+                {
+                    SockNode.Port = GetPort(item.index);
+                    RemoveAlias(item.index, 'p');
+                    Args.RemoveAt(item.index + 1);
+                }
+
+                if (item.arg.Contains('e')) // Executable path
+                {
+                    SockNode.Exe = GetExec(item.index);
+                    RemoveAlias(item.index, 'e');
+                    Args.RemoveAt(item.index + 1);
+                }
+
+                if (item.arg.Contains('o')) // Receive file data
+                {
+                    SockNode.FilePath = GetTransfer(item.index);
+                    RemoveAlias(item.index, 'o');
+                    Args.RemoveAt(item.index + 1);
+                }
+
+                if (item.arg.Contains('s')) // Send file data
+                {
+                    SockNode.FilePath = GetTransfer(item.index);
+                    RemoveAlias(item.index, 's');
+                    Args.RemoveAt(item.index + 1);
+                }
+
+                if (ArgsValueAt(item.index) == "-")
+                {
+                    Args.RemoveAt(IndexOfFlag("-"));
+                }
+            }
+        }
+
+        /// Parse named arguments starting with two dashes
+        public void ParseFlagArgs()
+        {
+            // Locate all flag arguments
+            var query = from arg in Args.ToList()
+                        let index = IndexOfFlag(arg)
+                        where arg.StartsWith("--")
+                        select new { arg, index };
+
+            foreach (var item in query)
+            {
+                switch (item.arg)
+                {
+                    case "--listen": // Listen for connection
+                    {
+                        Args.RemoveAt(item.index);
+                        break;
+                    }
+                    case "--verbose": // Verbose output
+                    {
+                        SockNode.Verbose = true;
+                        Args.RemoveAt(item.index);
+                        break;
+                    }
+                    case "--debug": // Debug output
+                    {
+                        Debug = SockNode.Verbose = true;
+                        Args.RemoveAt(item.index);
+                        break;
+                    }
+                    case "--recurse": // Recursive transfer
+                    {
+                        Recursive = true;
+                        Args.RemoveAt(item.index);
+                        break;
+                    }
+                    case "--port": // Connection port
+                    {
+                        SockNode.Port = GetPort(item.index);
+                        RemoveFlag(ArgsValueAt(item.index));
+                        break;
+                    }
+                    case "--exec": // Executable path
+                    {
+                        SockNode.Exe = GetExec(item.index);
+                        RemoveFlag(ArgsValueAt(item.index));
+                        break;
+                    }
+                    case "--output": // Receive file data
+                    {
+                        SockNode.FilePath = GetTransfer(item.index);
+                        RemoveFlag(ArgsValueAt(item.index));
+                        break;
+                    }
+                    case "--send": // Send file data
+                    {
+                        SockNode.FilePath = GetTransfer(item.index);
+                        RemoveFlag(ArgsValueAt(item.index));
+                        break;
+                    }
+                }
+            }
+        }
+
         /// Get index of cmd-line argument with the specified char
         public int IndexOfAlias(char alias)
         {
+            // Query cmd-line arguments
             List<int> query = (from arg in Args
                                where arg.Contains(alias)
                                    && arg[0] == '-'
@@ -84,9 +226,8 @@ namespace DotnetCat.Handlers
                     }
                 }
             }
-            //alias ??= (flag.Length == 2) ? flag[1] : flag[2];
 
-            // Locate matching arguments
+            // Query cmd-line arguments
             List<int> query = (from arg in Args
                                where arg.ToLower() == flag.ToLower()
                                    || arg == $"-{alias}"
@@ -100,15 +241,15 @@ namespace DotnetCat.Handlers
         {
             if ((index < 0) || (index >= Args.Count))
             {
-                _error.Handle(Except.NamedArg, Args[index - 1], true);
+                _error.Handle(Except.NamedArgs, Args[index - 1], true);
             }
-
             return Args[index];
         }
 
         /// Check for help flag in cmd-line arguments
         public bool NeedsHelp(string[] args)
         {
+            // Query cmd-line arguments
             List<string> query = (from arg in args
                                   where arg.ToLower() == "--help"
                                       || (arg.Length > 1
@@ -136,127 +277,15 @@ namespace DotnetCat.Handlers
         /// Remove character of a cmd-line argument
         public void RemoveAlias(int index, char alias)
         {
+            if (index < 0 || (index >= Args.Count()))
+            {
+                throw new IndexOutOfRangeException($"{nameof(index)}");
+            }
             Args[index] = Args[index].Replace(alias.ToString(), "");
         }
 
-        /// Enable verbose standard output
-        public void SetVerbose(int argIndex, Argument type)
-        {
-            SockNode.Verbose = true;
-
-            if (type == Argument.Flag)
-            {
-                Args.RemoveAt(argIndex);
-            }
-            else
-            {
-                RemoveAlias(argIndex, 'v');
-            }
-        }
-
-        /// Transfer directory children recursively
-        public void SetRecurse(int argIndex, Argument type)
-        {
-            Program.Recursive = true;
-
-            if (type == Argument.Flag)
-            {
-                Args.RemoveAt(argIndex);
-            }
-            else
-            {
-                RemoveAlias(argIndex, 'r');
-            }
-        }
-
-        /// Specify the local or remote host
-        public void SetAddress(string address)
-        {
-            if (string.IsNullOrEmpty(address))
-            {
-                throw new ArgumentNullException(nameof(address));
-            }
-
-            (bool isValid, IPAddress addr) = IsValidAddress(address);
-
-            if (!isValid)
-            {
-                _error.Handle(Except.InvalidAddr, address, true);
-            }
-
-            SockNode.Addr = addr;
-        }
-
-        /// Determine if specified address is valid
-        public (bool valid, IPAddress) IsValidAddress(string address)
-        {
-            if (string.IsNullOrEmpty(address))
-            {
-                return (false, null);
-            }
-
-            // Parse address string as IP
-            try
-            {
-                return (true, IPAddress.Parse(address));
-            }
-            catch (Exception ex)
-            {
-                if (!(ex is FormatException))
-                {
-                    throw ex;
-                }
-            }
-
-            IPAddress addr = ResolveHostName(address);
-            return (addr == null) ? (false, null) : (true, addr);
-        }
-
-        /// Resolve the IPv4 address of given hostname
-        public IPAddress ResolveHostName(string hostName)
-        {
-            IPHostEntry dnsAns;
-            string machineName = Environment.MachineName;
-
-            // Resolve host name as IP address
-            try
-            {
-                dnsAns = Dns.GetHostEntry(hostName);
-
-                if (dnsAns.AddressList.Contains(IPAddress.Loopback))
-                {
-                    return IPAddress.Loopback;
-                }
-            }
-            catch (SocketException)
-            {
-                return null;
-            }
-
-            if (dnsAns.HostName.ToLower() != machineName.ToLower())
-            {
-                foreach (IPAddress addr in dnsAns.AddressList)
-                {
-                    if (addr.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        return addr;
-                    }
-                }
-                return null;
-            }
-
-            Socket socket = new Socket(AddressFamily.InterNetwork,
-                                       SocketType.Dgram,
-                                       ProtocolType.Udp);
-            using (socket)
-            {
-                socket.Connect("8.8.8.8", 53);
-                return (socket.LocalEndPoint as IPEndPoint).Address;
-            }
-        }
-
-        /// Specify shell executable for command execution
-        public void SetExec(int argIndex, Argument type)
+        /// Get executable path for command execution
+        public string GetExec(int argIndex)
         {
             string exec = ArgsValueAt(argIndex + 1);
             (bool exists, string path) = _cmd.ExistsOnPath(exec);
@@ -264,110 +293,49 @@ namespace DotnetCat.Handlers
             // Failed to locate executable
             if (!exists)
             {
-                _error.Handle(Except.ShellPath, exec, true);
+                _error.Handle(Except.ExecPath, exec, true);
             }
 
             Program.UsingExe = true;
-            SockNode.Exe = path;
-
-            // Remove argument flag
-            if (type == Argument.Flag)
-            {
-                RemoveFlag("--exec");
-                return;
-            }
-
-            RemoveAlias(argIndex, 'e');
-            Args.RemoveAt(argIndex + 1);
+            return path;
         }
 
-        /// Specify file path to output socket data
-        public void SetCollect(int argIndex, Argument type)
+        /// Get file path to write to or read from
+        public string GetTransfer(int argIndex)
         {
-            string path = ArgsValueAt(argIndex + 1);
-            SetFilePath(path);
+            string path = Path.GetFullPath(ArgsValueAt(argIndex + 1));
 
-            if (type == Argument.Flag)
-            {
-                RemoveFlag("--output");
-                return;
-            }
-
-            RemoveAlias(argIndex, 'o');
-            Args.RemoveAt(argIndex + 1);
-        }
-
-        /// Specify the file path for 
-        public void SetTransmit(int argIndex, Argument type)
-        {
-            SetFilePath(Path.GetFullPath(ArgsValueAt(argIndex + 1)));
-
-            if (type == Argument.Flag)
-            {
-                RemoveFlag("--send");
-                return;
-            }
-
-            RemoveAlias(argIndex, 's');
-            Args.RemoveAt(argIndex + 1);
-        }
-
-        /// Specify file path for file stream manipulation
-        public void SetFilePath(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-            {
-                throw new ArgumentNullException(nameof(path));
-            }
-
-            // Determine if file location is valid
+            // Invalid file path
             if (!File.Exists(path) && !Directory.GetParent(path).Exists)
             {
                 _error.Handle(Except.FilePath, path);
             }
-            SockNode.FilePath = path;
+            return path;
         }
 
-        /// Specify the port to use for connection
-        public void SetPort(int argIndex, Argument type)
+        /// Get port number from argument index
+        public int GetPort(int argIndex)
         {
-            int portNum = -1;
+            int iPort = -1;
             string port = ArgsValueAt(argIndex + 1);
 
-            try
+            try // Validate port
             {
-                portNum = int.Parse(port);
-
-                if ((portNum < 0) || (portNum > 65535))
+                if (((iPort = int.Parse(port)) < 0) || (iPort > 65535))
                 {
                     throw new FormatException();
                 }
             }
-            catch (Exception ex)
+            catch (FormatException ex) // Invalid port number
             {
-                if (!(ex is FormatException))
-                {
-                    throw ex;
-                }
-                _error.Handle(Except.InvalidPort, port);
+                _error.Handle(Except.InvalidPort, port, ex);
             }
-            SockNode.Port = portNum;
-
-            if (type == Argument.Flag)
-            {
-                RemoveFlag("--port");
-                return;
-            }
-
-            RemoveAlias(argIndex, 'p');
-            Args.RemoveAt(argIndex + 1);
+            return iPort;
         }
 
         /// Get application help message as a string
-        private static string GetHelp(string appUsage)
+        private static string GetHelp(string appTitle, string appUsage)
         {
-            string appTitle = GetAppTitle();
-
             return string.Join("\r\n", new string[]
             {
                 "DotnetCat (https://github.com/vandavey/DotnetCat)",
@@ -378,6 +346,7 @@ namespace DotnetCat.Handlers
                 "Optional Arguments:",
                 "  -h/-?,   --help           Show this help message and exit",
                 "  -v,      --verbose        Enable verbose console output",
+                "  -d,      --debug          Output verbose error information",
                 "  -l,      --listen         Listen for incoming connections",
                 "  -r,      --recurse        Transfer a directory recursively",
                 "  -p PORT, --port PORT      Specify port to use for endpoint.",
@@ -390,16 +359,6 @@ namespace DotnetCat.Handlers
                 $"  {appTitle} 10.0.0.152 -p 4444 localhost",
                 $"  {appTitle} -ve /bin/bash 192.168.1.9\r\n",
             });
-        }
-
-        /// Get program title based on platform
-        private static string GetAppTitle()
-        {
-            if (Program.OS == Platform.Unix)
-            {
-                return "dncat";
-            }
-            return "dncat.exe";
         }
     }
 }

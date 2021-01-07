@@ -8,7 +8,7 @@ namespace DotnetCat.Nodes
     /// <summary>
     /// Client node for TCP socket connections
     /// </summary>
-    class ClientNode : SocketNode, IConnectable
+    class ClientNode : Node, IErrorHandled
     {
         public ClientNode() : base()
         {
@@ -33,7 +33,7 @@ namespace DotnetCat.Nodes
 
                     if (!hasStarted)
                     {
-                        Error.Handle(Except.ShellProcess, Exe);
+                        PipeError(Except.ExecProcess, Exe);
                     }
                 }
                 Style.Status($"Connected to {Addr}:{Port}");
@@ -41,22 +41,15 @@ namespace DotnetCat.Nodes
                 base.Connect();
                 WaitForExit();
             }
-            catch (AggregateException) // Connection refused
+            catch (AggregateException ex) // Connection refused
             {
-                Error.Handle(Except.ConnectionRefused, $"{Addr}:{Port}");
+                PipeError(Except.ConnectionRefused, $"{Addr}:{Port}", ex);
             }
-            catch (IOException) // Connection lost
+            catch (IOException ex) // Connection lost
             {
-                Error.Handle(Except.ConnectionLost, Addr.ToString());
+                PipeError(Except.ConnectionLost, Addr.ToString(), ex);
             }
-            catch (Exception ex) // Unhandled exception
-            {
-                throw ex;
-            }
-            finally // Free unmanaged resources
-            {
-                base.Dispose();
-            }
+            Dispose();
         }
     }
 }

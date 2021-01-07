@@ -18,6 +18,3 @@
 .idea/
 .vs/
 .vscode/
-
-# DotnetCat specific
-DotnetCat/obj/Debug/

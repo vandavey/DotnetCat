@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using DotnetCat.Enums;
+using ArgNullException = System.ArgumentNullException;
 using Env = System.Environment;
 
 namespace DotnetCat.Handlers
@@ -30,80 +31,70 @@ namespace DotnetCat.Handlers
         /// Get default command shell for the platform
         public string GetDefaultExe(Platform platform)
         {
-            if (platform == Platform.Unix)
-            {
-                if (!ExistsOnPath("/bin/bash").exists)
-                {
-                    return "/bin/sh";
-                }
+            bool exists;
+            string path;
 
-                return "/bin/bash";
+            // Get Unix default shell
+            if (platform is Platform.Nix)
+            {
+                (exists, path) = ExistsOnPath("bash");
+                return exists ? path : "/bin/sh";
             }
 
-            if (!ExistsOnPath("powershell.exe").exists)
-            {
-                return "cmd.exe";
-            }
-
-            return "powershell.exe";
+            // Get Windows default shell
+            (exists, path) = ExistsOnPath("powershell.exe");
+            return exists ? path : GetExePath("cmd.exe");
         }
 
         /// Determine if executable exists on environment path
-        public (bool exists, string) ExistsOnPath(string shell)
+        public (bool exists, string) ExistsOnPath(string exe)
         {
-            if (File.Exists(shell))
-            {
-                return (true, Path.GetFullPath(shell));
-            }
-
-            string path = GetShellPath(shell);
+            _ = exe ?? throw new ArgNullException(nameof(exe));
+            string path = GetExePath(exe);
 
             if (path != null)
             {
                 return (true, path);
             }
 
-            if (!Path.HasExtension(shell))
+            // Try to resolve unspecified file extension
+            if (!Path.HasExtension(exe))
             {
                 foreach (string ext in _extensions)
                 {
-                    string name = Path.ChangeExtension(shell, ext);
+                    string name = Path.ChangeExtension(exe, ext);
 
-                    if ((path = GetShellPath(name)) != null)
+                    if ((path = GetExePath(name)) != null)
                     {
                         return (true, path);
                     }
                 }
             }
-
             return (false, null);
         }
 
         /// Search environment path for specified shell
-        public string GetShellPath(string shell)
+        public string GetExePath(string exe)
         {
+            string path = exe ?? throw new ArgNullException(nameof(exe));
+
+            // File was found w/o searching env path
+            if (File.Exists(path = Path.GetFullPath(path)))
+            {
+                return path;
+            }
+
+            // Search env path for executable
             foreach (string envPath in _envPaths)
             {
-                string path = Path.Combine(envPath, shell);
+                path = Path.Combine(envPath, exe);
 
-                if (File.Exists(Path.GetFullPath(path)))
+                if (File.Exists(path = Path.GetFullPath(path)))
                 {
                     return path;
                 }
             }
-
             return null;
-        }
-
-        /// Get file path to the current user's profile
-        public string GetProfilePath(Platform platform)
-        {
-            if (platform == Platform.Windows)
-            {
-                return Env.GetEnvironmentVariable("USERPROFILE");
-            }
-
-            return Env.GetEnvironmentVariable("HOME");
         }
     }
 }

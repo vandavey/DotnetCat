@@ -14,62 +14,64 @@ namespace DotnetCat.Pipelines
     /// <summary>
     /// Pipeline class for normal file related data
     /// </summary>
-    class FilePipe : StreamPipe, IConnectable
+    class FilePipe : StreamPipe, IErrorHandled
     {
-        private readonly List<string> _zipExt = new List<string>
-        {
-            "zip", "tar", "gz", "7z"
-        };
+        private readonly TransferOpt _transfer;
+
+        private readonly List<string> _zipExt;
 
         /// Initialize new object
-        public FilePipe(StreamReader src, string path) : base()
+        public FilePipe(StreamReader src, string path) : this()
         {
             if (string.IsNullOrEmpty(path))
             {
                 throw new ArgNullException(nameof(path));
             }
+            _transfer = TransferOpt.Collect;
 
-            this.Source = src ?? throw new ArgNullException(nameof(src));
-            this.FilePath = path;
-            this.Error = new ErrorHandler();
+            Source = src ?? throw new ArgNullException(nameof(src));
+            FilePath = path;
 
-            this.PathType = GetFileType(path);
-            this.Dest = new StreamWriter(CreateFile(path, Error));
-            this.IOAction = Communicate.Collect;
+            PathType = GetFileType(path);
+            Dest = new StreamWriter(CreateFile(path));
         }
 
         /// Initialize new object
-        public FilePipe(string path, StreamWriter dest) : base()
+        public FilePipe(string path, StreamWriter dest) : this()
         {
             if (string.IsNullOrEmpty(path))
             {
                 throw new ArgNullException(nameof(path));
             }
+            _transfer = TransferOpt.Transmit;
 
-            this.Dest = dest ?? throw new ArgNullException(nameof(dest));
-            this.FilePath = path;
-            this.Error = new ErrorHandler();
+            Dest = dest ?? throw new ArgNullException(nameof(dest));
+            FilePath = path;
 
-            this.PathType = GetFileType(path);
-            this.Source = new StreamReader(OpenFile(path, Error));
-            this.IOAction = Communicate.Transmit;
+            PathType = GetFileType(path);
+            Source = new StreamReader(OpenFile(path));
         }
 
         /// Initialize new object
         protected FilePipe() : base()
         {
-            this.Error = new ErrorHandler();
-            this.IOAction = Communicate.Transmit;
-            this.FilePath = null;
+            _transfer = TransferOpt.None;
+
+            _zipExt = new List<string>
+            {
+                "zip", "tar", "gz", "7z"
+            };
+            Error = new ErrorHandler();
         }
 
         public bool Verbose => Program.Verbose;
 
+        /** 
+        * TODO: implement recursive functionality
+        **/
         public bool Recursive => Program.Recursive;
 
         public string FilePath { get; set; }
-
-        public Communicate IOAction { get; set; }
 
         protected ErrorHandler Error { get; }
 
@@ -80,24 +82,26 @@ namespace DotnetCat.Pipelines
         /// Activate communication between the pipe streams
         public override void Connect()
         {
-            if (Source == null)
-            {
-                throw new ArgNullException(nameof(Source));
-            }
-
-            if (Dest == null)
-            {
-                throw new ArgNullException(nameof(Dest));
-            }
+            _ = Source ?? throw new ArgNullException(nameof(Source));
+            _ = Dest ?? throw new ArgNullException(nameof(Dest));
 
             CTS = new CancellationTokenSource();
             Worker = ConnectAsync(CTS.Token);
         }
 
+        /// Dispose of unmanaged resources and handle error
+        public virtual void PipeError(Except type, string arg,
+                                                   Exception ex = null) {
+            Dispose();
+            Error.Handle(type, arg, ex);
+        }
+
         /// Release any unmanaged resources
         public override void Dispose()
         {
-            // TODO: unpack zip if *.~dncat.zip detected?
+            /**
+            * TODO: unpack zip if *.~dncat.zip detected
+            **/
             base.Dispose();
         }
 
@@ -111,7 +115,7 @@ namespace DotnetCat.Pipelines
             FileInfo fileInfo = new FileInfo(path);
 
             // Check whether file is normal/archive
-            if (fileInfo.Attributes == FileAttributes.Archive)
+            if (fileInfo.Attributes is FileAttributes.Archive)
             {
                 if (!_zipExt.Contains(fileInfo.Extension))
                 {
@@ -134,18 +138,18 @@ namespace DotnetCat.Pipelines
         }
 
         /// Create and open new file for writing
-        protected FileStream CreateFile(string path, ErrorHandler error)
+        protected FileStream CreateFile(string path)
         {
             if (string.IsNullOrEmpty(path))
             {
-                error.Handle(Except.EmptyPath, "-o/--output");
+                PipeError(Except.EmptyPath, "-o/--output");
             }
             DirectoryInfo info = Directory.GetParent(path);
 
             // Directory does not exist
             if (!Directory.Exists(info.FullName))
             {
-                error.Handle(Except.DirectoryPath, info.FullName);
+                PipeError(Except.DirectoryPath, info.FullName);
             }
 
             return new FileStream(path, FileMode.Open,
@@ -156,18 +160,18 @@ namespace DotnetCat.Pipelines
         }
 
         /// Open specified FileStream to read or write
-        protected FileStream OpenFile(string path, ErrorHandler error)
+        protected FileStream OpenFile(string path)
         {
             if (string.IsNullOrEmpty(path))
             {
-                error.Handle(Except.EmptyPath, "-s/--send");
+                PipeError(Except.EmptyPath, "-s/--send");
             }
             FileSystemInfo info = new FileInfo(path);
 
             // Specified file does not exist
             if (!info.Exists)
             {
-                error.Handle(Except.FilePath, info.FullName);
+                PipeError(Except.FilePath, info.FullName);
             }
 
             return new FileStream(info.FullName, FileMode.Open,
@@ -188,9 +192,9 @@ namespace DotnetCat.Pipelines
             // Print connection started info
             if (Verbose)
             {
-                if (IOAction == Communicate.Transmit)
+                if (_transfer is TransferOpt.Transmit)
                 {
-                    style.Status("Beginning file transmission...");
+                    style.Status($"Transmitting '{FilePath}'...");
                 }
                 else
                 {
@@ -205,13 +209,13 @@ namespace DotnetCat.Pipelines
             // Print connection completed info
             if (Verbose)
             {
-                if (IOAction == Communicate.Transmit)
+                if (_transfer is TransferOpt.Transmit)
                 {
-                    style.Status($"'{FilePath}' contents successfully sent");
+                    style.Status($"File successfully transmitted");
                 }
                 else
                 {
-                    style.Status($"Data successfully written to '{FilePath}'");
+                    style.Status($"File download completed");
                 }
             }
 

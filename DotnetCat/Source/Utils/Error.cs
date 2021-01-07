@@ -11,8 +11,8 @@ namespace DotnetCat.Utils
         /// Initialize new object
         public Error(Except type, string msg)
         {
-            this.TypeName = type;
-            this.Message = msg;
+            TypeName = type;
+            Message = msg;
         }
 
         public Except TypeName { get; }
