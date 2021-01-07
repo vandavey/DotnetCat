@@ -15,23 +15,22 @@ namespace DotnetCat.Handlers
     class ArgumentParser
     {
         private readonly string _appTitle;
+        private readonly string _help;
 
         /// Initialize new object
         public ArgumentParser()
         {
             _appTitle = (OS is Platform.Nix) ? "dncat" : "dncat.exe";
-            Help = GetHelp(_appTitle, GetUsage(_appTitle));
+            _help = GetHelp(_appTitle, GetUsage(_appTitle));
         }
 
-        public string Help { get; }
-
-        public List<string> Args
+        private List<string> Args
         {
             get => Program.Args;
             set => Program.Args = value;
         }
 
-        public Node SockNode
+        private Node SockNode
         {
             get => Program.SockNode;
             set => Program.SockNode = value;
@@ -43,15 +42,10 @@ namespace DotnetCat.Handlers
 
         private bool Recursive { set => Program.Recursive = value; }
 
-        public static string GetUsage(string appTitle = "dncat")
-        {
-            return $"Usage: {appTitle} [OPTIONS] TARGET";
-        }
-
         /// Print application help message to console output
         public void PrintHelp()
         {
-            Console.WriteLine(Help);
+            Console.WriteLine(_help);
             Environment.Exit(0);
         }
 
@@ -326,6 +320,11 @@ namespace DotnetCat.Handlers
                 Error.Handle(Except.InvalidPort, port, ex);
             }
             return iPort;
+        }
+
+        public static string GetUsage(string appTitle = "dncat")
+        {
+            return $"Usage: {appTitle} [OPTIONS] TARGET";
         }
 
         /// Get application help message as a string

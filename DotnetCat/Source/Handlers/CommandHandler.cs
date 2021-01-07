@@ -16,7 +16,7 @@ namespace DotnetCat.Handlers
 
         private static readonly List<string> _extensions;
 
-        /// Initialize new object
+        /// Initialize static members
         static CommandHandler()
         {
             string path = Env.GetEnvironmentVariable("PATH");
@@ -47,7 +47,7 @@ namespace DotnetCat.Handlers
         }
 
         /// Determine if executable exists on environment path
-        public static (bool exists, string) ExistsOnPath(string exe)
+        public static (bool exists, string path) ExistsOnPath(string exe)
         {
             _ = exe ?? throw new ArgNullException(nameof(exe));
             string path = GetExePath(exe);
