@@ -8,6 +8,7 @@ using DotnetCat.Contracts;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
 using ArgNullException = System.ArgumentNullException;
+using Style = DotnetCat.Handlers.StyleHandler;
 
 namespace DotnetCat.Pipelines
 {
@@ -61,7 +62,6 @@ namespace DotnetCat.Pipelines
             {
                 "zip", "tar", "gz", "7z"
             };
-            Error = new ErrorHandler();
         }
 
         public bool Verbose => Program.Verbose;
@@ -72,8 +72,6 @@ namespace DotnetCat.Pipelines
         public bool Recursive => Program.Recursive;
 
         public string FilePath { get; set; }
-
-        protected ErrorHandler Error { get; }
 
         protected bool FileFound { get; set; }
 
@@ -93,7 +91,7 @@ namespace DotnetCat.Pipelines
         public virtual void PipeError(Except type, string arg,
                                                    Exception ex = null) {
             Dispose();
-            Error.Handle(type, arg, ex);
+            ErrorHandler.Handle(type, arg, ex);
         }
 
         /// Release any unmanaged resources
@@ -184,7 +182,6 @@ namespace DotnetCat.Pipelines
         /// Activate async network communication
         private async Task ConnectAsync(CancellationToken token)
         {
-            StyleHandler style = new StyleHandler();
             StringBuilder data = new StringBuilder();
 
             Connected = true;
@@ -194,11 +191,11 @@ namespace DotnetCat.Pipelines
             {
                 if (_transfer is TransferOpt.Transmit)
                 {
-                    style.Status($"Transmitting '{FilePath}'...");
+                    Style.Status($"Transmitting '{FilePath}'...");
                 }
                 else
                 {
-                    style.Status($"Writing socket data to '{FilePath}'...");
+                    Style.Status($"Writing socket data to '{FilePath}'...");
                 }
             }
             data.Append(await Source.ReadToEndAsync());
@@ -211,11 +208,11 @@ namespace DotnetCat.Pipelines
             {
                 if (_transfer is TransferOpt.Transmit)
                 {
-                    style.Status($"File successfully transmitted");
+                    Style.Status($"File successfully transmitted");
                 }
                 else
                 {
-                    style.Status($"File download completed");
+                    Style.Status($"File download completed");
                 }
             }
 

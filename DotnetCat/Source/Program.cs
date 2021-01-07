@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
 using DotnetCat.Nodes;
+using Error = DotnetCat.Handlers.ErrorHandler;
 
 namespace DotnetCat
 {
@@ -15,8 +16,6 @@ namespace DotnetCat
     /// </summary>
     class Program
     {
-        private static ErrorHandler _error;
-
         private static ArgumentParser _parser;
 
         public static bool Verbose => SockNode?.Verbose ?? false;
@@ -38,7 +37,6 @@ namespace DotnetCat
         /// Primary application entry point
         private static void Main(string[] args)
         {
-            _error = new ErrorHandler();
             _parser = new ArgumentParser();
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -66,18 +64,16 @@ namespace DotnetCat
         /// Initialize node fields and properties
         private static void InitializeNode(string[] args)
         {
-            _error ??= new ErrorHandler();
-
             // Check for incomplete alias
             if (args.Contains("-"))
             {
-                _error.Handle(Except.InvalidArgs, "-", true);
+                Error.Handle(Except.InvalidArgs, "-", true);
             }
 
             // Check for incomplete flag
             if (args.Contains("--"))
             {
-                _error.Handle(Except.InvalidArgs, "--", true);
+                Error.Handle(Except.InvalidArgs, "--", true);
             }
 
             UsingExe = false;
@@ -139,7 +135,7 @@ namespace DotnetCat
                 {
                     if (SockNode is ClientNode)
                     {
-                        _error.Handle(Except.RequiredArgs, "TARGET", true);
+                        Error.Handle(Except.RequiredArgs, "TARGET", true);
                     }
                     break;
                 }
@@ -147,27 +143,22 @@ namespace DotnetCat
                 {
                     if (Args[0].StartsWith('-'))
                     {
-                        _error.Handle(Except.UnknownArgs, Args[0], true);
+                        Error.Handle(Except.UnknownArgs, Args[0], true);
                     }
-
-                    bool isValid;
-                    IPAddress addr = null;
 
                     try // Parse string as IP address
                     {
                         SockNode.Addr = IPAddress.Parse(Args[0]);
-                        isValid = true;
                     }
                     catch (FormatException)
                     {
                         SockNode.Addr = ResolveHostName(Args[0]);
-                        isValid = addr != null;
                     }
 
                     // Invalid destination host
-                    if (!isValid)
+                    if (SockNode.Addr == null)
                     {
-                        _error.Handle(Except.InvalidAddr, Args[0], true);
+                        Error.Handle(Except.InvalidAddr, Args[0], true);
                     }
                     break;
                 }
@@ -177,9 +168,9 @@ namespace DotnetCat
 
                     if (Args[0].StartsWith('-'))
                     {
-                        _error.Handle(Except.UnknownArgs, argsStr, true);
+                        Error.Handle(Except.UnknownArgs, argsStr, true);
                     }
-                    _error.Handle(Except.InvalidArgs, argsStr, true);
+                    Error.Handle(Except.InvalidArgs, argsStr, true);
                     break;
                 }
             }

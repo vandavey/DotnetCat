@@ -2,6 +2,8 @@
 using System.IO;
 using DotnetCat.Contracts;
 using DotnetCat.Enums;
+using DotnetCat.Handlers;
+using Cmd = DotnetCat.Handlers.CommandHandler;
 
 namespace DotnetCat.Nodes
 {
@@ -36,7 +38,7 @@ namespace DotnetCat.Nodes
                         PipeError(Except.ExecProcess, Exe);
                     }
                 }
-                Style.Status($"Connected to {Addr}:{Port}");
+                StyleHandler.Status($"Connected to {Addr}:{Port}");
 
                 base.Connect();
                 WaitForExit();

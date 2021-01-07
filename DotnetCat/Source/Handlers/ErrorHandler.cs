@@ -10,28 +10,29 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Handler for custom DotnetCat errors
     /// </summary>
-    class ErrorHandler
+    static class ErrorHandler
     {
-        private readonly Status _status;
+        private static readonly Status _status;
 
-        private readonly List<Error> _errors;
+        private static readonly List<Error> _errors;
 
-        /// Initialize new object
-        public ErrorHandler()
+        /// Initialize static members
+        static ErrorHandler()
         {
             _status = new Status(ConsoleColor.Red, "error", "[x]");
             _errors = GetErrors();
         }
 
         /// Handle special exceptions related to DotNetCat
-        public void Handle(Except type, string arg, Exception ex = null)
-        {
+        public static void Handle(Except type, string arg,
+                                               Exception ex = null) {
             Handle(type, arg, false, ex);
         }
 
         /// Handle special exceptions related to DotNetCat
-        public void Handle(Except type, string arg, bool showUsage,
-                                                    Exception ex = null) {
+        public static  void Handle(Except type, string arg,
+                                                bool showUsage,
+                                                Exception ex = null) {
             int index = IndexOfError(type);
 
             // Ensure error message is built
@@ -73,7 +74,7 @@ namespace DotnetCat.Handlers
         }
 
         /// Get the index of an error in Errors
-        private int IndexOfError(Except errorType)
+        private static int IndexOfError(Except errorType)
         {
             // Error list query
             List<int> query = (from error in _errors
