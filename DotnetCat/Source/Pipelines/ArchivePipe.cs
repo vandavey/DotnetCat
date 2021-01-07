@@ -56,9 +56,10 @@ namespace DotnetCat.Pipelines
 
         /// Dispose of unmanaged resources and handle error
         public override void PipeError(Except type, string arg,
-                                                    Exception ex = null) {
+                                                    Exception ex = null,
+                                                    Level level = Level.Error) {
             Dispose();
-            ErrorHandler.Handle(type, arg, ex);
+            ErrorHandler.Handle(type, arg, ex, level);
         }
 
         /// Release any unmanaged resources
@@ -110,6 +111,7 @@ namespace DotnetCat.Pipelines
                 return;
             }
             FileInfo info = new FileInfo(FilePath);
+            //PathInfo()
 
             if (!File.Exists(_zipPath))
             {

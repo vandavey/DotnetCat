@@ -34,7 +34,7 @@ namespace DotnetCat.Nodes
             try // Listen for connection
             {
                 _listener.Listen(1);
-                Style.Status("Listening for incoming connections...");
+                Style.Info("Listening for incoming connections...");
 
                 Client.Client = _listener.Accept();
                 NetStream = Client.GetStream();
@@ -52,17 +52,18 @@ namespace DotnetCat.Nodes
                 }
 
                 remoteEP = Client.Client.RemoteEndPoint as IPEndPoint;
-                Style.Status($"Connected to {remoteEP}");
+                Style.Info($"Connected to {remoteEP}");
 
                 base.Connect();
                 WaitForExit();
 
                 // Connection closed status
-                Style.Status($"Connection to {remoteEP.Address} closed");
+                Style.Info($"Connection to {remoteEP.Address} closed");
             }
             catch (SocketException ex) // Connection refused
             {
-                PipeError(Except.ConnectionRefused, $"{remoteEP}", ex);
+                string ep = remoteEP.ToString();
+                PipeError(Except.ConnectionRefused, ep, ex, Level.Warn);
             }
             catch (IOException ex) // Connection lost
             {
@@ -73,9 +74,10 @@ namespace DotnetCat.Nodes
 
         /// Dispose of unmanaged resources and handle error
         public override void PipeError(Except type, string arg,
-                                                    Exception ex = null) {
+                                                    Exception ex = null,
+                                                    Level level = Level.Error) {
             Dispose();
-            ErrorHandler.Handle(type, arg, ex);
+            ErrorHandler.Handle(type, arg, ex, level);
         }
 
         /// Release any unmanaged resources

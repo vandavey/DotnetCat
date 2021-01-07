@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using DotnetCat.Enums;
 using DotnetCat.Utils;
 
 namespace DotnetCat.Handlers
@@ -17,47 +19,71 @@ namespace DotnetCat.Handlers
         {
             _statuses = new List<Status>
             {
-                new Status(ConsoleColor.Cyan, "info", "[*]"),
-                new Status(ConsoleColor.Green, "out", "[+]"),
-                new Status(ConsoleColor.Yellow, "warn", "[!]")
+                new Status(ConsoleColor.Cyan, Level.Info),
+                new Status(ConsoleColor.Green, Level.Output),
+                new Status(ConsoleColor.Red, Level.Error),
+                new Status(ConsoleColor.Yellow, Level.Warn)
             };
         }
 
-        /// Print a custom status to standard output
-        public static void Status(string msg, string level = "info")
+        /// Write an error message to standard error
+        public static void Error(string msg)
         {
-            if (!IsValidLevel(level))
-            {
-                throw new ArgumentException(
-                    message: "Level must be 'info', 'out', or 'warning'",
-                    paramName: nameof(level)
-                );
-            }
-            int index = IndexOfStatus(level);
-
-            Console.ForegroundColor = _statuses[index].Color;
-            Console.Write($"{_statuses[index].Symbol} ");
-            Console.ResetColor();
-            Console.WriteLine(msg);
+            _ = msg ?? throw new ArgumentNullException(nameof(msg));
+            Status(Level.Error, msg);
         }
 
-        /// Determine if specified status level is valid
-        private static bool IsValidLevel(string level)
+        /// Write a completion message to standard output
+        public static void Output(string msg)
         {
-            return IndexOfStatus(level) > -1;
+            _ = msg ?? throw new ArgumentNullException(nameof(msg));
+            Status(Level.Output, msg);
+        }
+
+        /// Write an informational message to standard output
+        public static void Info(string msg)
+        {
+            _ = msg ?? throw new ArgumentNullException(nameof(msg));
+            Status(Level.Info, msg);
+        }
+
+        /// Write a warning message to standard error
+        public static void Warn(string msg)
+        {
+            _ = msg ?? throw new ArgumentNullException(nameof(msg));
+            Status(Level.Warn, msg);
+        }
+
+        /// Write a custom status to standard output
+        private static void Status(Level level, string msg)
+        {
+            _ = msg ?? throw new ArgumentNullException(nameof(msg));
+            int index = IndexOfStatus(level);
+
+            // Get standard output/error stream
+            using TextWriter stream = level switch
+            {
+                Level.Error => Console.Error,
+                Level.Info => Console.Out,
+                Level.Output => Console.Out,
+                Level.Warn => Console.Error,
+                _ => Console.Out,
+            };
+
+            // Write symbol to standard stream
+            Console.ForegroundColor = _statuses[index].Color;
+            stream.Write($"{_statuses[index].Symbol} ");
+
+            // Write message to standard stream
+            Console.ResetColor();
+            stream.WriteLine(msg);
         }
 
         /// Get the index of a status in Statuses
-        private static int IndexOfStatus(string level)
+        private static int IndexOfStatus(Level level)
         {
-            int statusIndex = -1;
-
-            List<int> query = (from stat in _statuses
-                               where stat.Level == level.ToLower()
-                               select _statuses.IndexOf(stat)).ToList();
-
-            query?.ForEach(index => statusIndex = index);
-            return statusIndex;
+            Status status = _statuses.Where(s => s.Level == level).First();
+            return _statuses.IndexOf(status);
         }
     }
 }

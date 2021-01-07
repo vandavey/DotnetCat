@@ -38,14 +38,15 @@ namespace DotnetCat.Nodes
                         PipeError(Except.ExecProcess, Exe);
                     }
                 }
-                StyleHandler.Status($"Connected to {Addr}:{Port}");
+                StyleHandler.Info($"Connected to {Addr}:{Port}");
 
                 base.Connect();
                 WaitForExit();
             }
             catch (AggregateException ex) // Connection refused
             {
-                PipeError(Except.ConnectionRefused, $"{Addr}:{Port}", ex);
+                string ep = $"{Addr}:{Port}";
+                PipeError(Except.ConnectionRefused, ep, ex, Level.Warn);
             }
             catch (IOException ex) // Connection lost
             {

@@ -89,9 +89,10 @@ namespace DotnetCat.Pipelines
 
         /// Dispose of unmanaged resources and handle error
         public virtual void PipeError(Except type, string arg,
-                                                   Exception ex = null) {
+                                                   Exception ex = null,
+                                                   Level level = Level.Error) {
             Dispose();
-            ErrorHandler.Handle(type, arg, ex);
+            ErrorHandler.Handle(type, arg, ex, level);
         }
 
         /// Release any unmanaged resources
@@ -191,11 +192,11 @@ namespace DotnetCat.Pipelines
             {
                 if (_transfer is TransferOpt.Transmit)
                 {
-                    Style.Status($"Transmitting '{FilePath}'...");
+                    Style.Info($"Transmitting '{FilePath}'...");
                 }
                 else
                 {
-                    Style.Status($"Writing socket data to '{FilePath}'...");
+                    Style.Info($"Writing socket data to '{FilePath}'...");
                 }
             }
             data.Append(await Source.ReadToEndAsync());
@@ -208,11 +209,11 @@ namespace DotnetCat.Pipelines
             {
                 if (_transfer is TransferOpt.Transmit)
                 {
-                    Style.Status($"File successfully transmitted");
+                    Style.Output($"File successfully transmitted");
                 }
                 else
                 {
-                    Style.Status($"File download completed");
+                    Style.Output($"File download completed");
                 }
             }
 

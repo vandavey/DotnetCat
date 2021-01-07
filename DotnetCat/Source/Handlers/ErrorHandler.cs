@@ -12,14 +12,11 @@ namespace DotnetCat.Handlers
     /// </summary>
     static class ErrorHandler
     {
-        private static readonly Status _status;
-
         private static readonly List<Error> _errors;
 
         /// Initialize static members
         static ErrorHandler()
         {
-            _status = new Status(ConsoleColor.Red, "error", "[x]");
             _errors = GetErrors();
         }
 
@@ -30,12 +27,19 @@ namespace DotnetCat.Handlers
         }
 
         /// Handle special exceptions related to DotNetCat
-        public static  void Handle(Except type, string arg,
-                                                bool showUsage,
-                                                Exception ex = null) {
+        public static void Handle(Except type, string arg,
+                                               Exception ex,
+                                               Level level = Level.Error) {
+            Handle(type, arg, false, ex, level);
+        }
+
+        /// Handle special exceptions related to DotNetCat
+        public static void Handle(Except type, string arg,
+                                               bool showUsage,
+                                               Exception ex = null,
+                                               Level level = Level.Error) {
             int index = IndexOfError(type);
 
-            // Ensure error message is built
             if ((arg == null) && !_errors[index].Built)
             {
                 throw new ArgumentNullException(nameof(arg));
@@ -46,15 +50,19 @@ namespace DotnetCat.Handlers
             {
                 Console.WriteLine(ArgumentParser.GetUsage());
             }
-
-            Console.ForegroundColor = _status.Color;
-            Console.Write($"{_status.Symbol} ");
-            Console.ResetColor();
-
             _errors[index].Build(arg);
-            Console.WriteLine(_errors[index].Message);
 
-            // Print exception info and/or exit message
+            // Print warning message
+            if (level is Level.Warn)
+            {
+                StyleHandler.Warn(_errors[index].Message);
+            }
+            else
+            {
+                StyleHandler.Error(_errors[index].Message);
+            }
+
+            // Print debug info and exit
             if (Program.Debug && (ex != null))
             {
                 string header = $"----[ {ex.GetType().FullName} ]----";
