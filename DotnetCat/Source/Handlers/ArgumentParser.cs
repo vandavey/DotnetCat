@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using DotnetCat.Enums;
 using DotnetCat.Nodes;
+using Cmd = DotnetCat.Handlers.CommandHandler;
+using Error = DotnetCat.Handlers.ErrorHandler;
 
 namespace DotnetCat.Handlers
 {
@@ -14,16 +16,9 @@ namespace DotnetCat.Handlers
     {
         private readonly string _appTitle;
 
-        private readonly CommandHandler _cmd;
-
-        private readonly ErrorHandler _error;
-
         /// Initialize new object
         public ArgumentParser()
         {
-            _cmd = new CommandHandler();
-            _error = new ErrorHandler();
-
             _appTitle = (OS is Platform.Nix) ? "dncat" : "dncat.exe";
             Help = GetHelp(_appTitle, GetUsage(_appTitle));
         }
@@ -241,7 +236,7 @@ namespace DotnetCat.Handlers
         {
             if ((index < 0) || (index >= Args.Count))
             {
-                _error.Handle(Except.NamedArgs, Args[index - 1], true);
+                Error.Handle(Except.NamedArgs, Args[index - 1], true);
             }
             return Args[index];
         }
@@ -288,12 +283,12 @@ namespace DotnetCat.Handlers
         public string GetExec(int argIndex)
         {
             string exec = ArgsValueAt(argIndex + 1);
-            (bool exists, string path) = _cmd.ExistsOnPath(exec);
+            (bool exists, string path) = Cmd.ExistsOnPath(exec);
 
             // Failed to locate executable
             if (!exists)
             {
-                _error.Handle(Except.ExecPath, exec, true);
+                Error.Handle(Except.ExecPath, exec, true);
             }
 
             Program.UsingExe = true;
@@ -308,7 +303,7 @@ namespace DotnetCat.Handlers
             // Invalid file path
             if (!File.Exists(path) && !Directory.GetParent(path).Exists)
             {
-                _error.Handle(Except.FilePath, path);
+                Error.Handle(Except.FilePath, path);
             }
             return path;
         }
@@ -328,7 +323,7 @@ namespace DotnetCat.Handlers
             }
             catch (FormatException ex) // Invalid port number
             {
-                _error.Handle(Except.InvalidPort, port, ex);
+                Error.Handle(Except.InvalidPort, port, ex);
             }
             return iPort;
         }

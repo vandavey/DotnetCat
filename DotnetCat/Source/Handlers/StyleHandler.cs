@@ -8,12 +8,12 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Application output style handler
     /// </summary>
-    class StyleHandler
+    static class StyleHandler
     {
-        private readonly List<Status> _statuses;
+        private static readonly List<Status> _statuses;
 
-        /// Initialize new object
-        public StyleHandler()
+        /// Initialize static members
+        static StyleHandler()
         {
             _statuses = new List<Status>
             {
@@ -24,7 +24,7 @@ namespace DotnetCat.Handlers
         }
 
         /// Print a custom status to standard output
-        public void Status(string msg, string level = "info")
+        public static void Status(string msg, string level = "info")
         {
             if (!IsValidLevel(level))
             {
@@ -42,13 +42,13 @@ namespace DotnetCat.Handlers
         }
 
         /// Determine if specified status level is valid
-        private bool IsValidLevel(string level)
+        private static bool IsValidLevel(string level)
         {
             return IndexOfStatus(level) > -1;
         }
 
         /// Get the index of a status in Statuses
-        private int IndexOfStatus(string level)
+        private static int IndexOfStatus(string level)
         {
             int statusIndex = -1;
 

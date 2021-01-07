@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using DotnetCat.Contracts;
 using DotnetCat.Enums;
+using DotnetCat.Handlers;
 using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Pipelines
@@ -57,7 +58,7 @@ namespace DotnetCat.Pipelines
         public override void PipeError(Except type, string arg,
                                                     Exception ex = null) {
             Dispose();
-            Error.Handle(type, arg, ex);
+            ErrorHandler.Handle(type, arg, ex);
         }
 
         /// Release any unmanaged resources
@@ -109,6 +110,7 @@ namespace DotnetCat.Pipelines
                 return;
             }
             FileInfo info = new FileInfo(FilePath);
+            //PathInfo()
 
             if (!File.Exists(_zipPath))
             {

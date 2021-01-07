@@ -4,7 +4,10 @@ using System.Net;
 using System.Net.Sockets;
 using DotnetCat.Contracts;
 using DotnetCat.Enums;
+using DotnetCat.Handlers;
 using ArgNullException = System.ArgumentNullException;
+using Cmd = DotnetCat.Handlers.CommandHandler;
+using Style = DotnetCat.Handlers.StyleHandler;
 
 namespace DotnetCat.Nodes
 {
@@ -72,7 +75,7 @@ namespace DotnetCat.Nodes
         public override void PipeError(Except type, string arg,
                                                     Exception ex = null) {
             Dispose();
-            Error.Handle(type, arg, ex);
+            ErrorHandler.Handle(type, arg, ex);
         }
 
         /// Release any unmanaged resources

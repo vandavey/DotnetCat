@@ -12,6 +12,7 @@ using DotnetCat.Handlers;
 using DotnetCat.Pipelines;
 using ArgNullException = System.ArgumentNullException;
 using Env = System.Environment;
+using Cmd = DotnetCat.Handlers.CommandHandler;
 
 namespace DotnetCat.Nodes
 {
@@ -32,10 +33,6 @@ namespace DotnetCat.Nodes
         {
             Port = 4444;
             Verbose = false;
-
-            Cmd = new CommandHandler();
-            Style = new StyleHandler();
-            Error = new ErrorHandler();
             Client = new TcpClient();
         }
 
@@ -65,12 +62,6 @@ namespace DotnetCat.Nodes
 
         protected Platform OS => Program.OS;
 
-        protected CommandHandler Cmd { get; }
-
-        protected ErrorHandler Error { get; }
-
-        protected StyleHandler Style { get; }
-
         protected NetworkStream NetStream { get; set; }
 
         /// Initialize and run an executable process
@@ -82,7 +73,7 @@ namespace DotnetCat.Nodes
             if (!Cmd.ExistsOnPath(exe).exists)
             {
                 Dispose();
-                Error.Handle(Except.ExecPath, exe, true);
+                ErrorHandler.Handle(Except.ExecPath, exe, true);
             }
 
             _process = new Process
@@ -155,7 +146,7 @@ namespace DotnetCat.Nodes
         public virtual void PipeError(Except type, string arg,
                                                    Exception ex = null) {
             Dispose();
-            Error.Handle(type, arg, ex);
+            ErrorHandler.Handle(type, arg, ex);
         }
 
         /// Release any unmanaged resources
@@ -235,6 +226,8 @@ namespace DotnetCat.Nodes
                 Dispose();
                 string msg = "Recursive option still in development";
                 throw new NotImplementedException(msg);
+
+                return new ArchivePipe(FilePath);
             }
             return new FilePipe(FilePath, _netWriter);
         }

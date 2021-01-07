@@ -10,14 +10,14 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Execute special commands on the local system
     /// </summary>
-    class CommandHandler
+    static class CommandHandler
     {
-        private readonly List<string> _envPaths;
+        private static readonly List<string> _envPaths;
 
-        private readonly List<string> _extensions;
+        private static readonly List<string> _extensions;
 
         /// Initialize new object
-        public CommandHandler()
+        static CommandHandler()
         {
             string path = Env.GetEnvironmentVariable("PATH");
             _envPaths = path.Split(Path.PathSeparator).ToList();
@@ -29,7 +29,7 @@ namespace DotnetCat.Handlers
         }
 
         /// Get default command shell for the platform
-        public string GetDefaultExe(Platform platform)
+        public static string GetDefaultExe(Platform platform)
         {
             bool exists;
             string path;
@@ -47,7 +47,7 @@ namespace DotnetCat.Handlers
         }
 
         /// Determine if executable exists on environment path
-        public (bool exists, string) ExistsOnPath(string exe)
+        public static (bool exists, string) ExistsOnPath(string exe)
         {
             _ = exe ?? throw new ArgNullException(nameof(exe));
             string path = GetExePath(exe);
@@ -74,7 +74,7 @@ namespace DotnetCat.Handlers
         }
 
         /// Search environment path for specified shell
-        public string GetExePath(string exe)
+        public static string GetExePath(string exe)
         {
             string path = exe ?? throw new ArgNullException(nameof(exe));
 
