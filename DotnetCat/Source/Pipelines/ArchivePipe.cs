@@ -110,7 +110,6 @@ namespace DotnetCat.Pipelines
                 return;
             }
             FileInfo info = new FileInfo(FilePath);
-            //PathInfo()
 
             if (!File.Exists(_zipPath))
             {

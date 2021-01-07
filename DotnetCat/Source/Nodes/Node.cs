@@ -226,8 +226,6 @@ namespace DotnetCat.Nodes
                 Dispose();
                 string msg = "Recursive option still in development";
                 throw new NotImplementedException(msg);
-
-                return new ArchivePipe(FilePath);
             }
             return new FilePipe(FilePath, _netWriter);
         }

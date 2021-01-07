@@ -146,22 +146,17 @@ namespace DotnetCat
                         Error.Handle(Except.UnknownArgs, Args[0], true);
                     }
 
-                    bool isValid;
-                    IPAddress addr = null;
-
                     try // Parse string as IP address
                     {
                         SockNode.Addr = IPAddress.Parse(Args[0]);
-                        isValid = true;
                     }
                     catch (FormatException)
                     {
                         SockNode.Addr = ResolveHostName(Args[0]);
-                        isValid = addr != null;
                     }
 
                     // Invalid destination host
-                    if (!isValid)
+                    if (SockNode.Addr == null)
                     {
                         Error.Handle(Except.InvalidAddr, Args[0], true);
                     }
