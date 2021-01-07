@@ -12,9 +12,13 @@ namespace DotnetCat.Nodes
     /// </summary>
     class ClientNode : Node, IErrorHandled
     {
+        /// Initialize new object
         public ClientNode() : base()
         {
         }
+
+        /// Cleanup resources
+        ~ClientNode() => Dispose();
 
         /// Connect to the specified IPv4 address and port number
         public override void Connect()
@@ -35,7 +39,7 @@ namespace DotnetCat.Nodes
 
                     if (!hasStarted)
                     {
-                        PipeError(Except.ExecProcess, Exe);
+                        PipeError(Except.ExeProcess, Exe);
                     }
                 }
                 StyleHandler.Info($"Connected to {Addr}:{Port}");

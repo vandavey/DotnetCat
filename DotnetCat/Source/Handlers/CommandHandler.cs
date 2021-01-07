@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DotnetCat.Enums;
@@ -12,6 +13,8 @@ namespace DotnetCat.Handlers
     /// </summary>
     static class CommandHandler
     {
+        private static readonly string[] _clearCommands;
+
         private static readonly List<string> _envPaths;
 
         private static readonly List<string> _extensions;
@@ -21,6 +24,11 @@ namespace DotnetCat.Handlers
         {
             string path = Env.GetEnvironmentVariable("PATH");
             _envPaths = path.Split(Path.PathSeparator).ToList();
+
+            _clearCommands = new string[]
+            {
+                "cls", "clear", "clear-screen"
+            };
 
             _extensions = new List<string>
             {
@@ -71,6 +79,23 @@ namespace DotnetCat.Handlers
                 }
             }
             return (false, null);
+        }
+
+        /// Determine if data contains clear command
+        public static bool IsClearCmd(string data, bool doClear = true)
+        {
+            data = data.Replace(Env.NewLine, "").Trim();
+
+            // Clear current console buffer
+            if (_clearCommands.Contains(data))
+            {
+                if (doClear)
+                {
+                    Console.Clear();
+                }
+                return true;
+            }
+            return false;
         }
 
         /// Search environment path for specified shell

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using DotnetCat.Enums;
 using DotnetCat.Utils;
+using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Handlers
 {
@@ -29,35 +30,35 @@ namespace DotnetCat.Handlers
         /// Write an error message to standard error
         public static void Error(string msg)
         {
-            _ = msg ?? throw new ArgumentNullException(nameof(msg));
+            _ = msg ?? throw new ArgNullException(nameof(msg));
             Status(Level.Error, msg);
         }
 
         /// Write a completion message to standard output
         public static void Output(string msg)
         {
-            _ = msg ?? throw new ArgumentNullException(nameof(msg));
+            _ = msg ?? throw new ArgNullException(nameof(msg));
             Status(Level.Output, msg);
         }
 
         /// Write an informational message to standard output
         public static void Info(string msg)
         {
-            _ = msg ?? throw new ArgumentNullException(nameof(msg));
+            _ = msg ?? throw new ArgNullException(nameof(msg));
             Status(Level.Info, msg);
         }
 
         /// Write a warning message to standard error
         public static void Warn(string msg)
         {
-            _ = msg ?? throw new ArgumentNullException(nameof(msg));
+            _ = msg ?? throw new ArgNullException(nameof(msg));
             Status(Level.Warn, msg);
         }
 
         /// Write a custom status to standard output
         private static void Status(Level level, string msg)
         {
-            _ = msg ?? throw new ArgumentNullException(nameof(msg));
+            _ = msg ?? throw new ArgNullException(nameof(msg));
             int index = IndexOfStatus(level);
 
             // Get standard output/error stream

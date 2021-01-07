@@ -15,5 +15,8 @@ namespace DotnetCat.Pipelines
             Source = src ?? throw new ArgumentNullException(nameof(src));
             Dest = dest ?? throw new ArgumentNullException(nameof(dest));
         }
+
+        /// Cleanup resources
+        ~ProcessPipe() => Dispose();
     }
 }

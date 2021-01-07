@@ -17,7 +17,7 @@ using Cmd = DotnetCat.Handlers.CommandHandler;
 namespace DotnetCat.Nodes
 {
     /// <summary>
-    /// Base class for all TCP socket nodes
+    /// Base class for all TCP socket nodes in DotnetCat.Nodes
     /// </summary>
     class Node : IErrorHandled
     {
@@ -41,6 +41,9 @@ namespace DotnetCat.Nodes
         {
             Addr = address;
         }
+
+        /// Cleanup resources
+        ~Node() => Dispose();
 
         protected enum PipeType : short { Default, File, Shell }
 
@@ -73,7 +76,7 @@ namespace DotnetCat.Nodes
             if (!Cmd.ExistsOnPath(exe).exists)
             {
                 Dispose();
-                ErrorHandler.Handle(Except.ExecPath, exe, true);
+                ErrorHandler.Handle(Except.ExePath, exe, true);
             }
 
             _process = new Process

@@ -11,8 +11,8 @@
         ConnectionRefused,  // Socket connection refused error
         DirectoryPath,      // Invalid directory file path
         EmptyPath,          // Empty directory file path
-        ExecPath,           // Invalid executable file path
-        ExecProcess,        // Executable process error(s)
+        ExePath,            // Invalid executable file path
+        ExeProcess,         // Executable process error(s)
         FilePath,           // Invalid file path received (general)
         InvalidAddr,        // Invalid IP address or host name
         InvalidArgs,        // Invalid cmd-line argument(s)

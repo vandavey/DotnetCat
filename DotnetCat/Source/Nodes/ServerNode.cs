@@ -6,7 +6,6 @@ using DotnetCat.Contracts;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
 using ArgNullException = System.ArgumentNullException;
-using Cmd = DotnetCat.Handlers.CommandHandler;
 using Style = DotnetCat.Handlers.StyleHandler;
 
 namespace DotnetCat.Nodes
@@ -23,6 +22,9 @@ namespace DotnetCat.Nodes
         {
             _listener = null;
         }
+
+        /// Cleanup resources
+        ~ServerNode() => Dispose();
 
         /// Listen for incoming TCP connections
         public override void Connect()
@@ -42,12 +44,12 @@ namespace DotnetCat.Nodes
                 // Start executable process
                 if (Program.UsingExe)
                 {
-                    Exe ??= Cmd.GetDefaultExe(OS);
+                    Exe ??= CommandHandler.GetDefaultExe(OS);
                     bool hasStarted = Start(Exe);
 
                     if (!hasStarted)
                     {
-                        PipeError(Except.ExecProcess, Exe);
+                        PipeError(Except.ExeProcess, Exe);
                     }
                 }
 

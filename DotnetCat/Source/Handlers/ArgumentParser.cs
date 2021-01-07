@@ -282,7 +282,7 @@ namespace DotnetCat.Handlers
             // Failed to locate executable
             if (!exists)
             {
-                Error.Handle(Except.ExecPath, exec, true);
+                Error.Handle(Except.ExePath, exec, true);
             }
 
             Program.UsingExe = true;

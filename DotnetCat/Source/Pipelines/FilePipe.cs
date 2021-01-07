@@ -64,6 +64,9 @@ namespace DotnetCat.Pipelines
             };
         }
 
+        /// Cleanup resources
+        ~FilePipe() => Dispose();
+
         public bool Verbose => Program.Verbose;
 
         /** 

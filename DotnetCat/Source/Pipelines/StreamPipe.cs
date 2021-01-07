@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
 using DotnetCat.Enums;
+using DotnetCat.Handlers;
 using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Pipelines
@@ -16,17 +16,14 @@ namespace DotnetCat.Pipelines
     /// </summary>
     class StreamPipe : IConnectable
     {
-        private readonly string[] _clearCommands;
-
         /// Initialize new object
         protected StreamPipe()
         {
-            _clearCommands = new string[]
-            {
-                "cls", "clear", "clear-screen"
-            };
             Connected = false;
         }
+
+        /// Cleanup resources
+        ~StreamPipe() => Dispose();
 
         public bool Connected { get; protected set; }
 
@@ -68,7 +65,7 @@ namespace DotnetCat.Pipelines
             CTS?.Dispose();
             Client?.Dispose();
 
-            try
+            try // Dispose of async task
             {
                 Worker?.Dispose();
             }
@@ -111,7 +108,7 @@ namespace DotnetCat.Pipelines
                 FixLineEndings(data); // Normalize EOL sequences
 
                 // Clear console buffer if requested
-                if (IsClearCmd(data.ToString()))
+                if (CommandHandler.IsClearCmd(data.ToString()))
                 {
                     await Dest.WriteAsync(newLine, token);
                 }
@@ -132,20 +129,6 @@ namespace DotnetCat.Pipelines
         private StringBuilder FixLineEndings(StringBuilder data)
         {
             return (OS is Platform.Win) ? data : data.Replace("\r\n", "\n");
-        }
-
-        /// Determine if data contains clear command
-        private bool IsClearCmd(string data)
-        {
-            data = data.Replace(Environment.NewLine, "");
-
-            // Clear current console buffer
-            if (_clearCommands.Contains(data.Trim()))
-            {
-                Console.Clear();
-                return true;
-            }
-            return false;
         }
     }
 }
