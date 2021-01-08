@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DotnetCat.Enums;
@@ -15,22 +14,22 @@ namespace DotnetCat.Handlers
     {
         private static readonly string[] _clearCommands;
 
-        private static readonly List<string> _envPaths;
+        private static readonly string[] _envPaths;
 
-        private static readonly List<string> _extensions;
+        private static readonly string[] _extensions;
 
         /// Initialize static members
         static CommandHandler()
         {
             string path = Env.GetEnvironmentVariable("PATH");
-            _envPaths = path.Split(Path.PathSeparator).ToList();
+            _envPaths = path.Split(Path.PathSeparator);
 
             _clearCommands = new string[]
             {
                 "cls", "clear", "clear-screen"
             };
 
-            _extensions = new List<string>
+            _extensions = new string[]
             {
                 "exe", "bat", "ps1", "py", "sh"
             };
@@ -86,10 +85,10 @@ namespace DotnetCat.Handlers
         {
             data = data.Replace(Env.NewLine, "").Trim();
 
-            // Clear current console buffer
+            // Clear command detected
             if (_clearCommands.Contains(data))
             {
-                if (doClear)
+                if (doClear) // Clear console buffer
                 {
                     Console.Clear();
                 }

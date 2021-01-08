@@ -17,7 +17,7 @@ namespace DotnetCat.Pipelines
 
         private bool _zipCreated;
 
-        /// Initialize new object
+        /// Initialize object
         public ArchivePipe(string path) : base()
         {
             if (string.IsNullOrEmpty(path))

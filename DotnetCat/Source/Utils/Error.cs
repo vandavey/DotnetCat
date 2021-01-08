@@ -8,7 +8,7 @@ namespace DotnetCat.Utils
     /// </summary>
     class Error
     {
-        /// Initialize new object
+        /// Initialize object
         public Error(Except type, string msg)
         {
             TypeName = type;

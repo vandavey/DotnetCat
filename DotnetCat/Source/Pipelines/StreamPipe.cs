@@ -16,7 +16,7 @@ namespace DotnetCat.Pipelines
     /// </summary>
     class StreamPipe : IConnectable
     {
-        /// Initialize new object
+        /// Initialize object
         protected StreamPipe()
         {
             Connected = false;
@@ -65,7 +65,7 @@ namespace DotnetCat.Pipelines
             CTS?.Dispose();
             Client?.Dispose();
 
-            try // Dispose of async task
+            try // Try to dispose of task
             {
                 Worker?.Dispose();
             }
@@ -86,7 +86,6 @@ namespace DotnetCat.Pipelines
             int charsRead;
             Connected = true;
 
-            // Primary data communication loop
             while (Client.Connected)
             {
                 // Connection cancellation requested

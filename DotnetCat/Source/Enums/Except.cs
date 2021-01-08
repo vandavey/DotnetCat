@@ -9,6 +9,7 @@
         ArgsCombo,          // Invalid argument combination
         ConnectionLost,     // Socket connection lost error
         ConnectionRefused,  // Socket connection refused error
+        ConnectionTimeout,  // Socket connection timeout occurred
         DirectoryPath,      // Invalid directory file path
         EmptyPath,          // Empty directory file path
         ExePath,            // Invalid executable file path

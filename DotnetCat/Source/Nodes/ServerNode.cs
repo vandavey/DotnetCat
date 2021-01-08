@@ -6,6 +6,7 @@ using DotnetCat.Contracts;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
 using ArgNullException = System.ArgumentNullException;
+using Cmd = DotnetCat.Handlers.CommandHandler;
 using Style = DotnetCat.Handlers.StyleHandler;
 
 namespace DotnetCat.Nodes
@@ -13,11 +14,11 @@ namespace DotnetCat.Nodes
     /// <summary>
     /// Server node for TCP socket connections
     /// </summary>
-    class ServerNode : Node, IErrorHandled
+    class ServerNode : Node, ISockErrorHandled
     {
         private Socket _listener;
 
-        /// Initialize new object
+        /// Initialize object
         public ServerNode() : base(address: IPAddress.Any)
         {
             _listener = null;
@@ -29,11 +30,13 @@ namespace DotnetCat.Nodes
         /// Listen for incoming TCP connections
         public override void Connect()
         {
+            _ = Addr ?? throw new ArgNullException(nameof(Addr));
+            IPEndPoint ep = null;
+
             // Bind listener socket to local endpoint
             BindListener(new IPEndPoint(Addr, Port));
-            IPEndPoint remoteEP = null;
 
-            try // Listen for connection
+            try // Listen for inbound connection
             {
                 _listener.Listen(1);
                 Style.Info("Listening for incoming connections...");
@@ -44,34 +47,37 @@ namespace DotnetCat.Nodes
                 // Start executable process
                 if (Program.UsingExe)
                 {
-                    Exe ??= CommandHandler.GetDefaultExe(OS);
-                    bool hasStarted = Start(Exe);
-
-                    if (!hasStarted)
+                    if (!Start(Exe ??= Cmd.GetDefaultExe(OS)))
                     {
                         PipeError(Except.ExeProcess, Exe);
                     }
                 }
 
-                remoteEP = Client.Client.RemoteEndPoint as IPEndPoint;
-                Style.Info($"Connected to {remoteEP}");
+                ep = Client.Client.RemoteEndPoint as IPEndPoint;
+                Style.Info($"Connected to {ep}");
 
                 base.Connect();
                 WaitForExit();
 
                 // Connection closed status
-                Style.Info($"Connection to {remoteEP.Address} closed");
+                Style.Info($"Connection to {ep.Address} closed");
             }
-            catch (SocketException ex) // Connection refused
+            catch (SocketException ex) // Error (likely refused)
             {
-                string ep = remoteEP.ToString();
                 PipeError(Except.ConnectionRefused, ep, ex, Level.Warn);
             }
             catch (IOException ex) // Connection lost
             {
-                PipeError(Except.ConnectionLost, $"{remoteEP}", ex);
+                PipeError(Except.ConnectionLost, ep, ex);
             }
             Dispose();
+        }
+
+        /// Dispose of unmanaged resources and handle error
+        public override void PipeError(Except type, IPEndPoint ep,
+                                                    Exception ex = null,
+                                                    Level level = Level.Error) {
+            PipeError(type, ep.ToString(), ex, level);
         }
 
         /// Dispose of unmanaged resources and handle error

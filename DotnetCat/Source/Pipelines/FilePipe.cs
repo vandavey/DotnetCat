@@ -21,7 +21,7 @@ namespace DotnetCat.Pipelines
 
         private readonly List<string> _zipExt;
 
-        /// Initialize new object
+        /// Initialize object
         public FilePipe(StreamReader src, string path) : this()
         {
             if (string.IsNullOrEmpty(path))
@@ -37,7 +37,7 @@ namespace DotnetCat.Pipelines
             Dest = new StreamWriter(CreateFile(path));
         }
 
-        /// Initialize new object
+        /// Initialize object
         public FilePipe(string path, StreamWriter dest) : this()
         {
             if (string.IsNullOrEmpty(path))
@@ -53,7 +53,7 @@ namespace DotnetCat.Pipelines
             Source = new StreamReader(OpenFile(path));
         }
 
-        /// Initialize new object
+        /// Initialize object
         protected FilePipe() : base()
         {
             _transfer = TransferOpt.None;
@@ -154,11 +154,10 @@ namespace DotnetCat.Pipelines
                 PipeError(Except.DirectoryPath, info.FullName);
             }
 
-            return new FileStream(path, FileMode.Open,
-                                        FileAccess.Write,
-                                        FileShare.Write,
-                                        bufferSize: 1024,
-                                        useAsync: true);
+            return new FileStream(path, FileMode.Open, FileAccess.Write,
+                                                       FileShare.Write,
+                                                       bufferSize: 1024,
+                                                       useAsync: true);
         }
 
         /// Open specified FileStream to read or write
@@ -176,18 +175,16 @@ namespace DotnetCat.Pipelines
                 PipeError(Except.FilePath, info.FullName);
             }
 
-            return new FileStream(info.FullName, FileMode.Open,
-                                                 FileAccess.Read,
-                                                 FileShare.Read,
-                                                 bufferSize: 4096,
-                                                 useAsync: true);
+            return new FileStream(info.FullName, FileMode.Open, FileAccess.Read,
+                                                                FileShare.Read,
+                                                                bufferSize: 4096,
+                                                                useAsync: true);
         }
 
         /// Activate async network communication
         private async Task ConnectAsync(CancellationToken token)
         {
             StringBuilder data = new StringBuilder();
-
             Connected = true;
 
             // Print connection started info
