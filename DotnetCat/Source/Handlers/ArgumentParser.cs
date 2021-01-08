@@ -17,7 +17,7 @@ namespace DotnetCat.Handlers
         private readonly string _appTitle;
         private readonly string _help;
 
-        /// Initialize new object
+        /// Initialize object
         public ArgumentParser()
         {
             _appTitle = (OS is Platform.Nix) ? "dncat" : "dncat.exe";
@@ -41,6 +41,27 @@ namespace DotnetCat.Handlers
         private bool Debug { set => Program.Debug = value; }
 
         private bool Recursive { set => Program.Recursive = value; }
+
+        public static string GetUsage(string appTitle = "dncat")
+        {
+            return $"Usage: {appTitle} [OPTIONS] TARGET";
+        }
+
+        /// Check for help flag in cmd-line arguments
+        public bool NeedsHelp(string[] args)
+        {
+            // Count matching arguments
+            int count = (from arg in args
+                         where arg.ToLower() == "--help"
+                             || (arg.Length > 1
+                                 && arg[0] == '-'
+                                 && arg[1] != '-'
+                                 && (arg.Contains('h')
+                                     || arg.Contains('?')))
+                         select arg).Count();
+
+            return count > 0;
+        }
 
         /// Print application help message to console output
         public void PrintHelp()
@@ -93,7 +114,7 @@ namespace DotnetCat.Handlers
 
                 if (item.arg.Contains('e')) // Executable path
                 {
-                    SockNode.Exe = GetExec(item.index);
+                    SockNode.Exe = GetExecutable(item.index);
                     RemoveAlias(item.index, 'e');
                     Args.RemoveAt(item.index + 1);
                 }
@@ -163,7 +184,7 @@ namespace DotnetCat.Handlers
                     }
                     case "--exec": // Executable path
                     {
-                        SockNode.Exe = GetExec(item.index);
+                        SockNode.Exe = GetExecutable(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
@@ -225,108 +246,6 @@ namespace DotnetCat.Handlers
             return (query.Count() > 0) ? query[0] : -1;
         }
 
-        /// Get value of an argument in cmd-line arguments
-        public string ArgsValueAt(int index)
-        {
-            if ((index < 0) || (index >= Args.Count))
-            {
-                Error.Handle(Except.NamedArgs, Args[index - 1], true);
-            }
-            return Args[index];
-        }
-
-        /// Check for help flag in cmd-line arguments
-        public bool NeedsHelp(string[] args)
-        {
-            // Query cmd-line arguments
-            List<string> query = (from arg in args
-                                  where arg.ToLower() == "--help"
-                                      || (arg.Length > 1
-                                          && arg[0] == '-'
-                                          && arg[1] != '-'
-                                          && (arg.Contains('h')
-                                              || arg.Contains('?')))
-                                  select arg).ToList();
-
-            return query.Count() > 0;
-        }
-
-        /// Remove named argument/value in cmd-line arguments
-        public void RemoveFlag(string arg, bool noValue = false)
-        {
-            int index = IndexOfFlag(arg);
-            int length = noValue ? 1 : 2;
-
-            for (int i = 0; i < length; i++)
-            {
-                Args.RemoveAt(index);
-            }
-        }
-
-        /// Remove character of a cmd-line argument
-        public void RemoveAlias(int index, char alias)
-        {
-            if (index < 0 || (index >= Args.Count()))
-            {
-                throw new IndexOutOfRangeException($"{nameof(index)}");
-            }
-            Args[index] = Args[index].Replace(alias.ToString(), "");
-        }
-
-        /// Get executable path for command execution
-        public string GetExec(int argIndex)
-        {
-            string exec = ArgsValueAt(argIndex + 1);
-            (bool exists, string path) = Cmd.ExistsOnPath(exec);
-
-            // Failed to locate executable
-            if (!exists)
-            {
-                Error.Handle(Except.ExecPath, exec, true);
-            }
-
-            Program.UsingExe = true;
-            return path;
-        }
-
-        /// Get file path to write to or read from
-        public string GetTransfer(int argIndex)
-        {
-            string path = Path.GetFullPath(ArgsValueAt(argIndex + 1));
-
-            // Invalid file path
-            if (!File.Exists(path) && !Directory.GetParent(path).Exists)
-            {
-                Error.Handle(Except.FilePath, path);
-            }
-            return path;
-        }
-
-        /// Get port number from argument index
-        public int GetPort(int argIndex)
-        {
-            int iPort = -1;
-            string port = ArgsValueAt(argIndex + 1);
-
-            try // Validate port
-            {
-                if (((iPort = int.Parse(port)) < 0) || (iPort > 65535))
-                {
-                    throw new FormatException();
-                }
-            }
-            catch (FormatException ex) // Invalid port number
-            {
-                Error.Handle(Except.InvalidPort, port, ex);
-            }
-            return iPort;
-        }
-
-        public static string GetUsage(string appTitle = "dncat")
-        {
-            return $"Usage: {appTitle} [OPTIONS] TARGET";
-        }
-
         /// Get application help message as a string
         private static string GetHelp(string appTitle, string appUsage)
         {
@@ -353,6 +272,87 @@ namespace DotnetCat.Handlers
                 $"  {appTitle} 10.0.0.152 -p 4444 localhost",
                 $"  {appTitle} -ve /bin/bash 192.168.1.9\r\n",
             });
+        }
+
+        /// Get value of an argument in cmd-line arguments
+        private string ArgsValueAt(int index)
+        {
+            if ((index < 0) || (index >= Args.Count))
+            {
+                Error.Handle(Except.NamedArgs, Args[index - 1], true);
+            }
+            return Args[index];
+        }
+
+        /// Remove character of a cmd-line argument
+        private void RemoveAlias(int index, char alias)
+        {
+            if ((index < 0) || (index >= Args.Count()))
+            {
+                throw new IndexOutOfRangeException($"{nameof(index)}");
+            }
+            Args[index] = Args[index].Replace(alias.ToString(), "");
+        }
+
+        /// Remove named argument/value in cmd-line arguments
+        private void RemoveFlag(string arg, bool noValue = false)
+        {
+            int index = IndexOfFlag(arg);
+            int length = noValue ? 1 : 2;
+
+            for (int i = 0; i < length; i++)
+            {
+                Args.RemoveAt(index);
+            }
+        }
+
+        /// Get port number from argument index
+        private int GetPort(int argIndex)
+        {
+            int iPort = -1;
+            string port = ArgsValueAt(argIndex + 1);
+
+            try // Validate port
+            {
+                if (((iPort = int.Parse(port)) < 0) || (iPort > 65535))
+                {
+                    throw new FormatException();
+                }
+            }
+            catch (FormatException ex) // Invalid port number
+            {
+                Error.Handle(Except.InvalidPort, port, ex);
+            }
+            return iPort;
+        }
+
+        /// Get executable path for command execution
+        private string GetExecutable(int argIndex)
+        {
+            string exec = ArgsValueAt(argIndex + 1);
+            (bool exists, string path) = Cmd.ExistsOnPath(exec);
+
+            // Failed to locate executable
+            if (!exists)
+            {
+                Error.Handle(Except.ExePath, exec, true);
+            }
+
+            Program.UsingExe = true;
+            return path;
+        }
+
+        /// Get file path to write to or read from
+        private string GetTransfer(int argIndex)
+        {
+            string path = Path.GetFullPath(ArgsValueAt(argIndex + 1));
+
+            // Invalid file path
+            if (!File.Exists(path) && !Directory.GetParent(path).Exists)
+            {
+                Error.Handle(Except.FilePath, path);
+            }
+            return path;
         }
     }
 }

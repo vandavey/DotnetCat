@@ -40,20 +40,23 @@ namespace DotnetCat.Handlers
                                                Level level = Level.Error) {
             int index = IndexOfError(type);
 
+            if (index == -1) // Index out of bounds
+            {
+                throw new IndexOutOfRangeException($"Invalid index: {index}");
+            }
+
             if ((arg == null) && !_errors[index].Built)
             {
                 throw new ArgumentNullException(nameof(arg));
             }
 
-            // Display program usage
-            if (showUsage)
+            if (showUsage) // Display program usage
             {
                 Console.WriteLine(ArgumentParser.GetUsage());
             }
             _errors[index].Build(arg);
 
-            // Print warning message
-            if (level is Level.Warn)
+            if (level is Level.Warn) // Print warning message
             {
                 StyleHandler.Warn(_errors[index].Message);
             }
@@ -65,6 +68,7 @@ namespace DotnetCat.Handlers
             // Print debug info and exit
             if (Program.Debug && (ex != null))
             {
+                ex = (ex is AggregateException) ? ex.InnerException : ex;
                 string header = $"----[ {ex.GetType().FullName} ]----";
 
                 Console.WriteLine(string.Join(Env.NewLine, new string[]
@@ -82,14 +86,10 @@ namespace DotnetCat.Handlers
         }
 
         /// Get the index of an error in Errors
-        private static int IndexOfError(Except errorType)
+        private static int IndexOfError(Except type)
         {
-            // Error list query
-            List<int> query = (from error in _errors
-                               where error.TypeName == errorType
-                               select _errors.IndexOf(error)).ToList();
-
-            return (query.Count() > 0) ? query[0] : -1;
+            Error status = _errors.Where(e => e.TypeName == type).First();
+            return _errors.IndexOf(status);
         }
 
         /// Get errors related to DotnetCat
@@ -98,37 +98,39 @@ namespace DotnetCat.Handlers
             return new List<Error>
             {
                 new Error(Except.ArgsCombo,
-                         "The following arguments can't be combined: {}"),
+                          "The following arguments can't be combined: {}"),
                 new Error(Except.InvalidArgs,
-                         "Unable to validate argument(s): {}"),
+                          "Unable to validate argument(s): {}"),
                 new Error(Except.ConnectionLost,
-                         "The connection was unexpectedly closed by {}"),
+                          "The connection was unexpectedly closed by {}"),
                 new Error(Except.ConnectionRefused,
-                         "Unable to connect to {}"),
+                          "Connection to {} was refused"),
+                new Error(Except.ConnectionTimeout,
+                          "Socket timeout occurred: {}"),
                 new Error(Except.DirectoryPath,
-                         "Unable to locate parent directory '{}'"),
+                          "Unable to locate parent directory '{}'"),
                 new Error(Except.EmptyPath,
-                         "A value is required for option(s): {}"),
+                          "A value is required for option(s): {}"),
                 new Error(Except.FilePath,
-                         "Unable to locate file path '{}'"),
+                          "Unable to locate file path '{}'"),
                 new Error(Except.InvalidAddr,
-                         "Unable to resolve hostname '{}'"),
+                          "Unable to resolve hostname '{}'"),
                 new Error(Except.InvalidPort,
-                         "{} cannot be parsed as a valid port"),
+                          "{} cannot be parsed as a valid port"),
                 new Error(Except.NamedArgs,
-                         "Missing value for named argument(s): {} "),
+                          "Missing value for named argument(s): {} "),
                 new Error(Except.RequiredArgs,
-                         "Missing required argument(s): {}"),
-                new Error(Except.ExecPath,
-                         "Unable to locate executable file '{}'"),
-                new Error(Except.ExecProcess,
-                         "Unable to launch executable process {}"),
+                          "Missing required argument(s): {}"),
+                new Error(Except.ExePath,
+                          "Unable to locate executable file '{}'"),
+                new Error(Except.ExeProcess,
+                          "Unable to launch executable process: {}"),
                 new Error(Except.SocketBind,
-                         "The endpoint {} is already in use"),
+                          "The endpoint is already in use: {}"),
                 new Error(Except.Unhandled,
-                         "Unhandled exception occurred: {}"),
+                          "Unhandled exception occurred: {}"),
                 new Error(Except.UnknownArgs,
-                         "Received unknown argument(s): {}")
+                          "Received unknown argument(s): {}")
             };
         }
     }

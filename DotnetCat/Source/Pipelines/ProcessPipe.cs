@@ -9,11 +9,14 @@ namespace DotnetCat.Pipelines
     /// </summary>
     class ProcessPipe : StreamPipe, IConnectable
     {
-        /// Initialize new object
+        /// Initialize object
         public ProcessPipe(StreamReader src, StreamWriter dest) : base()
         {
             Source = src ?? throw new ArgumentNullException(nameof(src));
             Dest = dest ?? throw new ArgumentNullException(nameof(dest));
         }
+
+        /// Cleanup resources
+        ~ProcessPipe() => Dispose();
     }
 }

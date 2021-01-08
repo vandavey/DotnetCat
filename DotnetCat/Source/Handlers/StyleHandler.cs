@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using DotnetCat.Enums;
 using DotnetCat.Utils;
+using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Handlers
 {
@@ -27,38 +28,38 @@ namespace DotnetCat.Handlers
         }
 
         /// Write an error message to standard error
-        public static void Error(string msg)
+        public static void Error(string msg, bool noNewLine = false)
         {
-            _ = msg ?? throw new ArgumentNullException(nameof(msg));
-            Status(Level.Error, msg);
+            _ = msg ?? throw new ArgNullException(nameof(msg));
+            Status(Level.Error, msg, noNewLine);
         }
 
         /// Write a completion message to standard output
-        public static void Output(string msg)
+        public static void Output(string msg, bool noNewLine = false)
         {
-            _ = msg ?? throw new ArgumentNullException(nameof(msg));
-            Status(Level.Output, msg);
+            _ = msg ?? throw new ArgNullException(nameof(msg));
+            Status(Level.Output, msg, noNewLine);
         }
 
         /// Write an informational message to standard output
-        public static void Info(string msg)
+        public static void Info(string msg, bool noNewLine = false)
         {
-            _ = msg ?? throw new ArgumentNullException(nameof(msg));
-            Status(Level.Info, msg);
+            _ = msg ?? throw new ArgNullException(nameof(msg));
+            Status(Level.Info, msg, noNewLine);
         }
 
         /// Write a warning message to standard error
-        public static void Warn(string msg)
+        public static void Warn(string msg, bool noNewLine = false)
         {
-            _ = msg ?? throw new ArgumentNullException(nameof(msg));
-            Status(Level.Warn, msg);
+            _ = msg ?? throw new ArgNullException(nameof(msg));
+            Status(Level.Warn, msg, noNewLine);
         }
 
         /// Write a custom status to standard output
-        private static void Status(Level level, string msg)
-        {
-            _ = msg ?? throw new ArgumentNullException(nameof(msg));
+        private static void Status(Level level, string msg,
+                                                bool noNewLine = false) {
             int index = IndexOfStatus(level);
+            _ = msg ?? throw new ArgNullException(nameof(msg));
 
             // Get standard output/error stream
             using TextWriter stream = level switch
@@ -73,9 +74,14 @@ namespace DotnetCat.Handlers
             // Write symbol to standard stream
             Console.ForegroundColor = _statuses[index].Color;
             stream.Write($"{_statuses[index].Symbol} ");
+            Console.ResetColor();
 
             // Write message to standard stream
-            Console.ResetColor();
+            if (noNewLine)
+            {
+                stream.Write(msg);
+                return;
+            }
             stream.WriteLine(msg);
         }
 

@@ -17,7 +17,7 @@ namespace DotnetCat.Pipelines
 
         private bool _zipCreated;
 
-        /// Initialize new object
+        /// Initialize object
         public ArchivePipe(string path) : base()
         {
             if (string.IsNullOrEmpty(path))
@@ -45,6 +45,9 @@ namespace DotnetCat.Pipelines
             Source = new StreamReader(OpenFile(path));
         }
 
+        /// Cleanup resources
+        ~ArchivePipe() => Dispose();
+
         /// Activate pipline data flow between pipes
         public override void Connect()
         {
@@ -65,9 +68,15 @@ namespace DotnetCat.Pipelines
         /// Release any unmanaged resources
         public override void Dispose()
         {
-            if (_zipCreated)
+            if (_zipCreated && File.Exists(_zipPath))
             {
-                File.Delete(_zipPath);
+                try // Delete file
+                {
+                    File.Delete(_zipPath);
+                }
+                catch
+                {
+                }
             }
             base.Dispose();
         }
@@ -111,7 +120,6 @@ namespace DotnetCat.Pipelines
                 return;
             }
             FileInfo info = new FileInfo(FilePath);
-            //PathInfo()
 
             if (!File.Exists(_zipPath))
             {

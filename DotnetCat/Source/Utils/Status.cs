@@ -8,7 +8,7 @@ namespace DotnetCat.Utils
     /// </summary>
     class Status
     {
-        /// Initialize new object
+        /// Initialize object
         public Status(ConsoleColor color, Level level)
         {
             Color = color;

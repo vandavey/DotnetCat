@@ -17,9 +17,9 @@ using Cmd = DotnetCat.Handlers.CommandHandler;
 namespace DotnetCat.Nodes
 {
     /// <summary>
-    /// Base class for all TCP socket nodes
+    /// Base class for all TCP socket nodes in DotnetCat.Nodes
     /// </summary>
-    class Node : IErrorHandled
+    class Node : ISockErrorHandled
     {
         private List<StreamPipe> _pipes;
 
@@ -28,7 +28,7 @@ namespace DotnetCat.Nodes
         private StreamReader _netReader;
         private StreamWriter _netWriter;
 
-        /// Initialize new object
+        /// Initialize object
         protected Node()
         {
             Port = 4444;
@@ -36,11 +36,14 @@ namespace DotnetCat.Nodes
             Client = new TcpClient();
         }
 
-        /// Initialize new object
+        /// Initialize object
         protected Node(IPAddress address) : this()
         {
             Addr = address;
         }
+
+        /// Cleanup resources
+        ~Node() => Dispose();
 
         protected enum PipeType : short { Default, File, Shell }
 
@@ -73,7 +76,7 @@ namespace DotnetCat.Nodes
             if (!Cmd.ExistsOnPath(exe).exists)
             {
                 Dispose();
-                ErrorHandler.Handle(Except.ExecPath, exe, true);
+                ErrorHandler.Handle(Except.ExePath, exe, true);
             }
 
             _process = new Process
@@ -140,6 +143,13 @@ namespace DotnetCat.Nodes
                 AddPipes(PipeType.Default);
             }
             _pipes?.ForEach(pipe => pipe?.Connect());
+        }
+
+        /// Dispose of unmanaged socket resources and handle error
+        public virtual void PipeError(Except type, IPEndPoint ep,
+                                                   Exception ex = null,
+                                                   Level level = Level.Error) {
+            PipeError(type, ep.ToString(), ex, level);
         }
 
         /// Dispose of unmanaged resources and handle error

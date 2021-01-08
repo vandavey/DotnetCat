@@ -212,7 +212,7 @@ namespace DotnetCat
             Socket socket = new Socket(AddressFamily.InterNetwork,
                                        SocketType.Dgram,
                                        ProtocolType.Udp);
-            // Get local address
+            // Get active local address
             using (socket)
             {
                 socket.Connect("8.8.8.8", 53);
