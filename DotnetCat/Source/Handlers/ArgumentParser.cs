@@ -287,7 +287,7 @@ namespace DotnetCat.Handlers
         /// Remove character of a cmd-line argument
         private void RemoveAlias(int index, char alias)
         {
-            if (index < 0 || (index >= Args.Count()))
+            if ((index < 0) || (index >= Args.Count()))
             {
                 throw new IndexOutOfRangeException($"{nameof(index)}");
             }
