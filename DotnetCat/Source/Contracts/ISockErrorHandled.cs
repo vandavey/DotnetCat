@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using DotnetCat.Enums;
 
@@ -10,7 +10,7 @@ namespace DotnetCat.Contracts
     /// </summary>
     interface ISockErrorHandled : IErrorHandled
     {
-        /// Release unamanged resources and handle error
+        /// Release unmanaged resources and handle error
         void PipeError(Except type, IPEndPoint ep, Exception ex = null,
                                                    Level level = Level.Error);
     }

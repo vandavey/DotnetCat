@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -30,11 +30,11 @@ namespace DotnetCat.Nodes
             _ = Addr ?? throw new ArgumentNullException(nameof(Addr));
             _ep ??= new IPEndPoint(Addr, Port);
 
-            try // Connect with timeout
+            try  // Connect with timeout
             {
                 if (!Client.ConnectAsync(Addr, Port).Wait(3500))
                 {
-                    throw new SocketException(10060); // Timed out
+                    throw new SocketException(10060);  // Timed out
                 }
                 NetStream = Client.GetStream();
 
@@ -54,15 +54,15 @@ namespace DotnetCat.Nodes
                 // Connection closed status
                 Style.Info($"Connection to {_ep.Address} closed");
             }
-            catch (AggregateException ex) // Connection refused
+            catch (AggregateException ex)  // Connection refused
             {
                 PipeError(Except.ConnectionRefused, _ep, ex, Level.Warn);
             }
-            catch (SocketException ex) // Error (likely timeout)
+            catch (SocketException ex)     // Error (likely timeout)
             {
                 PipeError(Except.ConnectionTimeout, _ep, ex, Level.Warn);
             }
-            catch (IOException ex) // Connection lost
+            catch (IOException ex)         // Connection lost
             {
                 PipeError(Except.ConnectionLost, Addr.ToString(), ex);
             }
