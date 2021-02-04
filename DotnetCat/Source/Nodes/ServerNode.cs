@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -36,7 +36,7 @@ namespace DotnetCat.Nodes
             // Bind listener socket to local endpoint
             BindListener(new IPEndPoint(Addr, Port));
 
-            try  // Listen for inbound connection
+            try // Listen for inbound connection
             {
                 _listener.Listen(1);
                 Style.Info("Listening for incoming connections...");
@@ -104,7 +104,7 @@ namespace DotnetCat.Nodes
                                    SocketType.Stream,
                                    ProtocolType.Tcp);
 
-            try  // Bind socket to endpoint
+            try // Bind socket to endpoint
             {
                 _listener.Bind(ep);
             }

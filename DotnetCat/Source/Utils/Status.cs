@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using DotnetCat.Enums;
 
 namespace DotnetCat.Utils

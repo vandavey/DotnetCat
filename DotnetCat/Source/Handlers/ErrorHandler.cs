@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotnetCat.Enums;
@@ -40,7 +40,7 @@ namespace DotnetCat.Handlers
                                                Level level = Level.Error) {
             int index = IndexOfError(type);
 
-            if (index == -1)  // Index out of bounds
+            if (index == -1) // Index out of bounds
             {
                 throw new IndexOutOfRangeException($"Invalid index: {index}");
             }
@@ -50,13 +50,13 @@ namespace DotnetCat.Handlers
                 throw new ArgumentNullException(nameof(arg));
             }
 
-            if (showUsage)  // Display program usage
+            if (showUsage) // Display program usage
             {
                 Console.WriteLine(ArgumentParser.GetUsage());
             }
             _errors[index].Build(arg);
 
-            if (level is Level.Warn)  // Print warning message
+            if (level is Level.Warn) // Print warning message
             {
                 StyleHandler.Warn(_errors[index].Message);
             }

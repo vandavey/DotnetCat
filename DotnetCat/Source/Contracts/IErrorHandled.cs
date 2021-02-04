@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using DotnetCat.Enums;
 
 namespace DotnetCat.Contracts
@@ -9,7 +9,7 @@ namespace DotnetCat.Contracts
     /// </summary>
     interface IErrorHandled : IConnectable
     {
-        /// Release unmanaged resources and handle error
+        /// Release unamanged resources and handle error
         void PipeError(Except type, string arg, Exception ex = null,
                                                 Level level = Level.Error);
     }

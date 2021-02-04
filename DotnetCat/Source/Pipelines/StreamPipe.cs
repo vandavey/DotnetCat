@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -65,7 +65,7 @@ namespace DotnetCat.Pipelines
             CTS?.Dispose();
             Client?.Dispose();
 
-            try  // Try to dispose of task
+            try // Try to dispose of task
             {
                 Worker?.Dispose();
             }
@@ -104,7 +104,7 @@ namespace DotnetCat.Pipelines
                     Disconnect();
                     break;
                 }
-                FixLineEndings(data);  // Normalize EOL sequences
+                FixLineEndings(data); // Normalize EOL sequences
 
                 // Clear console buffer if requested
                 if (CommandHandler.IsClearCmd(data.ToString()))

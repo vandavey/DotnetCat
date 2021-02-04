@@ -1,4 +1,4 @@
-namespace DotnetCat.Enums
+﻿namespace DotnetCat.Enums
 {
     /// <summary>
     /// Console output status level enumeration type

@@ -12,7 +12,7 @@ using Error = DotnetCat.Handlers.ErrorHandler;
 namespace DotnetCat
 {
     /// <summary>
-    /// Primary application startup object
+    /// Primary application startup opbject
     /// </summary>
     class Program
     {
@@ -89,7 +89,7 @@ namespace DotnetCat
             {
                 Args.RemoveAt(index);
             }
-
+            
             Transfer = GetTransferOpts();
             index = _parser.IndexOfFlag("--listen", 'l');
 
@@ -131,7 +131,7 @@ namespace DotnetCat
             // Validate remaining cmd-line arguments
             switch (Args.Count)
             {
-                case 0:   // Missing TARGET
+                case 0: // Missing TARGET
                 {
                     if (SockNode is ClientNode)
                     {
@@ -139,14 +139,14 @@ namespace DotnetCat
                     }
                     break;
                 }
-                case 1:   // Validate TARGET
+                case 1: // Validate TARGET
                 {
                     if (Args[0].StartsWith('-'))
                     {
                         Error.Handle(Except.UnknownArgs, Args[0], true);
                     }
 
-                    try  // Parse string as IP address
+                    try // Parse string as IP address
                     {
                         SockNode.Addr = IPAddress.Parse(Args[0]);
                     }
@@ -162,7 +162,7 @@ namespace DotnetCat
                     }
                     break;
                 }
-                default:  // Unexpected arguments
+                default: // Unexpected arguments
                 {
                     string argsStr = string.Join(", ", Args);
 
@@ -183,7 +183,7 @@ namespace DotnetCat
             IPHostEntry dnsAns;
             string machineName = Environment.MachineName;
 
-            try  // Resolve host name as IP address
+            try // Resolve host name as IP address
             {
                 dnsAns = Dns.GetHostEntry(hostName);
 
@@ -192,7 +192,7 @@ namespace DotnetCat
                     return IPAddress.Loopback;
                 }
             }
-            catch (SocketException)  // No DNS entries found
+            catch (SocketException) // No DNS entries found
             {
                 return null;
             }
@@ -209,12 +209,15 @@ namespace DotnetCat
                 return null;
             }
 
-            using Socket socket = new Socket(AddressFamily.InterNetwork,
-                                             SocketType.Dgram,
-                                             ProtocolType.Udp);
-            // Get active local IP address
-            socket.Connect("8.8.8.8", 53);
-            return (socket.LocalEndPoint as IPEndPoint).Address;
+            Socket socket = new Socket(AddressFamily.InterNetwork,
+                                       SocketType.Dgram,
+                                       ProtocolType.Udp);
+            // Get active local address
+            using (socket)
+            {
+                socket.Connect("8.8.8.8", 53);
+                return (socket.LocalEndPoint as IPEndPoint).Address;
+            }
         }
     }
 }
