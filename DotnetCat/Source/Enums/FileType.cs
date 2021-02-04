@@ -1,4 +1,4 @@
-﻿namespace DotnetCat.Enums
+namespace DotnetCat.Enums
 {
     /// <summary>
     /// File and directory path enumeration type

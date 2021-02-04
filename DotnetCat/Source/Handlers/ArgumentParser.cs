@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -312,7 +312,7 @@ namespace DotnetCat.Handlers
             int iPort = -1;
             string port = ArgsValueAt(argIndex + 1);
 
-            try // Validate port
+            try  // Validate port
             {
                 if (((iPort = int.Parse(port)) < 0) || (iPort > 65535))
                 {

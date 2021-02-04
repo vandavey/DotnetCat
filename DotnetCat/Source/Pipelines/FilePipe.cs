@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -175,10 +175,11 @@ namespace DotnetCat.Pipelines
                 PipeError(Except.FilePath, info.FullName);
             }
 
-            return new FileStream(info.FullName, FileMode.Open, FileAccess.Read,
-                                                                FileShare.Read,
-                                                                bufferSize: 4096,
-                                                                useAsync: true);
+            return new FileStream(info.FullName, FileMode.Open,
+                                                 FileAccess.Read,
+                                                 FileShare.Read,
+                                                 bufferSize: 4096,
+                                                 useAsync: true);
         }
 
         /// Activate async network communication

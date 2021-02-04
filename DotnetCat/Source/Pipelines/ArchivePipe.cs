@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.IO.Compression;
 using DotnetCat.Contracts;
@@ -48,7 +48,7 @@ namespace DotnetCat.Pipelines
         /// Cleanup resources
         ~ArchivePipe() => Dispose();
 
-        /// Activate pipline data flow between pipes
+        /// Activate pipeline data flow between pipes
         public override void Connect()
         {
             _ = Source ?? throw new ArgNullException(nameof(Source));
@@ -70,11 +70,11 @@ namespace DotnetCat.Pipelines
         {
             if (_zipCreated && File.Exists(_zipPath))
             {
-                try // Delete file
+                try  // Delete zip file
                 {
                     File.Delete(_zipPath);
                 }
-                catch
+                catch (Exception)
                 {
                 }
             }
@@ -95,7 +95,7 @@ namespace DotnetCat.Pipelines
                 PipeError(Except.FilePath, FilePath);
             }
 
-            try // Create the archive file
+            try  // Create the archive file
             {
                 ZipFile.CreateFromDirectory(FilePath, _zipPath);
                 _zipCreated = true;
