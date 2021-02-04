@@ -1,4 +1,4 @@
-﻿namespace DotnetCat.Enums
+namespace DotnetCat.Enums
 {
     /// <summary>
     /// DotnetCat error/exception enumeration type

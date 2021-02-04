@@ -1,4 +1,4 @@
-﻿namespace DotnetCat.Enums
+namespace DotnetCat.Enums
 {
     /// <summary>
     /// Socket and file transfer option enumeration type
