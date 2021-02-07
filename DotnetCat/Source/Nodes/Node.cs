@@ -45,8 +45,6 @@ namespace DotnetCat.Nodes
         /// Cleanup resources
         ~Node() => Dispose();
 
-        protected enum PipeType : short { Default, File, Shell }
-
         public bool Verbose { get; set; }
 
         public int Port { get; set; }
@@ -129,19 +127,7 @@ namespace DotnetCat.Nodes
                 PipeError(Except.ArgsCombo, message);
             }
 
-            // Initialize and connect pipelines
-            if (UsingExe)
-            {
-                AddPipes(PipeType.Shell);
-            }
-            else if (Transfer)
-            {
-                AddPipes(PipeType.File);
-            }
-            else
-            {
-                AddPipes(PipeType.Default);
-            }
+            AddPipes(Program.PipeVariant);
             _pipes?.ForEach(pipe => pipe?.Connect());
         }
 
@@ -174,7 +160,7 @@ namespace DotnetCat.Nodes
         }
 
         /// Initialize socket stream pipelines
-        protected void AddPipes(PipeType type)
+        protected void AddPipes(PipeType pipeType)
         {
             _ = NetStream ?? throw new ArgNullException(nameof(NetStream));
 
@@ -186,18 +172,14 @@ namespace DotnetCat.Nodes
             }
 
             _netReader = new StreamReader(NetStream);
-            _netWriter = new StreamWriter(NetStream);
+            _netWriter = new StreamWriter(NetStream) { AutoFlush = true };
 
             // Initialize socket pipeline(s)
-            _pipes = type switch
+            _pipes = pipeType switch
             {
-                PipeType.Shell => new List<StreamPipe>
-                {
-                    new ProcessPipe(_netReader, _process.StandardInput),
-                    new ProcessPipe(_process.StandardOutput, _netWriter),
-                    new ProcessPipe(_process.StandardError, _netWriter)
-                },
-                PipeType.File => new List<StreamPipe> { GetTransferPipe() },
+                PipeType.File => GetTransferPipes(),
+                PipeType.Process => GetProcessPipes(),
+                PipeType.Text => GetTextPipes(),
                 _ => GetDefaultPipes()
             };
         }
@@ -218,27 +200,44 @@ namespace DotnetCat.Nodes
         }
 
         /// Initialize file transmission and collection pipelines
-        private StreamPipe GetTransferPipe()
+        private List<StreamPipe> GetTransferPipes()
         {
             if (Program.Transfer is TransferOpt.None)
             {
                 throw new ArgumentException(nameof(Program.Transfer));
             }
+            FilePipe filePipe;
 
-            // Receiving file data
+            // Check if receiving or sending file data
             if (Program.Transfer is TransferOpt.Collect)
             {
-                return new FilePipe(_netReader, FilePath);
+                filePipe = new FilePipe(_netReader, FilePath);
             }
-
-            // Sending file data
-            if (Program.Recursive)
+            else
             {
-                Dispose();
-                string msg = "Recursive option still in development";
-                throw new NotImplementedException(msg);
+                filePipe = new FilePipe(FilePath, _netWriter);
             }
-            return new FilePipe(FilePath, _netWriter);
+            return new List<StreamPipe> { filePipe };
+        }
+
+        /// Initialize executable process pipelines
+        private List<StreamPipe> GetProcessPipes()
+        {
+            return new List<StreamPipe>
+            {
+                new ProcessPipe(_netReader, _process.StandardInput),
+                new ProcessPipe(_process.StandardOutput, _netWriter),
+                new ProcessPipe(_process.StandardError, _netWriter)
+            };
+        }
+
+        /// Initialize executable process pipelines
+        private List<StreamPipe> GetTextPipes()
+        {
+            return new List<StreamPipe>
+            {
+                new TextPipe(Program.Payload, _netWriter)
+            };
         }
 
         /// Initialize default socket stream pipelines
@@ -249,8 +248,11 @@ namespace DotnetCat.Nodes
 
             return new List<StreamPipe>
             {
-                new ProcessPipe(new StreamReader(stdin), _netWriter),
-                new ProcessPipe(_netReader, new StreamWriter(stdout))
+                new ProcessPipe(_netReader, new StreamWriter(stdout)
+                {
+                    AutoFlush = true
+                }),
+                new ProcessPipe(new StreamReader(stdin), _netWriter)
             };
         }
 

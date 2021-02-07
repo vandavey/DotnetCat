@@ -20,7 +20,9 @@ namespace DotnetCat.Enums
         InvalidPort,        // Invalid network port(s) number
         NamedArgs,          // Invalid named (optional) argument(s)
         RequiredArgs,       // Invalid required (positional) argument(s)
+        Payload,            // Invalid string payload argument
         SocketBind,         // Error binding socket to endpoint
+        StringEOL,          // Unable to determine string EOL (end quote)
         UnknownArgs         // Unknown/unexpected argument(s)
     }
 }

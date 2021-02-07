@@ -22,13 +22,15 @@ namespace DotnetCat
 
         public static bool Debug { get; set; }
 
-        public static bool Recursive { get; set; }
-
         public static bool UsingExe { get; set; }
 
         public static Platform OS { get; set; }
 
+        public static PipeType PipeVariant { get; set; }
+
         public static TransferOpt Transfer { get; set; }
+
+        public static string Payload { get; set; }
 
         public static List<string> Args { get; set; }
 
@@ -37,8 +39,6 @@ namespace DotnetCat
         /// Primary application entry point
         private static void Main(string[] args)
         {
-            _parser = new ArgumentParser();
-
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 OS = Platform.Win;
@@ -48,6 +48,8 @@ namespace DotnetCat
                 OS = Platform.Nix;
             }
 
+            _parser = new ArgumentParser();
+
             // Display help info and exit
             if ((args.Count() == 0) || _parser.NeedsHelp(args))
             {
@@ -55,7 +57,7 @@ namespace DotnetCat
             }
 
             InitializeNode(args);
-            Connect();
+            ConnectNode();
 
             Console.WriteLine();
             Environment.Exit(0);
@@ -77,7 +79,7 @@ namespace DotnetCat
             }
 
             UsingExe = false;
-            Args = args.ToList();
+            Args = DefragmentArgs(args);
 
             List<string> lowerArgs = new List<string>();
             Args?.ForEach(arg => lowerArgs.Add(arg.ToLower()));
@@ -102,6 +104,59 @@ namespace DotnetCat
             SockNode = new ClientNode();
         }
 
+        /// Ensure string-literal arguments aren't fragmented
+        private static List<string> DefragmentArgs(string[] args)
+        {
+            List<string> list = args.ToList();
+
+            // Get arguments starting with quote
+            var query = from arg in args
+                        let index = Array.IndexOf(args, arg)
+                        let quote = arg.FirstOrDefault()
+                        let valid = arg.EndsWith(quote)
+                        where arg.StartsWith("'")
+                            || arg.StartsWith("\"")
+                        select new { arg, index, quote, valid };
+
+            foreach (var item in query)
+            {
+                int listIndex = list.IndexOf(item.arg);
+
+                if (item.valid)  // Non-fragmented string
+                {
+                    list[listIndex] = item.arg[1..(item.arg.Length - 1)];
+                    continue;
+                }
+
+                // Get arguments ending with quote
+                var eolQuery = (from arg in args
+                                let index = Array.IndexOf(args, arg)
+                                where index > item.index
+                                    && arg.EndsWith(item.quote)
+                                select new { arg, index }).FirstOrDefault();
+
+                // Missing EOL (quote)
+                if (eolQuery == null)
+                {
+                    Error.Handle(Except.StringEOL,
+                                 string.Join(", ", args[item.index..]), true);
+                }
+
+                int endIndex = item.index + (eolQuery.index - item.index);
+
+                // Append fragments and remove duplicates
+                for (int i = item.index + 1; i < endIndex + 1; i++)
+                {
+                    list[listIndex] += $" {args[i]}";
+                    list.Remove(args[i]);
+                }
+
+                string defragged = list[listIndex];
+                list[listIndex] = defragged[1..(defragged.Count() - 1)];
+            }
+            return list;
+        }
+
         /// Get the file/socket communication operation type
         private static TransferOpt GetTransferOpts()
         {
@@ -123,13 +178,13 @@ namespace DotnetCat
         }
 
         /// Parse arguments and initiate connection
-        private static void Connect()
+        private static void ConnectNode()
         {
             _parser.ParseCharArgs();
             _parser.ParseFlagArgs();
 
             // Validate remaining cmd-line arguments
-            switch (Args.Count)
+            switch (Args.Count())
             {
                 case 0:   // Missing TARGET
                 {

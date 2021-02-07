@@ -34,7 +34,7 @@ namespace DotnetCat.Nodes
             {
                 if (!Client.ConnectAsync(Addr, Port).Wait(3500))
                 {
-                    throw new SocketException(10060);  // Timed out
+                    throw new SocketException(10060);  // Socket timeout
                 }
                 NetStream = Client.GetStream();
 
