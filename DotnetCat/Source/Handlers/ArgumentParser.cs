@@ -30,10 +30,7 @@ namespace DotnetCat.Handlers
 
         private PipeType PipeVariant { set => Program.PipeVariant = value; }
 
-        private string Payload
-        {
-            set => Program.Payload = value;
-        }
+        private string Payload { set => Program.Payload = value; }
 
         private List<string> Args
         {
@@ -402,7 +399,7 @@ namespace DotnetCat.Handlers
             string data = ArgsValueAt(argIndex + 1);
 
             // Invalid payload string
-            if (string.IsNullOrEmpty(data))
+            if (string.IsNullOrEmpty(data.Trim()))
             {
                 Error.Handle(Except.Payload, Args[argIndex], true);
             }
