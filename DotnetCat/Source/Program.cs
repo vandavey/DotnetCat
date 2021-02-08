@@ -24,17 +24,17 @@ namespace DotnetCat
 
         public static bool UsingExe { get; set; }
 
-        public static Platform OS { get; set; }
-
         public static PipeType PipeVariant { get; set; }
-
-        public static TransferOpt Transfer { get; set; }
 
         public static string Payload { get; set; }
 
         public static List<string> Args { get; set; }
 
         public static Node SockNode { get; set; }
+
+        public static Platform OS { get; private set; }
+
+        public static TransferOpt Transfer { get; private set; }
 
         /// Primary application entry point
         private static void Main(string[] args)
@@ -79,7 +79,7 @@ namespace DotnetCat
             }
 
             UsingExe = false;
-            Args = DefragmentArgs(args);
+            Args = DefragArgs(args);
 
             List<string> lowerArgs = new List<string>();
             Args?.ForEach(arg => lowerArgs.Add(arg.ToLower()));
@@ -105,7 +105,7 @@ namespace DotnetCat
         }
 
         /// Ensure string-literal arguments aren't fragmented
-        private static List<string> DefragmentArgs(string[] args)
+        private static List<string> DefragArgs(string[] args)
         {
             int delta = 0;
             List<string> list = args.ToList();
