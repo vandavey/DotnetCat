@@ -42,7 +42,7 @@ namespace DotnetCat.Handlers
 
             if (index == -1)  // Index out of bounds
             {
-                throw new IndexOutOfRangeException($"Invalid index: {index}");
+                throw new IndexOutOfRangeException(nameof(index));
             }
 
             if ((arg == null) && !_errors[index].Built)
@@ -56,7 +56,8 @@ namespace DotnetCat.Handlers
             }
             _errors[index].Build(arg);
 
-            if (level is Level.Warn)  // Print warning message
+            // Print warning/error message
+            if (level is Level.Warn)
             {
                 StyleHandler.Warn(_errors[index].Message);
             }
@@ -65,7 +66,7 @@ namespace DotnetCat.Handlers
                 StyleHandler.Error(_errors[index].Message);
             }
 
-            // Print debug info and exit
+            // Print debug information
             if (Program.Debug && (ex != null))
             {
                 ex = (ex is AggregateException) ? ex.InnerException : ex;
@@ -78,10 +79,8 @@ namespace DotnetCat.Handlers
                     new string('-', header.Length)
                 }));
             }
-            else
-            {
-                Console.WriteLine();
-            }
+
+            Console.WriteLine();
             Env.Exit(1);
         }
 
@@ -111,6 +110,10 @@ namespace DotnetCat.Handlers
                           "Unable to locate parent directory '{}'"),
                 new Error(Except.EmptyPath,
                           "A value is required for option(s): {}"),
+                new Error(Except.ExePath,
+                          "Unable to locate executable file '{}'"),
+                new Error(Except.ExeProcess,
+                          "Unable to launch executable process: {}"),
                 new Error(Except.FilePath,
                           "Unable to locate file path '{}'"),
                 new Error(Except.InvalidAddr,
@@ -118,15 +121,15 @@ namespace DotnetCat.Handlers
                 new Error(Except.InvalidPort,
                           "{} cannot be parsed as a valid port"),
                 new Error(Except.NamedArgs,
-                          "Missing value for named argument(s): {} "),
+                          "Missing value for named argument(s): {}"),
+                new Error(Except.Payload,
+                          "Invalid payload for argument(s): {}"),
                 new Error(Except.RequiredArgs,
                           "Missing required argument(s): {}"),
-                new Error(Except.ExePath,
-                          "Unable to locate executable file '{}'"),
-                new Error(Except.ExeProcess,
-                          "Unable to launch executable process: {}"),
                 new Error(Except.SocketBind,
                           "The endpoint is already in use: {}"),
+                new Error(Except.StringEOL,
+                          "Missing string EOL in argument(s): {}"),
                 new Error(Except.Unhandled,
                           "Unhandled exception occurred: {}"),
                 new Error(Except.UnknownArgs,

@@ -88,7 +88,7 @@ namespace DotnetCat.Handlers
             // Clear command detected
             if (_clearCommands.Contains(data))
             {
-                if (doClear) // Clear console buffer
+                if (doClear)  // Clear console buffer
                 {
                     Console.Clear();
                 }

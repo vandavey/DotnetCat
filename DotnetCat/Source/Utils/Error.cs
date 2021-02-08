@@ -26,16 +26,18 @@ namespace DotnetCat.Utils
         {
             if (string.IsNullOrEmpty(argument))
             {
-                throw new ArgumentNullException(nameof(argument));
-            }
-            else if (Built)
-            {
-                throw new ArgumentException(
-                    "Argument does not require formatting",
-                    paramName: nameof(argument)
-                );
+                if (!Built)
+                {
+                    throw new ArgumentNullException(nameof(argument));
+                }
+                return;
             }
 
+            if (Built)
+            {
+                throw new ArgumentException("Invalid interpolation attempt",
+                                            nameof(argument));
+            }
             Message = Message.Replace("{}", argument);
         }
     }

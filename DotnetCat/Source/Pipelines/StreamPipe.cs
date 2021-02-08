@@ -76,7 +76,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// Connect pipelines and activate async communication
-        private async Task ConnectAsync(CancellationToken token)
+        protected virtual async Task ConnectAsync(CancellationToken token)
         {
             Memory<char> buffer = new Memory<char>(new char[1024]);
 
@@ -115,12 +115,14 @@ namespace DotnetCat.Pipelines
                 {
                     await Dest.WriteAsync(data, token);
                 }
-
-                await Dest.FlushAsync();
                 data.Clear();
             }
 
-            Console.WriteLine();
+
+            if (!Program.UsingExe)
+            {
+                Console.WriteLine();
+            }
             Dispose();
         }
 

@@ -24,6 +24,17 @@ namespace DotnetCat.Handlers
             _help = GetHelp(_appTitle, GetUsage(_appTitle));
         }
 
+        private Platform OS => Program.OS;
+
+        private bool Debug { set => Program.Debug = value; }
+
+        private PipeType PipeVariant { set => Program.PipeVariant = value; }
+
+        private string Payload
+        {
+            set => Program.Payload = value;
+        }
+
         private List<string> Args
         {
             get => Program.Args;
@@ -35,12 +46,6 @@ namespace DotnetCat.Handlers
             get => Program.SockNode;
             set => Program.SockNode = value;
         }
-
-        private Platform OS => Program.OS;
-
-        private bool Debug { set => Program.Debug = value; }
-
-        private bool Recursive { set => Program.Recursive = value; }
 
         public static string GetUsage(string appTitle = "dncat")
         {
@@ -76,60 +81,62 @@ namespace DotnetCat.Handlers
             // Locate all char flag arguments
             var query = from arg in Args.ToList()
                         let index = IndexOfFlag(arg)
-                        where arg[0] == '-'
+                        where arg.Length >= 2
+                            && arg[0] == '-'
                             && arg[1] != '-'
                         select new { arg, index };
 
             foreach (var item in query)
             {
-                if (item.arg.Contains('l')) // Listen for connection
+                if (item.arg.Contains('l'))  // Listen for connection
                 {
                     RemoveAlias(item.index, 'l');
                 }
 
-                if (item.arg.Contains('v')) // Verbose output
+                if (item.arg.Contains('v'))  // Verbose output
                 {
                     SockNode.Verbose = true;
                     RemoveAlias(item.index, 'v');
                 }
 
-                if (item.arg.Contains('d')) // Debug output
+                if (item.arg.Contains('d'))  // Debug output
                 {
                     Debug = SockNode.Verbose = true;
                     RemoveAlias(item.index, 'd');
                 }
 
-                if (item.arg.Contains('r')) // Recursive transfer
-                {
-                    Recursive = true;
-                    RemoveAlias(item.index, 'r');
-                }
-
-                if (item.arg.Contains('p')) // Connection port
+                if (item.arg.Contains('p'))  // Connection port
                 {
                     SockNode.Port = GetPort(item.index);
                     RemoveAlias(item.index, 'p');
                     Args.RemoveAt(item.index + 1);
                 }
 
-                if (item.arg.Contains('e')) // Executable path
+                if (item.arg.Contains('e'))  // Executable path
                 {
                     SockNode.Exe = GetExecutable(item.index);
                     RemoveAlias(item.index, 'e');
                     Args.RemoveAt(item.index + 1);
                 }
 
-                if (item.arg.Contains('o')) // Receive file data
+                if (item.arg.Contains('o'))  // Receive file data
                 {
                     SockNode.FilePath = GetTransfer(item.index);
                     RemoveAlias(item.index, 'o');
                     Args.RemoveAt(item.index + 1);
                 }
 
-                if (item.arg.Contains('s')) // Send file data
+                if (item.arg.Contains('s'))  // Send file data
                 {
                     SockNode.FilePath = GetTransfer(item.index);
                     RemoveAlias(item.index, 's');
+                    Args.RemoveAt(item.index + 1);
+                }
+
+                if (item.arg.Contains('t'))  // Send string data
+                {
+                    Payload = GetText(item.index);
+                    RemoveAlias(item.index, 't');
                     Args.RemoveAt(item.index + 1);
                 }
 
@@ -153,51 +160,55 @@ namespace DotnetCat.Handlers
             {
                 switch (item.arg)
                 {
-                    case "--listen": // Listen for connection
+                    case "--listen":   // Listen for connection
                     {
                         Args.RemoveAt(item.index);
                         break;
                     }
-                    case "--verbose": // Verbose output
+                    case "--verbose":  // Verbose output
                     {
                         SockNode.Verbose = true;
                         Args.RemoveAt(item.index);
                         break;
                     }
-                    case "--debug": // Debug output
+                    case "--debug":    // Debug output
                     {
                         Debug = SockNode.Verbose = true;
                         Args.RemoveAt(item.index);
                         break;
                     }
-                    case "--recurse": // Recursive transfer
-                    {
-                        Recursive = true;
-                        Args.RemoveAt(item.index);
-                        break;
-                    }
-                    case "--port": // Connection port
+                    case "--port":     // Connection port
                     {
                         SockNode.Port = GetPort(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
-                    case "--exec": // Executable path
+                    case "--exec":     // Executable path
                     {
                         SockNode.Exe = GetExecutable(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
-                    case "--output": // Receive file data
+                    case "--output":   // Receive file data
                     {
                         SockNode.FilePath = GetTransfer(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
-                    case "--send": // Send file data
+                    case "--send":     // Send file data
                     {
                         SockNode.FilePath = GetTransfer(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
+                        break;
+                    }
+                    case "--text":     // Send string data
+                    {
+                        Payload = GetText(item.index);
+                        RemoveFlag(ArgsValueAt(item.index));
+                        break;
+                    }
+                    default:
+                    {
                         break;
                     }
                 }
@@ -249,47 +260,55 @@ namespace DotnetCat.Handlers
         /// Get application help message as a string
         private static string GetHelp(string appTitle, string appUsage)
         {
-            return string.Join("\r\n", new string[]
+            string lf = Environment.NewLine;
+
+            return string.Join(lf, new string[]
             {
                 "DotnetCat (https://github.com/vandavey/DotnetCat)",
-                $"{appUsage}\r\n",
-                "Remote command shell application\r\n",
+                $"{appUsage}{lf}",
+                $"Remote command shell application{lf}",
                 "Positional Arguments:",
-                "  TARGET                   Specify remote/local IPv4 address\r\n",
+                $"  TARGET                   Remote/local IPv4 address{lf}",
                 "Optional Arguments:",
                 "  -h/-?,   --help           Show this help message and exit",
                 "  -v,      --verbose        Enable verbose console output",
                 "  -d,      --debug          Output verbose error information",
                 "  -l,      --listen         Listen for incoming connections",
-                "  -r,      --recurse        Transfer a directory recursively",
+                "  -t,      --text           Send string data to remote host",
                 "  -p PORT, --port PORT      Specify port to use for endpoint.",
                 "                            (Default: 4444)",
-                "  -e EXEC, --exec EXEC      Specify command shell executable",
+                "  -e EXEC, --exec EXEC      Executable process file path",
                 "  -o PATH, --output PATH    Receive file from remote host",
-                "  -s PATH, --send PATH      Send local file or folder\r\n",
+                $"  -s PATH, --send PATH      Send local file or folder{lf}",
                 "Usage Examples:",
                 $"  {appTitle} -le powershell.exe",
                 $"  {appTitle} 10.0.0.152 -p 4444 localhost",
-                $"  {appTitle} -ve /bin/bash 192.168.1.9\r\n",
+                $"  {appTitle} -ve /bin/bash 192.168.1.9{lf}",
             });
         }
 
         /// Get value of an argument in cmd-line arguments
         private string ArgsValueAt(int index)
         {
-            if ((index < 0) || (index >= Args.Count))
+            if (!InArgsRange(index))
             {
                 Error.Handle(Except.NamedArgs, Args[index - 1], true);
             }
             return Args[index];
         }
 
-        /// Remove character of a cmd-line argument
+        /// Determine if the argument index is valid
+        private bool InArgsRange(int index)
+        {
+            return (index >= 0) && (index < Args.Count());
+        }
+
+        /// Remove character (alias) from a cmd-line argument
         private void RemoveAlias(int index, char alias)
         {
-            if ((index < 0) || (index >= Args.Count()))
+            if (!InArgsRange(index))
             {
-                throw new IndexOutOfRangeException($"{nameof(index)}");
+                throw new IndexOutOfRangeException(nameof(index));
             }
             Args[index] = Args[index].Replace(alias.ToString(), "");
         }
@@ -298,9 +317,8 @@ namespace DotnetCat.Handlers
         private void RemoveFlag(string arg, bool noValue = false)
         {
             int index = IndexOfFlag(arg);
-            int length = noValue ? 1 : 2;
 
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < (noValue ? 1 : 2); i++)
             {
                 Args.RemoveAt(index);
             }
@@ -309,6 +327,11 @@ namespace DotnetCat.Handlers
         /// Get port number from argument index
         private int GetPort(int argIndex)
         {
+            if (!InArgsRange(argIndex + 1))
+            {
+                Error.Handle(Except.NamedArgs, Args[argIndex], true);
+            }
+
             int iPort = -1;
             string port = ArgsValueAt(argIndex + 1);
 
@@ -319,8 +342,9 @@ namespace DotnetCat.Handlers
                     throw new FormatException();
                 }
             }
-            catch (FormatException ex) // Invalid port number
+            catch (FormatException ex)  // Invalid port number
             {
+                Console.WriteLine(GetUsage(_appTitle));
                 Error.Handle(Except.InvalidPort, port, ex);
             }
             return iPort;
@@ -329,6 +353,11 @@ namespace DotnetCat.Handlers
         /// Get executable path for command execution
         private string GetExecutable(int argIndex)
         {
+            if (!InArgsRange(argIndex + 1))
+            {
+                Error.Handle(Except.NamedArgs, Args[argIndex], true);
+            }
+
             string exec = ArgsValueAt(argIndex + 1);
             (bool exists, string path) = Cmd.ExistsOnPath(exec);
 
@@ -339,20 +368,47 @@ namespace DotnetCat.Handlers
             }
 
             Program.UsingExe = true;
+            PipeVariant = PipeType.Process;
+
             return path;
         }
 
         /// Get file path to write to or read from
         private string GetTransfer(int argIndex)
         {
+            if (!InArgsRange(argIndex + 1))
+            {
+                Error.Handle(Except.NamedArgs, Args[argIndex], true);
+            }
             string path = Path.GetFullPath(ArgsValueAt(argIndex + 1));
 
             // Invalid file path
             if (!File.Exists(path) && !Directory.GetParent(path).Exists)
             {
-                Error.Handle(Except.FilePath, path);
+                Error.Handle(Except.FilePath, path, true);
             }
+
+            PipeVariant = PipeType.File;
             return path;
+        }
+
+        /// Get file path to write to or read from
+        private string GetText(int argIndex)
+        {
+            if (!InArgsRange(argIndex + 1))
+            {
+                Error.Handle(Except.NamedArgs, Args[argIndex], true);
+            }
+            string data = ArgsValueAt(argIndex + 1);
+
+            // Invalid payload string
+            if (string.IsNullOrEmpty(data))
+            {
+                Error.Handle(Except.Payload, Args[argIndex], true);
+            }
+
+            PipeVariant = PipeType.Text;
+            return data;
         }
     }
 }

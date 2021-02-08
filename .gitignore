@@ -6,6 +6,7 @@
 *.dgspec
 *.dll
 *.dll.config
+*.editorconfig
 *.pdb
 *.props
 *.suo

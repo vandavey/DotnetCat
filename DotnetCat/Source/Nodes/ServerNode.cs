@@ -62,11 +62,11 @@ namespace DotnetCat.Nodes
                 // Connection closed status
                 Style.Info($"Connection to {ep.Address} closed");
             }
-            catch (SocketException ex) // Error (likely refused)
+            catch (SocketException ex)  // Error (likely refused)
             {
                 PipeError(Except.ConnectionRefused, ep, ex, Level.Warn);
             }
-            catch (IOException ex) // Connection lost
+            catch (IOException ex)  // Connection lost
             {
                 PipeError(Except.ConnectionLost, ep, ex);
             }
