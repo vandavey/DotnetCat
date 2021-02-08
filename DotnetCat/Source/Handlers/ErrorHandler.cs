@@ -50,7 +50,8 @@ namespace DotnetCat.Handlers
                 throw new ArgumentNullException(nameof(arg));
             }
 
-            if (showUsage)  // Display program usage
+            // Display program usage
+            if (showUsage)
             {
                 Console.WriteLine(ArgumentParser.GetUsage());
             }

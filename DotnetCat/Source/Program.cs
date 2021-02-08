@@ -24,17 +24,17 @@ namespace DotnetCat
 
         public static bool UsingExe { get; set; }
 
-        public static Platform OS { get; set; }
-
         public static PipeType PipeVariant { get; set; }
-
-        public static TransferOpt Transfer { get; set; }
 
         public static string Payload { get; set; }
 
         public static List<string> Args { get; set; }
 
         public static Node SockNode { get; set; }
+
+        public static Platform OS { get; private set; }
+
+        public static TransferOpt Transfer { get; private set; }
 
         /// Primary application entry point
         private static void Main(string[] args)
@@ -79,7 +79,7 @@ namespace DotnetCat
             }
 
             UsingExe = false;
-            Args = DefragmentArgs(args);
+            Args = DefragArgs(args);
 
             List<string> lowerArgs = new List<string>();
             Args?.ForEach(arg => lowerArgs.Add(arg.ToLower()));
@@ -105,47 +105,56 @@ namespace DotnetCat
         }
 
         /// Ensure string-literal arguments aren't fragmented
-        private static List<string> DefragmentArgs(string[] args)
+        private static List<string> DefragArgs(string[] args)
         {
+            int delta = 0;
             List<string> list = args.ToList();
 
             // Get arguments starting with quote
             var query = from arg in args
-                        let index = Array.IndexOf(args, arg)
+                        let pos = Array.IndexOf(args, arg)
                         let quote = arg.FirstOrDefault()
-                        let valid = arg.EndsWith(quote)
+                        let valid = arg.EndsWith(quote) && arg.Length >= 2
                         where arg.StartsWith("'")
                             || arg.StartsWith("\"")
-                        select new { arg, index, quote, valid };
+                        select new { arg, pos, quote, valid };
 
             foreach (var item in query)
             {
+                if (delta > 0)  // Skip processed arguments
+                {
+                    delta -= 1;
+                    continue;
+                }
                 int listIndex = list.IndexOf(item.arg);
 
-                if (item.valid)  // Non-fragmented string
+                // Non-fragmented string
+                if (item.valid)
                 {
                     list[listIndex] = item.arg[1..(item.arg.Length - 1)];
                     continue;
                 }
 
-                // Get arguments ending with quote
+                // Get argument containing string EOL
                 var eolQuery = (from arg in args
-                                let index = Array.IndexOf(args, arg)
-                                where index > item.index
-                                    && arg.EndsWith(item.quote)
-                                select new { arg, index }).FirstOrDefault();
+                                let pos = Array.IndexOf(args, arg, item.pos + 1)
+                                where pos > item.pos
+                                    && (arg == item.quote.ToString()
+                                        || arg.EndsWith(item.quote))
+                                select new { arg, pos }).FirstOrDefault();
 
                 // Missing EOL (quote)
                 if (eolQuery == null)
                 {
                     Error.Handle(Except.StringEOL,
-                                 string.Join(", ", args[item.index..]), true);
+                                 string.Join(", ", args[item.pos..]), true);
                 }
 
-                int endIndex = item.index + (eolQuery.index - item.index);
+                delta = eolQuery.pos - item.pos;
+                int endIndex = item.pos + delta;
 
                 // Append fragments and remove duplicates
-                for (int i = item.index + 1; i < endIndex + 1; i++)
+                for (int i = item.pos + 1; i < endIndex + 1; i++)
                 {
                     list[listIndex] += $" {args[i]}";
                     list.Remove(args[i]);

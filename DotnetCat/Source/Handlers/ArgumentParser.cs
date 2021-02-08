@@ -30,10 +30,7 @@ namespace DotnetCat.Handlers
 
         private PipeType PipeVariant { set => Program.PipeVariant = value; }
 
-        private string Payload
-        {
-            set => Program.Payload = value;
-        }
+        private string Payload { set => Program.Payload = value; }
 
         private List<string> Args
         {
@@ -274,12 +271,12 @@ namespace DotnetCat.Handlers
                 "  -v,      --verbose        Enable verbose console output",
                 "  -d,      --debug          Output verbose error information",
                 "  -l,      --listen         Listen for incoming connections",
-                "  -t,      --text           Send string data to remote host",
                 "  -p PORT, --port PORT      Specify port to use for endpoint.",
                 "                            (Default: 4444)",
                 "  -e EXEC, --exec EXEC      Executable process file path",
                 "  -o PATH, --output PATH    Receive file from remote host",
-                $"  -s PATH, --send PATH      Send local file or folder{lf}",
+                "  -s PATH, --send PATH      Send local file or folder",
+                $"  -t DATA, --text DATA      Send string to remote host{lf}",
                 "Usage Examples:",
                 $"  {appTitle} -le powershell.exe",
                 $"  {appTitle} 10.0.0.152 -p 4444 localhost",
@@ -402,7 +399,7 @@ namespace DotnetCat.Handlers
             string data = ArgsValueAt(argIndex + 1);
 
             // Invalid payload string
-            if (string.IsNullOrEmpty(data))
+            if (string.IsNullOrEmpty(data.Trim()))
             {
                 Error.Handle(Except.Payload, Args[argIndex], true);
             }

@@ -15,9 +15,9 @@ namespace DotnetCat.Utils
             Message = msg;
         }
 
-        public Except TypeName { get; }
-
         public bool Built => !Message.Contains("{}");
+
+        public Except TypeName { get; }
 
         public string Message { get; private set; }
 
