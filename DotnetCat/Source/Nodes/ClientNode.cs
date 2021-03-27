@@ -16,15 +16,22 @@ namespace DotnetCat.Nodes
     {
         private IPEndPoint _ep;
 
+        /// <summary>
         /// Initialize object
+        /// </summary>
         public ClientNode() : base()
         {
+            _ep = null;
         }
 
+        /// <summary>
         /// Cleanup resources
+        /// </summary>
         ~ClientNode() => Dispose();
 
+        /// <summary>
         /// Connect to the specified IPv4 address and port number
+        /// </summary>
         public override void Connect()
         {
             _ = Addr ?? throw new ArgumentNullException(nameof(Addr));
@@ -66,6 +73,7 @@ namespace DotnetCat.Nodes
             {
                 PipeError(Except.ConnectionLost, Addr.ToString(), ex);
             }
+
             Dispose();
         }
     }

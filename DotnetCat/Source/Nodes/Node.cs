@@ -28,7 +28,9 @@ namespace DotnetCat.Nodes
         private StreamReader _netReader;
         private StreamWriter _netWriter;
 
+        /// <summary>
         /// Initialize object
+        /// </summary>
         protected Node()
         {
             Port = 4444;
@@ -36,13 +38,17 @@ namespace DotnetCat.Nodes
             Client = new TcpClient();
         }
 
+        /// <summary>
         /// Initialize object
+        /// </summary>
         protected Node(IPAddress address) : this()
         {
             Addr = address;
         }
 
+        /// <summary>
         /// Cleanup resources
+        /// </summary>
         ~Node() => Dispose();
 
         public bool Verbose { get; set; }
@@ -65,7 +71,9 @@ namespace DotnetCat.Nodes
 
         protected NetworkStream NetStream { get; set; }
 
+        /// <summary>
         /// Initialize and run an executable process
+        /// </summary>
         public bool Start(string exe = null)
         {
             Exe ??= Cmd.GetDefaultExe(OS);
@@ -84,7 +92,9 @@ namespace DotnetCat.Nodes
             return _process.Start();
         }
 
+        /// <summary>
         /// Get ProcessStartInfo to use for executable startup
+        /// </summary>
         public static ProcessStartInfo GetStartInfo(string shell)
         {
             _ = shell ?? throw new ArgNullException(nameof(shell));
@@ -115,7 +125,9 @@ namespace DotnetCat.Nodes
             return info;
         }
 
+        /// <summary>
         /// Activate communication between pipe streams
+        /// </summary>
         public virtual void Connect()
         {
             _ = NetStream ?? throw new ArgNullException(nameof(NetStream));
@@ -131,14 +143,18 @@ namespace DotnetCat.Nodes
             _pipes?.ForEach(pipe => pipe?.Connect());
         }
 
+        /// <summary>
         /// Dispose of unmanaged socket resources and handle error
+        /// </summary>
         public virtual void PipeError(Except type, IPEndPoint ep,
                                                    Exception ex = null,
                                                    Level level = Level.Error) {
             PipeError(type, ep.ToString(), ex, level);
         }
 
+        /// <summary>
         /// Dispose of unmanaged resources and handle error
+        /// </summary>
         public virtual void PipeError(Except type, string arg,
                                                    Exception ex = null,
                                                    Level level = Level.Error) {
@@ -146,6 +162,9 @@ namespace DotnetCat.Nodes
             ErrorHandler.Handle(type, arg, ex, level);
         }
 
+        /// <summary>
+        /// Release any unmanaged resources
+        /// </summary>
         public virtual void Dispose()
         {
             _pipes?.ForEach(pipe => pipe?.Dispose());
@@ -161,7 +180,9 @@ namespace DotnetCat.Nodes
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
         /// Initialize socket stream pipelines
+        /// </summary>
         protected void AddPipes(PipeType pipeType)
         {
             _ = NetStream ?? throw new(nameof(NetStream));
@@ -186,7 +207,9 @@ namespace DotnetCat.Nodes
             };
         }
 
+        /// <summary>
         /// Wait for pipeline(s) to be disconnected
+        /// </summary>
         protected void WaitForExit(int msDelay = 100)
         {
             while (Client.Connected)
@@ -201,7 +224,9 @@ namespace DotnetCat.Nodes
             }
         }
 
+        /// <summary>
         /// Initialize file transmission and collection pipelines
+        /// </summary>
         private List<StreamPipe> GetTransferPipes()
         {
             if (Program.Transfer is TransferOpt.None)
@@ -222,7 +247,9 @@ namespace DotnetCat.Nodes
             return new List<StreamPipe> { filePipe };
         }
 
+        /// <summary>
         /// Initialize executable process pipelines
+        /// </summary>
         private List<StreamPipe> GetProcessPipes()
         {
             return new List<StreamPipe>
@@ -233,7 +260,9 @@ namespace DotnetCat.Nodes
             };
         }
 
+        /// <summary>
         /// Initialize executable process pipelines
+        /// </summary>
         private List<StreamPipe> GetTextPipes()
         {
             return new List<StreamPipe>
@@ -242,7 +271,9 @@ namespace DotnetCat.Nodes
             };
         }
 
+        /// <summary>
         /// Initialize default socket stream pipelines
+        /// </summary>
         private List<StreamPipe> GetDefaultPipes()
         {
             Stream stdin = Console.OpenStandardInput();
@@ -250,21 +281,22 @@ namespace DotnetCat.Nodes
 
             return new List<StreamPipe>
             {
-                new ProcessPipe(_netReader, new StreamWriter(stdout)
-                {
-                    AutoFlush = true
-                }),
-                new ProcessPipe(new StreamReader(stdin), _netWriter)
+                new ProcessPipe(_netReader, new(stdout) { AutoFlush = true }),
+                new ProcessPipe(new(stdin), _netWriter)
             };
         }
 
+        /// <summary>
         /// Determine if command-shell has exited
+        /// </summary>
         private bool ProcessExited()
         {
             return UsingExe && _process.HasExited;
         }
 
+        /// <summary>
         /// Determine if all pipelines are connected/active
+        /// </summary>
         private bool PipelinesConnected()
         {
             int nullCount = _pipes.Where(p => p is null).Count();

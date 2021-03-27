@@ -17,7 +17,9 @@ namespace DotnetCat.Handlers
         private readonly string _appTitle;
         private readonly string _help;
 
+        /// <summary>
         /// Initialize object
+        /// </summary>
         public ArgumentParser()
         {
             _appTitle = (OS is Platform.Nix) ? "dncat" : "dncat.exe";
@@ -26,14 +28,20 @@ namespace DotnetCat.Handlers
 
         private static Platform OS => Program.OS;
 
-        private static bool Debug { set => Program.Debug = value; }
+        private static bool Debug
+        {
+            set => Program.Debug = value;
+        }
 
         private static PipeType PipeVariant
         {
             set => Program.PipeVariant = value;
         }
 
-        private static string Payload { set => Program.Payload = value; }
+        private static string Payload
+        {
+            set => Program.Payload = value;
+        }
 
         private static List<string> Args
         {
@@ -47,12 +55,17 @@ namespace DotnetCat.Handlers
             set => Program.SockNode = value;
         }
 
+        /// <summary>
+        /// Get the application usage string
+        /// </summary>
         public static string GetUsage(string appTitle = "dncat")
         {
             return $"Usage: {appTitle} [OPTIONS] TARGET";
         }
 
+        /// <summary>
         /// Check for help flag in cmd-line arguments
+        /// </summary>
         public static bool NeedsHelp(string[] args)
         {
             // Count matching arguments
@@ -68,7 +81,9 @@ namespace DotnetCat.Handlers
             return count > 0;
         }
 
+        /// <summary>
         /// Get index of cmd-line argument with the specified char
+        /// </summary>
         public static int IndexOfAlias(char alias)
         {
             // Query cmd-line arguments
@@ -81,7 +96,9 @@ namespace DotnetCat.Handlers
             return (query.Count > 0) ? query[0] : -1;
         }
 
-        /// Get the index of argument in cmd-line arguments
+        /// <summary>
+        /// Get the matching cmd-line argument index
+        /// </summary>
         public static int IndexOfFlag(string flag, char? alias = null)
         {
             if (flag == "-")
@@ -110,14 +127,18 @@ namespace DotnetCat.Handlers
             return (query.Count > 0) ? query[0] : -1;
         }
 
+        /// <summary>
         /// Print application help message to console output
+        /// </summary>
         public void PrintHelp()
         {
             Console.WriteLine(_help);
             Environment.Exit(0);
         }
 
+        /// <summary>
         /// Parse named arguments starting with one dash
+        /// </summary>
         public void ParseCharArgs()
         {
             // Locate all char flag arguments
@@ -150,36 +171,31 @@ namespace DotnetCat.Handlers
                 if (item.arg.Contains('p'))  // Connection port
                 {
                     SockNode.Port = GetPort(item.index);
-                    RemoveAlias(item.index, 'p');
-                    Args.RemoveAt(item.index + 1);
+                    RemoveAlias(item.index, 'p', remValue: true);
                 }
 
                 if (item.arg.Contains('e'))  // Executable path
                 {
                     SockNode.Exe = GetExecutable(item.index);
-                    RemoveAlias(item.index, 'e');
-                    Args.RemoveAt(item.index + 1);
+                    RemoveAlias(item.index, 'e', remValue: true);
                 }
 
                 if (item.arg.Contains('o'))  // Receive file data
                 {
                     SockNode.FilePath = GetTransfer(item.index);
-                    RemoveAlias(item.index, 'o');
-                    Args.RemoveAt(item.index + 1);
+                    RemoveAlias(item.index, 'o', remValue: true);
                 }
 
                 if (item.arg.Contains('s'))  // Send file data
                 {
                     SockNode.FilePath = GetTransfer(item.index);
-                    RemoveAlias(item.index, 's');
-                    Args.RemoveAt(item.index + 1);
+                    RemoveAlias(item.index, 's', remValue: true);
                 }
 
                 if (item.arg.Contains('t'))  // Send string data
                 {
                     Payload = GetText(item.index);
-                    RemoveAlias(item.index, 't');
-                    Args.RemoveAt(item.index + 1);
+                    RemoveAlias(item.index, 't', remValue: true);
                 }
 
                 if (ArgsValueAt(item.index) == "-")
@@ -189,7 +205,9 @@ namespace DotnetCat.Handlers
             }
         }
 
+        /// <summary>
         /// Parse named arguments starting with two dashes
+        /// </summary>
         public void ParseFlagArgs()
         {
             // Locate all flag arguments
@@ -257,7 +275,9 @@ namespace DotnetCat.Handlers
             }
         }
 
+        /// <summary>
         /// Get application help message as a string
+        /// </summary>
         private static string GetHelp(string appTitle, string appUsage)
         {
             string lf = Environment.NewLine;
@@ -287,23 +307,36 @@ namespace DotnetCat.Handlers
             });
         }
 
-        /// Determine if the argument index is valid
-        private static bool InArgsRange(int index)
-        {
-            return (index >= 0) && (index < Args.Count);
-        }
-
+        /// <summary>
         /// Remove character (alias) from a cmd-line argument
-        private static void RemoveAlias(int index, char alias)
-        {
-            if (!InArgsRange(index))
+        /// </summary>
+        private static void RemoveAlias(int index, char alias,
+                                                   bool remValue = false) {
+            // Invalid index received
+            if (!ValidIndex(index) || (remValue && !ValidIndex(index + 1)))
             {
                 throw new IndexOutOfRangeException(nameof(index));
             }
             Args[index] = Args[index].Replace(alias.ToString(), "");
+
+            // Remove arg value if requested
+            if (remValue)
+            {
+                Args.RemoveAt(index + 1);
+            }
         }
 
+        /// <summary>
+        /// Determine if the argument index is valid
+        /// </summary>
+        private static bool ValidIndex(int index)
+        {
+            return (index >= 0) && (index < Args.Count);
+        }
+
+        /// <summary>
         /// Remove named argument/value in cmd-line arguments
+        /// </summary>
         private static void RemoveFlag(string arg, bool noValue = false)
         {
             int index = IndexOfFlag(arg);
@@ -314,20 +347,24 @@ namespace DotnetCat.Handlers
             }
         }
 
+        /// <summary>
         /// Get value of an argument in cmd-line arguments
+        /// </summary>
         private static string ArgsValueAt(int index)
         {
-            if (!InArgsRange(index))
+            if (!ValidIndex(index))
             {
                 Error.Handle(Except.NamedArgs, Args[index - 1], true);
             }
             return Args[index];
         }
 
+        /// <summary>
         /// Get executable path for command execution
+        /// </summary>
         private static string GetExecutable(int argIndex)
         {
-            if (!InArgsRange(argIndex + 1))
+            if (!ValidIndex(argIndex + 1))
             {
                 Error.Handle(Except.NamedArgs, Args[argIndex], true);
             }
@@ -347,10 +384,12 @@ namespace DotnetCat.Handlers
             return path;
         }
 
+        /// <summary>
         /// Get file path to write to or read from
+        /// </summary>
         private static string GetTransfer(int argIndex)
         {
-            if (!InArgsRange(argIndex + 1))
+            if (!ValidIndex(argIndex + 1))
             {
                 Error.Handle(Except.NamedArgs, Args[argIndex], true);
             }
@@ -366,10 +405,12 @@ namespace DotnetCat.Handlers
             return path;
         }
 
+        /// <summary>
         /// Get file path to write to or read from
+        /// </summary>
         private static string GetText(int argIndex)
         {
-            if (!InArgsRange(argIndex + 1))
+            if (!ValidIndex(argIndex + 1))
             {
                 Error.Handle(Except.NamedArgs, Args[argIndex], true);
             }
@@ -385,10 +426,12 @@ namespace DotnetCat.Handlers
             return data;
         }
 
+        /// <summary>
         /// Get port number from argument index
+        /// </summary>
         private int GetPort(int argIndex)
         {
-            if (!InArgsRange(argIndex + 1))
+            if (!ValidIndex(argIndex + 1))
             {
                 Error.Handle(Except.NamedArgs, Args[argIndex], true);
             }

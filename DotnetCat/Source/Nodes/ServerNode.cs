@@ -18,16 +18,22 @@ namespace DotnetCat.Nodes
     {
         private Socket _listener;
 
+        /// <summary>
         /// Initialize object
+        /// </summary>
         public ServerNode() : base(address: IPAddress.Any)
         {
             _listener = null;
         }
 
+        /// <summary>
         /// Cleanup resources
+        /// </summary>
         ~ServerNode() => Dispose();
 
+        /// <summary>
         /// Listen for incoming TCP connections
+        /// </summary>
         public override void Connect()
         {
             _ = Addr ?? throw new ArgNullException(nameof(Addr));
@@ -73,14 +79,18 @@ namespace DotnetCat.Nodes
             Dispose();
         }
 
+        /// <summary>
         /// Dispose of unmanaged resources and handle error
+        /// </summary>
         public override void PipeError(Except type, IPEndPoint ep,
                                                     Exception ex = null,
                                                     Level level = Level.Error) {
             PipeError(type, ep.ToString(), ex, level);
         }
 
+        /// <summary>
         /// Dispose of unmanaged resources and handle error
+        /// </summary>
         public override void PipeError(Except type, string arg,
                                                     Exception ex = null,
                                                     Level level = Level.Error) {
@@ -88,7 +98,9 @@ namespace DotnetCat.Nodes
             ErrorHandler.Handle(type, arg, ex, level);
         }
 
+        /// <summary>
         /// Release any unmanaged resources
+        /// </summary>
         public override void Dispose()
         {
             _listener?.Dispose();
@@ -98,7 +110,9 @@ namespace DotnetCat.Nodes
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
         /// Bind the listener socket to an endpoint
+        /// </summary>
         private void BindListener(IPEndPoint ep)
         {
             _ = ep ?? throw new ArgNullException(nameof(ep));

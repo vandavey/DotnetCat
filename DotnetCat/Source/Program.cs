@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using DotnetCat.Enums;
-using DotnetCat.Handlers;
 using DotnetCat.Nodes;
 using ArgParser = DotnetCat.Handlers.ArgumentParser;
 using Error = DotnetCat.Handlers.ErrorHandler;
@@ -37,7 +36,9 @@ namespace DotnetCat
 
         public static TransferOpt Transfer { get; private set; }
 
+        /// <summary>
         /// Primary application entry point
+        /// </summary>
         private static void Main(string[] args)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -64,7 +65,9 @@ namespace DotnetCat
             Environment.Exit(0);
         }
 
+        /// <summary>
         /// Initialize node fields and properties
+        /// </summary>
         private static void InitializeNode(string[] args)
         {
             // Check for incomplete alias
@@ -105,7 +108,9 @@ namespace DotnetCat
             SockNode = new ClientNode();
         }
 
+        /// <summary>
         /// Ensure string-literal arguments aren't fragmented
+        /// </summary>
         private static List<string> DefragArgs(string[] args)
         {
             int delta = 0;
@@ -167,7 +172,9 @@ namespace DotnetCat
             return list;
         }
 
+        /// <summary>
         /// Get the file/socket communication operation type
+        /// </summary>
         private static TransferOpt GetTransferOpts()
         {
             int outIndex = ArgParser.IndexOfFlag("--output", 'o');
@@ -187,7 +194,9 @@ namespace DotnetCat
             return TransferOpt.None;
         }
 
+        /// <summary>
         /// Parse arguments and initiate connection
+        /// </summary>
         private static void ConnectNode()
         {
             _parser.ParseCharArgs();
@@ -242,7 +251,9 @@ namespace DotnetCat
             SockNode.Connect();
         }
 
+        /// <summary>
         /// Resolve the IPv4 address of given hostname
+        /// </summary>
         private static IPAddress ResolveHostName(string hostName)
         {
             IPHostEntry dnsAns;

@@ -16,7 +16,9 @@ namespace DotnetCat.Pipelines
     {
         private readonly MemoryStream _memStream;
 
+        /// <summary>
         /// Initialize object
+        /// </summary>
         public TextPipe(string data, StreamWriter dest) : base()
         {
             if (string.IsNullOrEmpty(data))
@@ -29,10 +31,14 @@ namespace DotnetCat.Pipelines
             Source = new StreamReader(_memStream);
         }
 
+        /// <summary>
         /// Cleanup resources
+        /// </summary>
         ~TextPipe() => Dispose();
 
+        /// <summary>
         /// Release any unmanaged resources
+        /// </summary>
         public override void Dispose()
         {
             _memStream?.Dispose();
@@ -42,7 +48,9 @@ namespace DotnetCat.Pipelines
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
         /// Activate async network communication
+        /// </summary>
         protected override async Task ConnectAsync(CancellationToken token)
         {
             Connected = true;
