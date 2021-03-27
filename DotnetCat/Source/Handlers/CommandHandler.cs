@@ -59,7 +59,7 @@ namespace DotnetCat.Handlers
             _ = exe ?? throw new ArgNullException(nameof(exe));
             string path = GetExePath(exe);
 
-            if (path != null)
+            if (path is not null)
             {
                 return (true, path);
             }
@@ -71,7 +71,7 @@ namespace DotnetCat.Handlers
                 {
                     string name = Path.ChangeExtension(exe, ext);
 
-                    if ((path = GetExePath(name)) != null)
+                    if ((path = GetExePath(name)) is not null)
                     {
                         return (true, path);
                     }

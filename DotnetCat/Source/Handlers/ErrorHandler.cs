@@ -45,7 +45,7 @@ namespace DotnetCat.Handlers
                 throw new IndexOutOfRangeException(nameof(index));
             }
 
-            if ((arg == null) && !_errors[index].Built)
+            if ((arg is null) && !_errors[index].Built)
             {
                 throw new ArgumentNullException(nameof(arg));
             }
@@ -68,7 +68,7 @@ namespace DotnetCat.Handlers
             }
 
             // Print debug information
-            if (Program.Debug && (ex != null))
+            if (Program.Debug && (ex is not null))
             {
                 ex = (ex is AggregateException) ? ex.InnerException : ex;
                 string header = $"----[ {ex.GetType().FullName} ]----";

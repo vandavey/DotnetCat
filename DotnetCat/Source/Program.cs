@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
 using DotnetCat.Nodes;
+using ArgParser = DotnetCat.Handlers.ArgumentParser;
 using Error = DotnetCat.Handlers.ErrorHandler;
 
 namespace DotnetCat
@@ -16,7 +17,7 @@ namespace DotnetCat
     /// </summary>
     class Program
     {
-        private static ArgumentParser _parser;
+        private static ArgParser _parser;
 
         public static bool Verbose => SockNode?.Verbose ?? false;
 
@@ -48,10 +49,10 @@ namespace DotnetCat
                 OS = Platform.Nix;
             }
 
-            _parser = new ArgumentParser();
+            _parser = new ArgParser();
 
             // Display help info and exit
-            if ((args.Count() == 0) || _parser.NeedsHelp(args))
+            if ((args.Length == 0) || ArgParser.NeedsHelp(args))
             {
                 _parser.PrintHelp();
             }
@@ -81,7 +82,7 @@ namespace DotnetCat
             UsingExe = false;
             Args = DefragArgs(args);
 
-            List<string> lowerArgs = new List<string>();
+            List<string> lowerArgs = new();
             Args?.ForEach(arg => lowerArgs.Add(arg.ToLower()));
 
             int index;
@@ -93,10 +94,10 @@ namespace DotnetCat
             }
 
             Transfer = GetTransferOpts();
-            index = _parser.IndexOfFlag("--listen", 'l');
+            index = ArgParser.IndexOfFlag("--listen", 'l');
 
             // Determine if node is client/server
-            if ((index > -1) || (_parser.IndexOfAlias('l') > -1))
+            if ((index > -1) || (ArgParser.IndexOfAlias('l') > -1))
             {
                 SockNode = new ServerNode();
                 return;
@@ -144,7 +145,7 @@ namespace DotnetCat
                                 select new { arg, pos }).FirstOrDefault();
 
                 // Missing EOL (quote)
-                if (eolQuery == null)
+                if (eolQuery is null)
                 {
                     Error.Handle(Except.StringEOL,
                                  string.Join(", ", args[item.pos..]), true);
@@ -161,7 +162,7 @@ namespace DotnetCat
                 }
 
                 string defragged = list[listIndex];
-                list[listIndex] = defragged[1..(defragged.Count() - 1)];
+                list[listIndex] = defragged[1..(defragged.Length - 1)];
             }
             return list;
         }
@@ -169,17 +170,17 @@ namespace DotnetCat
         /// Get the file/socket communication operation type
         private static TransferOpt GetTransferOpts()
         {
-            int outIndex = _parser.IndexOfFlag("--output", 'o');
+            int outIndex = ArgParser.IndexOfFlag("--output", 'o');
 
             // Receive file data
-            if ((outIndex > -1) || (_parser.IndexOfAlias('o') > -1))
+            if ((outIndex > -1) || (ArgParser.IndexOfAlias('o') > -1))
             {
                 return TransferOpt.Collect;
             }
-            int sendIndex = _parser.IndexOfFlag("--send", 's');
+            int sendIndex = ArgParser.IndexOfFlag("--send", 's');
 
             // Send file data
-            if ((sendIndex > -1) || (_parser.IndexOfAlias('s') > -1))
+            if ((sendIndex > -1) || (ArgParser.IndexOfAlias('s') > -1))
             {
                 return TransferOpt.Transmit;
             }
@@ -193,7 +194,7 @@ namespace DotnetCat
             _parser.ParseFlagArgs();
 
             // Validate remaining cmd-line arguments
-            switch (Args.Count())
+            switch (Args.Count)
             {
                 case 0:   // Missing TARGET
                 {
@@ -220,7 +221,7 @@ namespace DotnetCat
                     }
 
                     // Invalid destination host
-                    if (SockNode.Addr == null)
+                    if (SockNode.Addr is null)
                     {
                         Error.Handle(Except.InvalidAddr, Args[0], true);
                     }
@@ -273,9 +274,10 @@ namespace DotnetCat
                 return null;
             }
 
-            using Socket socket = new Socket(AddressFamily.InterNetwork,
-                                             SocketType.Dgram,
-                                             ProtocolType.Udp);
+            using Socket socket = new(AddressFamily.InterNetwork,
+                                      SocketType.Dgram,
+                                      ProtocolType.Udp);
+
             // Get active local IP address
             socket.Connect("8.8.8.8", 53);
             return (socket.LocalEndPoint as IPEndPoint).Address;

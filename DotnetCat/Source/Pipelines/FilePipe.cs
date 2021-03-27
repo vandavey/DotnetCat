@@ -52,7 +52,7 @@ namespace DotnetCat.Pipelines
         /// Cleanup resources
         ~FilePipe() => Dispose();
 
-        public bool Verbose => Program.Verbose;
+        public static bool Verbose => Program.Verbose;
 
         public string FilePath { get; set; }
 
@@ -111,7 +111,7 @@ namespace DotnetCat.Pipelines
         protected override async Task ConnectAsync(CancellationToken token)
         {
             Connected = true;
-            StringBuilder data = new StringBuilder();
+            StringBuilder data = new();
 
             // Print connection started info
             if (Verbose)

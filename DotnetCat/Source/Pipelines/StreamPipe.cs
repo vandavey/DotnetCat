@@ -27,9 +27,9 @@ namespace DotnetCat.Pipelines
 
         public bool Connected { get; protected set; }
 
-        protected Platform OS => Program.OS;
+        protected static Platform OS => Program.OS;
 
-        protected TcpClient Client => Program.SockNode.Client;
+        protected static TcpClient Client => Program.SockNode.Client;
 
         protected CancellationTokenSource CTS { get; set; }
 
@@ -71,16 +71,18 @@ namespace DotnetCat.Pipelines
             }
             catch (InvalidOperationException)
             {
-                return;
             }
+
+            // Prevent unnecessary finalization
+            GC.SuppressFinalize(this);
         }
 
         /// Connect pipelines and activate async communication
         protected virtual async Task ConnectAsync(CancellationToken token)
         {
-            Memory<char> buffer = new Memory<char>(new char[1024]);
+            Memory<char> buffer = new(new char[1024]);
 
-            StringBuilder data = new StringBuilder();
+            StringBuilder data = new();
             StringBuilder newLine = new StringBuilder().AppendLine();
 
             int charsRead;
@@ -127,7 +129,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// Fix line terminators based on OS platform
-        private StringBuilder FixLineEndings(StringBuilder data)
+        private static StringBuilder FixLineEndings(StringBuilder data)
         {
             return (OS is Platform.Win) ? data : data.Replace("\r\n", "\n");
         }

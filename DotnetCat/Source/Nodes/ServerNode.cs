@@ -93,6 +93,9 @@ namespace DotnetCat.Nodes
         {
             _listener?.Dispose();
             base.Dispose();
+
+            // Prevent unnecessary finalization
+            GC.SuppressFinalize(this);
         }
 
         /// Bind the listener socket to an endpoint

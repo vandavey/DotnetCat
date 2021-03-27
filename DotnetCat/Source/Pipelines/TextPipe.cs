@@ -1,4 +1,5 @@
-﻿using System.IO;
+using System;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,13 +37,16 @@ namespace DotnetCat.Pipelines
         {
             _memStream?.Dispose();
             base.Dispose();
+
+            // Prevent unnecessary finalization
+            GC.SuppressFinalize(this);
         }
 
         /// Activate async network communication
         protected override async Task ConnectAsync(CancellationToken token)
         {
             Connected = true;
-            StringBuilder data = new StringBuilder();
+            StringBuilder data = new();
 
             data.Append(await Source.ReadToEndAsync());
             await Dest.WriteAsync(data, token);

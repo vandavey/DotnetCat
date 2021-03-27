@@ -24,21 +24,24 @@ namespace DotnetCat.Handlers
             _help = GetHelp(_appTitle, GetUsage(_appTitle));
         }
 
-        private Platform OS => Program.OS;
+        private static Platform OS => Program.OS;
 
-        private bool Debug { set => Program.Debug = value; }
+        private static bool Debug { set => Program.Debug = value; }
 
-        private PipeType PipeVariant { set => Program.PipeVariant = value; }
+        private static PipeType PipeVariant
+        {
+            set => Program.PipeVariant = value;
+        }
 
-        private string Payload { set => Program.Payload = value; }
+        private static string Payload { set => Program.Payload = value; }
 
-        private List<string> Args
+        private static List<string> Args
         {
             get => Program.Args;
             set => Program.Args = value;
         }
 
-        private Node SockNode
+        private static Node SockNode
         {
             get => Program.SockNode;
             set => Program.SockNode = value;
@@ -50,7 +53,7 @@ namespace DotnetCat.Handlers
         }
 
         /// Check for help flag in cmd-line arguments
-        public bool NeedsHelp(string[] args)
+        public static bool NeedsHelp(string[] args)
         {
             // Count matching arguments
             int count = (from arg in args
@@ -63,6 +66,48 @@ namespace DotnetCat.Handlers
                          select arg).Count();
 
             return count > 0;
+        }
+
+        /// Get index of cmd-line argument with the specified char
+        public static int IndexOfAlias(char alias)
+        {
+            // Query cmd-line arguments
+            List<int> query = (from arg in Args
+                               where arg.Contains(alias)
+                                   && arg[0] == '-'
+                                   && arg[1] != '-'
+                               select Args.IndexOf(arg)).ToList();
+
+            return (query.Count > 0) ? query[0] : -1;
+        }
+
+        /// Get the index of argument in cmd-line arguments
+        public static int IndexOfFlag(string flag, char? alias = null)
+        {
+            if (flag == "-")
+            {
+                return Args.IndexOf(flag);
+            }
+
+            // Assign argument alias
+            if (string.IsNullOrEmpty(alias.ToString()))
+            {
+                foreach (char ch in alias.ToString())
+                {
+                    if (char.IsLetter(ch))
+                    {
+                        alias = ch;
+                    }
+                }
+            }
+
+            // Query cmd-line arguments
+            List<int> query = (from arg in Args
+                               where arg.ToLower() == flag.ToLower()
+                                   || arg == $"-{alias}"
+                               select Args.IndexOf(arg)).ToList();
+
+            return (query.Count > 0) ? query[0] : -1;
         }
 
         /// Print application help message to console output
@@ -212,48 +257,6 @@ namespace DotnetCat.Handlers
             }
         }
 
-        /// Get index of cmd-line argument with the specified char
-        public int IndexOfAlias(char alias)
-        {
-            // Query cmd-line arguments
-            List<int> query = (from arg in Args
-                               where arg.Contains(alias)
-                                   && arg[0] == '-'
-                                   && arg[1] != '-'
-                               select Args.IndexOf(arg)).ToList();
-
-            return (query.Count() > 0) ? query[0] : -1;
-        }
-
-        /// Get the index of argument in cmd-line arguments
-        public int IndexOfFlag(string flag, char? alias = null)
-        {
-            if (flag == "-")
-            {
-                return Args.IndexOf(flag);
-            }
-
-            // Assign argument alias
-            if (string.IsNullOrEmpty(alias.ToString()))
-            {
-                foreach (char ch in alias.ToString())
-                {
-                    if (char.IsLetter(ch))
-                    {
-                        alias = ch;
-                    }
-                }
-            }
-
-            // Query cmd-line arguments
-            List<int> query = (from arg in Args
-                               where arg.ToLower() == flag.ToLower()
-                                   || arg == $"-{alias}"
-                               select Args.IndexOf(arg)).ToList();
-
-            return (query.Count() > 0) ? query[0] : -1;
-        }
-
         /// Get application help message as a string
         private static string GetHelp(string appTitle, string appUsage)
         {
@@ -284,24 +287,14 @@ namespace DotnetCat.Handlers
             });
         }
 
-        /// Get value of an argument in cmd-line arguments
-        private string ArgsValueAt(int index)
-        {
-            if (!InArgsRange(index))
-            {
-                Error.Handle(Except.NamedArgs, Args[index - 1], true);
-            }
-            return Args[index];
-        }
-
         /// Determine if the argument index is valid
-        private bool InArgsRange(int index)
+        private static bool InArgsRange(int index)
         {
-            return (index >= 0) && (index < Args.Count());
+            return (index >= 0) && (index < Args.Count);
         }
 
         /// Remove character (alias) from a cmd-line argument
-        private void RemoveAlias(int index, char alias)
+        private static void RemoveAlias(int index, char alias)
         {
             if (!InArgsRange(index))
             {
@@ -311,7 +304,7 @@ namespace DotnetCat.Handlers
         }
 
         /// Remove named argument/value in cmd-line arguments
-        private void RemoveFlag(string arg, bool noValue = false)
+        private static void RemoveFlag(string arg, bool noValue = false)
         {
             int index = IndexOfFlag(arg);
 
@@ -321,34 +314,18 @@ namespace DotnetCat.Handlers
             }
         }
 
-        /// Get port number from argument index
-        private int GetPort(int argIndex)
+        /// Get value of an argument in cmd-line arguments
+        private static string ArgsValueAt(int index)
         {
-            if (!InArgsRange(argIndex + 1))
+            if (!InArgsRange(index))
             {
-                Error.Handle(Except.NamedArgs, Args[argIndex], true);
+                Error.Handle(Except.NamedArgs, Args[index - 1], true);
             }
-
-            int iPort = -1;
-            string port = ArgsValueAt(argIndex + 1);
-
-            try  // Validate port
-            {
-                if (((iPort = int.Parse(port)) < 0) || (iPort > 65535))
-                {
-                    throw new FormatException();
-                }
-            }
-            catch (FormatException ex)  // Invalid port number
-            {
-                Console.WriteLine(GetUsage(_appTitle));
-                Error.Handle(Except.InvalidPort, port, ex);
-            }
-            return iPort;
+            return Args[index];
         }
 
         /// Get executable path for command execution
-        private string GetExecutable(int argIndex)
+        private static string GetExecutable(int argIndex)
         {
             if (!InArgsRange(argIndex + 1))
             {
@@ -371,7 +348,7 @@ namespace DotnetCat.Handlers
         }
 
         /// Get file path to write to or read from
-        private string GetTransfer(int argIndex)
+        private static string GetTransfer(int argIndex)
         {
             if (!InArgsRange(argIndex + 1))
             {
@@ -390,7 +367,7 @@ namespace DotnetCat.Handlers
         }
 
         /// Get file path to write to or read from
-        private string GetText(int argIndex)
+        private static string GetText(int argIndex)
         {
             if (!InArgsRange(argIndex + 1))
             {
@@ -406,6 +383,32 @@ namespace DotnetCat.Handlers
 
             PipeVariant = PipeType.Text;
             return data;
+        }
+
+        /// Get port number from argument index
+        private int GetPort(int argIndex)
+        {
+            if (!InArgsRange(argIndex + 1))
+            {
+                Error.Handle(Except.NamedArgs, Args[argIndex], true);
+            }
+
+            int iPort = -1;
+            string port = ArgsValueAt(argIndex + 1);
+
+            try  // Validate port
+            {
+                if ((iPort = int.Parse(port)) is 0 or > 65535)
+                {
+                    throw new FormatException();
+                }
+            }
+            catch (FormatException ex)  // Invalid port number
+            {
+                Console.WriteLine(GetUsage(_appTitle));
+                Error.Handle(Except.InvalidPort, port, ex);
+            }
+            return iPort;
         }
     }
 }

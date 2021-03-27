@@ -57,11 +57,11 @@ namespace DotnetCat.Nodes
 
         public TcpClient Client { get; set; }
 
-        protected bool UsingExe => Exe != null;
+        protected static bool Transfer => Program.Transfer != TransferOpt.None;
 
-        protected bool Transfer => Program.Transfer != TransferOpt.None;
+        protected static Platform OS => Program.OS;
 
-        protected Platform OS => Program.OS;
+        protected bool UsingExe => Exe is not null;
 
         protected NetworkStream NetStream { get; set; }
 
@@ -85,12 +85,12 @@ namespace DotnetCat.Nodes
         }
 
         /// Get ProcessStartInfo to use for executable startup
-        public ProcessStartInfo GetStartInfo(string shell)
+        public static ProcessStartInfo GetStartInfo(string shell)
         {
             _ = shell ?? throw new ArgNullException(nameof(shell));
 
             // Exe process startup information
-            ProcessStartInfo info = new ProcessStartInfo(shell)
+            ProcessStartInfo info = new(shell)
             {
                 CreateNoWindow = true,
                 RedirectStandardError = true,
@@ -108,7 +108,7 @@ namespace DotnetCat.Nodes
             };
 
             // Profile loading only supported on Windows
-            if (OS is Platform.Win)
+            if (OperatingSystem.IsWindows())
             {
                 info.LoadUserProfile = true;
             }
@@ -146,7 +146,6 @@ namespace DotnetCat.Nodes
             ErrorHandler.Handle(type, arg, ex, level);
         }
 
-        /// Release any unmanaged resources
         public virtual void Dispose()
         {
             _pipes?.ForEach(pipe => pipe?.Dispose());
@@ -157,18 +156,21 @@ namespace DotnetCat.Nodes
 
             Client?.Dispose();
             NetStream?.Dispose();
+
+            // Prevent unnecessary finalization
+            GC.SuppressFinalize(this);
         }
 
         /// Initialize socket stream pipelines
         protected void AddPipes(PipeType pipeType)
         {
-            _ = NetStream ?? throw new ArgNullException(nameof(NetStream));
+            _ = NetStream ?? throw new(nameof(NetStream));
 
             // Can't perform socket read/write operations
             if (!NetStream.CanRead || !NetStream.CanWrite)
             {
                 string msg = "Can't perform stream read/write operations";
-                throw new ArgumentException(msg, nameof(NetStream));
+                throw new ArgumentException(nameof(NetStream), msg);
             }
 
             _netReader = new StreamReader(NetStream);
@@ -265,7 +267,7 @@ namespace DotnetCat.Nodes
         /// Determine if all pipelines are connected/active
         private bool PipelinesConnected()
         {
-            int nullCount = _pipes.Where(p => p == null).Count();
+            int nullCount = _pipes.Where(p => p is null).Count();
 
             if ((_pipes.Count == 0) || (nullCount == _pipes.Count))
             {
@@ -275,7 +277,7 @@ namespace DotnetCat.Nodes
             // Check if non-null pipes are connected
             foreach (StreamPipe pipe in _pipes)
             {
-                if ((pipe != null) && !pipe.Connected)
+                if ((pipe is not null) && !pipe.Connected)
                 {
                     return false;
                 }

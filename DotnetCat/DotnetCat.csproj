@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- DotnetCat Project Properties -->
+  <!--
+  DotnetCat Project Properties
+  -->
   <PropertyGroup>
     <ApplicationIcon>Resources/Icon.ico</ApplicationIcon>
     <AssemblyName>dncat</AssemblyName>
@@ -14,13 +16,13 @@
     <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
     <RootNamespace>DotnetCat</RootNamespace>
     <StartupObject>DotnetCat.Program</StartupObject>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <!--
-  * Config :: Debug
-  * Target :: x64
-  * RID    :: win-x64
+  Config :: Debug
+  Target :: x64
+  RID    :: win-x64
   -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -31,9 +33,9 @@
   </PropertyGroup>
 
   <!--
-  * Config :: Release
-  * Target :: x64
-  * RID    :: win-x64
+  Config :: Release
+  Target :: x64
+  RID    :: win-x64
   -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -45,9 +47,9 @@
   </PropertyGroup>
 
   <!--
-  * Config :: Release
-  * Target :: x86
-  * RID    :: win-x86
+  Config :: Release
+  Target :: x86
+  RID    :: win-x86
   -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -59,9 +61,9 @@
   </PropertyGroup>
 
   <!--
-  * Config :: Linux
-  * Target :: x64
-  * RID    :: linux-x64
+  Config :: Linux
+  Target :: x64
+  RID    :: linux-x64
   -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Linux|x64'">
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -73,9 +75,9 @@
   </PropertyGroup>
 
   <!--
-  * Config :: ARM64
-  * Target :: AnyCPU
-  * RID    :: linux-arm64
+  Config :: ARM64
+  Target :: AnyCPU
+  RID    :: linux-arm64
   -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ARM64|x64'">
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
