@@ -5,7 +5,7 @@
 # DotnetCat
 
 Remote command shell application written in C#,
-targeting the [.NET Core 3.1 runtime](https://dotnet.microsoft.com/download/dotnet-core/current/runtime).
+targeting the [.NET 5 runtime](https://dotnet.microsoft.com/download/dotnet/5.0).
 
 ## Basic Usage
 
@@ -53,7 +53,8 @@ To download a prebuilt, standalone executable, select one of the options below:
 
 ### Full Repository
 
-The entire DotnetCat source code repository can be downloaded [here](https://github.com/vandavey/DotnetCat/archive/master.zip).
+The entire DotnetCat source code repository can be downloaded
+[here](https://github.com/vandavey/DotnetCat/archive/master.zip).
 
 ***
 

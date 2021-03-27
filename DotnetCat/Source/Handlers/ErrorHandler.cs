@@ -14,26 +14,34 @@ namespace DotnetCat.Handlers
     {
         private static readonly List<Error> _errors;
 
+        /// <summary>
         /// Initialize static members
+        /// </summary>
         static ErrorHandler()
         {
             _errors = GetErrors();
         }
 
+        /// <summary>
         /// Handle special exceptions related to DotNetCat
+        /// </summary>
         public static void Handle(Except type, string arg,
                                                Exception ex = null) {
             Handle(type, arg, false, ex);
         }
 
+        /// <summary>
         /// Handle special exceptions related to DotNetCat
+        /// </summary>
         public static void Handle(Except type, string arg,
                                                Exception ex,
                                                Level level = Level.Error) {
             Handle(type, arg, false, ex, level);
         }
 
+        /// <summary>
         /// Handle special exceptions related to DotNetCat
+        /// </summary>
         public static void Handle(Except type, string arg,
                                                bool showUsage,
                                                Exception ex = null,
@@ -45,7 +53,7 @@ namespace DotnetCat.Handlers
                 throw new IndexOutOfRangeException(nameof(index));
             }
 
-            if ((arg == null) && !_errors[index].Built)
+            if ((arg is null) && !_errors[index].Built)
             {
                 throw new ArgumentNullException(nameof(arg));
             }
@@ -68,7 +76,7 @@ namespace DotnetCat.Handlers
             }
 
             // Print debug information
-            if (Program.Debug && (ex != null))
+            if (Program.Debug && (ex is not null))
             {
                 ex = (ex is AggregateException) ? ex.InnerException : ex;
                 string header = $"----[ {ex.GetType().FullName} ]----";
@@ -85,14 +93,18 @@ namespace DotnetCat.Handlers
             Env.Exit(1);
         }
 
+        /// <summary>
         /// Get the index of an error in Errors
+        /// </summary>
         private static int IndexOfError(Except type)
         {
             Error status = _errors.Where(e => e.TypeName == type).First();
             return _errors.IndexOf(status);
         }
 
+        /// <summary>
         /// Get errors related to DotnetCat
+        /// </summary>
         private static List<Error> GetErrors()
         {
             return new List<Error>

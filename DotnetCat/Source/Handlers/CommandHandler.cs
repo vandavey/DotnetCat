@@ -8,7 +8,7 @@ using Env = System.Environment;
 namespace DotnetCat.Handlers
 {
     /// <summary>
-    /// Execute special commands on the local system
+    /// Command and executable process handler
     /// </summary>
     static class CommandHandler
     {
@@ -18,7 +18,9 @@ namespace DotnetCat.Handlers
 
         private static readonly string[] _extensions;
 
+        /// <summary>
         /// Initialize static members
+        /// </summary>
         static CommandHandler()
         {
             string path = Env.GetEnvironmentVariable("PATH");
@@ -35,7 +37,9 @@ namespace DotnetCat.Handlers
             };
         }
 
+        /// <summary>
         /// Get default command shell for the platform
+        /// </summary>
         public static string GetDefaultExe(Platform platform)
         {
             bool exists;
@@ -53,13 +57,15 @@ namespace DotnetCat.Handlers
             return exists ? path : GetExePath("cmd.exe");
         }
 
+        /// <summary>
         /// Determine if executable exists on environment path
+        /// </summary>
         public static (bool exists, string path) ExistsOnPath(string exe)
         {
             _ = exe ?? throw new ArgNullException(nameof(exe));
             string path = GetExePath(exe);
 
-            if (path != null)
+            if (path is not null)
             {
                 return (true, path);
             }
@@ -71,7 +77,7 @@ namespace DotnetCat.Handlers
                 {
                     string name = Path.ChangeExtension(exe, ext);
 
-                    if ((path = GetExePath(name)) != null)
+                    if ((path = GetExePath(name)) is not null)
                     {
                         return (true, path);
                     }
@@ -80,7 +86,9 @@ namespace DotnetCat.Handlers
             return (false, null);
         }
 
+        /// <summary>
         /// Determine if data contains clear command
+        /// </summary>
         public static bool IsClearCmd(string data, bool doClear = true)
         {
             data = data.Replace(Env.NewLine, "").Trim();
@@ -97,7 +105,9 @@ namespace DotnetCat.Handlers
             return false;
         }
 
+        /// <summary>
         /// Search environment path for specified shell
+        /// </summary>
         public static string GetExePath(string exe)
         {
             string path = exe ?? throw new ArgNullException(nameof(exe));

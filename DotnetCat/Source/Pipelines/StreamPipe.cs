@@ -16,20 +16,24 @@ namespace DotnetCat.Pipelines
     /// </summary>
     class StreamPipe : IConnectable
     {
+        /// <summary>
         /// Initialize object
+        /// </summary>
         protected StreamPipe()
         {
             Connected = false;
         }
 
+        /// <summary>
         /// Cleanup resources
+        /// </summary>
         ~StreamPipe() => Dispose();
 
         public bool Connected { get; protected set; }
 
-        protected Platform OS => Program.OS;
+        protected static Platform OS => Program.OS;
 
-        protected TcpClient Client => Program.SockNode.Client;
+        protected static TcpClient Client => Program.SockNode.Client;
 
         protected CancellationTokenSource CTS { get; set; }
 
@@ -39,7 +43,9 @@ namespace DotnetCat.Pipelines
 
         protected Task Worker { get; set; }
 
+        /// <summary>
         /// Activate communication between the pipe streams
+        /// </summary>
         public virtual void Connect()
         {
             _ = Source ?? throw new ArgNullException(nameof(Source));
@@ -49,14 +55,18 @@ namespace DotnetCat.Pipelines
             Worker = ConnectAsync(CTS.Token);
         }
 
+        /// <summary>
         /// Cancel communication throughout pipe
+        /// </summary>
         public virtual void Disconnect()
         {
             Connected = false;
             CTS?.Cancel();
         }
 
+        /// <summary>
         /// Release any unmanaged resources
+        /// <summary>
         public virtual void Dispose()
         {
             Source?.Dispose();
@@ -71,16 +81,20 @@ namespace DotnetCat.Pipelines
             }
             catch (InvalidOperationException)
             {
-                return;
             }
+
+            // Prevent unnecessary finalization
+            GC.SuppressFinalize(this);
         }
 
+        /// <summary>
         /// Connect pipelines and activate async communication
+        /// </summary>
         protected virtual async Task ConnectAsync(CancellationToken token)
         {
-            Memory<char> buffer = new Memory<char>(new char[1024]);
+            Memory<char> buffer = new(new char[1024]);
 
-            StringBuilder data = new StringBuilder();
+            StringBuilder data = new();
             StringBuilder newLine = new StringBuilder().AppendLine();
 
             int charsRead;
@@ -118,7 +132,6 @@ namespace DotnetCat.Pipelines
                 data.Clear();
             }
 
-
             if (!Program.UsingExe)
             {
                 Console.WriteLine();
@@ -126,8 +139,10 @@ namespace DotnetCat.Pipelines
             Dispose();
         }
 
+        /// <summary>
         /// Fix line terminators based on OS platform
-        private StringBuilder FixLineEndings(StringBuilder data)
+        /// </summary>
+        private static StringBuilder FixLineEndings(StringBuilder data)
         {
             return (OS is Platform.Win) ? data : data.Replace("\r\n", "\n");
         }

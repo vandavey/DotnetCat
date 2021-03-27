@@ -8,7 +8,9 @@ namespace DotnetCat.Contracts
     /// </summary>
     interface IConnectable : IDisposable
     {
+        /// <summary>
         /// Connect the unmanaged resources
+        /// </summary>
         void Connect();
     }
 }

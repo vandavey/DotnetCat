@@ -9,7 +9,9 @@ namespace DotnetCat.Contracts
     /// </summary>
     interface IErrorHandled : IConnectable
     {
+        /// <summary>
         /// Release unmanaged resources and handle error
+        /// </summary>
         void PipeError(Except type, string arg, Exception ex = null,
                                                 Level level = Level.Error);
     }

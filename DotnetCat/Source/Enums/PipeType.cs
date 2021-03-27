@@ -1,4 +1,4 @@
-﻿namespace DotnetCat.Enums
+namespace DotnetCat.Enums
 {
     /// <summary>
     /// Socket pipeline enumeration type

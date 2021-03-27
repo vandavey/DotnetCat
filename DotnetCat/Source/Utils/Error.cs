@@ -8,7 +8,9 @@ namespace DotnetCat.Utils
     /// </summary>
     class Error
     {
+        /// <summary>
         /// Initialize object
+        /// </summary>
         public Error(Except type, string msg)
         {
             TypeName = type;
@@ -21,7 +23,9 @@ namespace DotnetCat.Utils
 
         public string Message { get; private set; }
 
+        /// <summary>
         /// Format Error with the specified argument
+        /// </summary>
         public void Build(string argument)
         {
             if (string.IsNullOrEmpty(argument))

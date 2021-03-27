@@ -10,7 +10,9 @@ namespace DotnetCat.Contracts
     /// </summary>
     interface ISockErrorHandled : IErrorHandled
     {
+        /// <summary>
         /// Release unmanaged resources and handle error
+        /// </summary>
         void PipeError(Except type, IPEndPoint ep, Exception ex = null,
                                                    Level level = Level.Error);
     }

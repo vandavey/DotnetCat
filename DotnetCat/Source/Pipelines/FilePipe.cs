@@ -12,13 +12,15 @@ using Style = DotnetCat.Handlers.StyleHandler;
 namespace DotnetCat.Pipelines
 {
     /// <summary>
-    /// Pipeline class for normal file related data
+    /// Pipeline class for file related data
     /// </summary>
     class FilePipe : StreamPipe, IErrorHandled
     {
         private readonly TransferOpt _transfer;
 
+        /// <summary>
         /// Initialize object
+        /// </summary>
         public FilePipe(StreamReader src, string path) : base()
         {
             if (string.IsNullOrEmpty(path))
@@ -36,7 +38,9 @@ namespace DotnetCat.Pipelines
             };
         }
 
+        /// <summary>
         /// Initialize object
+        /// </summary>
         public FilePipe(string path, StreamWriter dest) : base()
         {
             if (string.IsNullOrEmpty(path))
@@ -49,14 +53,18 @@ namespace DotnetCat.Pipelines
             Source = new StreamReader(OpenFile(FilePath = path));
         }
 
+        /// <summary>
         /// Cleanup resources
+        /// </summary>
         ~FilePipe() => Dispose();
 
-        public bool Verbose => Program.Verbose;
+        public static bool Verbose => Program.Verbose;
 
         public string FilePath { get; set; }
 
+        /// <summary>
         /// Dispose of unmanaged resources and handle error
+        /// </summary>
         public virtual void PipeError(Except type, string arg,
                                                    Exception ex = null,
                                                    Level level = Level.Error) {
@@ -64,7 +72,9 @@ namespace DotnetCat.Pipelines
             ErrorHandler.Handle(type, arg, ex, level);
         }
 
+        /// <summary>
         /// Create and open new file for writing
+        /// </summary>
         protected FileStream CreateFile(string path)
         {
             if (string.IsNullOrEmpty(path))
@@ -79,13 +89,15 @@ namespace DotnetCat.Pipelines
                 PipeError(Except.DirectoryPath, info.FullName);
             }
 
-            return new FileStream(path, FileMode.Open, FileAccess.Write,
-                                                       FileShare.Write,
-                                                       bufferSize: 1024,
-                                                       useAsync: true);
+            return new FileStream(path, FileMode.Create, FileAccess.Write,
+                                                         FileShare.Write,
+                                                         bufferSize: 1024,
+                                                         useAsync: true);
         }
 
+        /// <summary>
         /// Open specified FileStream to read or write
+        /// </summary>
         protected FileStream OpenFile(string path)
         {
             if (string.IsNullOrEmpty(path))
@@ -107,11 +119,13 @@ namespace DotnetCat.Pipelines
                                                  useAsync: true);
         }
 
+        /// <summary>
         /// Activate async network communication
+        /// </summary>
         protected override async Task ConnectAsync(CancellationToken token)
         {
             Connected = true;
-            StringBuilder data = new StringBuilder();
+            StringBuilder data = new();
 
             // Print connection started info
             if (Verbose)
