@@ -163,7 +163,7 @@ namespace DotnetCat
                 for (int i = item.pos + 1; i < endIndex + 1; i++)
                 {
                     list[listIndex] += $" {args[i]}";
-                    list.Remove(args[i]);
+                    _ = list.Remove(args[i]);
                 }
 
                 string defragged = list[listIndex];

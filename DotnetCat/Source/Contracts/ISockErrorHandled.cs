@@ -13,7 +13,7 @@ namespace DotnetCat.Contracts
         /// <summary>
         /// Release unmanaged resources and handle error
         /// </summary>
-        void PipeError(Except type, IPEndPoint ep, Exception ex = null,
-                                                   Level level = Level.Error);
+        void PipeError(Except type, IPEndPoint ep, Exception ex = default,
+                                                   Level level = default);
     }
 }

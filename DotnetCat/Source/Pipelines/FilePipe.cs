@@ -66,8 +66,8 @@ namespace DotnetCat.Pipelines
         /// Dispose of unmanaged resources and handle error
         /// </summary>
         public virtual void PipeError(Except type, string arg,
-                                                   Exception ex = null,
-                                                   Level level = Level.Error) {
+                                                   Exception ex = default,
+                                                   Level level = default) {
             Dispose();
             ErrorHandler.Handle(type, arg, ex, level);
         }
@@ -140,7 +140,7 @@ namespace DotnetCat.Pipelines
                 }
             }
 
-            data.Append(await Source.ReadToEndAsync());
+            _ = data.Append(await Source.ReadToEndAsync());
             await Dest.WriteAsync(data, token);
 
             // Print connection completed info

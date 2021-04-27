@@ -26,7 +26,7 @@ namespace DotnetCat.Handlers
         /// Handle special exceptions related to DotNetCat
         /// </summary>
         public static void Handle(Except type, string arg,
-                                               Exception ex = null) {
+                                               Exception ex = default) {
             Handle(type, arg, false, ex);
         }
 
@@ -35,7 +35,7 @@ namespace DotnetCat.Handlers
         /// </summary>
         public static void Handle(Except type, string arg,
                                                Exception ex,
-                                               Level level = Level.Error) {
+                                               Level level = default) {
             Handle(type, arg, false, ex, level);
         }
 
@@ -44,8 +44,8 @@ namespace DotnetCat.Handlers
         /// </summary>
         public static void Handle(Except type, string arg,
                                                bool showUsage,
-                                               Exception ex = null,
-                                               Level level = Level.Error) {
+                                               Exception ex = default,
+                                               Level level = default) {
             int index = IndexOfError(type);
 
             if (index == -1)  // Index out of bounds

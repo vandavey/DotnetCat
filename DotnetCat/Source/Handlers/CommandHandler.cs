@@ -91,7 +91,7 @@ namespace DotnetCat.Handlers
         /// </summary>
         public static bool IsClearCmd(string data, bool doClear = true)
         {
-            data = data.Replace(Env.NewLine, "").Trim();
+            data = data.Replace(Env.NewLine, string.Empty).Trim();
 
             // Clear command detected
             if (_clearCommands.Contains(data))

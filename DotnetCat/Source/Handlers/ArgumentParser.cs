@@ -99,7 +99,7 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Get the matching cmd-line argument index
         /// </summary>
-        public static int IndexOfFlag(string flag, char? alias = null)
+        public static int IndexOfFlag(string flag, char? alias = default)
         {
             if (flag == "-")
             {
@@ -249,21 +249,16 @@ namespace DotnetCat.Handlers
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
-                    case "--output":   // Receive file data
-                    {
-                        SockNode.FilePath = GetTransfer(item.index);
-                        RemoveFlag(ArgsValueAt(item.index));
-                        break;
-                    }
-                    case "--send":     // Send file data
-                    {
-                        SockNode.FilePath = GetTransfer(item.index);
-                        RemoveFlag(ArgsValueAt(item.index));
-                        break;
-                    }
                     case "--text":     // Send string data
                     {
                         Payload = GetText(item.index);
+                        RemoveFlag(ArgsValueAt(item.index));
+                        break;
+                    }
+                    case "--output":   // Receive file data
+                    case "--send":     // Send file data
+                    {
+                        SockNode.FilePath = GetTransfer(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
@@ -288,7 +283,7 @@ namespace DotnetCat.Handlers
                 $"{appUsage}{lf}",
                 $"Remote command shell application{lf}",
                 "Positional Arguments:",
-                $"  TARGET                   Remote/local IPv4 address{lf}",
+                $"  TARGET                    Remote/local IPv4 address{lf}",
                 "Optional Arguments:",
                 "  -h/-?,   --help           Show this help message and exit",
                 "  -v,      --verbose        Enable verbose console output",
@@ -317,7 +312,7 @@ namespace DotnetCat.Handlers
             {
                 throw new IndexOutOfRangeException(nameof(index));
             }
-            Args[index] = Args[index].Replace(alias.ToString(), "");
+            Args[index] = Args[index].Replace(alias.ToString(), string.Empty);
 
             // Remove arg value if requested
             if (remValue)
