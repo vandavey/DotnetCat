@@ -23,7 +23,7 @@ namespace DotnetCat.Nodes
         /// </summary>
         public ServerNode() : base(address: IPAddress.Any)
         {
-            _listener = null;
+            _listener = default;
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace DotnetCat.Nodes
         public override void Connect()
         {
             _ = Addr ?? throw new ArgNullException(nameof(Addr));
-            IPEndPoint ep = null;
+            IPEndPoint ep = default;
 
             // Bind listener socket to local endpoint
             BindListener(new IPEndPoint(Addr, Port));
@@ -83,8 +83,8 @@ namespace DotnetCat.Nodes
         /// Dispose of unmanaged resources and handle error
         /// </summary>
         public override void PipeError(Except type, IPEndPoint ep,
-                                                    Exception ex = null,
-                                                    Level level = Level.Error) {
+                                                    Exception ex = default,
+                                                    Level level = default) {
             PipeError(type, ep.ToString(), ex, level);
         }
 
@@ -92,8 +92,8 @@ namespace DotnetCat.Nodes
         /// Dispose of unmanaged resources and handle error
         /// </summary>
         public override void PipeError(Except type, string arg,
-                                                    Exception ex = null,
-                                                    Level level = Level.Error) {
+                                                    Exception ex = default,
+                                                    Level level = default) {
             Dispose();
             ErrorHandler.Handle(type, arg, ex, level);
         }

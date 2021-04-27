@@ -21,7 +21,7 @@ namespace DotnetCat.Nodes
         /// </summary>
         public ClientNode() : base()
         {
-            _ep = null;
+            _ep = default;
         }
 
         /// <summary>

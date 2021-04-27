@@ -12,7 +12,7 @@ namespace DotnetCat.Contracts
         /// <summary>
         /// Release unmanaged resources and handle error
         /// </summary>
-        void PipeError(Except type, string arg, Exception ex = null,
-                                                Level level = Level.Error);
+        void PipeError(Except type, string arg, Exception ex = default,
+                                                Level level = default);
     }
 }

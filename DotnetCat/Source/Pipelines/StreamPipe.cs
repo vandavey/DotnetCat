@@ -110,7 +110,7 @@ namespace DotnetCat.Pipelines
                 }
 
                 charsRead = await Source.ReadAsync(buffer, token);
-                data.Append(buffer.ToArray(), 0, charsRead);
+                _ = data.Append(buffer.ToArray(), 0, charsRead);
 
                 // Client disconnected
                 if (!Client.Connected || (charsRead <= 0))
@@ -118,7 +118,7 @@ namespace DotnetCat.Pipelines
                     Disconnect();
                     break;
                 }
-                FixLineEndings(data);  // Normalize EOL sequences
+                data = FixLineEndings(data);  // Normalize EOL sequences
 
                 // Clear console buffer if requested
                 if (CommandHandler.IsClearCmd(data.ToString()))
@@ -129,7 +129,7 @@ namespace DotnetCat.Pipelines
                 {
                     await Dest.WriteAsync(data, token);
                 }
-                data.Clear();
+                _ = data.Clear();
             }
 
             if (!Program.UsingExe)

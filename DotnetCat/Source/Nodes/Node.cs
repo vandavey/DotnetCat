@@ -21,18 +21,23 @@ namespace DotnetCat.Nodes
     /// </summary>
     class Node : ISockErrorHandled
     {
-        private List<StreamPipe> _pipes;
-
         private Process _process;
 
         private StreamReader _netReader;
         private StreamWriter _netWriter;
+
+        private List<StreamPipe> _pipes;
 
         /// <summary>
         /// Initialize object
         /// </summary>
         protected Node()
         {
+            _process = default;
+            _netReader = default;
+            _netWriter = default;
+            _pipes = default;
+
             Port = 4444;
             Verbose = false;
             Client = new TcpClient();
@@ -63,7 +68,10 @@ namespace DotnetCat.Nodes
 
         public TcpClient Client { get; set; }
 
-        protected static bool Transfer => Program.Transfer != TransferOpt.None;
+        protected static bool Transfer
+        {
+            get => Program.Transfer is not TransferOpt.None;
+        }
 
         protected static Platform OS => Program.OS;
 
@@ -74,7 +82,7 @@ namespace DotnetCat.Nodes
         /// <summary>
         /// Initialize and run an executable process
         /// </summary>
-        public bool Start(string exe = null)
+        public bool Start(string exe = default)
         {
             Exe ??= Cmd.GetDefaultExe(OS);
 
@@ -147,8 +155,8 @@ namespace DotnetCat.Nodes
         /// Dispose of unmanaged socket resources and handle error
         /// </summary>
         public virtual void PipeError(Except type, IPEndPoint ep,
-                                                   Exception ex = null,
-                                                   Level level = Level.Error) {
+                                                   Exception ex = default,
+                                                   Level level = default) {
             PipeError(type, ep.ToString(), ex, level);
         }
 
@@ -156,8 +164,8 @@ namespace DotnetCat.Nodes
         /// Dispose of unmanaged resources and handle error
         /// </summary>
         public virtual void PipeError(Except type, string arg,
-                                                   Exception ex = null,
-                                                   Level level = Level.Error) {
+                                                   Exception ex = default,
+                                                   Level level = default) {
             Dispose();
             ErrorHandler.Handle(type, arg, ex, level);
         }

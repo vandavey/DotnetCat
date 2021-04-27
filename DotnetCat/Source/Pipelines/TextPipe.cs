@@ -56,7 +56,7 @@ namespace DotnetCat.Pipelines
             Connected = true;
             StringBuilder data = new();
 
-            data.Append(await Source.ReadToEndAsync());
+            _ = data.Append(await Source.ReadToEndAsync());
             await Dest.WriteAsync(data, token);
 
             if (Program.Verbose)
