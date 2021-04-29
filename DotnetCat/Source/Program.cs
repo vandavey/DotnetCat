@@ -16,24 +16,33 @@ namespace DotnetCat
     /// </summary>
     class Program
     {
-        private static ArgParser _parser;
+        private static ArgParser _parser;  // Cmd-line argument parser
 
+        /// Enable verbose console output
         public static bool Verbose => SockNode?.Verbose ?? false;
 
+        /// Enable verbose exceptions
         public static bool Debug { get; set; }
 
+        /// Using executable pipeline
         public static bool UsingExe { get; set; }
 
+        /// Pipeline variant
         public static PipeType PipeVariant { get; set; }
 
+        /// User-defined string payload
         public static string Payload { get; set; }
 
+        /// Command-line arguments
         public static List<string> Args { get; set; }
 
+        /// Network socket node
         public static Node SockNode { get; set; }
 
+        /// Operating system
         public static Platform OS { get; private set; }
 
+        /// File transfer option type
         public static TransferOpt Transfer { get; private set; }
 
         /// <summary>

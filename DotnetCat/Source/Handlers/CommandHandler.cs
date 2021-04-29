@@ -12,11 +12,11 @@ namespace DotnetCat.Handlers
     /// </summary>
     static class CommandHandler
     {
-        private static readonly string[] _clearCommands;
+        private static readonly string[] _clsCommands;  // Clear commands
 
-        private static readonly string[] _envPaths;
+        private static readonly string[] _envPaths;     // Environment path
 
-        private static readonly string[] _extensions;
+        private static readonly string[] _exeFiles;     // Executable files
 
         /// <summary>
         /// Initialize static members
@@ -26,15 +26,8 @@ namespace DotnetCat.Handlers
             string path = Env.GetEnvironmentVariable("PATH");
             _envPaths = path.Split(Path.PathSeparator);
 
-            _clearCommands = new string[]
-            {
-                "cls", "clear", "clear-screen"
-            };
-
-            _extensions = new string[]
-            {
-                "exe", "bat", "ps1", "py", "sh"
-            };
+            _clsCommands = new string[] { "cls", "clear", "clear-host" };
+            _exeFiles = new string[] { "exe", "bat", "ps1", "py", "sh" };
         }
 
         /// <summary>
@@ -73,7 +66,7 @@ namespace DotnetCat.Handlers
             // Try to resolve unspecified file extension
             if (!Path.HasExtension(exe))
             {
-                foreach (string ext in _extensions)
+                foreach (string ext in _exeFiles)
                 {
                     string name = Path.ChangeExtension(exe, ext);
 
@@ -94,7 +87,7 @@ namespace DotnetCat.Handlers
             data = data.Replace(Env.NewLine, string.Empty).Trim();
 
             // Clear command detected
-            if (_clearCommands.Contains(data))
+            if (_clsCommands.Contains(data))
             {
                 if (doClear)  // Clear console buffer
                 {

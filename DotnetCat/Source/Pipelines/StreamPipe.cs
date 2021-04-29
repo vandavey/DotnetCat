@@ -19,28 +19,32 @@ namespace DotnetCat.Pipelines
         /// <summary>
         /// Initialize object
         /// </summary>
-        protected StreamPipe()
-        {
-            Connected = false;
-        }
+        protected StreamPipe() => Connected = false;
 
         /// <summary>
         /// Cleanup resources
         /// </summary>
         ~StreamPipe() => Dispose();
 
+        /// Pipeline is active
         public bool Connected { get; protected set; }
 
+        /// Operating system
         protected static Platform OS => Program.OS;
 
+        /// Operating system
         protected static TcpClient Client => Program.SockNode.Client;
 
+        /// Pipeline cancellation token
         protected CancellationTokenSource CTS { get; set; }
 
+        /// Pipeline data source
         protected StreamReader Source { get; set; }
 
+        /// Pipeline data destination
         protected StreamWriter Dest { get; set; }
 
+        /// Pipeline data transfer task
         protected Task Worker { get; set; }
 
         /// <summary>

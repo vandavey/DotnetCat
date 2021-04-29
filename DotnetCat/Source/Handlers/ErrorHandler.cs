@@ -12,15 +12,12 @@ namespace DotnetCat.Handlers
     /// </summary>
     static class ErrorHandler
     {
-        private static readonly List<Error> _errors;
+        private static readonly List<Error> _errors;  // Error list
 
         /// <summary>
         /// Initialize static members
         /// </summary>
-        static ErrorHandler()
-        {
-            _errors = GetErrors();
-        }
+        static ErrorHandler() => _errors = GetErrors();
 
         /// <summary>
         /// Handle special exceptions related to DotNetCat
@@ -48,7 +45,8 @@ namespace DotnetCat.Handlers
                                                Level level = default) {
             int index = IndexOfError(type);
 
-            if (index == -1)  // Index out of bounds
+            // Index out of bounds
+            if (index == -1)
             {
                 throw new IndexOutOfRangeException(nameof(index));
             }
@@ -98,7 +96,7 @@ namespace DotnetCat.Handlers
         /// </summary>
         private static int IndexOfError(Except type)
         {
-            Error status = _errors.Where(e => e.TypeName == type).First();
+            Error status = _errors.Where(e => e.ExceptType == type).First();
             return _errors.IndexOf(status);
         }
 

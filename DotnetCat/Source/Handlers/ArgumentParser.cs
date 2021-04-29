@@ -14,8 +14,8 @@ namespace DotnetCat.Handlers
     /// </summary>
     class ArgumentParser
     {
-        private readonly string _appTitle;
-        private readonly string _help;
+        private readonly string _appTitle;  // Application title
+        private readonly string _help;      // Help information
 
         /// <summary>
         /// Initialize object
@@ -26,29 +26,35 @@ namespace DotnetCat.Handlers
             _help = GetHelp(_appTitle, GetUsage(_appTitle));
         }
 
+        /// Local operating system
         private static Platform OS => Program.OS;
 
+        /// Enable verbose exceptions
         private static bool Debug
         {
             set => Program.Debug = value;
         }
 
+        /// Pipeline type (enum variant)
         private static PipeType PipeVariant
         {
             set => Program.PipeVariant = value;
         }
 
+        /// User-defined string payload
         private static string Payload
         {
             set => Program.Payload = value;
         }
 
+        /// Command-line arguments
         private static List<string> Args
         {
             get => Program.Args;
             set => Program.Args = value;
         }
 
+        /// Network node
         private static Node SockNode
         {
             get => Program.SockNode;
@@ -107,7 +113,7 @@ namespace DotnetCat.Handlers
             }
 
             // Assign argument alias
-            if (string.IsNullOrEmpty(alias.ToString()))
+            if (alias.ToString() is not null or "")
             {
                 foreach (char ch in alias.ToString())
                 {
@@ -412,7 +418,7 @@ namespace DotnetCat.Handlers
             string data = ArgsValueAt(argIndex + 1);
 
             // Invalid payload string
-            if (string.IsNullOrEmpty(data.Trim()))
+            if (data.Trim() is null or "")
             {
                 Error.Handle(Except.Payload, Args[argIndex], true);
             }

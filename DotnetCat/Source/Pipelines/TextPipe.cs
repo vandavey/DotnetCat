@@ -14,14 +14,14 @@ namespace DotnetCat.Pipelines
     /// </summary>
     class TextPipe : StreamPipe, IConnectable
     {
-        private readonly MemoryStream _memStream;
+        private readonly MemoryStream _memStream;  // Memory buffer
 
         /// <summary>
         /// Initialize object
         /// </summary>
         public TextPipe(string data, StreamWriter dest) : base()
         {
-            if (string.IsNullOrEmpty(data))
+            if (data is null or "")
             {
                 throw new ArgNullException(nameof(data));
             }

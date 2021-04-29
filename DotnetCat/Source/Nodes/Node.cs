@@ -21,12 +21,12 @@ namespace DotnetCat.Nodes
     /// </summary>
     class Node : ISockErrorHandled
     {
-        private Process _process;
+        private Process _process;         // Executable process
 
-        private StreamReader _netReader;
-        private StreamWriter _netWriter;
+        private StreamReader _netReader;  // TCP stream reader
+        private StreamWriter _netWriter;  // TCP stream writer
 
-        private List<StreamPipe> _pipes;
+        private List<StreamPipe> _pipes;  // Pipeline list
 
         /// <summary>
         /// Initialize object
@@ -46,37 +46,44 @@ namespace DotnetCat.Nodes
         /// <summary>
         /// Initialize object
         /// </summary>
-        protected Node(IPAddress address) : this()
-        {
-            Addr = address;
-        }
+        protected Node(IPAddress address) : this() => Addr = address;
 
         /// <summary>
         /// Cleanup resources
         /// </summary>
         ~Node() => Dispose();
 
+        /// Enable verbose console output
         public bool Verbose { get; set; }
 
+        /// Network port number
         public int Port { get; set; }
 
+        /// Transfer file path
         public string FilePath { get; set; }
 
+        /// Executable file path
         public string Exe { get; set; }
 
+        /// IPv4 address
         public IPAddress Addr { get; set; }
 
+        /// TCP network client
         public TcpClient Client { get; set; }
 
+        /// Performing file transfer
         protected static bool Transfer
         {
             get => Program.Transfer is not TransferOpt.None;
         }
 
+        /// Local operating system
         protected static Platform OS => Program.OS;
 
-        protected bool UsingExe => Exe is not null;
+        /// Using executable pipeline
+        protected bool UsingExe => Exe is not null or "";
 
+        /// TCP network stream
         protected NetworkStream NetStream { get; set; }
 
         /// <summary>
@@ -93,10 +100,7 @@ namespace DotnetCat.Nodes
                 ErrorHandler.Handle(Except.ExePath, exe, true);
             }
 
-            _process = new Process
-            {
-                StartInfo = GetStartInfo(exe)
-            };
+            _process = new Process { StartInfo = GetStartInfo(exe) };
             return _process.Start();
         }
 
@@ -121,7 +125,7 @@ namespace DotnetCat.Nodes
                 {
                     Platform.Nix => Env.GetEnvironmentVariable("HOME"),
                     Platform.Win => Env.GetEnvironmentVariable("USERPROFILE"),
-                    _ => Env.CurrentDirectory
+                    _            => Env.CurrentDirectory
                 }
             };
 
@@ -198,20 +202,23 @@ namespace DotnetCat.Nodes
             // Can't perform socket read/write operations
             if (!NetStream.CanRead || !NetStream.CanWrite)
             {
-                string msg = "Can't perform stream read/write operations";
-                throw new ArgumentException(nameof(NetStream), msg);
+                throw new ArgumentException(nameof(NetStream));
             }
 
             _netReader = new StreamReader(NetStream);
-            _netWriter = new StreamWriter(NetStream) { AutoFlush = true };
+
+            _netWriter = new StreamWriter(NetStream)
+            {
+                AutoFlush = true
+            };
 
             // Initialize socket pipeline(s)
             _pipes = pipeType switch
             {
-                PipeType.File => GetTransferPipes(),
+                PipeType.File    => GetTransferPipes(),
                 PipeType.Process => GetProcessPipes(),
-                PipeType.Text => GetTextPipes(),
-                _ => GetDefaultPipes()
+                PipeType.Text    => GetTextPipes(),
+                _                => GetDefaultPipes()
             };
         }
 
@@ -258,49 +265,37 @@ namespace DotnetCat.Nodes
         /// <summary>
         /// Initialize executable process pipelines
         /// </summary>
-        private List<StreamPipe> GetProcessPipes()
+        private List<StreamPipe> GetProcessPipes() => new()
         {
-            return new List<StreamPipe>
-            {
-                new ProcessPipe(_netReader, _process.StandardInput),
-                new ProcessPipe(_process.StandardOutput, _netWriter),
-                new ProcessPipe(_process.StandardError, _netWriter)
-            };
-        }
+            new ProcessPipe(_netReader, _process.StandardInput),
+            new ProcessPipe(_process.StandardOutput, _netWriter),
+            new ProcessPipe(_process.StandardError, _netWriter)
+        };
 
         /// <summary>
         /// Initialize executable process pipelines
         /// </summary>
-        private List<StreamPipe> GetTextPipes()
+        private List<StreamPipe> GetTextPipes() => new()
         {
-            return new List<StreamPipe>
-            {
-                new TextPipe(Program.Payload, _netWriter)
-            };
-        }
+            new TextPipe(Program.Payload, _netWriter)
+        };
 
         /// <summary>
         /// Initialize default socket stream pipelines
         /// </summary>
-        private List<StreamPipe> GetDefaultPipes()
+        private List<StreamPipe> GetDefaultPipes() => new()
         {
-            Stream stdin = Console.OpenStandardInput();
-            Stream stdout = Console.OpenStandardOutput();
-
-            return new List<StreamPipe>
+            new ProcessPipe(_netReader, new(Console.OpenStandardOutput())
             {
-                new ProcessPipe(_netReader, new(stdout) { AutoFlush = true }),
-                new ProcessPipe(new(stdin), _netWriter)
-            };
-        }
+                AutoFlush = true
+            }),
+            new ProcessPipe(new(Console.OpenStandardInput()), _netWriter)
+        };
 
         /// <summary>
         /// Determine if command-shell has exited
         /// </summary>
-        private bool ProcessExited()
-        {
-            return UsingExe && _process.HasExited;
-        }
+        private bool ProcessExited() => UsingExe && _process.HasExited;
 
         /// <summary>
         /// Determine if all pipelines are connected/active

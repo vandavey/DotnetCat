@@ -18,18 +18,21 @@ namespace DotnetCat.Utils
 
             Symbol = level switch
             {
-                Level.Error => "[x]",
-                Level.Info => "[*]",
+                Level.Error  => "[x]",
+                Level.Info   => "[*]",
                 Level.Output => "[+]",
-                Level.Warn => "[!]",
-                _ => "[*]"
+                Level.Warn   => "[!]",
+                _            => "[*]"
             };
         }
 
+        /// Status symbol color
         public ConsoleColor Color { get; }
 
+        /// Status output level
         public Level Level { get; }
 
+        /// Status prefix symbol
         public string Symbol { get; }
     }
 }

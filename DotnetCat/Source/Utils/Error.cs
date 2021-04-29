@@ -13,14 +13,17 @@ namespace DotnetCat.Utils
         /// </summary>
         public Error(Except type, string msg)
         {
-            TypeName = type;
+            ExceptType = type;
             Message = msg;
         }
 
+        /// Error message
         public bool Built => !Message.Contains("{}");
 
-        public Except TypeName { get; }
+        /// Exception enumeration type
+        public Except ExceptType { get; }
 
+        /// Error message
         public string Message { get; private set; }
 
         /// <summary>
@@ -28,7 +31,7 @@ namespace DotnetCat.Utils
         /// </summary>
         public void Build(string argument)
         {
-            if (string.IsNullOrEmpty(argument))
+            if (argument is null or "")
             {
                 if (!Built)
                 {
