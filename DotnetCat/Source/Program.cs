@@ -172,7 +172,7 @@ namespace DotnetCat
                 for (int i = item.pos + 1; i < endIndex + 1; i++)
                 {
                     list[listIndex] += $" {args[i]}";
-                    _ = list.Remove(args[i]);
+                    list.Remove(args[i]);
                 }
 
                 string defragged = list[listIndex];
@@ -286,6 +286,7 @@ namespace DotnetCat
             {
                 foreach (IPAddress addr in dnsAns.AddressList)
                 {
+                    // Return the first IPv4 address
                     if (addr.AddressFamily is AddressFamily.InterNetwork)
                     {
                         return addr;

@@ -12,7 +12,7 @@ namespace DotnetCat.Pipelines
     /// <summary>
     /// Pipeline for user defined string data
     /// </summary>
-    class TextPipe : StreamPipe, IConnectable
+    class TextPipe : Pipeline, IConnectable
     {
         private readonly MemoryStream _memStream;  // Memory buffer
 
@@ -56,7 +56,7 @@ namespace DotnetCat.Pipelines
             Connected = true;
             StringBuilder data = new();
 
-            _ = data.Append(await Source.ReadToEndAsync());
+            data.Append(await Source.ReadToEndAsync());
             await Dest.WriteAsync(data, token);
 
             if (Program.Verbose)

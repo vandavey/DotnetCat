@@ -103,49 +103,27 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Get errors related to DotnetCat
         /// </summary>
-        private static List<Error> GetErrors()
+        private static List<Error> GetErrors() => new()
         {
-            return new List<Error>
-            {
-                new Error(Except.ArgsCombo,
-                          "The following arguments can't be combined: {}"),
-                new Error(Except.InvalidArgs,
-                          "Unable to validate argument(s): {}"),
-                new Error(Except.ConnectionLost,
-                          "The connection was unexpectedly closed by {}"),
-                new Error(Except.ConnectionRefused,
-                          "Connection to {} was refused"),
-                new Error(Except.ConnectionTimeout,
-                          "Socket timeout occurred: {}"),
-                new Error(Except.DirectoryPath,
-                          "Unable to locate parent directory '{}'"),
-                new Error(Except.EmptyPath,
-                          "A value is required for option(s): {}"),
-                new Error(Except.ExePath,
-                          "Unable to locate executable file '{}'"),
-                new Error(Except.ExeProcess,
-                          "Unable to launch executable process: {}"),
-                new Error(Except.FilePath,
-                          "Unable to locate file path '{}'"),
-                new Error(Except.InvalidAddr,
-                          "Unable to resolve hostname '{}'"),
-                new Error(Except.InvalidPort,
-                          "{} cannot be parsed as a valid port"),
-                new Error(Except.NamedArgs,
-                          "Missing value for named argument(s): {}"),
-                new Error(Except.Payload,
-                          "Invalid payload for argument(s): {}"),
-                new Error(Except.RequiredArgs,
-                          "Missing required argument(s): {}"),
-                new Error(Except.SocketBind,
-                          "The endpoint is already in use: {}"),
-                new Error(Except.StringEOL,
-                          "Missing string EOL in argument(s): {}"),
-                new Error(Except.Unhandled,
-                          "Unhandled exception occurred: {}"),
-                new Error(Except.UnknownArgs,
-                          "Received unknown argument(s): {}")
-            };
-        }
+            new(Except.ArgsCombo, "The arguments can't be combined: {}"),
+            new(Except.InvalidArgs, "Unable to validate argument(s): {}"),
+            new(Except.ConnectionLost, "Connection unexpectedly closed by {}"),
+            new(Except.ConnectionRefused, "Connection to {} was refused"),
+            new(Except.ConnectionTimeout, "Socket timeout occurred: {}"),
+            new(Except.DirectoryPath, "Unable to locate parent directory '{}'"),
+            new(Except.EmptyPath, "A value is required for option(s): {}"),
+            new(Except.ExePath, "Unable to locate executable file '{}'"),
+            new(Except.ExeProcess, "Unable to launch executable process: {}"),
+            new(Except.FilePath, "Unable to locate file path '{}'"),
+            new(Except.InvalidAddr, "Unable to resolve hostname '{}'"),
+            new(Except.InvalidPort, "{} cannot be parsed as a valid port"),
+            new(Except.NamedArgs, "Missing value for named argument(s): {}"),
+            new(Except.Payload, "Invalid payload for argument(s): {}"),
+            new(Except.RequiredArgs, "Missing required argument(s): {}"),
+            new(Except.SocketBind, "The endpoint is already in use: {}"),
+            new(Except.StringEOL, "Missing EOL in argument(s): {}"),
+            new(Except.Unhandled, "Unhandled exception occurred: {}"),
+            new(Except.UnknownArgs, "Received unknown argument(s): {}")
+        };
     }
 }
