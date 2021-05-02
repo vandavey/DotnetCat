@@ -17,16 +17,16 @@ using Cmd = DotnetCat.Handlers.CommandHandler;
 namespace DotnetCat.Nodes
 {
     /// <summary>
-    /// Base class for all TCP socket nodes in DotnetCat.Nodes
+    /// Base class for all socket nodes in Nodes namespace
     /// </summary>
     class Node : ISockErrorHandled
     {
-        private Process _process;
+        private Process _process;         // Executable process
 
-        private StreamReader _netReader;
-        private StreamWriter _netWriter;
+        private StreamReader _netReader;  // TCP stream reader
+        private StreamWriter _netWriter;  // TCP stream writer
 
-        private List<StreamPipe> _pipes;
+        private List<Pipeline> _pipes;    // Pipeline list
 
         /// <summary>
         /// Initialize object
@@ -46,37 +46,44 @@ namespace DotnetCat.Nodes
         /// <summary>
         /// Initialize object
         /// </summary>
-        protected Node(IPAddress address) : this()
-        {
-            Addr = address;
-        }
+        protected Node(IPAddress address) : this() => Addr = address;
 
         /// <summary>
         /// Cleanup resources
         /// </summary>
         ~Node() => Dispose();
 
+        /// Enable verbose console output
         public bool Verbose { get; set; }
 
+        /// Network port number
         public int Port { get; set; }
 
+        /// Transfer file path
         public string FilePath { get; set; }
 
+        /// Executable file path
         public string Exe { get; set; }
 
+        /// IPv4 address
         public IPAddress Addr { get; set; }
 
+        /// TCP network client
         public TcpClient Client { get; set; }
 
+        /// Performing file transfer
         protected static bool Transfer
         {
             get => Program.Transfer is not TransferOpt.None;
         }
 
+        /// Local operating system
         protected static Platform OS => Program.OS;
 
-        protected bool UsingExe => Exe is not null;
+        /// Using executable pipeline
+        protected bool UsingExe => Exe is not null or "";
 
+        /// TCP network stream
         protected NetworkStream NetStream { get; set; }
 
         /// <summary>
@@ -93,10 +100,7 @@ namespace DotnetCat.Nodes
                 ErrorHandler.Handle(Except.ExePath, exe, true);
             }
 
-            _process = new Process
-            {
-                StartInfo = GetStartInfo(exe)
-            };
+            _process = new Process { StartInfo = GetStartInfo(exe) };
             return _process.Start();
         }
 
@@ -121,7 +125,7 @@ namespace DotnetCat.Nodes
                 {
                     Platform.Nix => Env.GetEnvironmentVariable("HOME"),
                     Platform.Win => Env.GetEnvironmentVariable("USERPROFILE"),
-                    _ => Env.CurrentDirectory
+                    _            => Env.CurrentDirectory
                 }
             };
 
@@ -193,25 +197,30 @@ namespace DotnetCat.Nodes
         /// </summary>
         protected void AddPipes(PipeType pipeType)
         {
-            _ = NetStream ?? throw new(nameof(NetStream));
+            if (NetStream is null)
+            {
+                throw new ArgNullException(null, nameof(NetStream));
+            }
 
             // Can't perform socket read/write operations
             if (!NetStream.CanRead || !NetStream.CanWrite)
             {
-                string msg = "Can't perform stream read/write operations";
-                throw new ArgumentException(nameof(NetStream), msg);
+                throw new ArgumentException(nameof(NetStream));
             }
 
+            _netWriter = new StreamWriter(NetStream)
+            {
+                AutoFlush = true
+            };
             _netReader = new StreamReader(NetStream);
-            _netWriter = new StreamWriter(NetStream) { AutoFlush = true };
 
             // Initialize socket pipeline(s)
             _pipes = pipeType switch
             {
-                PipeType.File => GetTransferPipes(),
+                PipeType.File    => GetTransferPipes(),
                 PipeType.Process => GetProcessPipes(),
-                PipeType.Text => GetTextPipes(),
-                _ => GetDefaultPipes()
+                PipeType.Text    => GetTextPipes(),
+                _                => GetStreamPipes()
             };
         }
 
@@ -235,7 +244,7 @@ namespace DotnetCat.Nodes
         /// <summary>
         /// Initialize file transmission and collection pipelines
         /// </summary>
-        private List<StreamPipe> GetTransferPipes()
+        private List<Pipeline> GetTransferPipes()
         {
             if (Program.Transfer is TransferOpt.None)
             {
@@ -252,55 +261,43 @@ namespace DotnetCat.Nodes
             {
                 filePipe = new FilePipe(FilePath, _netWriter);
             }
-            return new List<StreamPipe> { filePipe };
+            return new List<Pipeline> { filePipe };
         }
 
         /// <summary>
         /// Initialize executable process pipelines
         /// </summary>
-        private List<StreamPipe> GetProcessPipes()
+        private List<Pipeline> GetProcessPipes() => new()
         {
-            return new List<StreamPipe>
-            {
-                new ProcessPipe(_netReader, _process.StandardInput),
-                new ProcessPipe(_process.StandardOutput, _netWriter),
-                new ProcessPipe(_process.StandardError, _netWriter)
-            };
-        }
+            new ProcessPipe(_netReader, _process.StandardInput),
+            new ProcessPipe(_process.StandardOutput, _netWriter),
+            new ProcessPipe(_process.StandardError, _netWriter)
+        };
 
         /// <summary>
         /// Initialize executable process pipelines
         /// </summary>
-        private List<StreamPipe> GetTextPipes()
+        private List<Pipeline> GetTextPipes() => new()
         {
-            return new List<StreamPipe>
-            {
-                new TextPipe(Program.Payload, _netWriter)
-            };
-        }
+            new TextPipe(Program.Payload, _netWriter)
+        };
 
         /// <summary>
         /// Initialize default socket stream pipelines
         /// </summary>
-        private List<StreamPipe> GetDefaultPipes()
+        private List<Pipeline> GetStreamPipes() => new()
         {
-            Stream stdin = Console.OpenStandardInput();
-            Stream stdout = Console.OpenStandardOutput();
-
-            return new List<StreamPipe>
+            new StreamPipe(_netReader, new(Console.OpenStandardOutput())
             {
-                new ProcessPipe(_netReader, new(stdout) { AutoFlush = true }),
-                new ProcessPipe(new(stdin), _netWriter)
-            };
-        }
+                AutoFlush = true
+            }),
+            new StreamPipe(new(Console.OpenStandardInput()), _netWriter)
+        };
 
         /// <summary>
         /// Determine if command-shell has exited
         /// </summary>
-        private bool ProcessExited()
-        {
-            return UsingExe && _process.HasExited;
-        }
+        private bool ProcessExited() => UsingExe && _process.HasExited;
 
         /// <summary>
         /// Determine if all pipelines are connected/active
@@ -315,7 +312,7 @@ namespace DotnetCat.Nodes
             }
 
             // Check if non-null pipes are connected
-            foreach (StreamPipe pipe in _pipes)
+            foreach (Pipeline pipe in _pipes)
             {
                 if ((pipe is not null) && !pipe.Connected)
                 {

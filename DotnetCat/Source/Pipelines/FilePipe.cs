@@ -14,16 +14,16 @@ namespace DotnetCat.Pipelines
     /// <summary>
     /// Pipeline class for file related data
     /// </summary>
-    class FilePipe : StreamPipe, IErrorHandled
+    class FilePipe : Pipeline, IErrorHandled
     {
-        private readonly TransferOpt _transfer;
+        private readonly TransferOpt _transfer;  // File transfer option
 
         /// <summary>
         /// Initialize object
         /// </summary>
         public FilePipe(StreamReader src, string path) : base()
         {
-            if (string.IsNullOrEmpty(path))
+            if (path is null or "")
             {
                 throw new ArgNullException(nameof(path));
             }
@@ -43,7 +43,7 @@ namespace DotnetCat.Pipelines
         /// </summary>
         public FilePipe(string path, StreamWriter dest) : base()
         {
-            if (string.IsNullOrEmpty(path))
+            if (path is null or "")
             {
                 throw new ArgNullException(nameof(path));
             }
@@ -58,8 +58,10 @@ namespace DotnetCat.Pipelines
         /// </summary>
         ~FilePipe() => Dispose();
 
+        /// Enable verbose console output
         public static bool Verbose => Program.Verbose;
 
+        /// Source or destination path
         public string FilePath { get; set; }
 
         /// <summary>
@@ -77,7 +79,7 @@ namespace DotnetCat.Pipelines
         /// </summary>
         protected FileStream CreateFile(string path)
         {
-            if (string.IsNullOrEmpty(path))
+            if (path is null or "")
             {
                 PipeError(Except.EmptyPath, "-o/--output");
             }
@@ -100,7 +102,7 @@ namespace DotnetCat.Pipelines
         /// </summary>
         protected FileStream OpenFile(string path)
         {
-            if (string.IsNullOrEmpty(path))
+            if (path is null or "")
             {
                 PipeError(Except.EmptyPath, "-s/--send");
             }
@@ -140,7 +142,7 @@ namespace DotnetCat.Pipelines
                 }
             }
 
-            _ = data.Append(await Source.ReadToEndAsync());
+            data.Append(await Source.ReadToEndAsync());
             await Dest.WriteAsync(data, token);
 
             // Print connection completed info

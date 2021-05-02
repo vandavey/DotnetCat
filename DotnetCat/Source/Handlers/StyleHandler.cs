@@ -13,21 +13,18 @@ namespace DotnetCat.Handlers
     /// </summary>
     static class StyleHandler
     {
-        private static readonly List<Status> _statuses;
+        private static readonly List<Status> _statuses;  // Status list
 
         /// <summary>
         /// Initialize static members
         /// </summary>
-        static StyleHandler()
+        static StyleHandler() => _statuses = new List<Status>
         {
-            _statuses = new List<Status>
-            {
-                new Status(ConsoleColor.Cyan, Level.Info),
-                new Status(ConsoleColor.Green, Level.Output),
-                new Status(ConsoleColor.Red, Level.Error),
-                new Status(ConsoleColor.Yellow, Level.Warn)
-            };
-        }
+            new Status(ConsoleColor.Cyan, Level.Info),
+            new Status(ConsoleColor.Green, Level.Output),
+            new Status(ConsoleColor.Red, Level.Error),
+            new Status(ConsoleColor.Yellow, Level.Warn)
+        };
 
         /// <summary>
         /// Write an error message to standard error
@@ -76,7 +73,7 @@ namespace DotnetCat.Handlers
             // Get standard output/error stream
             using TextWriter stream = level switch
             {
-                Level.Error or Level.Warn => Console.Error,
+                Level.Error or Level.Warn       => Console.Error,
                 Level.Info or Level.Output or _ => Console.Out
             };
 

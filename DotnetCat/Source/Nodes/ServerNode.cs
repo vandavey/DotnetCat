@@ -16,15 +16,12 @@ namespace DotnetCat.Nodes
     /// </summary>
     class ServerNode : Node, ISockErrorHandled
     {
-        private Socket _listener;
+        private Socket _listener;  // Listener socket
 
         /// <summary>
         /// Initialize object
         /// </summary>
-        public ServerNode() : base(address: IPAddress.Any)
-        {
-            _listener = default;
-        }
+        public ServerNode() : base(IPAddress.Any) => _listener = default;
 
         /// <summary>
         /// Cleanup resources
@@ -72,7 +69,7 @@ namespace DotnetCat.Nodes
             {
                 PipeError(Except.ConnectionRefused, ep, ex, Level.Warn);
             }
-            catch (IOException ex)  // Connection lost
+            catch (IOException ex)      // Connection lost
             {
                 PipeError(Except.ConnectionLost, ep, ex);
             }

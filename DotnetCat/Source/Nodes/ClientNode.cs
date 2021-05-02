@@ -14,15 +14,12 @@ namespace DotnetCat.Nodes
     /// </summary>
     class ClientNode : Node, ISockErrorHandled
     {
-        private IPEndPoint _ep;
+        private IPEndPoint _ep;  // Remote endpoint
 
         /// <summary>
         /// Initialize object
         /// </summary>
-        public ClientNode() : base()
-        {
-            _ep = default;
-        }
+        public ClientNode() : base() => _ep = default;
 
         /// <summary>
         /// Cleanup resources

@@ -12,16 +12,16 @@ namespace DotnetCat.Pipelines
     /// <summary>
     /// Pipeline for user defined string data
     /// </summary>
-    class TextPipe : StreamPipe, IConnectable
+    class TextPipe : Pipeline, IConnectable
     {
-        private readonly MemoryStream _memStream;
+        private readonly MemoryStream _memStream;  // Memory buffer
 
         /// <summary>
         /// Initialize object
         /// </summary>
         public TextPipe(string data, StreamWriter dest) : base()
         {
-            if (string.IsNullOrEmpty(data))
+            if (data is null or "")
             {
                 throw new ArgNullException(nameof(data));
             }
@@ -56,7 +56,7 @@ namespace DotnetCat.Pipelines
             Connected = true;
             StringBuilder data = new();
 
-            _ = data.Append(await Source.ReadToEndAsync());
+            data.Append(await Source.ReadToEndAsync());
             await Dest.WriteAsync(data, token);
 
             if (Program.Verbose)
