@@ -197,7 +197,10 @@ namespace DotnetCat.Nodes
         /// </summary>
         protected void AddPipes(PipeType pipeType)
         {
-            _ = NetStream ?? throw new(nameof(NetStream));
+            if (NetStream is null)
+            {
+                throw new ArgNullException(null, nameof(NetStream));
+            }
 
             // Can't perform socket read/write operations
             if (!NetStream.CanRead || !NetStream.CanWrite)
@@ -205,12 +208,11 @@ namespace DotnetCat.Nodes
                 throw new ArgumentException(nameof(NetStream));
             }
 
-            _netReader = new StreamReader(NetStream);
-
             _netWriter = new StreamWriter(NetStream)
             {
                 AutoFlush = true
             };
+            _netReader = new StreamReader(NetStream);
 
             // Initialize socket pipeline(s)
             _pipes = pipeType switch
