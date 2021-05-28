@@ -79,18 +79,21 @@ namespace DotnetCat.Nodes
         /// <summary>
         /// Dispose of unmanaged resources and handle error
         /// </summary>
-        public override void PipeError(Except type, IPEndPoint ep,
-                                                    Exception ex = default,
-                                                    Level level = default) {
+        public override void PipeError(Except type,
+                                       IPEndPoint ep,
+                                       Exception ex = default,
+                                       Level level = default) {
+            // Call overload
             PipeError(type, ep.ToString(), ex, level);
         }
 
         /// <summary>
         /// Dispose of unmanaged resources and handle error
         /// </summary>
-        public override void PipeError(Except type, string arg,
-                                                    Exception ex = default,
-                                                    Level level = default) {
+        public override void PipeError(Except type,
+                                       string arg,
+                                       Exception ex = default,
+                                       Level level = default) {
             Dispose();
             ErrorHandler.Handle(type, arg, ex, level);
         }

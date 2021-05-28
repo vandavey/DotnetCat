@@ -65,9 +65,12 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Write a custom status to standard output
         /// <summary>
-        private static void Status(Level level, string msg,
-                                                bool noNewLine = false) {
+        private static void Status(Level level,
+                                   string msg,
+                                   bool noNewLine = false) {
+            // Status index
             int index = IndexOfStatus(level);
+
             _ = msg ?? throw new ArgNullException(nameof(msg));
 
             // Get standard output/error stream

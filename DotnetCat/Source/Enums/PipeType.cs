@@ -5,7 +5,7 @@ namespace DotnetCat.Enums
     /// </summary>
     enum PipeType : short
     {
-        Default,  // Default pipeline type
+        Stream,   // Standard console stream pipeline
         File,     // File transfer pipeline
         Process,  // Executable process pipeline
         Text      // User-defined text pipeline

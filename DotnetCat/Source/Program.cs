@@ -229,11 +229,12 @@ namespace DotnetCat
                         Error.Handle(Except.UnknownArgs, Args[0], true);
                     }
 
-                    try  // Parse string as IP address
+                    // Parse or resolve IP address
+                    if (IPAddress.TryParse(Args[0], out IPAddress addr))
                     {
-                        SockNode.Addr = IPAddress.Parse(Args[0]);
+                        SockNode.Addr = addr;
                     }
-                    catch (FormatException)
+                    else
                     {
                         SockNode.Addr = ResolveHostName(Args[0]);
                     }

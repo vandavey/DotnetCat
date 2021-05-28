@@ -24,27 +24,33 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Handle special exceptions related to DotNetCat
         /// </summary>
-        public static void Handle(Except exType, string arg,
-                                                 Exception ex = default) {
+        public static void Handle(Except exType,
+                                  string arg,
+                                  Exception ex = default) {
+            // Call overload
             Handle(exType, arg, false, ex);
         }
 
         /// <summary>
         /// Handle special exceptions related to DotNetCat
         /// </summary>
-        public static void Handle(Except exType, string arg,
-                                                 Exception ex,
-                                                 Level level = default) {
+        public static void Handle(Except exType,
+                                  string arg,
+                                  Exception ex,
+                                  Level level = default) {
+            // Call overload
             Handle(exType, arg, false, ex, level);
         }
 
         /// <summary>
         /// Handle special exceptions related to DotNetCat
         /// </summary>
-        public static void Handle(Except exType, string arg,
-                                                 bool showUsage,
-                                                 Exception ex = default,
-                                                 Level level = default) {
+        public static void Handle(Except exType,
+                                  string arg,
+                                  bool showUsage,
+                                  Exception ex = default,
+                                  Level level = default) {
+            // Unknown error
             if (!_errors.ContainsKey(exType))
             {
                 throw new ArgumentException(null, nameof(exType));
@@ -137,7 +143,7 @@ namespace DotnetCat.Handlers
             },
             {
                 Except.InvalidPort,
-                new ErrorMessage("{} cannot be parsed as a valid port")
+                new ErrorMessage("'{}' is not a valid port number")
             },
             {
                 Except.NamedArgs,

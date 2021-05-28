@@ -311,8 +311,9 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Remove character (alias) from a cmd-line argument
         /// </summary>
-        private static void RemoveAlias(int index, char alias,
-                                                   bool remValue = false) {
+        private static void RemoveAlias(int index,
+                                        char alias,
+                                        bool remValue = false) {
             // Invalid index received
             if (!ValidIndex(index) || (remValue && !ValidIndex(index + 1)))
             {
@@ -436,23 +437,15 @@ namespace DotnetCat.Handlers
             {
                 Error.Handle(Except.NamedArgs, Args[argIndex], true);
             }
+            string sPort = ArgsValueAt(argIndex + 1);
 
-            int iPort = -1;
-            string port = ArgsValueAt(argIndex + 1);
-
-            try  // Validate port
-            {
-                if ((iPort = int.Parse(port)) is 0 or > 65535)
-                {
-                    throw new FormatException();
-                }
-            }
-            catch (FormatException ex)  // Invalid port number
+            // Handle invalid port strings
+            if (!int.TryParse(sPort, out int port) || port is 0 or > 65535)
             {
                 Console.WriteLine(GetUsage(_appTitle));
-                Error.Handle(Except.InvalidPort, port, ex);
+                Error.Handle(Except.InvalidPort, sPort);
             }
-            return iPort;
+            return port;
         }
     }
 }

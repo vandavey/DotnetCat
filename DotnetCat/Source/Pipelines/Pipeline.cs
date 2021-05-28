@@ -96,10 +96,10 @@ namespace DotnetCat.Pipelines
         /// </summary>
         protected virtual async Task ConnectAsync(CancellationToken token)
         {
-            Memory<char> buffer = new(new char[1024]);
-
             StringBuilder data = new();
-            StringBuilder newLine = new StringBuilder().AppendLine();
+            StringBuilder newLine = new(Environment.NewLine);
+
+            Memory<char> buffer = new(new char[1024]);
 
             int charsRead;
             Connected = true;

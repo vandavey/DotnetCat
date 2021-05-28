@@ -158,18 +158,21 @@ namespace DotnetCat.Nodes
         /// <summary>
         /// Dispose of unmanaged socket resources and handle error
         /// </summary>
-        public virtual void PipeError(Except type, IPEndPoint ep,
-                                                   Exception ex = default,
-                                                   Level level = default) {
+        public virtual void PipeError(Except type,
+                                      IPEndPoint ep,
+                                      Exception ex = default,
+                                      Level level = default) {
+            // Call overload
             PipeError(type, ep.ToString(), ex, level);
         }
 
         /// <summary>
         /// Dispose of unmanaged resources and handle error
         /// </summary>
-        public virtual void PipeError(Except type, string arg,
-                                                   Exception ex = default,
-                                                   Level level = default) {
+        public virtual void PipeError(Except type,
+                                      string arg,
+                                      Exception ex = default,
+                                      Level level = default) {
             Dispose();
             ErrorHandler.Handle(type, arg, ex, level);
         }
@@ -197,13 +200,8 @@ namespace DotnetCat.Nodes
         /// </summary>
         protected void AddPipes(PipeType pipeType)
         {
-            if (NetStream is null)
-            {
-                throw new ArgNullException(null, nameof(NetStream));
-            }
-
-            // Can't perform socket read/write operations
-            if (!NetStream.CanRead || !NetStream.CanWrite)
+            // Invalid network stream
+            if (NetStream is null || !NetStream.CanRead || !NetStream.CanWrite)
             {
                 throw new ArgumentException(nameof(NetStream));
             }
@@ -217,10 +215,10 @@ namespace DotnetCat.Nodes
             // Initialize socket pipeline(s)
             _pipes = pipeType switch
             {
-                PipeType.File    => GetTransferPipes(),
-                PipeType.Process => GetProcessPipes(),
-                PipeType.Text    => GetTextPipes(),
-                _                => GetStreamPipes()
+                PipeType.File        => GetTransferPipes(),
+                PipeType.Process     => GetProcessPipes(),
+                PipeType.Text        => GetTextPipes(),
+                PipeType.Stream or _ => GetStreamPipes()
             };
         }
 
@@ -233,7 +231,7 @@ namespace DotnetCat.Nodes
             {
                 Task.Delay(msDelay).Wait();
 
-                // Check if exe exited or pipelines disconnected
+                // Check if process exited or pipelines disconnected
                 if (ProcessExited() || !PipelinesConnected())
                 {
                     break;
