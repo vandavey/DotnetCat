@@ -5,9 +5,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using DotnetCat.Enums;
+using DotnetCat.Handlers;
 using DotnetCat.Nodes;
-using ArgParser = DotnetCat.Handlers.ArgumentParser;
-using Error = DotnetCat.Handlers.ErrorHandler;
 
 namespace DotnetCat
 {
@@ -16,7 +15,7 @@ namespace DotnetCat
     /// </summary>
     class Program
     {
-        private static ArgParser _parser;  // Cmd-line argument parser
+        private static Parser _parser;  // Cmd-line argument parser
 
         /// Enable verbose console output
         public static bool Verbose => SockNode?.Verbose ?? false;
@@ -59,10 +58,10 @@ namespace DotnetCat
                 OS = Platform.Nix;
             }
 
-            _parser = new ArgParser();
+            _parser = new Parser();
 
             // Display help info and exit
-            if ((args.Length == 0) || ArgParser.NeedsHelp(args))
+            if ((args.Length == 0) || Parser.NeedsHelp(args))
             {
                 _parser.PrintHelp();
             }
@@ -106,10 +105,10 @@ namespace DotnetCat
             }
 
             Transfer = GetTransferOpts();
-            index = ArgParser.IndexOfFlag("--listen", 'l');
+            index = Parser.IndexOfFlag("--listen", 'l');
 
             // Determine if node is client/server
-            if ((index > -1) || (ArgParser.IndexOfAlias('l') > -1))
+            if ((index > -1) || (Parser.IndexOfAlias('l') > -1))
             {
                 SockNode = new ServerNode();
                 return;
@@ -186,17 +185,17 @@ namespace DotnetCat
         /// </summary>
         private static TransferOpt GetTransferOpts()
         {
-            int outIndex = ArgParser.IndexOfFlag("--output", 'o');
+            int outIndex = Parser.IndexOfFlag("--output", 'o');
 
             // Receive file data
-            if ((outIndex > -1) || (ArgParser.IndexOfAlias('o') > -1))
+            if ((outIndex > -1) || (Parser.IndexOfAlias('o') > -1))
             {
                 return TransferOpt.Collect;
             }
-            int sendIndex = ArgParser.IndexOfFlag("--send", 's');
+            int sendIndex = Parser.IndexOfFlag("--send", 's');
 
             // Send file data
-            if ((sendIndex > -1) || (ArgParser.IndexOfAlias('s') > -1))
+            if ((sendIndex > -1) || (Parser.IndexOfAlias('s') > -1))
             {
                 return TransferOpt.Transmit;
             }

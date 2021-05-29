@@ -6,8 +6,6 @@ using DotnetCat.Contracts;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
 using ArgNullException = System.ArgumentNullException;
-using Cmd = DotnetCat.Handlers.CommandHandler;
-using Style = DotnetCat.Handlers.StyleHandler;
 
 namespace DotnetCat.Nodes
 {
@@ -50,7 +48,7 @@ namespace DotnetCat.Nodes
                 // Start executable process
                 if (Program.UsingExe)
                 {
-                    if (!Start(Exe ??= Cmd.GetDefaultExe(OS)))
+                    if (!Start(Exe ??= Command.GetDefaultExe(OS)))
                     {
                         PipeError(Except.ExeProcess, Exe);
                     }
@@ -95,7 +93,7 @@ namespace DotnetCat.Nodes
                                        Exception ex = default,
                                        Level level = default) {
             Dispose();
-            ErrorHandler.Handle(type, arg, ex, level);
+            Error.Handle(type, arg, ex, level);
         }
 
         /// <summary>

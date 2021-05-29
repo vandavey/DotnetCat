@@ -11,14 +11,14 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Application output style handler
     /// </summary>
-    static class StyleHandler
+    static class Style
     {
         private static readonly List<Status> _statuses;  // Status list
 
         /// <summary>
         /// Initialize static members
         /// </summary>
-        static StyleHandler() => _statuses = new List<Status>
+        static Style() => _statuses = new List<Status>
         {
             new Status(ConsoleColor.Cyan, Level.Info),
             new Status(ConsoleColor.Green, Level.Output),

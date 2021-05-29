@@ -61,7 +61,7 @@ namespace DotnetCat.Pipelines
 
             if (Program.Verbose)
             {
-                StyleHandler.Output("Payload successfully transmitted");
+                Style.Output("Payload successfully transmitted");
             }
 
             Disconnect();

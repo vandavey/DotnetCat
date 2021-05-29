@@ -125,7 +125,7 @@ namespace DotnetCat.Pipelines
                 data = FixLineEndings(data);  // Normalize EOL sequences
 
                 // Clear console buffer if requested
-                if (CommandHandler.IsClearCmd(data.ToString()))
+                if (Command.IsClearCmd(data.ToString()))
                 {
                     await Dest.WriteAsync(newLine, token);
                 }

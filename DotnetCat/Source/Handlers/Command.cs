@@ -10,7 +10,7 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Command and executable process handler
     /// </summary>
-    static class CommandHandler
+    static class Command
     {
         private static readonly string[] _clsCommands;  // Clear commands
 
@@ -21,7 +21,7 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Initialize static members
         /// </summary>
-        static CommandHandler()
+        static Command()
         {
             string path = Env.GetEnvironmentVariable("PATH");
             _envPaths = path.Split(Path.PathSeparator);

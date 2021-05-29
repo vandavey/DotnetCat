@@ -12,7 +12,6 @@ using DotnetCat.Handlers;
 using DotnetCat.Pipelines;
 using ArgNullException = System.ArgumentNullException;
 using Env = System.Environment;
-using Cmd = DotnetCat.Handlers.CommandHandler;
 
 namespace DotnetCat.Nodes
 {
@@ -91,13 +90,13 @@ namespace DotnetCat.Nodes
         /// </summary>
         public bool Start(string exe = default)
         {
-            Exe ??= Cmd.GetDefaultExe(OS);
+            Exe ??= Command.GetDefaultExe(OS);
 
             // Invalid executable path
-            if (!Cmd.ExistsOnPath(exe).exists)
+            if (!Command.ExistsOnPath(exe).exists)
             {
                 Dispose();
-                ErrorHandler.Handle(Except.ExePath, exe, true);
+                Error.Handle(Except.ExePath, exe, true);
             }
 
             _process = new Process { StartInfo = GetStartInfo(exe) };
@@ -174,7 +173,7 @@ namespace DotnetCat.Nodes
                                       Exception ex = default,
                                       Level level = default) {
             Dispose();
-            ErrorHandler.Handle(type, arg, ex, level);
+            Error.Handle(type, arg, ex, level);
         }
 
         /// <summary>

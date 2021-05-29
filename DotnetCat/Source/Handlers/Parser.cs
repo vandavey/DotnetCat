@@ -4,15 +4,13 @@ using System.IO;
 using System.Linq;
 using DotnetCat.Enums;
 using DotnetCat.Nodes;
-using Cmd = DotnetCat.Handlers.CommandHandler;
-using Error = DotnetCat.Handlers.ErrorHandler;
 
 namespace DotnetCat.Handlers
 {
     /// <summary>
     /// Command line argument parser and validator
     /// </summary>
-    class ArgumentParser
+    class Parser
     {
         private readonly string _appTitle;  // Application title
         private readonly string _help;      // Help information
@@ -20,7 +18,7 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Initialize object
         /// </summary>
-        public ArgumentParser()
+        public Parser()
         {
             _appTitle = (OS is Platform.Nix) ? "dncat" : "dncat.exe";
             _help = GetHelp(_appTitle, GetUsage(_appTitle));
@@ -372,7 +370,7 @@ namespace DotnetCat.Handlers
             }
 
             string exec = ArgsValueAt(argIndex + 1);
-            (bool exists, string path) = Cmd.ExistsOnPath(exec);
+            (bool exists, string path) = Command.ExistsOnPath(exec);
 
             // Failed to locate executable
             if (!exists)

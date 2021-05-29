@@ -7,7 +7,6 @@ using DotnetCat.Contracts;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
 using ArgNullException = System.ArgumentNullException;
-using Style = DotnetCat.Handlers.StyleHandler;
 
 namespace DotnetCat.Pipelines
 {
@@ -67,11 +66,12 @@ namespace DotnetCat.Pipelines
         /// <summary>
         /// Dispose of unmanaged resources and handle error
         /// </summary>
-        public virtual void PipeError(Except type, string arg,
-                                                   Exception ex = default,
-                                                   Level level = default) {
+        public virtual void PipeError(Except type,
+                                      string arg,
+                                      Exception ex = default,
+                                      Level level = default) {
             Dispose();
-            ErrorHandler.Handle(type, arg, ex, level);
+            Error.Handle(type, arg, ex, level);
         }
 
         /// <summary>
@@ -91,10 +91,12 @@ namespace DotnetCat.Pipelines
                 PipeError(Except.DirectoryPath, info.FullName);
             }
 
-            return new FileStream(path, FileMode.Create, FileAccess.Write,
-                                                         FileShare.Write,
-                                                         bufferSize: 1024,
-                                                         useAsync: true);
+            return new FileStream(path,
+                                  FileMode.Create,
+                                  FileAccess.Write,
+                                  FileShare.Write,
+                                  bufferSize: 1024,
+                                  useAsync: true);
         }
 
         /// <summary>
@@ -114,11 +116,12 @@ namespace DotnetCat.Pipelines
                 PipeError(Except.FilePath, info.FullName);
             }
 
-            return new FileStream(info.FullName, FileMode.Open,
-                                                 FileAccess.Read,
-                                                 FileShare.Read,
-                                                 bufferSize: 4096,
-                                                 useAsync: true);
+            return new FileStream(info.FullName,
+                                  FileMode.Open,
+                                  FileAccess.Read,
+                                  FileShare.Read,
+                                  bufferSize: 4096,
+                                  useAsync: true);
         }
 
         /// <summary>

@@ -4,8 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using DotnetCat.Contracts;
 using DotnetCat.Enums;
-using Cmd = DotnetCat.Handlers.CommandHandler;
-using Style = DotnetCat.Handlers.StyleHandler;
+using DotnetCat.Handlers;
 
 namespace DotnetCat.Nodes
 {
@@ -45,7 +44,7 @@ namespace DotnetCat.Nodes
                 // Start executable process
                 if (Program.UsingExe)
                 {
-                    if (!Start(Exe ??= Cmd.GetDefaultExe(OS)))
+                    if (!Start(Exe ??= Command.GetDefaultExe(OS)))
                     {
                         PipeError(Except.ExeProcess, Exe);
                     }

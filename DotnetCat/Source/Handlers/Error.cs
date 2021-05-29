@@ -12,14 +12,14 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Handler for custom DotnetCat errors
     /// </summary>
-    static class ErrorHandler
+    static class Error
     {
         private static readonly ExceptDict _errors; // Exception dictionary
 
         /// <summary>
         /// Initialize static members
         /// </summary>
-        static ErrorHandler() => _errors = GetErrorDict();
+        static Error() => _errors = GetErrorDict();
 
         /// <summary>
         /// Handle special exceptions related to DotNetCat
@@ -60,18 +60,18 @@ namespace DotnetCat.Handlers
             // Display program usage
             if (showUsage)
             {
-                Console.WriteLine(ArgumentParser.GetUsage());
+                Console.WriteLine(Parser.GetUsage());
             }
             _errors[exType].Build(arg);
 
             // Print warning/error message
             if (level is Level.Warn)
             {
-                StyleHandler.Warn(_errors[exType].Value);
+                Style.Warn(_errors[exType].Value);
             }
             else
             {
-                StyleHandler.Error(_errors[exType].Value);
+                Style.Error(_errors[exType].Value);
             }
 
             // Print debug information
