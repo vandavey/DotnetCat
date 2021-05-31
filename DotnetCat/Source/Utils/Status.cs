@@ -18,11 +18,10 @@ namespace DotnetCat.Utils
 
             Symbol = level switch
             {
-                Level.Error  => "[x]",
-                Level.Info   => "[*]",
-                Level.Output => "[+]",
-                Level.Warn   => "[!]",
-                _            => "[*]"
+                Level.Error     => "[x]",
+                Level.Output    => "[+]",
+                Level.Warn      => "[!]",
+                Level.Info or _ => "[*]"
             };
         }
 

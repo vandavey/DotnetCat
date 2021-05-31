@@ -6,8 +6,6 @@ using DotnetCat.Contracts;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
 using ArgNullException = System.ArgumentNullException;
-using Cmd = DotnetCat.Handlers.CommandHandler;
-using Style = DotnetCat.Handlers.StyleHandler;
 
 namespace DotnetCat.Nodes
 {
@@ -36,6 +34,8 @@ namespace DotnetCat.Nodes
             _ = Addr ?? throw new ArgNullException(nameof(Addr));
             IPEndPoint ep = default;
 
+            ValidateArgCombinations();
+
             // Bind listener socket to local endpoint
             BindListener(new IPEndPoint(Addr, Port));
 
@@ -48,22 +48,19 @@ namespace DotnetCat.Nodes
                 NetStream = Client.GetStream();
 
                 // Start executable process
-                if (Program.UsingExe)
+                if (Program.UsingExe && !StartProcess(Exe))
                 {
-                    if (!Start(Exe ??= Cmd.GetDefaultExe(OS)))
-                    {
-                        PipeError(Except.ExeProcess, Exe);
-                    }
+                    PipeError(Except.ExeProcess, Exe);
                 }
 
                 ep = Client.Client.RemoteEndPoint as IPEndPoint;
-                Style.Info($"Connected to {ep}");
+                Style.Info($"Connected to {DestName}:{Port}");
 
                 base.Connect();
                 WaitForExit();
 
                 // Connection closed status
-                Style.Info($"Connection to {ep.Address} closed");
+                Style.Info($"Connection to {DestName} closed");
             }
             catch (SocketException ex)  // Error (likely refused)
             {
@@ -79,20 +76,23 @@ namespace DotnetCat.Nodes
         /// <summary>
         /// Dispose of unmanaged resources and handle error
         /// </summary>
-        public override void PipeError(Except type, IPEndPoint ep,
-                                                    Exception ex = default,
-                                                    Level level = default) {
-            PipeError(type, ep.ToString(), ex, level);
+        public override void PipeError(Except type,
+                                       IPEndPoint ep,
+                                       Exception ex = default,
+                                       Level level = default) {
+            Dispose();
+            Error.Handle(type, ep.ToString(), ex, level);
         }
 
         /// <summary>
         /// Dispose of unmanaged resources and handle error
         /// </summary>
-        public override void PipeError(Except type, string arg,
-                                                    Exception ex = default,
-                                                    Level level = default) {
+        public override void PipeError(Except type,
+                                       string arg,
+                                       Exception ex = default,
+                                       Level level = default) {
             Dispose();
-            ErrorHandler.Handle(type, arg, ex, level);
+            Error.Handle(type, arg, ex, level);
         }
 
         /// <summary>
@@ -103,7 +103,6 @@ namespace DotnetCat.Nodes
             _listener?.Dispose();
             base.Dispose();
 
-            // Prevent unnecessary finalization
             GC.SuppressFinalize(this);
         }
 
