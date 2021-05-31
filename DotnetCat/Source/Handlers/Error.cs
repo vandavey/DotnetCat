@@ -105,7 +105,7 @@ namespace DotnetCat.Handlers
             },
             {
                 Except.ConnectionRefused,
-                new ErrorMessage("Connection actively refused by {}")
+                new ErrorMessage("Connection was actively refused by {}")
             },
             {
                 Except.ConnectionTimeout,

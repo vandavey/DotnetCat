@@ -15,8 +15,6 @@ namespace DotnetCat
     /// </summary>
     class Program
     {
-        private static Parser _parser;         // Cmd-line argument parser
-
         /// Enable verbose console output
         public static bool Verbose => SockNode?.Verbose ?? false;
 
@@ -61,13 +59,12 @@ namespace DotnetCat
                 OS = Platform.Nix;
             }
 
-            _parser = new Parser();
             OrigArgs = args.ToList();
 
             // Display help info and exit
             if ((args.Length == 0) || Parser.NeedsHelp(args))
             {
-                _parser.PrintHelp();
+                Parser.PrintHelp();
             }
 
             InitializeNode(args);

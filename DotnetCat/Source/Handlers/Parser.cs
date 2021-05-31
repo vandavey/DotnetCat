@@ -10,14 +10,19 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Command line argument parser and validator
     /// </summary>
-    class Parser
+    static class Parser
     {
-        private readonly string _help;  // Help information
+        private static readonly string _eol;   // Platform EOL string
+        private static readonly string _help;  // Help information
 
         /// <summary>
         /// Initialize object
         /// </summary>
-        public Parser() => _help = GetHelp(Usage);
+        static Parser()
+        {
+            _eol = Environment.NewLine;
+            _help = GetHelp();
+        }
 
         /// Application title string
         public static string AppTitle
@@ -26,10 +31,7 @@ namespace DotnetCat.Handlers
         }
 
         /// Application usage string
-        public static string Usage
-        {
-            get => $"Usage: {AppTitle} [OPTIONS] TARGET";
-        }
+        public static string Usage => $"Usage: {AppTitle} [OPTIONS] TARGET";
 
         /// Local operating system
         private static Platform OS => Program.OS;
@@ -286,7 +288,7 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Print application help message to console output
         /// </summary>
-        public void PrintHelp()
+        public static void PrintHelp()
         {
             Console.WriteLine(_help);
             Environment.Exit(0);
@@ -295,17 +297,15 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Get application help message as a string
         /// </summary>
-        private static string GetHelp(string appUsage)
+        private static string GetHelp()
         {
-            string lf = Environment.NewLine;
-
-            return string.Join(lf, new string[]
+            return string.Join(_eol, new string[]
             {
                 "DotnetCat (https://github.com/vandavey/DotnetCat)",
-                $"{appUsage}{lf}",
-                $"Remote command shell application{lf}",
+                $"{Usage}{_eol}",
+                $"Remote command shell application{_eol}",
                 "Positional Arguments:",
-                $"  TARGET                    Remote/local IPv4 address{lf}",
+                $"  TARGET                    Remote/local IPv4 address{_eol}",
                 "Optional Arguments:",
                 "  -h/-?,   --help           Show this help message and exit",
                 "  -v,      --verbose        Enable verbose console output",
@@ -317,11 +317,11 @@ namespace DotnetCat.Handlers
                 "  -e EXEC, --exec EXEC      Executable process file path",
                 "  -o PATH, --output PATH    Receive file from remote host",
                 "  -s PATH, --send PATH      Send local file or folder",
-                $"  -t DATA, --text DATA      Send string to remote host{lf}",
+                $"  -t DATA, --text DATA      Send string to remote host{_eol}",
                 "Usage Examples:",
-                "  dncat.exe -le powershell.exe",
-                "  dncat 10.0.0.152 -p 4444 localhost",
-                $"  dncat -vo test.txt 192.168.1.9{lf}",
+                $"  {AppTitle} --listen --exec powershell.exe",
+                $"  {AppTitle} -d -p 4444 localhost",
+                $"  {AppTitle} -vo test.txt -p 2009 192.168.1.9 {_eol}",
             });
         }
 
