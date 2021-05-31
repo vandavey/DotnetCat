@@ -15,7 +15,7 @@ namespace DotnetCat
     /// </summary>
     class Program
     {
-        private static Parser _parser;  // Cmd-line argument parser
+        private static Parser _parser;         // Cmd-line argument parser
 
         /// Enable verbose console output
         public static bool Verbose => SockNode?.Verbose ?? false;
@@ -44,6 +44,9 @@ namespace DotnetCat
         /// File transfer option type
         public static TransferOpt Transfer { get; private set; }
 
+        /// Original cmd-line arguments
+        public static List<string> OrigArgs { get; private set; }
+
         /// <summary>
         /// Primary application entry point
         /// </summary>
@@ -59,6 +62,7 @@ namespace DotnetCat
             }
 
             _parser = new Parser();
+            OrigArgs = args.ToList();
 
             // Display help info and exit
             if ((args.Length == 0) || Parser.NeedsHelp(args))
@@ -207,8 +211,8 @@ namespace DotnetCat
         /// </summary>
         private static void ConnectNode()
         {
-            _parser.ParseCharArgs();
-            _parser.ParseFlagArgs();
+            Parser.ParseCharArgs();
+            Parser.ParseFlagArgs();
 
             // Validate remaining cmd-line arguments
             switch (Args.Count)
@@ -237,6 +241,8 @@ namespace DotnetCat
                     {
                         SockNode.Addr = ResolveHostName(Args[0]);
                     }
+
+                    SockNode.DestName = Args[0];
 
                     // Invalid destination host
                     if (SockNode.Addr is null)

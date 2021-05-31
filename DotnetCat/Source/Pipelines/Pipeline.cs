@@ -19,7 +19,11 @@ namespace DotnetCat.Pipelines
         /// <summary>
         /// Initialize object
         /// </summary>
-        protected Pipeline() => Connected = false;
+        protected Pipeline()
+        {
+            Connected = false;
+            NewLine = new StringBuilder(Environment.NewLine);
+        }
 
         /// <summary>
         /// Cleanup resources
@@ -34,6 +38,9 @@ namespace DotnetCat.Pipelines
 
         /// Operating system
         protected static TcpClient Client => Program.SockNode.Client;
+
+        /// Platform based EOL escape sequence
+        protected StringBuilder NewLine { get; }
 
         /// Pipeline cancellation token
         protected CancellationTokenSource CTS { get; set; }
@@ -87,7 +94,6 @@ namespace DotnetCat.Pipelines
             {
             }
 
-            // Prevent unnecessary finalization
             GC.SuppressFinalize(this);
         }
 
@@ -97,8 +103,6 @@ namespace DotnetCat.Pipelines
         protected virtual async Task ConnectAsync(CancellationToken token)
         {
             StringBuilder data = new();
-            StringBuilder newLine = new(Environment.NewLine);
-
             Memory<char> buffer = new(new char[1024]);
 
             int charsRead;
@@ -127,7 +131,7 @@ namespace DotnetCat.Pipelines
                 // Clear console buffer if requested
                 if (Command.IsClearCmd(data.ToString()))
                 {
-                    await Dest.WriteAsync(newLine, token);
+                    await Dest.WriteAsync(NewLine, token);
                 }
                 else
                 {

@@ -33,6 +33,8 @@ namespace DotnetCat.Nodes
             _ = Addr ?? throw new ArgumentNullException(nameof(Addr));
             _ep ??= new IPEndPoint(Addr, Port);
 
+            ValidateArgCombinations();
+
             try  // Connect with timeout
             {
                 if (!Client.ConnectAsync(Addr, Port).Wait(3500))
@@ -42,20 +44,21 @@ namespace DotnetCat.Nodes
                 NetStream = Client.GetStream();
 
                 // Start executable process
-                if (Program.UsingExe)
+                if (Program.UsingExe && !StartProcess(Exe))
                 {
-                    if (!Start(Exe ??= Command.GetDefaultExe(OS)))
-                    {
-                        PipeError(Except.ExeProcess, Exe);
-                    }
+                    PipeError(Except.ExeProcess, Exe);
                 }
-                Style.Info($"Connected to {_ep}");
+
+                if (Program.PipeVariant is not PipeType.Status)
+                {
+                    Style.Info($"Connected to {DestName}:{Port}");
+                }
 
                 base.Connect();
                 WaitForExit();
 
                 // Connection closed status
-                Style.Info($"Connection to {_ep.Address} closed");
+                Style.Info($"Connection to {DestName} closed");
             }
             catch (AggregateException ex)  // Connection refused
             {

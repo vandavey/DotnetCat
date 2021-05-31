@@ -34,6 +34,8 @@ namespace DotnetCat.Nodes
             _ = Addr ?? throw new ArgNullException(nameof(Addr));
             IPEndPoint ep = default;
 
+            ValidateArgCombinations();
+
             // Bind listener socket to local endpoint
             BindListener(new IPEndPoint(Addr, Port));
 
@@ -46,22 +48,19 @@ namespace DotnetCat.Nodes
                 NetStream = Client.GetStream();
 
                 // Start executable process
-                if (Program.UsingExe)
+                if (Program.UsingExe && !StartProcess(Exe))
                 {
-                    if (!Start(Exe ??= Command.GetDefaultExe(OS)))
-                    {
-                        PipeError(Except.ExeProcess, Exe);
-                    }
+                    PipeError(Except.ExeProcess, Exe);
                 }
 
                 ep = Client.Client.RemoteEndPoint as IPEndPoint;
-                Style.Info($"Connected to {ep}");
+                Style.Info($"Connected to {DestName}:{Port}");
 
                 base.Connect();
                 WaitForExit();
 
                 // Connection closed status
-                Style.Info($"Connection to {ep.Address} closed");
+                Style.Info($"Connection to {DestName} closed");
             }
             catch (SocketException ex)  // Error (likely refused)
             {
@@ -81,8 +80,8 @@ namespace DotnetCat.Nodes
                                        IPEndPoint ep,
                                        Exception ex = default,
                                        Level level = default) {
-            // Call overload
-            PipeError(type, ep.ToString(), ex, level);
+            Dispose();
+            Error.Handle(type, ep.ToString(), ex, level);
         }
 
         /// <summary>
@@ -104,7 +103,6 @@ namespace DotnetCat.Nodes
             _listener?.Dispose();
             base.Dispose();
 
-            // Prevent unnecessary finalization
             GC.SuppressFinalize(this);
         }
 

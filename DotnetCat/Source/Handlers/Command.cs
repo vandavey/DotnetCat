@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using DotnetCat.Enums;
 using ArgNullException = System.ArgumentNullException;
 using Env = System.Environment;
 
@@ -28,26 +27,6 @@ namespace DotnetCat.Handlers
 
             _clsCommands = new string[] { "cls", "clear", "clear-host" };
             _exeFiles = new string[] { "exe", "bat", "ps1", "py", "sh" };
-        }
-
-        /// <summary>
-        /// Get default command shell for the platform
-        /// </summary>
-        public static string GetDefaultExe(Platform platform)
-        {
-            bool exists;
-            string path;
-
-            // Get Unix default shell
-            if (platform is Platform.Nix)
-            {
-                (exists, path) = ExistsOnPath("bash");
-                return exists ? path : "/bin/sh";
-            }
-
-            // Get Windows default shell
-            (exists, path) = ExistsOnPath("powershell.exe");
-            return exists ? path : GetExePath("cmd.exe");
         }
 
         /// <summary>

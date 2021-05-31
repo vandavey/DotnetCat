@@ -12,16 +12,23 @@ namespace DotnetCat.Handlers
     /// </summary>
     class Parser
     {
-        private readonly string _appTitle;  // Application title
-        private readonly string _help;      // Help information
+        private readonly string _help;  // Help information
 
         /// <summary>
         /// Initialize object
         /// </summary>
-        public Parser()
+        public Parser() => _help = GetHelp(Usage);
+
+        /// Application title string
+        public static string AppTitle
         {
-            _appTitle = (OS is Platform.Nix) ? "dncat" : "dncat.exe";
-            _help = GetHelp(_appTitle, GetUsage(_appTitle));
+            get => (OS is Platform.Nix) ? "dncat" : "dncat.exe";
+        }
+
+        /// Application usage string
+        public static string Usage
+        {
+            get => $"Usage: {AppTitle} [OPTIONS] TARGET";
         }
 
         /// Local operating system
@@ -60,14 +67,6 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get the application usage string
-        /// </summary>
-        public static string GetUsage(string appTitle = "dncat")
-        {
-            return $"Usage: {appTitle} [OPTIONS] TARGET";
-        }
-
-        /// <summary>
         /// Check for help flag in cmd-line arguments
         /// </summary>
         public static bool NeedsHelp(string[] args)
@@ -103,47 +102,46 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Get the matching cmd-line argument index
         /// </summary>
-        public static int IndexOfFlag(string flag, char? alias = default)
+        public static int IndexOfFlag(string flag, List<string> args)
         {
+            return IndexOfFlag(flag, null, args);
+        }
+
+        /// <summary>
+        /// Get the matching cmd-line argument index
+        /// </summary>
+        public static int IndexOfFlag(string flag,
+                                      char? alias = default,
+                                      List<string> args = default) {
+            if (flag is null or "")
+            {
+                throw new ArgumentNullException(nameof(flag));
+            }
+            args ??= Args;
+
             if (flag == "-")
             {
-                return Args.IndexOf(flag);
+                return args.IndexOf(flag);
             }
 
             // Assign argument alias
-            if (alias.ToString() is not null or "")
-            {
-                foreach (char ch in alias.ToString())
-                {
-                    if (char.IsLetter(ch))
-                    {
-                        alias = ch;
-                    }
-                }
-            }
+            alias ??= flag.Where(c => char.IsLetter(c)).FirstOrDefault();
 
             // Query cmd-line arguments
-            List<int> query = (from arg in Args
+            List<int> query = (from arg in args
                                where arg.ToLower() == flag.ToLower()
-                                   || arg == $"-{alias}"
-                               select Args.IndexOf(arg)).ToList();
+                                   || (arg.Contains(alias ?? '\0')
+                                       && arg[0] == '-'
+                                       && arg[1] != '-')
+                               select args.IndexOf(arg)).ToList();
 
             return (query.Count > 0) ? query[0] : -1;
         }
 
         /// <summary>
-        /// Print application help message to console output
-        /// </summary>
-        public void PrintHelp()
-        {
-            Console.WriteLine(_help);
-            Environment.Exit(0);
-        }
-
-        /// <summary>
         /// Parse named arguments starting with one dash
         /// </summary>
-        public void ParseCharArgs()
+        public static void ParseCharArgs()
         {
             // Locate all char flag arguments
             var query = from arg in Args.ToList()
@@ -164,6 +162,12 @@ namespace DotnetCat.Handlers
                 {
                     SockNode.Verbose = true;
                     RemoveAlias(item.index, 'v');
+                }
+
+                if (item.arg.Contains('z'))  // Zero-IO (test connection)
+                {
+                    PipeVariant = PipeType.Status;
+                    RemoveAlias(item.index, 'z');
                 }
 
                 if (item.arg.Contains('d'))  // Debug output
@@ -198,7 +202,7 @@ namespace DotnetCat.Handlers
 
                 if (item.arg.Contains('t'))  // Send string data
                 {
-                    Payload = GetText(item.index);
+                    Payload = GetTextPayload(item.index);
                     RemoveAlias(item.index, 't', remValue: true);
                 }
 
@@ -212,7 +216,7 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Parse named arguments starting with two dashes
         /// </summary>
-        public void ParseFlagArgs()
+        public static void ParseFlagArgs()
         {
             // Locate all flag arguments
             var query = from arg in Args.ToList()
@@ -224,43 +228,48 @@ namespace DotnetCat.Handlers
             {
                 switch (item.arg)
                 {
-                    case "--listen":   // Listen for connection
+                    case "--listen":              // Listen for connection
                     {
                         Args.RemoveAt(item.index);
                         break;
                     }
-                    case "--verbose":  // Verbose output
+                    case "--verbose":             // Verbose output
                     {
                         SockNode.Verbose = true;
                         Args.RemoveAt(item.index);
                         break;
                     }
-                    case "--debug":    // Debug output
+                    case "--debug":               // Debug output
                     {
                         Debug = SockNode.Verbose = true;
                         Args.RemoveAt(item.index);
                         break;
                     }
-                    case "--port":     // Connection port
+                    case "--zero-io":             // Zero-IO (test connection)
+                    {
+                        PipeVariant = PipeType.Status;
+                        Args.RemoveAt(item.index);
+                        break;
+                    }
+                    case "--port":                // Connection port
                     {
                         SockNode.Port = GetPort(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
-                    case "--exec":     // Executable path
+                    case "--exec":                // Executable path
                     {
                         SockNode.Exe = GetExecutable(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
-                    case "--text":     // Send string data
+                    case "--text":                // Send string data
                     {
-                        Payload = GetText(item.index);
+                        Payload = GetTextPayload(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
-                    case "--output":   // Receive file data
-                    case "--send":     // Send file data
+                    case "--send" or "--output":  // Send or receive file
                     {
                         SockNode.FilePath = GetTransfer(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
@@ -275,9 +284,18 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
+        /// Print application help message to console output
+        /// </summary>
+        public void PrintHelp()
+        {
+            Console.WriteLine(_help);
+            Environment.Exit(0);
+        }
+
+        /// <summary>
         /// Get application help message as a string
         /// </summary>
-        private static string GetHelp(string appTitle, string appUsage)
+        private static string GetHelp(string appUsage)
         {
             string lf = Environment.NewLine;
 
@@ -293,6 +311,7 @@ namespace DotnetCat.Handlers
                 "  -v,      --verbose        Enable verbose console output",
                 "  -d,      --debug          Output verbose error information",
                 "  -l,      --listen         Listen for incoming connections",
+                "  -z,      --zero-io        Report connection status only",
                 "  -p PORT, --port PORT      Specify port to use for endpoint.",
                 "                            (Default: 4444)",
                 "  -e EXEC, --exec EXEC      Executable process file path",
@@ -300,9 +319,9 @@ namespace DotnetCat.Handlers
                 "  -s PATH, --send PATH      Send local file or folder",
                 $"  -t DATA, --text DATA      Send string to remote host{lf}",
                 "Usage Examples:",
-                $"  {appTitle} -le powershell.exe",
-                $"  {appTitle} 10.0.0.152 -p 4444 localhost",
-                $"  {appTitle} -ve /bin/bash 192.168.1.9{lf}",
+                "  dncat.exe -le powershell.exe",
+                "  dncat 10.0.0.152 -p 4444 localhost",
+                $"  dncat -vo test.txt 192.168.1.9{lf}",
             });
         }
 
@@ -360,16 +379,36 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
+        /// Get port number from argument index
+        /// </summary>
+        private static int GetPort(int index)
+        {
+            if (!ValidIndex(index + 1))
+            {
+                Error.Handle(Except.NamedArgs, Args[index], true);
+            }
+            string sPort = ArgsValueAt(index + 1);
+
+            // Handle invalid port strings
+            if (!int.TryParse(sPort, out int port) || port is 0 or > 65535)
+            {
+                Console.WriteLine(Usage);
+                Error.Handle(Except.InvalidPort, sPort);
+            }
+            return port;
+        }
+
+        /// <summary>
         /// Get executable path for command execution
         /// </summary>
-        private static string GetExecutable(int argIndex)
+        private static string GetExecutable(int index)
         {
-            if (!ValidIndex(argIndex + 1))
+            if (!ValidIndex(index + 1))
             {
-                Error.Handle(Except.NamedArgs, Args[argIndex], true);
+                Error.Handle(Except.NamedArgs, Args[index], true);
             }
 
-            string exec = ArgsValueAt(argIndex + 1);
+            string exec = ArgsValueAt(index + 1);
             (bool exists, string path) = Command.ExistsOnPath(exec);
 
             // Failed to locate executable
@@ -387,13 +426,13 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Get file path to write to or read from
         /// </summary>
-        private static string GetTransfer(int argIndex)
+        private static string GetTransfer(int index)
         {
-            if (!ValidIndex(argIndex + 1))
+            if (!ValidIndex(index + 1))
             {
-                Error.Handle(Except.NamedArgs, Args[argIndex], true);
+                Error.Handle(Except.NamedArgs, Args[index], true);
             }
-            string path = Path.GetFullPath(ArgsValueAt(argIndex + 1));
+            string path = Path.GetFullPath(ArgsValueAt(index + 1));
 
             // Invalid file path
             if (!File.Exists(path) && !Directory.GetParent(path).Exists)
@@ -406,44 +445,24 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get file path to write to or read from
+        /// Get string network payload
         /// </summary>
-        private static string GetText(int argIndex)
+        private static string GetTextPayload(int index)
         {
-            if (!ValidIndex(argIndex + 1))
+            if (!ValidIndex(index + 1))
             {
-                Error.Handle(Except.NamedArgs, Args[argIndex], true);
+                Error.Handle(Except.NamedArgs, Args[index], true);
             }
-            string data = ArgsValueAt(argIndex + 1);
+            string data = ArgsValueAt(index + 1);
 
             // Invalid payload string
             if (data.Trim() is null or "")
             {
-                Error.Handle(Except.Payload, Args[argIndex], true);
+                Error.Handle(Except.Payload, Args[index], true);
             }
 
             PipeVariant = PipeType.Text;
             return data;
-        }
-
-        /// <summary>
-        /// Get port number from argument index
-        /// </summary>
-        private int GetPort(int argIndex)
-        {
-            if (!ValidIndex(argIndex + 1))
-            {
-                Error.Handle(Except.NamedArgs, Args[argIndex], true);
-            }
-            string sPort = ArgsValueAt(argIndex + 1);
-
-            // Handle invalid port strings
-            if (!int.TryParse(sPort, out int port) || port is 0 or > 65535)
-            {
-                Console.WriteLine(GetUsage(_appTitle));
-                Error.Handle(Except.InvalidPort, sPort);
-            }
-            return port;
         }
     }
 }

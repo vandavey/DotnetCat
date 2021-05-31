@@ -1,11 +1,8 @@
 using System;
+using System.Collections.Generic;
 using DotnetCat.Enums;
 using DotnetCat.Utils;
 using Env = System.Environment;
-
-using ExceptDict =
-    System.Collections.Generic.Dictionary<DotnetCat.Enums.Except,
-                                          DotnetCat.Utils.ErrorMessage>;
 
 namespace DotnetCat.Handlers
 {
@@ -14,7 +11,8 @@ namespace DotnetCat.Handlers
     /// </summary>
     static class Error
     {
-        private static readonly ExceptDict _errors; // Exception dictionary
+        // Error message dictionary
+        private static readonly Dictionary<Except, ErrorMessage> _errors;
 
         /// <summary>
         /// Initialize static members
@@ -60,7 +58,7 @@ namespace DotnetCat.Handlers
             // Display program usage
             if (showUsage)
             {
-                Console.WriteLine(Parser.GetUsage());
+                Console.WriteLine(Parser.Usage);
             }
             _errors[exType].Build(arg);
 
@@ -95,11 +93,11 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Get dictionary of errors related to DotnetCat
         /// </summary>
-        private static ExceptDict GetErrorDict() => new()
+        private static Dictionary<Except, ErrorMessage> GetErrorDict() => new()
         {
             {
                 Except.ArgsCombo,
-                new ErrorMessage("The arguments cannot be combined: {}")
+                new ErrorMessage("Invalid argument combination: {}")
             },
             {
                 Except.ConnectionLost,
@@ -107,7 +105,7 @@ namespace DotnetCat.Handlers
             },
             {
                 Except.ConnectionRefused,
-                new ErrorMessage("Connection to {} was refused")
+                new ErrorMessage("Connection actively refused by {}")
             },
             {
                 Except.ConnectionTimeout,
