@@ -33,7 +33,8 @@ All available DotnetCat arguments are listed in the following table:
 | `-o/--output PATH` | *Optional* | Download file from remote host | *N/A*   |
 | `-s/--send PATH`   | *Optional* | Send local file to remote host | *N/A*   |
 | `-t, --text`       | *Optional* | Send a string to remote host   | *False* |
-| `-l, --listen`     | *Optional* | Listen for incoming connection | *False* |
+| `-l, --listen`     | *Optional* | Listen for inbound connection  | *False* |
+| `-z, --zero-io`    | *Optional* | Report connection status       | *False* |
 | `-v, --verbose`    | *Optional* | Enable verbose console output  | *False* |
 | `-d, --debug`      | *Optional* | Enable verbose error output    | *False* |
 | `-h/-?, --help`    | *Optional* | Display help menu and exit     | *False* |
