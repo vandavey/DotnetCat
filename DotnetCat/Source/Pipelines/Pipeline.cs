@@ -14,7 +14,7 @@ namespace DotnetCat.Pipelines
     /// <summary>
     /// Base class for all pipelines in the Pipelines namespace
     /// </summary>
-    class Pipeline : IConnectable
+    internal class Pipeline : IConnectable
     {
         /// <summary>
         /// Initialize object

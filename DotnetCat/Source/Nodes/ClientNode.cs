@@ -11,7 +11,7 @@ namespace DotnetCat.Nodes
     /// <summary>
     /// Client node for TCP socket connections
     /// </summary>
-    class ClientNode : Node, ISockErrorHandled
+    internal class ClientNode : Node, ISockErrorHandled
     {
         private IPEndPoint _ep;  // Remote endpoint
 

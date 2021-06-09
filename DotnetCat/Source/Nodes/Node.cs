@@ -18,7 +18,7 @@ namespace DotnetCat.Nodes
     /// <summary>
     /// Base class for all socket nodes in Nodes namespace
     /// </summary>
-    class Node : ISockErrorHandled
+    internal class Node : ISockErrorHandled
     {
         private bool _validArgCombos;     // Valid cmd-line arg combos
 

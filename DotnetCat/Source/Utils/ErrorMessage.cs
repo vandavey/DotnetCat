@@ -5,7 +5,7 @@ namespace DotnetCat.Utils
     /// <summary>
     /// Custom errors specifically related to DotNetCat
     /// </summary>
-    class ErrorMessage
+    internal class ErrorMessage
     {
         /// <summary>
         /// Initialize object

@@ -10,7 +10,7 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Command line argument parser and validator
     /// </summary>
-    static class Parser
+    internal static class Parser
     {
         private static readonly string _eol;   // Platform EOL string
         private static readonly string _help;  // Help information

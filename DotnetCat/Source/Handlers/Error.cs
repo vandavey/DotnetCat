@@ -9,7 +9,7 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Handler for custom DotnetCat errors
     /// </summary>
-    static class Error
+    internal static class Error
     {
         // Error message dictionary
         private static readonly Dictionary<Except, ErrorMessage> _errors;

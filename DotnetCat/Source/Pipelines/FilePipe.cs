@@ -13,7 +13,7 @@ namespace DotnetCat.Pipelines
     /// <summary>
     /// Pipeline class for file related data
     /// </summary>
-    class FilePipe : Pipeline, IErrorHandled
+    internal class FilePipe : Pipeline, IErrorHandled
     {
         private readonly TransferOpt _transfer;  // File transfer option
 

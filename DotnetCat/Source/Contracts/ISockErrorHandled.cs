@@ -8,7 +8,7 @@ namespace DotnetCat.Contracts
     /// Enforce mechanisms to release unmanaged socket
     /// resources before exiting (when an error occurs)
     /// </summary>
-    interface ISockErrorHandled : IErrorHandled
+    internal interface ISockErrorHandled : IErrorHandled
     {
         /// <summary>
         /// Release unmanaged resources and handle error

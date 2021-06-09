@@ -7,7 +7,7 @@ namespace DotnetCat.Contracts
     /// Enforce mechanisms to release unmanaged resources
     /// before exiting (when an error occurs)
     /// </summary>
-    interface IErrorHandled : IConnectable
+    internal interface IErrorHandled : IConnectable
     {
         /// <summary>
         /// Release unmanaged resources and handle error

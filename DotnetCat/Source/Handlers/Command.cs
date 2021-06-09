@@ -9,7 +9,7 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Command and executable process handler
     /// </summary>
-    static class Command
+    internal static class Command
     {
         private static readonly string[] _clsCommands;  // Clear commands
 

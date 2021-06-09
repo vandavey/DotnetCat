@@ -3,7 +3,7 @@ namespace DotnetCat.Enums
     /// <summary>
     /// Console output status level enumeration type
     /// </summary>
-    enum Level : short
+    internal enum Level : short
     {
         Error,   // Error/exception messages (stderr)
         Info,    // General messages (stdout)

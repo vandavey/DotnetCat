@@ -12,7 +12,7 @@ namespace DotnetCat.Nodes
     /// <summary>
     /// Server node for TCP socket connections
     /// </summary>
-    class ServerNode : Node, ISockErrorHandled
+    internal class ServerNode : Node, ISockErrorHandled
     {
         private Socket _listener;  // Listener socket
 

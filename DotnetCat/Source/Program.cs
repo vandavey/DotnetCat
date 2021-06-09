@@ -13,7 +13,7 @@ namespace DotnetCat
     /// <summary>
     /// Primary application startup object
     /// </summary>
-    class Program
+    internal class Program
     {
         /// Enable verbose console output
         public static bool Verbose => SockNode?.Verbose ?? false;

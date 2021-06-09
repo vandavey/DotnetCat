@@ -11,7 +11,7 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Application output style handler
     /// </summary>
-    static class Style
+    internal static class Style
     {
         private static readonly List<Status> _statuses;  // Status list
 

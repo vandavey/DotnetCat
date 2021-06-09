@@ -7,7 +7,7 @@ namespace DotnetCat.Pipelines
     /// <summary>
     /// Pipeline for standard console stream
     /// </summary>
-    class StreamPipe : Pipeline, IConnectable
+    internal class StreamPipe : Pipeline, IConnectable
     {
         /// <summary>
         /// Initialize object

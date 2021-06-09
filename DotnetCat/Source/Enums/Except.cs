@@ -3,7 +3,7 @@ namespace DotnetCat.Enums
     /// <summary>
     /// DotnetCat error/exception enumeration type
     /// </summary>
-    enum Except : short
+    internal enum Except : short
     {
         Unhandled,          // Unhandled exception occurred
         ArgsCombo,          // Invalid argument combination

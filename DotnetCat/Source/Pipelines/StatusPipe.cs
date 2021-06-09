@@ -11,7 +11,7 @@ namespace DotnetCat.Pipelines
     /// <summary>
     /// Pipeline class for connection testing
     /// </summary>
-    class StatusPipe : TextPipe, IConnectable
+    internal class StatusPipe : TextPipe, IConnectable
     {
         /// <summary>
         /// Initialize object
