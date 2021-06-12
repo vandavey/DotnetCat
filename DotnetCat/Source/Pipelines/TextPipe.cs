@@ -13,7 +13,7 @@ namespace DotnetCat.Pipelines
     /// <summary>
     /// Pipeline for user defined string data
     /// </summary>
-    class TextPipe : Pipeline, IConnectable
+    internal class TextPipe : Pipeline, IConnectable
     {
         private string _payload;             // String payload
 

@@ -3,7 +3,7 @@ namespace DotnetCat.Enums
     /// <summary>
     /// Socket and file transfer option enumeration type
     /// </summary>
-    enum TransferOpt : short
+    internal enum TransferOpt : short
     {
         None,      // No file|<->|socket stream data redirection
         Collect,   // Redirect socket stream data to file stream

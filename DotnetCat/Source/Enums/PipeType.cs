@@ -3,7 +3,7 @@ namespace DotnetCat.Enums
     /// <summary>
     /// Socket pipeline enumeration type
     /// </summary>
-    enum PipeType : short
+    internal enum PipeType : short
     {
         Stream,   // Standard console stream pipeline
         File,     // File transfer pipeline

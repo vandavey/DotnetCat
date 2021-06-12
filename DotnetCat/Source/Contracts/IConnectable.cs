@@ -6,7 +6,7 @@ namespace DotnetCat.Contracts
     /// Enforce mechanisms to connect and dispose of
     /// any unmanaged object resources
     /// </summary>
-    interface IConnectable : IDisposable
+    internal interface IConnectable : IDisposable
     {
         /// <summary>
         /// Connect the unmanaged resources

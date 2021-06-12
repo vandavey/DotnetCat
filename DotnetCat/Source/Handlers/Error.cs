@@ -9,7 +9,7 @@ namespace DotnetCat.Handlers
     /// <summary>
     /// Handler for custom DotnetCat errors
     /// </summary>
-    static class Error
+    internal static class Error
     {
         // Error message dictionary
         private static readonly Dictionary<Except, ErrorMessage> _errors;
@@ -105,7 +105,7 @@ namespace DotnetCat.Handlers
             },
             {
                 Except.ConnectionRefused,
-                new ErrorMessage("Connection actively refused by {}")
+                new ErrorMessage("Connection was actively refused by {}")
             },
             {
                 Except.ConnectionTimeout,

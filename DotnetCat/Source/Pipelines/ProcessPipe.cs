@@ -10,7 +10,7 @@ namespace DotnetCat.Pipelines
     /// <summary>
     /// Pipeline for external process standard stream data
     /// </summary>
-    class ProcessPipe : Pipeline, IConnectable
+    internal class ProcessPipe : Pipeline, IConnectable
     {
         /// <summary>
         /// Initialize object

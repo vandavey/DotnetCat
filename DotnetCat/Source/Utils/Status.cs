@@ -6,7 +6,7 @@ namespace DotnetCat.Utils
     /// <summary>
     /// Application console status configuration
     /// </summary>
-    class Status
+    internal class Status
     {
         /// <summary>
         /// Initialize object
