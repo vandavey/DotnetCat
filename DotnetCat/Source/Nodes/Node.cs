@@ -10,8 +10,8 @@ using DotnetCat.Contracts;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
 using DotnetCat.Pipelines;
+using DotnetCat.Utils;
 using ArgNullException = System.ArgumentNullException;
-using Env = System.Environment;
 
 namespace DotnetCat.Nodes
 {
@@ -97,9 +97,6 @@ namespace DotnetCat.Nodes
             get => Program.Transfer is not TransferOpt.None;
         }
 
-        /// Local operating system
-        protected static Platform OS => Program.OS;
-
         /// Using executable pipeline
         protected bool UsingExe => Exe is not null or "";
 
@@ -119,42 +116,9 @@ namespace DotnetCat.Nodes
 
             _process = new Process
             {
-                StartInfo = GetStartInfo(Exe = exe)
+                StartInfo = Command.GetStartInfo(Exe = exe)
             };
             return _process.Start();
-        }
-
-        /// <summary>
-        /// Get ProcessStartInfo to use for executable startup
-        /// </summary>
-        public static ProcessStartInfo GetStartInfo(string shell)
-        {
-            _ = shell ?? throw new ArgNullException(nameof(shell));
-
-            // Exe process startup information
-            ProcessStartInfo info = new(shell)
-            {
-                CreateNoWindow = true,
-                RedirectStandardError = true,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-
-                // Load user profile path
-                WorkingDirectory = OS switch
-                {
-                    Platform.Nix => Env.GetEnvironmentVariable("HOME"),
-                    Platform.Win => Env.GetEnvironmentVariable("USERPROFILE"),
-                    _            => Env.CurrentDirectory
-                }
-            };
-
-            // Profile loading only supported on Windows
-            if (OperatingSystem.IsWindows())
-            {
-                info.LoadUserProfile = true;
-            }
-            return info;
         }
 
         /// <summary>
@@ -177,11 +141,11 @@ namespace DotnetCat.Nodes
         /// Dispose of unmanaged socket resources and handle error
         /// </summary>
         public virtual void PipeError(Except type,
-                                      IPEndPoint ep,
+                                      HostEndPoint target,
                                       Exception ex = default,
                                       Level level = default) {
             Dispose();
-            Error.Handle(type, ep.ToString(), ex, level);
+            Error.Handle(type, target.ToString(), ex, level);
         }
 
         /// <summary>
@@ -357,7 +321,7 @@ namespace DotnetCat.Nodes
                         throw new ArgumentException(nameof(Program.Transfer));
                     }
 
-                    // Add stream file-transfer pipes
+                    // Add file-transfer stream pipe
                     if (Program.Transfer is TransferOpt.Collect)
                     {
                         pipes.Add(new FilePipe(_netReader, FilePath));
@@ -378,7 +342,7 @@ namespace DotnetCat.Nodes
                     });
                     break;
                 }
-                case PipeType.Status:   // Zero-IO pipelines
+                case PipeType.Status:   // Zero-IO pipeline
                 {
                     pipes.Add(new StatusPipe(_netWriter));
                     break;

@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using DotnetCat.Enums;
 using ArgNullException = System.ArgumentNullException;
 using Env = System.Environment;
 
@@ -28,6 +30,9 @@ namespace DotnetCat.Handlers
             _clsCommands = new string[] { "cls", "clear", "clear-host" };
             _exeFiles = new string[] { "exe", "bat", "ps1", "py", "sh" };
         }
+
+        /// Local operating system
+        private static Platform OS => Program.OS;
 
         /// <summary>
         /// Determine if executable exists on environment path
@@ -57,6 +62,39 @@ namespace DotnetCat.Handlers
             }
             return (false, null);
         }
+        
+        /// <summary>
+        /// Get ProcessStartInfo to use for executable startup
+        /// </summary>
+        public static ProcessStartInfo GetStartInfo(string shell)
+        {
+            _ = shell ?? throw new ArgNullException(nameof(shell));
+
+            // Exe process startup information
+            ProcessStartInfo info = new(shell)
+            {
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+
+                // Load user profile path
+                WorkingDirectory = OS switch
+                {
+                    Platform.Nix => Env.GetEnvironmentVariable("HOME"),
+                    Platform.Win => Env.GetEnvironmentVariable("USERPROFILE"),
+                    _            => Env.CurrentDirectory
+                }
+            };
+
+            // Profile loading only supported on Windows
+            if (OperatingSystem.IsWindows())
+            {
+                info.LoadUserProfile = true;
+            }
+            return info;
+        }
 
         /// <summary>
         /// Determine if data contains clear command
@@ -80,7 +118,7 @@ namespace DotnetCat.Handlers
         /// <summary>
         /// Search environment path for specified shell
         /// </summary>
-        public static string GetExePath(string exe)
+        private static string GetExePath(string exe)
         {
             string path = exe ?? throw new ArgNullException(nameof(exe));
 

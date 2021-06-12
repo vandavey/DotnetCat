@@ -1,10 +1,10 @@
 using System;
 using System.IO;
-using System.Net;
 using System.Net.Sockets;
 using DotnetCat.Contracts;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Nodes
 {
@@ -13,12 +13,12 @@ namespace DotnetCat.Nodes
     /// </summary>
     internal class ClientNode : Node, ISockErrorHandled
     {
-        private IPEndPoint _ep;  // Remote endpoint
+        private HostEndPoint _targetEP;  // Remote target
 
         /// <summary>
         /// Initialize object
         /// </summary>
-        public ClientNode() : base() => _ep = default;
+        public ClientNode() : base() => _targetEP = default;
 
         /// <summary>
         /// Cleanup resources
@@ -31,7 +31,7 @@ namespace DotnetCat.Nodes
         public override void Connect()
         {
             _ = Addr ?? throw new ArgumentNullException(nameof(Addr));
-            _ep ??= new IPEndPoint(Addr, Port);
+            _targetEP = new HostEndPoint(DestName, Port);
 
             ValidateArgCombinations();
 
@@ -51,22 +51,22 @@ namespace DotnetCat.Nodes
 
                 if (Program.PipeVariant is not PipeType.Status)
                 {
-                    Style.Info($"Connected to {DestName}:{Port}");
+                    Style.Info($"Connected to {_targetEP}");
                 }
 
                 base.Connect();
                 WaitForExit();
 
                 // Connection closed status
-                Style.Info($"Connection to {DestName} closed");
+                Style.Info($"Connection to {_targetEP} closed");
             }
             catch (AggregateException ex)  // Connection refused
             {
-                PipeError(Except.ConnectionRefused, _ep, ex, Level.Warn);
+                PipeError(Except.ConnectionRefused, _targetEP, ex, Level.Warn);
             }
             catch (SocketException ex)     // Error (likely timeout)
             {
-                PipeError(Except.ConnectionTimeout, _ep, ex, Level.Warn);
+                PipeError(Except.ConnectionTimeout, _targetEP, ex, Level.Warn);
             }
             catch (IOException ex)         // Connection lost
             {

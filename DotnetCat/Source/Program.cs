@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
@@ -92,7 +91,7 @@ namespace DotnetCat
             }
 
             UsingExe = false;
-            Args = DefragArgs(args);
+            Args = DefragArguments(args);
 
             List<string> lowerArgs = new();
             Args?.ForEach(arg => lowerArgs.Add(arg.ToLower()));
@@ -120,7 +119,7 @@ namespace DotnetCat
         /// <summary>
         /// Ensure string-literal arguments aren't fragmented
         /// </summary>
-        private static List<string> DefragArgs(string[] args)
+        private static List<string> DefragArguments(string[] args)
         {
             int delta = 0;
             List<string> list = args.ToList();
@@ -129,14 +128,15 @@ namespace DotnetCat
             var query = from arg in args
                         let pos = Array.IndexOf(args, arg)
                         let quote = arg.FirstOrDefault()
-                        let valid = arg.EndsWith(quote) && arg.Length >= 2
+                        let valid = arg.EndsWith(quote) && (arg.Length >= 2)
                         where arg.StartsWith("'")
                             || arg.StartsWith("\"")
                         select new { arg, pos, quote, valid };
 
             foreach (var item in query)
             {
-                if (delta > 0)  // Skip processed arguments
+                // Skip processed arguments
+                if (delta > 0)
                 {
                     delta -= 1;
                     continue;
@@ -228,6 +228,7 @@ namespace DotnetCat
                     {
                         Error.Handle(Except.UnknownArgs, Args[0], true);
                     }
+                    Exception ex = null;
 
                     // Parse or resolve IP address
                     if (IPAddress.TryParse(Args[0], out IPAddress addr))
@@ -236,7 +237,7 @@ namespace DotnetCat
                     }
                     else
                     {
-                        SockNode.Addr = ResolveHostName(Args[0]);
+                        (SockNode.Addr, ex) = Net.ResolveName(Args[0]);
                     }
 
                     SockNode.DestName = Args[0];
@@ -244,7 +245,7 @@ namespace DotnetCat
                     // Invalid destination host
                     if (SockNode.Addr is null)
                     {
-                        Error.Handle(Except.InvalidAddr, Args[0], true);
+                        Error.Handle(Except.InvalidAddr, Args[0], true, ex);
                     }
                     break;
                 }
@@ -261,50 +262,6 @@ namespace DotnetCat
                 }
             }
             SockNode.Connect();
-        }
-
-        /// <summary>
-        /// Resolve the IPv4 address of given hostname
-        /// </summary>
-        private static IPAddress ResolveHostName(string hostName)
-        {
-            IPHostEntry dnsAns;
-            string machineName = Environment.MachineName;
-
-            try  // Resolve host name as IP address
-            {
-                dnsAns = Dns.GetHostEntry(hostName);
-
-                if (dnsAns.AddressList.Contains(IPAddress.Loopback))
-                {
-                    return IPAddress.Loopback;
-                }
-            }
-            catch (SocketException)  // No DNS entries found
-            {
-                return null;
-            }
-
-            if (dnsAns.HostName.ToLower() != machineName.ToLower())
-            {
-                foreach (IPAddress addr in dnsAns.AddressList)
-                {
-                    // Return the first IPv4 address
-                    if (addr.AddressFamily is AddressFamily.InterNetwork)
-                    {
-                        return addr;
-                    }
-                }
-                return null;
-            }
-
-            using Socket socket = new(AddressFamily.InterNetwork,
-                                      SocketType.Dgram,
-                                      ProtocolType.Udp);
-
-            // Get active local IP address
-            socket.Connect("8.8.8.8", 53);
-            return (socket.LocalEndPoint as IPEndPoint).Address;
         }
     }
 }

@@ -1,6 +1,6 @@
 using System;
-using System.Net;
 using DotnetCat.Enums;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Contracts
 {
@@ -14,7 +14,7 @@ namespace DotnetCat.Contracts
         /// Release unmanaged resources and handle error
         /// </summary>
         void PipeError(Except type,
-                       IPEndPoint ep,
+                       HostEndPoint target,
                        Exception ex = default,
                        Level level = default);
     }

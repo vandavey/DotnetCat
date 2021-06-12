@@ -13,6 +13,7 @@ namespace DotnetCat.Handlers
     internal static class Parser
     {
         private static readonly string _eol;   // Platform EOL string
+
         private static readonly string _help;  // Help information
 
         /// <summary>
@@ -27,14 +28,11 @@ namespace DotnetCat.Handlers
         /// Application title string
         public static string AppTitle
         {
-            get => (OS is Platform.Nix) ? "dncat" : "dncat.exe";
+            get => (Program.OS is Platform.Nix) ? "dncat" : "dncat.exe";
         }
 
         /// Application usage string
         public static string Usage => $"Usage: {AppTitle} [OPTIONS] TARGET";
-
-        /// Local operating system
-        private static Platform OS => Program.OS;
 
         /// Enable verbose exceptions
         private static bool Debug
@@ -390,7 +388,7 @@ namespace DotnetCat.Handlers
             string sPort = ArgsValueAt(index + 1);
 
             // Handle invalid port strings
-            if (!int.TryParse(sPort, out int port) || port is 0 or > 65535)
+            if (!int.TryParse(sPort, out int port) || Net.IsValidPort(port))
             {
                 Console.WriteLine(Usage);
                 Error.Handle(Except.InvalidPort, sPort);

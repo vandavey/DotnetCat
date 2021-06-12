@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using DotnetCat.Contracts;
 using DotnetCat.Enums;
 using DotnetCat.Handlers;
+using DotnetCat.Utils;
 using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Nodes
@@ -32,7 +33,7 @@ namespace DotnetCat.Nodes
         public override void Connect()
         {
             _ = Addr ?? throw new ArgNullException(nameof(Addr));
-            IPEndPoint ep = default;
+            HostEndPoint remoteEP = new();
 
             ValidateArgCombinations();
 
@@ -53,23 +54,29 @@ namespace DotnetCat.Nodes
                     PipeError(Except.ExeProcess, Exe);
                 }
 
-                ep = Client.Client.RemoteEndPoint as IPEndPoint;
-                Style.Info($"Connected to {DestName}:{Port}");
+                IPEndPoint ep = Client.Client.RemoteEndPoint as IPEndPoint;
+                remoteEP = new HostEndPoint(ep);
+
+                Style.Info($"Connected to {remoteEP}");
 
                 base.Connect();
                 WaitForExit();
 
                 // Connection closed status
-                Style.Info($"Connection to {DestName} closed");
+                Style.Info($"Connection to {remoteEP} closed");
             }
             catch (SocketException ex)  // Error (likely refused)
             {
-                PipeError(Except.ConnectionRefused, ep, ex, Level.Warn);
+                PipeError(Except.ConnectionRefused,
+                          remoteEP,
+                          ex,
+                          Level.Warn);
             }
             catch (IOException ex)      // Connection lost
             {
-                PipeError(Except.ConnectionLost, ep, ex);
+                PipeError(Except.ConnectionLost, remoteEP, ex);
             }
+
             Dispose();
         }
 
@@ -77,11 +84,11 @@ namespace DotnetCat.Nodes
         /// Dispose of unmanaged resources and handle error
         /// </summary>
         public override void PipeError(Except type,
-                                       IPEndPoint ep,
+                                       HostEndPoint target,
                                        Exception ex = default,
                                        Level level = default) {
             Dispose();
-            Error.Handle(type, ep.ToString(), ex, level);
+            Error.Handle(type, target.ToString(), ex, level);
         }
 
         /// <summary>
