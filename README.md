@@ -7,6 +7,8 @@
 Remote command shell application written in C#,
 targeting the [.NET 5 runtime](https://dotnet.microsoft.com/download/dotnet/5.0).
 
+***
+
 ## Basic Usage
 
 * Linux Systems
@@ -20,6 +22,8 @@ targeting the [.NET 5 runtime](https://dotnet.microsoft.com/download/dotnet/5.0)
     ```powershell
     dncat.exe [OPTIONS] TARGET
     ```
+
+***
 
 ## Available Arguments
 
