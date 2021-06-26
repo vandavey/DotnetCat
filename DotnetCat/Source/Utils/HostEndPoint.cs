@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net;
-using DotnetCat.Handlers;
+using DotnetCat.Controllers;
 
 namespace DotnetCat.Utils
 {
     /// <summary>
-    /// Network endpoint host information
+    ///  Network endpoint host information
     /// </summary>
     internal class HostEndPoint
     {
@@ -14,7 +14,7 @@ namespace DotnetCat.Utils
         private string _hostName;  // Network host name
 
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public HostEndPoint()
         {
@@ -23,7 +23,7 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public HostEndPoint(string hostName, int port)
         {
@@ -32,7 +32,7 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public HostEndPoint(IPEndPoint ep)
         {

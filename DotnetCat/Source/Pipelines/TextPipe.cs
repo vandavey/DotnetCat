@@ -4,14 +4,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
-using DotnetCat.Handlers;
+using DotnetCat.Controllers;
 using ArgException = System.ArgumentException;
 using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Pipelines
 {
     /// <summary>
-    /// Pipeline for user defined string data
+    ///  Pipeline for user defined string data
     /// </summary>
     internal class TextPipe : Pipeline, IConnectable
     {
@@ -20,7 +20,7 @@ namespace DotnetCat.Pipelines
         private MemoryStream _memoryStream;  // Memory buffer
 
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public TextPipe(string data, StreamWriter dest) : base()
         {
@@ -37,7 +37,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Cleanup resources
+        ///  Cleanup resources
         /// </summary>
         ~TextPipe() => Dispose();
 
@@ -56,7 +56,7 @@ namespace DotnetCat.Pipelines
         protected string StatusMsg { get; set; }
 
         /// <summary>
-        /// Release any unmanaged resources
+        ///  Release any unmanaged resources
         /// </summary>
         public override void Dispose()
         {
@@ -67,7 +67,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Activate async network communication
+        ///  Activate async network communication
         /// </summary>
         protected override async Task ConnectAsync(CancellationToken token)
         {

@@ -6,10 +6,10 @@ using DotnetCat.Enums;
 using ArgNullException = System.ArgumentNullException;
 using Env = System.Environment;
 
-namespace DotnetCat.Handlers
+namespace DotnetCat.Controllers
 {
     /// <summary>
-    /// Command and executable process handler
+    ///  Command and executable process controller
     /// </summary>
     internal static class Command
     {
@@ -20,7 +20,7 @@ namespace DotnetCat.Handlers
         private static readonly string[] _exeFiles;     // Executable files
 
         /// <summary>
-        /// Initialize static members
+        ///  Initialize static members
         /// </summary>
         static Command()
         {
@@ -35,7 +35,7 @@ namespace DotnetCat.Handlers
         private static Platform OS => Program.OS;
 
         /// <summary>
-        /// Determine if executable exists on environment path
+        ///  Determine if executable exists on environment path
         /// </summary>
         public static (bool exists, string path) ExistsOnPath(string exe)
         {
@@ -64,7 +64,7 @@ namespace DotnetCat.Handlers
         }
         
         /// <summary>
-        /// Get ProcessStartInfo to use for executable startup
+        ///  Get ProcessStartInfo to use for executable startup
         /// </summary>
         public static ProcessStartInfo GetStartInfo(string shell)
         {
@@ -97,7 +97,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Determine if data contains clear command
+        ///  Determine if data contains clear command
         /// </summary>
         public static bool IsClearCmd(string data, bool doClear = true)
         {
@@ -116,7 +116,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Search environment path for specified shell
+        ///  Search environment path for specified shell
         /// </summary>
         private static string GetExePath(string exe)
         {

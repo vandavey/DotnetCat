@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using DotnetCat.Controllers;
 using DotnetCat.Enums;
-using DotnetCat.Handlers;
 using DotnetCat.Nodes;
 
 namespace DotnetCat
 {
     /// <summary>
-    /// Primary application startup object
+    ///  Primary application startup object
     /// </summary>
     internal class Program
     {
@@ -45,7 +45,7 @@ namespace DotnetCat
         public static List<string> OrigArgs { get; private set; }
 
         /// <summary>
-        /// Primary application entry point
+        ///  Primary application entry point
         /// </summary>
         private static void Main(string[] args)
         {
@@ -74,7 +74,7 @@ namespace DotnetCat
         }
 
         /// <summary>
-        /// Initialize node fields and properties
+        ///  Initialize node fields and properties
         /// </summary>
         private static void InitializeNode(string[] args)
         {
@@ -117,7 +117,7 @@ namespace DotnetCat
         }
 
         /// <summary>
-        /// Ensure string-literal arguments aren't fragmented
+        ///  Ensure string-literal arguments aren't fragmented
         /// </summary>
         private static List<string> DefragArguments(string[] args)
         {
@@ -182,7 +182,7 @@ namespace DotnetCat
         }
 
         /// <summary>
-        /// Get the file/socket communication operation type
+        ///  Get the file/socket communication operation type
         /// </summary>
         private static TransferOpt GetTransferOpts()
         {
@@ -204,7 +204,7 @@ namespace DotnetCat
         }
 
         /// <summary>
-        /// Parse arguments and initiate connection
+        ///  Parse arguments and initiate connection
         /// </summary>
         private static void ConnectNode()
         {

@@ -3,18 +3,18 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
-using DotnetCat.Handlers;
+using DotnetCat.Controllers;
 using DotnetCat.Nodes;
 
 namespace DotnetCat.Pipelines
 {
     /// <summary>
-    /// Pipeline class for connection testing
+    ///  Pipeline class for connection testing
     /// </summary>
     internal class StatusPipe : TextPipe, IConnectable
     {
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public StatusPipe(StreamWriter dest) : base(string.Empty, dest)
         {
@@ -25,7 +25,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Activate async network communication
+        ///  Activate async network communication
         /// </summary>
         protected override async Task ConnectAsync(CancellationToken token)
         {

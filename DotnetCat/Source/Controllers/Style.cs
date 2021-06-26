@@ -6,17 +6,17 @@ using DotnetCat.Enums;
 using DotnetCat.Utils;
 using ArgNullException = System.ArgumentNullException;
 
-namespace DotnetCat.Handlers
+namespace DotnetCat.Controllers
 {
     /// <summary>
-    /// Application output style handler
+    ///  Application output style controller
     /// </summary>
     internal static class Style
     {
         private static readonly List<Status> _statuses;  // Status list
 
         /// <summary>
-        /// Initialize static members
+        ///  Initialize static members
         /// </summary>
         static Style() => _statuses = new List<Status>
         {
@@ -27,7 +27,7 @@ namespace DotnetCat.Handlers
         };
 
         /// <summary>
-        /// Write an error message to standard error
+        ///  Write an error message to standard error
         /// </summary>
         public static void Error(string msg, bool noNewLine = false)
         {
@@ -36,7 +36,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Write a completion message to standard output
+        ///  Write a completion message to standard output
         /// </summary>
         public static void Output(string msg, bool noNewLine = false)
         {
@@ -45,7 +45,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Write an informational message to standard output
+        ///  Write an informational message to standard output
         /// </summary>
         public static void Info(string msg, bool noNewLine = false)
         {
@@ -54,7 +54,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Write a warning message to standard error
+        ///  Write a warning message to standard error
         /// </summary>
         public static void Warn(string msg, bool noNewLine = false)
         {
@@ -63,7 +63,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Write a custom status to standard output
+        ///  Write a custom status to standard output
         /// <summary>
         private static void Status(Level level,
                                    string msg,
@@ -95,7 +95,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get the index of a status in Statuses
+        ///  Get the index of a status in Statuses
         /// <summary>
         private static int IndexOfStatus(Level level)
         {
