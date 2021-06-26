@@ -4,21 +4,21 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
+using DotnetCat.Controllers;
 using DotnetCat.Enums;
-using DotnetCat.Handlers;
 using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Pipelines
 {
     /// <summary>
-    /// Pipeline class for file related data
+    ///  Pipeline class for file related data
     /// </summary>
     internal class FilePipe : Pipeline, IErrorHandled
     {
         private readonly TransferOpt _transfer;  // File transfer option
 
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public FilePipe(StreamReader src, string path) : base()
         {
@@ -38,7 +38,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public FilePipe(string path, StreamWriter dest) : base()
         {
@@ -53,7 +53,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Cleanup resources
+        ///  Cleanup resources
         /// </summary>
         ~FilePipe() => Dispose();
 
@@ -64,7 +64,7 @@ namespace DotnetCat.Pipelines
         public string FilePath { get; set; }
 
         /// <summary>
-        /// Dispose of unmanaged resources and handle error
+        ///  Dispose of unmanaged resources and handle error
         /// </summary>
         public virtual void PipeError(Except type,
                                       string arg,
@@ -75,7 +75,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Create and open new file for writing
+        ///  Create and open new file for writing
         /// </summary>
         protected FileStream CreateFile(string path)
         {
@@ -100,7 +100,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Open specified FileStream to read or write
+        ///  Open specified FileStream to read or write
         /// </summary>
         protected FileStream OpenFile(string path)
         {
@@ -125,7 +125,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Activate async network communication
+        ///  Activate async network communication
         /// </summary>
         protected override async Task ConnectAsync(CancellationToken token)
         {

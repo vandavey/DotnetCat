@@ -1,7 +1,7 @@
 namespace DotnetCat.Enums
 {
     /// <summary>
-    /// Local operating system enumeration type
+    ///  Local operating system enumeration type
     /// </summary>
     internal enum Platform : short
     {

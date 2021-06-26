@@ -5,10 +5,10 @@ using System.Linq;
 using DotnetCat.Enums;
 using DotnetCat.Nodes;
 
-namespace DotnetCat.Handlers
+namespace DotnetCat.Controllers
 {
     /// <summary>
-    /// Command line argument parser and validator
+    ///  Controller for argument parsing and validation
     /// </summary>
     internal static class Parser
     {
@@ -17,7 +17,7 @@ namespace DotnetCat.Handlers
         private static readonly string _help;  // Help information
 
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         static Parser()
         {
@@ -67,7 +67,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Check for help flag in cmd-line arguments
+        ///  Check for help flag in cmd-line arguments
         /// </summary>
         public static bool NeedsHelp(string[] args)
         {
@@ -85,7 +85,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get index of cmd-line argument with the specified char
+        ///  Get index of cmd-line argument with the specified char
         /// </summary>
         public static int IndexOfAlias(char alias)
         {
@@ -100,7 +100,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get the matching cmd-line argument index
+        ///  Get the matching cmd-line argument index
         /// </summary>
         public static int IndexOfFlag(string flag, List<string> args)
         {
@@ -108,7 +108,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get the matching cmd-line argument index
+        ///  Get the matching cmd-line argument index
         /// </summary>
         public static int IndexOfFlag(string flag,
                                       char? alias = default,
@@ -139,7 +139,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Parse named arguments starting with one dash
+        ///  Parse named arguments starting with one dash
         /// </summary>
         public static void ParseCharArgs()
         {
@@ -214,7 +214,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Parse named arguments starting with two dashes
+        ///  Parse named arguments starting with two dashes
         /// </summary>
         public static void ParseFlagArgs()
         {
@@ -284,7 +284,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Print application help message to console output
+        ///  Print application help message to console output
         /// </summary>
         public static void PrintHelp()
         {
@@ -293,7 +293,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get application help message as a string
+        ///  Get application help message as a string
         /// </summary>
         private static string GetHelp()
         {
@@ -324,7 +324,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Remove character (alias) from a cmd-line argument
+        ///  Remove character (alias) from a cmd-line argument
         /// </summary>
         private static void RemoveAlias(int index,
                                         char alias,
@@ -344,7 +344,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Determine if the argument index is valid
+        ///  Determine if the argument index is valid
         /// </summary>
         private static bool ValidIndex(int index)
         {
@@ -352,7 +352,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Remove named argument/value in cmd-line arguments
+        ///  Remove named argument/value in cmd-line arguments
         /// </summary>
         private static void RemoveFlag(string arg, bool noValue = false)
         {
@@ -365,7 +365,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get value of an argument in cmd-line arguments
+        ///  Get value of an argument in cmd-line arguments
         /// </summary>
         private static string ArgsValueAt(int index)
         {
@@ -377,7 +377,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get port number from argument index
+        ///  Get port number from argument index
         /// </summary>
         private static int GetPort(int index)
         {
@@ -397,7 +397,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get executable path for command execution
+        ///  Get executable path for command execution
         /// </summary>
         private static string GetExecutable(int index)
         {
@@ -422,7 +422,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get file path to write to or read from
+        ///  Get file path to write to or read from
         /// </summary>
         private static string GetTransfer(int index)
         {
@@ -443,7 +443,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get string network payload
+        ///  Get string network payload
         /// </summary>
         private static string GetTextPayload(int index)
         {

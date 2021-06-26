@@ -3,32 +3,32 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using DotnetCat.Contracts;
+using DotnetCat.Controllers;
 using DotnetCat.Enums;
-using DotnetCat.Handlers;
 using DotnetCat.Utils;
 using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Nodes
 {
     /// <summary>
-    /// Server node for TCP socket connections
+    ///  Server node for TCP socket connections
     /// </summary>
     internal class ServerNode : Node, ISockErrorHandled
     {
         private Socket _listener;  // Listener socket
 
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public ServerNode() : base(IPAddress.Any) => _listener = default;
 
         /// <summary>
-        /// Cleanup resources
+        ///  Cleanup resources
         /// </summary>
         ~ServerNode() => Dispose();
 
         /// <summary>
-        /// Listen for incoming TCP connections
+        ///  Listen for incoming TCP connections
         /// </summary>
         public override void Connect()
         {
@@ -81,7 +81,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Dispose of unmanaged resources and handle error
+        ///  Dispose of unmanaged resources and handle error
         /// </summary>
         public override void PipeError(Except type,
                                        HostEndPoint target,
@@ -92,7 +92,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Dispose of unmanaged resources and handle error
+        ///  Dispose of unmanaged resources and handle error
         /// </summary>
         public override void PipeError(Except type,
                                        string arg,
@@ -103,7 +103,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Release any unmanaged resources
+        ///  Release any unmanaged resources
         /// </summary>
         public override void Dispose()
         {
@@ -114,7 +114,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Bind the listener socket to an endpoint
+        ///  Bind the listener socket to an endpoint
         /// </summary>
         private void BindListener(IPEndPoint ep)
         {

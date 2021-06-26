@@ -4,10 +4,10 @@ using DotnetCat.Enums;
 using DotnetCat.Utils;
 using Env = System.Environment;
 
-namespace DotnetCat.Handlers
+namespace DotnetCat.Controllers
 {
     /// <summary>
-    /// Handler for custom DotnetCat errors
+    ///  Error and exception controller
     /// </summary>
     internal static class Error
     {
@@ -15,12 +15,12 @@ namespace DotnetCat.Handlers
         private static readonly Dictionary<Except, ErrorMessage> _errors;
 
         /// <summary>
-        /// Initialize static members
+        ///  Initialize static members
         /// </summary>
         static Error() => _errors = GetErrorDict();
 
         /// <summary>
-        /// Handle special exceptions related to DotNetCat
+        ///  Handle special exceptions related to DotNetCat
         /// </summary>
         public static void Handle(Except exType,
                                   string arg,
@@ -30,7 +30,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Handle special exceptions related to DotNetCat
+        ///  Handle special exceptions related to DotNetCat
         /// </summary>
         public static void Handle(Except exType,
                                   string arg,
@@ -41,7 +41,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Handle special exceptions related to DotNetCat
+        ///  Handle special exceptions related to DotNetCat
         /// </summary>
         public static void Handle(Except exType,
                                   string arg,
@@ -91,7 +91,7 @@ namespace DotnetCat.Handlers
         }
 
         /// <summary>
-        /// Get dictionary of errors related to DotnetCat
+        ///  Get dictionary of errors related to DotnetCat
         /// </summary>
         private static Dictionary<Except, ErrorMessage> GetErrorDict() => new()
         {

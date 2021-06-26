@@ -1,7 +1,7 @@
 namespace DotnetCat.Enums
 {
     /// <summary>
-    /// Socket pipeline enumeration type
+    ///  Socket pipeline enumeration type
     /// </summary>
     internal enum PipeType : short
     {

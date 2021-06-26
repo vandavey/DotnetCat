@@ -4,12 +4,12 @@ using DotnetCat.Enums;
 namespace DotnetCat.Utils
 {
     /// <summary>
-    /// Application console status configuration
+    ///  Application console status configuration
     /// </summary>
     internal class Status
     {
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public Status(ConsoleColor color, Level level)
         {

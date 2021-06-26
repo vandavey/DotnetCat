@@ -2,31 +2,31 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using DotnetCat.Contracts;
+using DotnetCat.Controllers;
 using DotnetCat.Enums;
-using DotnetCat.Handlers;
 using DotnetCat.Utils;
 
 namespace DotnetCat.Nodes
 {
     /// <summary>
-    /// Client node for TCP socket connections
+    ///  Client node for TCP socket connections
     /// </summary>
     internal class ClientNode : Node, ISockErrorHandled
     {
         private HostEndPoint _targetEP;  // Remote target
 
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public ClientNode() : base() => _targetEP = default;
 
         /// <summary>
-        /// Cleanup resources
+        ///  Cleanup resources
         /// </summary>
         ~ClientNode() => Dispose();
 
         /// <summary>
-        /// Connect to the specified IPv4 address and port number
+        ///  Connect to the specified IPv4 address and port number
         /// </summary>
         public override void Connect()
         {

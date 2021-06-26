@@ -3,20 +3,20 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
-namespace DotnetCat.Handlers
+namespace DotnetCat.Controllers
 {
     /// <summary>
-    /// Network information handler
+    ///  Network information controller
     /// </summary>
     internal static class Net
     {
         /// <summary>
-        /// Determine if the given port number
+        ///  Determine if the given port number
         /// </summary>
         public static bool IsValidPort(int port) => port is > 0 and <= 65535;
 
         /// <summary>
-        /// Resolve the IPv4 address of given hostname
+        ///  Resolve the IPv4 address of given hostname
         /// </summary>
         public static (IPAddress ip, Exception ex) ResolveName(string hostName)
         {

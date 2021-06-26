@@ -1,7 +1,7 @@
 namespace DotnetCat.Enums
 {
     /// <summary>
-    /// Socket and file transfer option enumeration type
+    ///  Socket and file transfer option enumeration type
     /// </summary>
     internal enum TransferOpt : short
     {

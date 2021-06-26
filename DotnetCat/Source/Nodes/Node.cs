@@ -7,8 +7,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
+using DotnetCat.Controllers;
 using DotnetCat.Enums;
-using DotnetCat.Handlers;
 using DotnetCat.Pipelines;
 using DotnetCat.Utils;
 using ArgNullException = System.ArgumentNullException;
@@ -16,7 +16,7 @@ using ArgNullException = System.ArgumentNullException;
 namespace DotnetCat.Nodes
 {
     /// <summary>
-    /// Base class for all socket nodes in Nodes namespace
+    ///  Base class for all socket nodes in Nodes namespace
     /// </summary>
     internal class Node : ISockErrorHandled
     {
@@ -33,7 +33,7 @@ namespace DotnetCat.Nodes
         private List<Pipeline> _pipes;    // Pipeline list
 
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         protected Node()
         {
@@ -50,7 +50,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         protected Node(IPAddress address) : this()
         {
@@ -59,7 +59,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Cleanup resources
+        ///  Cleanup resources
         /// </summary>
         ~Node() => Dispose();
 
@@ -104,7 +104,7 @@ namespace DotnetCat.Nodes
         protected NetworkStream NetStream { get; set; }
 
         /// <summary>
-        /// Initialize and run an executable process
+        ///  Initialize and run an executable process
         /// </summary>
         public bool StartProcess(string exe)
         {
@@ -122,7 +122,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Activate communication between pipe streams
+        ///  Activate communication between pipe streams
         /// </summary>
         public virtual void Connect()
         {
@@ -138,7 +138,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Dispose of unmanaged socket resources and handle error
+        ///  Dispose of unmanaged socket resources and handle error
         /// </summary>
         public virtual void PipeError(Except type,
                                       HostEndPoint target,
@@ -149,7 +149,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Dispose of unmanaged resources and handle error
+        ///  Dispose of unmanaged resources and handle error
         /// </summary>
         public virtual void PipeError(Except type,
                                       string arg,
@@ -160,7 +160,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Release any unmanaged resources
+        ///  Release any unmanaged resources
         /// </summary>
         public virtual void Dispose()
         {
@@ -177,7 +177,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Validate command-line argument combinations
+        ///  Validate command-line argument combinations
         /// </summary>
         protected void ValidateArgCombinations()
         {
@@ -245,7 +245,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Initialize socket stream pipelines
+        ///  Initialize socket stream pipelines
         /// </summary>
         protected void AddPipes(PipeType pipeType)
         {
@@ -273,7 +273,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Wait for pipeline(s) to be disconnected
+        ///  Wait for pipeline(s) to be disconnected
         /// </summary>
         protected void WaitForExit(int msDelay = 100)
         {
@@ -290,7 +290,7 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Initialize underlying pipelines
+        ///  Initialize underlying pipelines
         /// </summary>
         private List<Pipeline> GetPipelines(PipeType type)
         {
@@ -362,12 +362,12 @@ namespace DotnetCat.Nodes
         }
 
         /// <summary>
-        /// Determine if command-shell has exited
+        ///  Determine if command-shell has exited
         /// </summary>
         private bool ProcessExited() => UsingExe && _process.HasExited;
 
         /// <summary>
-        /// Determine if all pipelines are connected/active
+        ///  Determine if all pipelines are connected/active
         /// </summary>
         private bool PipelinesConnected()
         {

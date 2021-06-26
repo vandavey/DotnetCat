@@ -3,12 +3,12 @@ using System;
 namespace DotnetCat.Utils
 {
     /// <summary>
-    /// Custom errors specifically related to DotNetCat
+    ///  Custom errors specifically related to DotNetCat
     /// </summary>
     internal class ErrorMessage
     {
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public ErrorMessage(string msg) => Value = msg;
 
@@ -19,7 +19,7 @@ namespace DotnetCat.Utils
         public string Value { get; private set; }
 
         /// <summary>
-        /// Format error with the specified argument
+        ///  Format error with the specified argument
         /// </summary>
         public string Build(string argument)
         {

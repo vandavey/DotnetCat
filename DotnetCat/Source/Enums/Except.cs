@@ -1,7 +1,7 @@
 namespace DotnetCat.Enums
 {
     /// <summary>
-    /// DotnetCat error/exception enumeration type
+    ///  DotnetCat error/exception enumeration type
     /// </summary>
     internal enum Except : short
     {

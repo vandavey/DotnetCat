@@ -1,7 +1,7 @@
 namespace DotnetCat.Enums
 {
     /// <summary>
-    /// Console output status level enumeration type
+    ///  Console output status level enumeration type
     /// </summary>
     internal enum Level : short
     {

@@ -5,19 +5,19 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
+using DotnetCat.Controllers;
 using DotnetCat.Enums;
-using DotnetCat.Handlers;
 using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Pipelines
 {
     /// <summary>
-    /// Base class for all pipelines in the Pipelines namespace
+    ///  Base class for all pipelines in the Pipelines namespace
     /// </summary>
     internal class Pipeline : IConnectable
     {
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         protected Pipeline()
         {
@@ -26,7 +26,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Cleanup resources
+        ///  Cleanup resources
         /// </summary>
         ~Pipeline() => Dispose();
 
@@ -55,7 +55,7 @@ namespace DotnetCat.Pipelines
         protected Task Worker { get; set; }
 
         /// <summary>
-        /// Activate communication between the pipe streams
+        ///  Activate communication between the pipe streams
         /// </summary>
         public virtual void Connect()
         {
@@ -67,7 +67,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Cancel communication throughout pipe
+        ///  Cancel communication throughout pipe
         /// </summary>
         public virtual void Disconnect()
         {
@@ -76,7 +76,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Release any unmanaged resources
+        ///  Release any unmanaged resources
         /// <summary>
         public virtual void Dispose()
         {
@@ -98,7 +98,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Connect pipeline and activate async communication
+        ///  Connect pipeline and activate async communication
         /// </summary>
         protected virtual async Task ConnectAsync(CancellationToken token)
         {
@@ -144,7 +144,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        /// Fix line terminators based on OS platform
+        ///  Fix line terminators based on OS platform
         /// </summary>
         protected static StringBuilder FixLineEndings(StringBuilder data)
         {

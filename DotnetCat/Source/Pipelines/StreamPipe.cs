@@ -5,12 +5,12 @@ using DotnetCat.Contracts;
 namespace DotnetCat.Pipelines
 {
     /// <summary>
-    /// Pipeline for standard console stream
+    ///  Pipeline for standard console stream
     /// </summary>
     internal class StreamPipe : Pipeline, IConnectable
     {
         /// <summary>
-        /// Initialize object
+        ///  Initialize object
         /// </summary>
         public StreamPipe(StreamReader src, StreamWriter dest) : base()
         {
