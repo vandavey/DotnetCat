@@ -11,7 +11,7 @@ namespace DotnetCat.Controllers
     internal static class Net
     {
         /// <summary>
-        ///  Determine if the given port number
+        ///  Determine if the given port number is valid
         /// </summary>
         public static bool IsValidPort(int port) => port is > 0 and <= 65535;
 
