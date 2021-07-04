@@ -388,7 +388,7 @@ namespace DotnetCat.Controllers
             string sPort = ArgsValueAt(index + 1);
 
             // Handle invalid port strings
-            if (!int.TryParse(sPort, out int port) || Net.IsValidPort(port))
+            if (!int.TryParse(sPort, out int port) || !Net.IsValidPort(port))
             {
                 Console.WriteLine(Usage);
                 Error.Handle(Except.InvalidPort, sPort);
