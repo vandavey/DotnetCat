@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DotnetCat.Enums;
-using DotnetCat.Utils;
 using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Controllers
@@ -27,47 +26,30 @@ namespace DotnetCat.Controllers
         };
 
         /// <summary>
-        ///  Write an error message to standard error
+        ///  Write an error message to the standard error stream
         /// </summary>
-        public static void Error(string msg, bool noNewLine = false)
-        {
-            _ = msg ?? throw new ArgNullException(nameof(msg));
-            Status(Level.Error, msg, noNewLine);
-        }
+        public static void Error(string msg) => Status(Level.Error, msg);
 
         /// <summary>
-        ///  Write a completion message to standard output
+        ///  Write a completion status to the standard output stream
         /// </summary>
-        public static void Output(string msg, bool noNewLine = false)
-        {
-            _ = msg ?? throw new ArgNullException(nameof(msg));
-            Status(Level.Output, msg, noNewLine);
-        }
+        public static void Output(string msg) => Status(Level.Output, msg);
 
         /// <summary>
-        ///  Write an informational message to standard output
+        ///  Write an informational message to the standard output stream
         /// </summary>
-        public static void Info(string msg, bool noNewLine = false)
-        {
-            _ = msg ?? throw new ArgNullException(nameof(msg));
-            Status(Level.Info, msg, noNewLine);
-        }
+        public static void Info(string msg) => Status(Level.Info, msg);
 
         /// <summary>
-        ///  Write a warning message to standard error
+        ///  Write a warning status to the standard error stream
         /// </summary>
-        public static void Warn(string msg, bool noNewLine = false)
-        {
-            _ = msg ?? throw new ArgNullException(nameof(msg));
-            Status(Level.Warn, msg, noNewLine);
-        }
+        public static void Warn(string msg) => Status(Level.Warn, msg);
 
         /// <summary>
-        ///  Write a custom status to standard output
+        ///  Write a status message to a standard console stream
         /// <summary>
-        private static void Status(Level level,
-                                   string msg,
-                                   bool noNewLine = false) {
+        private static void Status(Level level, string msg)
+        {
             // Status index
             int index = IndexOfStatus(level);
 
@@ -80,22 +62,15 @@ namespace DotnetCat.Controllers
                 Level.Info or Level.Output or _ => Console.Out
             };
 
-            // Write symbol to standard stream
-            Console.ForegroundColor = _statuses[index].Color;
-            stream.Write($"{_statuses[index].Symbol} ");
-            Console.ResetColor();
+            Status status = _statuses[index];
+            string symbol = Sequence.GetColorStr(status.Symbol, status.Color);
 
-            // Write message to standard stream
-            if (noNewLine)
-            {
-                stream.Write(msg);
-                return;
-            }
-            stream.WriteLine(msg);
+            // Output status message
+            stream.WriteLine($"{symbol} {msg}");
         }
 
         /// <summary>
-        ///  Get the index of a status in Statuses
+        ///  Get the index of a status in the status list
         /// <summary>
         private static int IndexOfStatus(Level level)
         {

@@ -4,7 +4,6 @@ using System.Net.Sockets;
 using DotnetCat.Contracts;
 using DotnetCat.Controllers;
 using DotnetCat.Enums;
-using DotnetCat.Utils;
 
 namespace DotnetCat.Nodes
 {

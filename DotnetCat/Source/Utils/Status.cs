@@ -1,7 +1,7 @@
 using System;
 using DotnetCat.Enums;
 
-namespace DotnetCat.Utils
+namespace DotnetCat.Controllers
 {
     /// <summary>
     ///  Application console status configuration
@@ -13,8 +13,8 @@ namespace DotnetCat.Utils
         /// </summary>
         public Status(ConsoleColor color, Level level)
         {
-            Color = color;
             Level = level;
+            EscSequence = Sequence.GetColorStr(Color = color);
 
             Symbol = level switch
             {
@@ -30,6 +30,9 @@ namespace DotnetCat.Utils
 
         /// Status output level
         public Level Level { get; }
+
+        /// Foreground color sequence
+        public string EscSequence { get; }
 
         /// Status prefix symbol
         public string Symbol { get; }
