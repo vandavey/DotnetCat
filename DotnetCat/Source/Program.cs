@@ -107,13 +107,8 @@ namespace DotnetCat
 
             bool isServer = (index > -1) || (Parser.IndexOfAlias('l') > -1);
 
-            // Determine if node is client/server
-            if ((index > -1) || (Parser.IndexOfAlias('l') > -1))
-            {
-                SockNode = new ServerNode();
-                return;
-            }
-            SockNode = new ClientNode();
+            // Initialize connection node
+            SockNode = isServer ? new ServerNode() : new ClientNode();
         }
 
         /// <summary>
