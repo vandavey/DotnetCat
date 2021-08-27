@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using DotnetCat.Contracts;
 using DotnetCat.Controllers;
 using DotnetCat.Enums;
-using DotnetCat.Utils;
 using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Nodes

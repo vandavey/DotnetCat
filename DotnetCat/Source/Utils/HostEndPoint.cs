@@ -1,8 +1,7 @@
 using System;
 using System.Net;
-using DotnetCat.Controllers;
 
-namespace DotnetCat.Utils
+namespace DotnetCat.Controllers
 {
     /// <summary>
     ///  Network endpoint host information

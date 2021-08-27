@@ -97,10 +97,11 @@ namespace DotnetCat.Controllers
         }
 
         /// <summary>
-        ///  Determine if data contains clear command
+        ///  Determine if the data contains a clear command
         /// </summary>
         public static bool IsClearCmd(string data, bool doClear = true)
         {
+            bool isClear = false;
             data = data.Replace(Env.NewLine, string.Empty).Trim();
 
             // Clear command detected
@@ -108,15 +109,15 @@ namespace DotnetCat.Controllers
             {
                 if (doClear)  // Clear console buffer
                 {
-                    Console.Clear();
+                    Sequence.ClearScreen();
                 }
-                return true;
+                isClear = true;
             }
-            return false;
+            return isClear;
         }
 
         /// <summary>
-        ///  Search environment path for specified shell
+        ///  Search environment path for the specified shell
         /// </summary>
         private static string GetExePath(string exe)
         {

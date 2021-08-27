@@ -8,36 +8,35 @@ using HANDLE = System.IntPtr;
 namespace DotnetCat.WinApi
 {
     /// <summary>
-    ///  Application programming interface for Windows console API
+    ///  Utility class providing Windows console API interoperability
     /// </summary>
     internal static class ConsoleApi
     {
+        private const int NULL = 0;
+
         private const int STD_INPUT_HANDLE = -10;
 
         private const int STD_OUTPUT_HANDLE = -11;
 
         private const nint INVALID_HANDLE_VALUE = -1;
 
-        private static bool _enabled;  // Virtual terminal enabled
+        private static bool _virtualTermEnabled;  // VT sequences enabled
 
         /// <summary>
         ///  Initialize static members
         /// </summary>
         static ConsoleApi()
         {
-            _enabled = OS is Platform.Nix;
+            _virtualTermEnabled = !IsWindows();
             EnableVirtualTerm();
         }
-
-        /// Operating system
-        public static Platform OS => Program.OS;
 
         /// <summary>
         ///  Enable console virtual terminal sequence processing
         /// </summary>
         public static void EnableVirtualTerm()
         {
-            if (!_enabled && OS is Platform.Win)
+            if (!_virtualTermEnabled && IsWindows())
             {
                 InMode inMode = InMode.ENABLE_VIRTUAL_TERMINAL_INPUT;
                 OutMode outMode = OutMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
@@ -49,10 +48,9 @@ namespace DotnetCat.WinApi
         /// <summary>
         ///  Enable console virtual terminal sequence processing
         /// </summary>
-        public static void EnableVirtualTerm(InMode inputMode,
-                                             OutMode outputMode) {
-            // Only needed on Windows
-            if (!_enabled && OS is Platform.Win)
+        public static void EnableVirtualTerm(InMode inMode, OutMode outMode)
+        {
+            if (!_virtualTermEnabled && IsWindows())
             {
                 HANDLE stdInHandle = GetStdHandle(STD_INPUT_HANDLE);
                 HANDLE stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -61,28 +59,15 @@ namespace DotnetCat.WinApi
                 if (!ValidHandle(stdInHandle) || !ValidHandle(stdOutHandle))
                 {
                     ExternError(nameof(GetStdHandle));
-                    return;
                 }
 
-                DWORD stdInMode = GetMode(stdInHandle, (DWORD)inputMode);
-                DWORD stdOutMode = GetMode(stdOutHandle, (DWORD)outputMode);
+                DWORD stdInMode = GetMode(stdInHandle, GetWord(inMode));
+                DWORD stdOutMode = GetMode(stdOutHandle, GetWord(outMode));
 
-                // Failed to get console mode
-                if (!ValidHandle(stdInHandle) || !ValidHandle(stdOutHandle))
-                {
-                    ExternError(nameof(GetConsoleMode));
-                }
+                SetMode(stdInHandle, stdInMode);
+                SetMode(stdOutHandle, stdOutMode);
 
-                bool stdInModeSet = SetMode(stdInHandle, stdInMode);
-                bool stdOutModeSet = SetMode(stdOutHandle, stdOutMode);
-
-                // Failed to set console mode
-                if (!stdInModeSet || !stdOutModeSet)
-                {
-                    ExternError(nameof(SetConsoleMode));
-                }
-
-                _enabled = true;
+                _virtualTermEnabled = true;
             }
         }
 
@@ -91,58 +76,56 @@ namespace DotnetCat.WinApi
         /// </summary>
         public static DWORD GetMode(HANDLE handle, DWORD mode)
         {
-            if (OS is Platform.Nix)
+            if (!IsWindows())
             {
                 throw new PlatformNotSupportedException(nameof(GetMode));
             }
 
-            if (handle == HANDLE.Zero)
+            // Invalid stream handle
+            if (!ValidHandle(handle))
             {
                 throw new ArgumentException("Invalid handle", nameof(handle));
             }
 
-            if (mode == 0)
+            // Invalid console mode
+            if (mode == NULL)
             {
                 throw new ArgumentException("No bit flag set", nameof(mode));
             }
 
-            // Error getting console stream handle
+            // Failed to get console stream mode
             if (!GetConsoleMode(handle, out DWORD streamMode))
             {
-                streamMode = 0;
+                ExternError(nameof(GetConsoleMode));
             }
-
-            return (streamMode == 0) ? streamMode : (streamMode |= mode);
+            return streamMode |= mode;
         }
 
         /// <summary>
         ///  Set new mode for a standard console stream
         /// </summary>
-        public static BOOL SetMode(HANDLE handle, DWORD mode)
+        public static void SetMode(HANDLE handle, DWORD mode)
         {
-            if (OS is Platform.Nix)
+            if (!IsWindows())
             {
                 throw new PlatformNotSupportedException(nameof(SetMode));
             }
 
-            if ((handle == HANDLE.Zero) || (handle == INVALID_HANDLE_VALUE))
+            if (!ValidHandle(handle))
             {
                 throw new ArgumentException("Invalid handle", nameof(handle));
             }
 
-            if (mode == (DWORD)InMode.UNKNOWN_INPUT_MODE)
+            if (mode == NULL)
             {
                 throw new ArgumentException("No bit flag set", nameof(mode));
             }
 
-            bool modeSet = SetConsoleMode(handle, mode);
-
-            // Error setting console stream mode
-            if (!modeSet)
+            // Failed to set console stream mode
+            if (!SetConsoleMode(handle, mode))
             {
                 ExternError(nameof(SetConsoleMode));
             }
-            return modeSet;
         }
 
         /// <summary>
@@ -158,7 +141,7 @@ namespace DotnetCat.WinApi
         /// <summary>
         ///  Get the most recent Windows console API error code
         /// </summary>
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.U4)]
         private static extern DWORD GetLastError();
 
@@ -180,12 +163,25 @@ namespace DotnetCat.WinApi
         );
 
         /// <summary>
+        ///  Determine if the operating system is Windows
+        /// </summary>
+        private static BOOL IsWindows() => Program.OS is Platform.Win;
+
+        /// <summary>
         ///  Determine if a standard console stream handle is valid
         /// </summary>
-        private static bool ValidHandle(HANDLE handle)
+        private static BOOL ValidHandle(HANDLE handle)
         {
             bool invalidHandle = handle == INVALID_HANDLE_VALUE;
             return !invalidHandle || (handle != HANDLE.Zero);
+        }
+
+        /// <summary>
+        ///  Convert the given mode enumeration object to a DWORD
+        /// </summary>
+        private static DWORD GetWord<TEnum>(TEnum mode) where TEnum : Enum
+        {
+            return Convert.ToUInt32(mode);
         }
 
         /// <summary>
@@ -195,6 +191,8 @@ namespace DotnetCat.WinApi
         {
             DWORD error = GetLastError();
             Console.Error.WriteLine($"Error in extern {externName}: {error}");
+
+            throw new ExternalException(externName);
         }
     }
 }

@@ -47,7 +47,7 @@ namespace DotnetCat
         /// <summary>
         ///  Primary application entry point
         /// </summary>
-        private static void Main(string[] args)
+        public static void Main(string[] args)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -93,19 +93,19 @@ namespace DotnetCat
             UsingExe = false;
             Args = DefragArguments(args);
 
-            List<string> lowerArgs = new();
-            Args?.ForEach(arg => lowerArgs.Add(arg.ToLower()));
-
-            int index;
+            List<string> lowerArgs = Args.Select(a => a.ToLower()).ToList();
+            int index = lowerArgs.IndexOf("-noexit");
 
             // Discard 'NoExit' cmd-line args options
-            if ((index = lowerArgs.IndexOf("-noexit")) > -1)
+            if (index > -1)
             {
                 Args.RemoveAt(index);
             }
 
             Transfer = GetTransferOpts();
             index = Parser.IndexOfFlag("--listen", 'l');
+
+            bool isServer = (index > -1) || (Parser.IndexOfAlias('l') > -1);
 
             // Determine if node is client/server
             if ((index > -1) || (Parser.IndexOfAlias('l') > -1))
@@ -161,8 +161,8 @@ namespace DotnetCat
                 // Missing EOL (quote)
                 if (eolQuery is null)
                 {
-                    Error.Handle(Except.StringEOL,
-                                 string.Join(", ", args[item.pos..]), true);
+                    string arg = string.Join(", ", args[item.pos..]);
+                    Error.Handle(Except.StringEOL, arg, true);
                 }
 
                 delta = eolQuery.pos - item.pos;

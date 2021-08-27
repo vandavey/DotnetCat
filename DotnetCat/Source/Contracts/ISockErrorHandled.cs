@@ -1,6 +1,6 @@
 using System;
 using DotnetCat.Enums;
-using DotnetCat.Utils;
+using DotnetCat.Controllers;
 
 namespace DotnetCat.Contracts
 {

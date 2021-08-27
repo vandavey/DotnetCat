@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using DotnetCat.Enums;
-using DotnetCat.Utils;
 using Env = System.Environment;
 
 namespace DotnetCat.Controllers
@@ -93,84 +92,87 @@ namespace DotnetCat.Controllers
         /// <summary>
         ///  Get dictionary of errors related to DotnetCat
         /// </summary>
-        private static Dictionary<Except, ErrorMessage> GetErrorDict() => new()
+        private static Dictionary<Except, ErrorMessage> GetErrorDict()
         {
+            return new Dictionary<Except, ErrorMessage>
             {
-                Except.ArgsCombo,
-                new ErrorMessage("Invalid argument combination: {}")
-            },
-            {
-                Except.ConnectionLost,
-                new ErrorMessage("Connection unexpectedly closed by {}")
-            },
-            {
-                Except.ConnectionRefused,
-                new ErrorMessage("Connection was actively refused by {}")
-            },
-            {
-                Except.ConnectionTimeout,
-                new ErrorMessage("Socket timeout occurred: {}")
-            },
-            {
-                Except.DirectoryPath,
-                new ErrorMessage("Unable to locate parent directory '{}'")
-            },
-            {
-                Except.EmptyPath,
-                new ErrorMessage("A value is required for option(s): {}")
-            },
-            {
-                Except.ExePath,
-                new ErrorMessage("Unable to locate executable file '{}'")
-            },
-            {
-                Except.ExeProcess,
-                new ErrorMessage("Unable to launch executable process: {}")
-            },
-            {
-                Except.FilePath,
-                new ErrorMessage("Unable to locate file path '{}'")
-            },
-            {
-                Except.InvalidAddr,
-                new ErrorMessage("Unable to resolve hostname '{}'")
-            },
-            {
-                Except.InvalidArgs,
-                new ErrorMessage("Unable to validate argument(s): {}")
-            },
-            {
-                Except.InvalidPort,
-                new ErrorMessage("'{}' is not a valid port number")
-            },
-            {
-                Except.NamedArgs,
-                new ErrorMessage("Missing value for named argument(s): {}")
-            },
-            {
-                Except.Payload,
-                new ErrorMessage("Invalid payload for argument(s): {}")
-            },
-            {
-                Except.RequiredArgs,
-                new ErrorMessage("Missing required argument(s): {}")
-            },
-            {
-                Except.SocketBind,
-                new ErrorMessage("The endpoint is already in use: {}")
-            },
-            {
-                Except.StringEOL,
-                new ErrorMessage("Missing EOL in argument(s): {}")
-            },
-            {
-                Except.Unhandled,
-                new ErrorMessage("Unhandled exception occurred: {}")
-            },
-            {
-                Except.UnknownArgs,
-                new ErrorMessage("Received unknown argument(s): {}")
-            }
-        };
+                {
+                    Except.ArgsCombo,
+                    new ErrorMessage("Invalid argument combination: {}")
+                },
+                {
+                    Except.ConnectionLost,
+                    new ErrorMessage("Connection unexpectedly closed by {}")
+                },
+                {
+                    Except.ConnectionRefused,
+                    new ErrorMessage("Connection was actively refused by {}")
+                },
+                {
+                    Except.ConnectionTimeout,
+                    new ErrorMessage("Socket timeout occurred: {}")
+                },
+                {
+                    Except.DirectoryPath,
+                    new ErrorMessage("Unable to locate parent directory '{}'")
+                },
+                {
+                    Except.EmptyPath,
+                    new ErrorMessage("A value is required for option(s): {}")
+                },
+                {
+                    Except.ExePath,
+                    new ErrorMessage("Unable to locate executable file '{}'")
+                },
+                {
+                    Except.ExeProcess,
+                    new ErrorMessage("Unable to launch executable process: {}")
+                },
+                {
+                    Except.FilePath,
+                    new ErrorMessage("Unable to locate file path '{}'")
+                },
+                {
+                    Except.InvalidAddr,
+                    new ErrorMessage("Unable to resolve hostname '{}'")
+                },
+                {
+                    Except.InvalidArgs,
+                    new ErrorMessage("Unable to validate argument(s): {}")
+                },
+                {
+                    Except.InvalidPort,
+                    new ErrorMessage("'{}' is not a valid port number")
+                },
+                {
+                    Except.NamedArgs,
+                    new ErrorMessage("Missing value for named argument(s): {}")
+                },
+                {
+                    Except.Payload,
+                    new ErrorMessage("Invalid payload for argument(s): {}")
+                },
+                {
+                    Except.RequiredArgs,
+                    new ErrorMessage("Missing required argument(s): {}")
+                },
+                {
+                    Except.SocketBind,
+                    new ErrorMessage("The endpoint is already in use: {}")
+                },
+                {
+                    Except.StringEOL,
+                    new ErrorMessage("Missing EOL in argument(s): {}")
+                },
+                {
+                    Except.Unhandled,
+                    new ErrorMessage("Unhandled exception occurred: {}")
+                },
+                {
+                    Except.UnknownArgs,
+                    new ErrorMessage("Received unknown argument(s): {}")
+                }
+            };
+        }
     }
 }

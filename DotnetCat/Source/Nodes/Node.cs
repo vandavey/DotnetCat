@@ -10,7 +10,6 @@ using DotnetCat.Contracts;
 using DotnetCat.Controllers;
 using DotnetCat.Enums;
 using DotnetCat.Pipelines;
-using DotnetCat.Utils;
 using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Nodes
@@ -306,11 +305,11 @@ namespace DotnetCat.Nodes
                     // Add stream pipelines
                     pipes.AddRange(new StreamPipe[]
                     {
-                        new StreamPipe(_netReader, new(stdOutput)
+                        new StreamPipe(_netReader, new StreamWriter(stdOutput)
                         {
                             AutoFlush = true
                         }),
-                        new StreamPipe(new(stdInput), _netWriter)
+                        new StreamPipe(new StreamReader(stdInput), _netWriter)
                     });
                     break;
                 }
