@@ -4,6 +4,7 @@ using DotnetCat.Enums;
 using BOOL = System.Boolean;
 using DWORD = System.UInt32;
 using HANDLE = System.IntPtr;
+using UT = System.Runtime.InteropServices.UnmanagedType;
 
 namespace DotnetCat.WinApi
 {
@@ -132,34 +133,34 @@ namespace DotnetCat.WinApi
         ///  Get new mode to set for a standard console stream buffer
         /// </summary>
         [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [return: MarshalAs(UT.Bool)]
         private static extern BOOL GetConsoleMode(
-            HANDLE hConsoleHandle,
-            [param: MarshalAs(UnmanagedType.U4)]out DWORD lpMode
+            [MarshalAs(UT.SysInt)]HANDLE hConsoleHandle,
+            [MarshalAs(UT.U4)]out DWORD lpMode
         );
 
         /// <summary>
         ///  Get the most recent Windows console API error code
         /// </summary>
         [DllImport("kernel32.dll")]
-        [return: MarshalAs(UnmanagedType.U4)]
+        [return: MarshalAs(UT.U4)]
         private static extern DWORD GetLastError();
 
         /// <summary>
         ///  Get a handle to a standard console stream
         /// </summary>
         [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.SysInt)]
+        [return: MarshalAs(UT.SysInt)]
         private static extern HANDLE GetStdHandle(int nStdHandle);
 
         /// <summary>
         ///  Set new mode for a standard console stream
         /// </summary>
         [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
+        [return: MarshalAs(UT.Bool)]
         private static extern BOOL SetConsoleMode(
-            HANDLE hConsoleHandle,
-            [param: MarshalAs(UnmanagedType.U4)]DWORD dwMode
+            [MarshalAs(UT.SysInt)]HANDLE hConsoleHandle,
+            [MarshalAs(UT.U4)]DWORD dwMode
         );
 
         /// <summary>
@@ -181,6 +182,10 @@ namespace DotnetCat.WinApi
         /// </summary>
         private static DWORD GetWord<TEnum>(TEnum mode) where TEnum : Enum
         {
+            if (mode is not InMode or OutMode)
+            {
+                throw new ArgumentException("Invalid enum type", nameof(mode));
+            }
             return Convert.ToUInt32(mode);
         }
 
