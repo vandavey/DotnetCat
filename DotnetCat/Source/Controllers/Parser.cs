@@ -31,6 +31,8 @@ namespace DotnetCat.Controllers
             get => (Program.OS is Platform.Nix) ? "dncat" : "dncat.exe";
         }
 
+        public static string Repo => "https://github.com/vandavey/DotnetCat";
+
         /// Application usage string
         public static string Usage => $"Usage: {AppTitle} [OPTIONS] TARGET";
 
@@ -299,7 +301,7 @@ namespace DotnetCat.Controllers
         {
             return string.Join(_eol, new string[]
             {
-                "DotnetCat (https://github.com/vandavey/DotnetCat)",
+                $"DotnetCat ({Repo})",
                 $"{Usage}{_eol}",
                 $"Remote command shell application{_eol}",
                 "Positional Arguments:",

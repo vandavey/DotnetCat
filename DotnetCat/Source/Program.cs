@@ -49,6 +49,8 @@ namespace DotnetCat
         /// </summary>
         public static void Main(string[] args)
         {
+            Console.Title = $"DotnetCat ({Parser.Repo})";
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 OS = Platform.Win;
