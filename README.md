@@ -65,6 +65,7 @@ The entire DotnetCat source code repository can be downloaded
 
 ## Remarks
 
+* Please use this application responsibly and for legal purposes only.
 * Please use discretion, as this application is still in development.
 
 ***

@@ -64,11 +64,11 @@ namespace DotnetCat.Controllers
             // Print warning/error message
             if (level is Level.Warn)
             {
-                Style.Warn(_errors[exType].Value);
+                Style.Warn(_errors[exType].Message);
             }
             else
             {
-                Style.Error(_errors[exType].Value);
+                Style.Error(_errors[exType].Message);
             }
 
             // Print debug information
@@ -98,79 +98,79 @@ namespace DotnetCat.Controllers
             {
                 {
                     Except.ArgsCombo,
-                    new ErrorMessage("Invalid argument combination: {}")
+                    new ErrorMessage("Invalid argument combination: %")
                 },
                 {
                     Except.ConnectionLost,
-                    new ErrorMessage("Connection unexpectedly closed by {}")
+                    new ErrorMessage("Connection unexpectedly closed by %")
                 },
                 {
                     Except.ConnectionRefused,
-                    new ErrorMessage("Connection was actively refused by {}")
+                    new ErrorMessage("Connection was actively refused by %")
                 },
                 {
                     Except.ConnectionTimeout,
-                    new ErrorMessage("Socket timeout occurred: {}")
+                    new ErrorMessage("Socket timeout occurred: %")
                 },
                 {
                     Except.DirectoryPath,
-                    new ErrorMessage("Unable to locate parent directory '{}'")
+                    new ErrorMessage("Unable to locate parent directory '%'")
                 },
                 {
                     Except.EmptyPath,
-                    new ErrorMessage("A value is required for option(s): {}")
+                    new ErrorMessage("A value is required for option(s): %")
                 },
                 {
                     Except.ExePath,
-                    new ErrorMessage("Unable to locate executable file '{}'")
+                    new ErrorMessage("Unable to locate executable file '%'")
                 },
                 {
                     Except.ExeProcess,
-                    new ErrorMessage("Unable to launch executable process: {}")
+                    new ErrorMessage("Unable to launch executable process: %")
                 },
                 {
                     Except.FilePath,
-                    new ErrorMessage("Unable to locate file path '{}'")
+                    new ErrorMessage("Unable to locate file path '%'")
                 },
                 {
                     Except.InvalidAddr,
-                    new ErrorMessage("Unable to resolve hostname '{}'")
+                    new ErrorMessage("Unable to resolve hostname '%'")
                 },
                 {
                     Except.InvalidArgs,
-                    new ErrorMessage("Unable to validate argument(s): {}")
+                    new ErrorMessage("Unable to validate argument(s): %")
                 },
                 {
                     Except.InvalidPort,
-                    new ErrorMessage("'{}' is not a valid port number")
+                    new ErrorMessage("'%' is not a valid port number")
                 },
                 {
                     Except.NamedArgs,
-                    new ErrorMessage("Missing value for named argument(s): {}")
+                    new ErrorMessage("Missing value for named argument(s): %")
                 },
                 {
                     Except.Payload,
-                    new ErrorMessage("Invalid payload for argument(s): {}")
+                    new ErrorMessage("Invalid payload for argument(s): %")
                 },
                 {
                     Except.RequiredArgs,
-                    new ErrorMessage("Missing required argument(s): {}")
+                    new ErrorMessage("Missing required argument(s): %")
                 },
                 {
                     Except.SocketBind,
-                    new ErrorMessage("The endpoint is already in use: {}")
+                    new ErrorMessage("The endpoint is already in use: %")
                 },
                 {
                     Except.StringEOL,
-                    new ErrorMessage("Missing EOL in argument(s): {}")
+                    new ErrorMessage("Missing EOL in argument(s): %")
                 },
                 {
                     Except.Unhandled,
-                    new ErrorMessage("Unhandled exception occurred: {}")
+                    new ErrorMessage("Unhandled exception occurred: %")
                 },
                 {
                     Except.UnknownArgs,
-                    new ErrorMessage("Received unknown argument(s): {}")
+                    new ErrorMessage("Received unknown argument(s): %")
                 }
             };
         }

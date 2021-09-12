@@ -50,10 +50,9 @@ namespace DotnetCat.Controllers
         /// <summary>
         private static void Status(Level level, string msg)
         {
-            // Status index
-            int index = IndexOfStatus(level);
-
             _ = msg ?? throw new ArgNullException(nameof(msg));
+
+            int index = IndexOfStatus(level);
 
             // Get standard output/error stream
             using TextWriter stream = level switch

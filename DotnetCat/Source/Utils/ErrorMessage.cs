@@ -10,35 +10,45 @@ namespace DotnetCat.Controllers
         /// <summary>
         ///  Initialize object
         /// </summary>
-        public ErrorMessage(string msg) => Value = msg;
-
-        /// Error message does not contain '{}'
-        public bool Built => !Value.Contains("{}");
+        public ErrorMessage(string msg) => Message = msg;
 
         /// Error message
-        public string Value { get; private set; }
+        public string Message { get; private set; }
 
         /// <summary>
         ///  Format error with the specified argument
         /// </summary>
-        public string Build(string argument)
+        public string Build(string arg)
         {
-            if (argument is null or "")
+            bool isBuilt = MsgBuilt();
+            bool nullArg = arg is null or "";
+
+            // Missing required argument
+            if (nullArg && !isBuilt)
             {
-                // Missing required argument
-                if (!Built)
-                {
-                    throw new ArgumentNullException(nameof(argument));
-                }
-                return Value;
+                throw new ArgumentNullException(nameof(arg));
             }
 
-            // Interpolation not required
-            if (Built)
+            // Message already built
+            if (!nullArg && isBuilt)
             {
-                throw new ArgumentException(null, nameof(argument));
+                string errorMsg = "The message has already been built";
+                throw new ArgumentException(errorMsg, nameof(arg));
             }
-            return Value = Value.Replace("{}", argument);
+
+            if (!isBuilt)
+            {
+                Message = Message.Replace("%", arg).Replace("{}", arg);
+            }
+            return Message;
+        }
+
+        /// <summary>
+        ///  Determine if the message contains format specifier ('%', '{}')
+        /// </summary>
+        private bool MsgBuilt()
+        {
+            return !Message.Contains("%") && !Message.Contains("{}");
         }
     }
 }
