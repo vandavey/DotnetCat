@@ -29,19 +29,21 @@ targeting the [.NET 5 runtime](https://dotnet.microsoft.com/download/dotnet/5.0)
 
 All available DotnetCat arguments are listed in the following table:
 
-| Argument           | Type       | Description                    | Default |
-|:------------------:|:----------:|:------------------------------:|:-------:|
-| `TARGET`           | *Required* | Host to use for the connection | *N/A*   |
-| `-p/--port PORT`   | *Optional* | Port to use for the connection | *4444*  |
-| `-e/--exec EXEC`   | *Optional* | Local executable file path     | *N/A*   |
-| `-o/--output PATH` | *Optional* | Download file from remote host | *N/A*   |
-| `-s/--send PATH`   | *Optional* | Send local file to remote host | *N/A*   |
-| `-t, --text`       | *Optional* | Send a string to remote host   | *False* |
-| `-l, --listen`     | *Optional* | Listen for inbound connection  | *False* |
-| `-z, --zero-io`    | *Optional* | Report connection status       | *False* |
-| `-v, --verbose`    | *Optional* | Enable verbose console output  | *False* |
-| `-d, --debug`      | *Optional* | Enable verbose error output    | *False* |
-| `-h/-?, --help`    | *Optional* | Display help menu and exit     | *False* |
+| Argument           | Type       | Description                        | Default |
+|:------------------:|:----------:|:----------------------------------:|:-------:|
+| `TARGET`           | *Required* | Host to use for the connection     | *N/A*   |
+| `-p/--port PORT`   | *Optional* | Port to use for the connection     | *4444*  |
+| `-e/--exec EXEC`   | *Optional* | Pipe executable I/O data (shell)   | *N/A*   |
+| `-o/--output PATH` | *Optional* | Download a file from a remote host | *N/A*   |
+| `-s/--send PATH`   | *Optional* | Send a local file to a remote host | *N/A*   |
+| `-t, --text`       | *Optional* | Send a string to a remote host     | *False* |
+| `-l, --listen`     | *Optional* | Listen for an inbound connection   | *False* |
+| `-z, --zero-io`    | *Optional* | Determine if an endpoint is open   | *False* |
+| `-v, --verbose`    | *Optional* | Enable verbose console output      | *False* |
+| `-d, --debug`      | *Optional* | Enable verbose error output        | *False* |
+| `-h/-?, --help`    | *Optional* | Display the app help menu and exit | *False* |
+
+> See the [usage examples](#usage-examples) section for more information.
 
 ***
 
@@ -60,6 +62,92 @@ To download a prebuilt, standalone executable, select one of the options below:
 
 The entire DotnetCat source code repository can be downloaded
 [here](https://github.com/vandavey/DotnetCat/archive/master.zip).
+
+***
+
+## Usage Examples
+
+### Basic Operations
+
+#### Display Help
+
+* Display the application help menu, then exit:
+
+    ```powershell
+    dncat --help
+    ```
+
+#### Run as Client
+
+* Connect to remote endpoint `192.168.1.1:1524`:
+
+    ```powershell
+    dncat "192.168.1.1" -p 1524
+    ```
+
+#### Run as Server
+
+* Listen for an inbound connection on any local Wi-Fi interface:
+
+    ```powershell
+    dncat --listen
+    ```
+
+    > When the `-l` or `--listen` flag is specified, `TARGET` defaults to `0.0.0.0`.
+
+#### Test Connection
+
+* Determine if `localhost` is accepting connections on port `22`:
+
+    ```powershell
+    dncat -z localhost -p 22
+    ```
+
+### Command Shells
+
+#### Bind Shell
+
+* Connect to remote endpoint `127.0.0.1:4444` to establish a bind shell:
+
+    ```powershell
+    dncat "127.0.0.1" -p 4444
+    ```
+
+#### Reverse Shell
+
+* Listen for an inbound connection to establish a reverse `bash` shell:
+
+    ```powershell
+    dncat -lv --exec bash
+    ```
+
+### Data Transfer
+
+#### Transmit String
+
+* Transmit string payload *Hello world!* to remote endpoint `fake.addr.com:80`:
+
+    ```powershell
+    dncat -dt "Hello world!" fake.addr.com -p 80
+    ```
+
+#### File Transfer
+
+##### Receive File
+
+* Listen for inbound file data and write the contents to path `C:\TestFile.txt`:
+
+    ```powershell
+    dncat -lvo C:\TestFile.txt
+    ```
+
+##### Transmit File
+
+* Transmit the contents of file `/home/user/profit.json` to remote target `Joe-Mama`:
+
+    ```powershell
+    dncat --send /home/user/profit.json Joe-Mama
+    ```
 
 ***
 
