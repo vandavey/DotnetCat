@@ -182,7 +182,7 @@ namespace DotnetCat.WinApi
         /// </summary>
         private static DWORD GetWord<TEnum>(TEnum mode) where TEnum : Enum
         {
-            if (mode is not InMode or OutMode)
+            if (mode is not InMode and not OutMode)
             {
                 throw new ArgumentException("Invalid enum type", nameof(mode));
             }

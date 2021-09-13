@@ -16,7 +16,7 @@ namespace DotnetCat.Controllers
         public static bool IsValidPort(int port) => port is > 0 and <= 65535;
 
         /// <summary>
-        ///  Resolve the IPv4 address of given hostname
+        ///  Resolve the IPv4 address of given host name
         /// </summary>
         public static (IPAddress ip, Exception ex) ResolveName(string hostName)
         {
