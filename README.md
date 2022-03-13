@@ -5,7 +5,7 @@
 # DotnetCat
 
 Remote command shell application written in C#,
-targeting the [.NET 5 runtime](https://dotnet.microsoft.com/download/dotnet/5.0).
+targeting the [.NET 6 runtime](https://dotnet.microsoft.com/download/dotnet/6.0).
 
 ***
 
@@ -53,10 +53,10 @@ All available DotnetCat arguments are listed in the following table:
 
 To download a prebuilt, standalone executable, select one of the options below:
 
-* [Windows-x64](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Win-x64.zip)
-* [Windows-x86](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Win-x86.zip)
-* [Linux-x64](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Linux-x64.zip)
-* [Linux-arm64](https://github.com/vandavey/DotnetCat/raw/master/DotnetCat/bin/Zips/DotnetCat_Linux-arm64.zip)
+* [Windows-x64](https://github.com/vandavey/DotnetCat/raw/master/src/DotnetCat/bin/Zips/DotnetCat_Win-x64.zip)
+* [Windows-x86](https://github.com/vandavey/DotnetCat/raw/master/src/DotnetCat/bin/Zips/DotnetCat_Win-x86.zip)
+* [Linux-x64](https://github.com/vandavey/DotnetCat/raw/master/src/DotnetCat/bin/Zips/DotnetCat_Linux-x64.zip)
+* [Linux-arm64](https://github.com/vandavey/DotnetCat/raw/master/src/DotnetCat/bin/Zips/DotnetCat_Linux-arm64.zip)
 
 ### Full Repository
 
@@ -69,23 +69,17 @@ The entire DotnetCat source code repository can be downloaded
 
 ### Basic Operations
 
-#### Display Help
-
 * Display the application help menu, then exit:
 
     ```powershell
     dncat --help
     ```
 
-#### Run as Client
-
 * Connect to remote endpoint `192.168.1.1:1524`:
 
     ```powershell
-    dncat "192.168.1.1" -p 1524
+    dncat "192.168.1.1" --port 1524
     ```
-
-#### Run as Server
 
 * Listen for an inbound connection on any local Wi-Fi interface:
 
@@ -95,8 +89,6 @@ The entire DotnetCat source code repository can be downloaded
 
     > When the `-l` or `--listen` flag is specified, `TARGET` defaults to `0.0.0.0`.
 
-#### Test Connection
-
 * Determine if `localhost` is accepting connections on port `22`:
 
     ```powershell
@@ -105,15 +97,11 @@ The entire DotnetCat source code repository can be downloaded
 
 ### Command Shells
 
-#### Bind Shell
-
 * Connect to remote endpoint `127.0.0.1:4444` to establish a bind shell:
 
     ```powershell
     dncat "127.0.0.1" -p 4444
     ```
-
-#### Reverse Shell
 
 * Listen for an inbound connection to establish a reverse `bash` shell:
 
@@ -123,8 +111,6 @@ The entire DotnetCat source code repository can be downloaded
 
 ### Data Transfer
 
-#### Transmit String
-
 * Transmit string payload *Hello world!* to remote endpoint `fake.addr.com:80`:
 
     ```powershell
@@ -133,15 +119,11 @@ The entire DotnetCat source code repository can be downloaded
 
 #### File Transfer
 
-##### Receive File
-
 * Listen for inbound file data and write the contents to path `C:\TestFile.txt`:
 
     ```powershell
     dncat -lvo C:\TestFile.txt
     ```
-
-##### Transmit File
 
 * Transmit the contents of file `/home/user/profit.json` to remote target `Joe-Mama`:
 
@@ -153,8 +135,17 @@ The entire DotnetCat source code repository can be downloaded
 
 ## Remarks
 
-* Please use this application responsibly and for legal purposes only.
+* This application is designed to be used as a multi-functional command-line
+  networking tool.
+
 * Please use discretion, as this application is still in development.
+
+* In no event shall the authors or copyright holders of this software be liable for
+  any claim, damages or other liability arising from, out of or in connection with
+  the software or the use or other dealings in the software.
+
+  > For more information, click [here](LICENSE.md) to view the
+    software's [MIT license](LICENSE.md).
 
 ***
 
