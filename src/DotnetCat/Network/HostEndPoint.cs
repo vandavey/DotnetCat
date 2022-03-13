@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Network
 {
@@ -59,7 +60,7 @@ namespace DotnetCat.Network
             get => _hostName;
             set
             {
-                if (value is null or "")
+                if (value.IsNullOrEmpty())
                 {
                     throw new ArgumentNullException(nameof(value));
                 }
@@ -72,7 +73,7 @@ namespace DotnetCat.Network
         /// </summary>
         public override string ToString()
         {
-            if ((Port <= -1) || (HostName is null or ""))
+            if ((Port <= -1) || HostName.IsNullOrEmpty())
             {
                 return base.ToString();
             }

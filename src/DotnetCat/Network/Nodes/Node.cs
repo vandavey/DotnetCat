@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using DotnetCat.Contracts;
 using DotnetCat.Errors;
 using DotnetCat.IO;
+using DotnetCat.IO.FileSystem;
 using DotnetCat.Pipelines;
 using DotnetCat.Shell.Commands;
 using DotnetCat.Utils;
@@ -44,7 +45,7 @@ namespace DotnetCat.Network.Nodes
             _netWriter = default;
             _pipes = default;
 
-            Port = 4444;
+            Port = 44444;
             Verbose = false;
             Client = new TcpClient();
         }
@@ -98,7 +99,7 @@ namespace DotnetCat.Network.Nodes
         }
 
         /// Using executable pipeline
-        protected bool UsingExe => Exe is not null or "";
+        protected bool UsingExe => !Exe.IsNullOrEmpty();
 
         /// TCP network stream
         protected NetworkStream NetStream { get; set; }
@@ -108,7 +109,9 @@ namespace DotnetCat.Network.Nodes
         /// </summary>
         public bool StartProcess(string exe)
         {
-            if (!Command.ExistsOnPath(exe).exists)
+            (string path, bool exists) = FileSys.ExistsOnPath(exe);
+
+            if (!exists)
             {
                 Dispose();
                 Error.Handle(Except.ExePath, exe, true);
@@ -116,7 +119,7 @@ namespace DotnetCat.Network.Nodes
 
             _process = new Process
             {
-                StartInfo = Command.GetStartInfo(Exe = exe)
+                StartInfo = Command.GetExeStartInfo(Exe = path)
             };
             return _process.Start();
         }
@@ -170,7 +173,7 @@ namespace DotnetCat.Network.Nodes
             _netReader?.Dispose();
             _netWriter?.Dispose();
 
-            Client?.Dispose();
+            Client?.Close();
             NetStream?.Dispose();
 
             GC.SuppressFinalize(this);
@@ -194,7 +197,7 @@ namespace DotnetCat.Network.Nodes
                 PipeError(Except.ArgsCombo, "--exec, --output/--send");
             }
 
-            bool isTextPipe = Program.Payload is not null or "";
+            bool isTextPipe = !Program.Payload.IsNullOrEmpty();
 
             // Combination: --exec, --text
             if (UsingExe && isTextPipe)

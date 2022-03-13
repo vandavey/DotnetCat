@@ -32,7 +32,7 @@ All available DotnetCat arguments are listed in the following table:
 | Argument           | Type       | Description                        | Default |
 |:------------------:|:----------:|:----------------------------------:|:-------:|
 | `TARGET`           | *Required* | Host to use for the connection     | *N/A*   |
-| `-p/--port PORT`   | *Optional* | Port to use for the connection     | *4444*  |
+| `-p/--port PORT`   | *Optional* | Port to use for the connection     | *44444* |
 | `-e/--exec EXEC`   | *Optional* | Pipe executable I/O data (shell)   | *N/A*   |
 | `-o/--output PATH` | *Optional* | Download a file from a remote host | *N/A*   |
 | `-s/--send PATH`   | *Optional* | Send a local file to a remote host | *N/A*   |

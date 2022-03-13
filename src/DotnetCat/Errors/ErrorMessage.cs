@@ -1,4 +1,5 @@
 using System;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Errors
 {
@@ -21,7 +22,7 @@ namespace DotnetCat.Errors
         public string Build(string arg)
         {
             bool isBuilt = MsgBuilt();
-            bool nullArg = arg is null or "";
+            bool nullArg = arg.IsNullOrEmpty();
 
             // Missing required argument
             if (nullArg && !isBuilt)
@@ -48,7 +49,7 @@ namespace DotnetCat.Errors
         /// </summary>
         private bool MsgBuilt()
         {
-            return !Message.Contains("%") && !Message.Contains("{}");
+            return !Message.Contains('%') && !Message.Contains("{}");
         }
     }
 }

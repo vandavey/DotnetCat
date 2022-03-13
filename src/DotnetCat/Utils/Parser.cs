@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DotnetCat.Errors;
+using DotnetCat.IO.FileSystem;
 using DotnetCat.Network;
 using DotnetCat.Network.Nodes;
 using DotnetCat.Pipelines;
-using DotnetCat.Shell.Commands;
 
 namespace DotnetCat.Utils
 {
@@ -119,7 +119,7 @@ namespace DotnetCat.Utils
         public static int IndexOfFlag(string flag,
                                       char? alias = default,
                                       List<string> args = default) {
-            if (flag is null or "")
+            if (flag.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(flag));
             }
@@ -317,14 +317,14 @@ namespace DotnetCat.Utils
                 "  -l,      --listen         Listen for incoming connections",
                 "  -z,      --zero-io        Report connection status only",
                 "  -p PORT, --port PORT      Specify port to use for endpoint.",
-                "                            (Default: 4444)",
+                "                            (Default: 44444)",
                 "  -e EXEC, --exec EXEC      Executable process file path",
                 "  -o PATH, --output PATH    Receive file from remote host",
                 "  -s PATH, --send PATH      Send local file or folder",
                 $"  -t DATA, --text DATA      Send string to remote host{_eol}",
                 "Usage Examples:",
                 $"  {AppTitle} --listen --exec powershell.exe",
-                $"  {AppTitle} -d -p 4444 localhost",
+                $"  {AppTitle} -d -p 44444 localhost",
                 $"  {AppTitle} -vo test.txt -p 2009 192.168.1.9 {_eol}",
             });
         }
@@ -413,7 +413,7 @@ namespace DotnetCat.Utils
             }
 
             string exec = ArgsValueAt(index + 1);
-            (bool exists, string path) = Command.ExistsOnPath(exec);
+            (string path, bool exists) = FileSys.ExistsOnPath(exec);
 
             // Failed to locate executable
             if (!exists)
@@ -460,7 +460,7 @@ namespace DotnetCat.Utils
             string data = ArgsValueAt(index + 1);
 
             // Invalid payload string
-            if (data.Trim() is null or "")
+            if (data.IsNullOrEmpty())
             {
                 Error.Handle(Except.Payload, Args[index], true);
             }

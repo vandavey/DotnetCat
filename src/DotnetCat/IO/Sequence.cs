@@ -1,5 +1,6 @@
 using System;
 using DotnetCat.Shell.WinApi;
+using DotnetCat.Utils;
 
 namespace DotnetCat.IO
 {
@@ -35,7 +36,7 @@ namespace DotnetCat.IO
         /// </summary>
         public static string GetColorStr(string msg, ConsoleColor color)
         {
-            if (msg is null or "")
+            if (msg.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(msg));
             }

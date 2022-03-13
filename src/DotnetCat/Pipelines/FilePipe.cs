@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DotnetCat.Contracts;
 using DotnetCat.Errors;
 using DotnetCat.IO;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Pipelines
 {
@@ -21,7 +22,7 @@ namespace DotnetCat.Pipelines
         /// </summary>
         public FilePipe(StreamReader src, string path) : base()
         {
-            if (path is null or "")
+            if (path.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(path));
             }
@@ -41,7 +42,7 @@ namespace DotnetCat.Pipelines
         /// </summary>
         public FilePipe(string path, StreamWriter dest) : base()
         {
-            if (path is null or "")
+            if (path.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(path));
             }
@@ -78,7 +79,7 @@ namespace DotnetCat.Pipelines
         /// </summary>
         protected FileStream CreateFile(string path)
         {
-            if (path is null or "")
+            if (path.IsNullOrEmpty())
             {
                 PipeError(Except.EmptyPath, "-o/--output");
             }
@@ -103,7 +104,7 @@ namespace DotnetCat.Pipelines
         /// </summary>
         protected FileStream OpenFile(string path)
         {
-            if (path is null or "")
+            if (path.IsNullOrEmpty())
             {
                 PipeError(Except.EmptyPath, "-s/--send");
             }

@@ -106,7 +106,7 @@ namespace DotnetCat.Network.Nodes
         /// </summary>
         public override void Dispose()
         {
-            _listener?.Dispose();
+            _listener?.Close();
             base.Dispose();
 
             GC.SuppressFinalize(this);

@@ -28,6 +28,9 @@ namespace DotnetCat
         /// Pipeline variant
         public static PipeType PipeVariant { get; set; }
 
+        /// Platform-specific end-of-line
+        public static string EOL => Environment.NewLine;
+
         /// User-defined string payload
         public static string Payload { get; set; }
 
@@ -65,7 +68,7 @@ namespace DotnetCat
             OrigArgs = args.ToList();
 
             // Display help info and exit
-            if ((args.Length == 0) || Parser.NeedsHelp(args))
+            if (args.IsNullOrEmpty() || Parser.NeedsHelp(args))
             {
                 Parser.PrintHelp();
             }
@@ -227,7 +230,7 @@ namespace DotnetCat
                     {
                         Error.Handle(Except.UnknownArgs, Args[0], true);
                     }
-                    Exception ex = null;
+                    Exception ex = default;
 
                     // Parse or resolve IP address
                     if (IPAddress.TryParse(Args[0], out IPAddress addr))
