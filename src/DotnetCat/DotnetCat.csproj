@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <!--
      DotnetCat project properties -->
     <PropertyGroup>
@@ -10,7 +10,7 @@
         <Description>DotnetCat</Description>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <ImplicitUsings>disable</ImplicitUsings>
-        <Nullable>disable</Nullable>
+        <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
         <PackageLicenseFile>Resources/LICENSE.md</PackageLicenseFile>
         <Platforms>AnyCPU;x64;x86</Platforms>

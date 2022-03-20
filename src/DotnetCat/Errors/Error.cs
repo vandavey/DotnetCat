@@ -23,8 +23,8 @@ namespace DotnetCat.Errors
         ///  Handle special exceptions related to DotNetCat
         /// </summary>
         public static void Handle(Except exType,
-                                  string arg,
-                                  Exception ex = default) {
+                                  string? arg,
+                                  Exception? ex = default) {
             // Call overload
             Handle(exType, arg, false, ex);
         }
@@ -33,8 +33,8 @@ namespace DotnetCat.Errors
         ///  Handle special exceptions related to DotNetCat
         /// </summary>
         public static void Handle(Except exType,
-                                  string arg,
-                                  Exception ex,
+                                  string? arg,
+                                  Exception? ex,
                                   Level level = default) {
             // Call overload
             Handle(exType, arg, false, ex, level);
@@ -44,9 +44,9 @@ namespace DotnetCat.Errors
         ///  Handle special exceptions related to DotNetCat
         /// </summary>
         public static void Handle(Except exType,
-                                  string arg,
+                                  string? arg,
                                   bool showUsage,
-                                  Exception ex = default,
+                                  Exception? ex = default,
                                   Level level = default) {
             // Unknown error
             if (!_errors.ContainsKey(exType))
@@ -73,15 +73,19 @@ namespace DotnetCat.Errors
             }
 
             // Print debug information
-            if (Program.Debug && (ex is not null))
+            if (Program.Debug && ex is not null)
             {
-                ex = (ex is AggregateException) ? ex.InnerException : ex;
-                string header = $"----[ {ex.GetType().FullName} ]----";
+                if (ex is AggregateException aggregateEx)
+                {
+                    ex = aggregateEx.InnerException;
+                }
+
+                string header = $"----[ {ex?.GetType().FullName} ]----";
 
                 Console.WriteLine(string.Join(Env.NewLine, new string[]
                 {
                     header,
-                    ex.ToString(),
+                    ex?.ToString() ?? string.Empty,
                     new string('-', header.Length)
                 }));
             }

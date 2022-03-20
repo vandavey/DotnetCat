@@ -24,7 +24,7 @@ namespace DotnetCat.Shell.Commands
         /// <summary>
         ///  Get the value of the specified environment variable
         /// </summary>
-        public static string GetEnvVariable(string name)
+        public static string? GetEnvVariable(string name)
         {
             return Environment.GetEnvironmentVariable(name);
         }
@@ -32,7 +32,7 @@ namespace DotnetCat.Shell.Commands
         /// <summary>
         ///  Get ProcessStartInfo to use for executable startup
         /// </summary>
-        public static ProcessStartInfo GetExeStartInfo(string shell)
+        public static ProcessStartInfo GetExeStartInfo(string? shell)
         {
             _ = shell ?? throw new ArgumentNullException(nameof(shell));
 

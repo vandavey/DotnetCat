@@ -4,7 +4,6 @@ using DotnetCat.Utils;
 using BOOL = System.Boolean;
 using DWORD = System.UInt32;
 using HANDLE = System.IntPtr;
-using UT = System.Runtime.InteropServices.UnmanagedType;
 
 namespace DotnetCat.Shell.WinApi
 {
@@ -133,35 +132,31 @@ namespace DotnetCat.Shell.WinApi
         ///  Get new mode to set for a standard console stream buffer
         /// </summary>
         [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UT.Bool)]
-        private static extern BOOL GetConsoleMode(
-            [MarshalAs(UT.SysInt)]HANDLE hConsoleHandle,
-            [MarshalAs(UT.U4)]out DWORD lpMode
-        );
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern BOOL GetConsoleMode(HANDLE hConsoleHandle,
+                                                  out DWORD lpMode);
 
         /// <summary>
         ///  Get the most recent Windows console API error code
         /// </summary>
         [DllImport("kernel32.dll")]
-        [return: MarshalAs(UT.U4)]
+        [return: MarshalAs(UnmanagedType.U4)]
         private static extern DWORD GetLastError();
 
         /// <summary>
         ///  Get a handle to a standard console stream
         /// </summary>
         [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UT.SysInt)]
+        [return: MarshalAs(UnmanagedType.SysInt)]
         private static extern HANDLE GetStdHandle(int nStdHandle);
 
         /// <summary>
         ///  Set new mode for a standard console stream
         /// </summary>
         [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UT.Bool)]
-        private static extern BOOL SetConsoleMode(
-            [MarshalAs(UT.SysInt)]HANDLE hConsoleHandle,
-            [MarshalAs(UT.U4)]DWORD dwMode
-        );
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern BOOL SetConsoleMode(HANDLE hConsoleHandle,
+                                                  DWORD dwMode);
 
         /// <summary>
         ///  Determine if the operating system is Windows

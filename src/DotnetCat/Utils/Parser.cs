@@ -20,7 +20,7 @@ namespace DotnetCat.Utils
         private static readonly string _help;  // Help information
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize static member
         /// </summary>
         static Parser()
         {
@@ -61,12 +61,12 @@ namespace DotnetCat.Utils
         /// Command-line arguments
         private static List<string> Args
         {
-            get => Program.Args;
+            get => Program.Args ?? new List<string>();
             set => Program.Args = value;
         }
 
         /// Network node
-        private static Node SockNode
+        private static Node? SockNode
         {
             get => Program.SockNode;
             set => Program.SockNode = value;
@@ -108,7 +108,7 @@ namespace DotnetCat.Utils
         /// <summary>
         ///  Get the matching cmd-line argument index
         /// </summary>
-        public static int IndexOfFlag(string flag, List<string> args)
+        public static int IndexOfFlag(string flag, List<string>? args)
         {
             return IndexOfFlag(flag, null, args);
         }
@@ -118,7 +118,7 @@ namespace DotnetCat.Utils
         /// </summary>
         public static int IndexOfFlag(string flag,
                                       char? alias = default,
-                                      List<string> args = default) {
+                                      List<string>? args = default) {
             if (flag.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(flag));
@@ -149,72 +149,75 @@ namespace DotnetCat.Utils
         /// </summary>
         public static void ParseCharArgs()
         {
-            // Locate all char flag arguments
-            var query = from arg in Args.ToList()
-                        let index = IndexOfFlag(arg)
-                        where arg.Length >= 2
-                            && arg[0] == '-'
-                            && arg[1] != '-'
-                        select new { arg, index };
-
-            foreach (var item in query)
+            if (SockNode is not null)
             {
-                if (item.arg.Contains('l'))  // Listen for connection
-                {
-                    RemoveAlias(item.index, 'l');
-                }
+                // Locate all char flag arguments
+                var query = from arg in Args.ToList()
+                            let index = IndexOfFlag(arg)
+                            where arg.Length >= 2
+                                && arg[0] == '-'
+                                && arg[1] != '-'
+                            select new { arg, index };
 
-                if (item.arg.Contains('v'))  // Verbose output
+                foreach (var item in query)
                 {
-                    SockNode.Verbose = true;
-                    RemoveAlias(item.index, 'v');
-                }
+                    if (item.arg.Contains('l'))  // Listen for connection
+                    {
+                        RemoveAlias(item.index, 'l');
+                    }
 
-                if (item.arg.Contains('z'))  // Zero-IO (test connection)
-                {
-                    PipeVariant = PipeType.Status;
-                    RemoveAlias(item.index, 'z');
-                }
+                    if (item.arg.Contains('v'))  // Verbose output
+                    {
+                        SockNode.Verbose = true;
+                        RemoveAlias(item.index, 'v');
+                    }
 
-                if (item.arg.Contains('d'))  // Debug output
-                {
-                    Debug = SockNode.Verbose = true;
-                    RemoveAlias(item.index, 'd');
-                }
+                    if (item.arg.Contains('z'))  // Zero-IO (test connection)
+                    {
+                        PipeVariant = PipeType.Status;
+                        RemoveAlias(item.index, 'z');
+                    }
 
-                if (item.arg.Contains('p'))  // Connection port
-                {
-                    SockNode.Port = GetPort(item.index);
-                    RemoveAlias(item.index, 'p', remValue: true);
-                }
+                    if (item.arg.Contains('d'))  // Debug output
+                    {
+                        Debug = SockNode.Verbose = true;
+                        RemoveAlias(item.index, 'd');
+                    }
 
-                if (item.arg.Contains('e'))  // Executable path
-                {
-                    SockNode.Exe = GetExecutable(item.index);
-                    RemoveAlias(item.index, 'e', remValue: true);
-                }
+                    if (item.arg.Contains('p'))  // Connection port
+                    {
+                        SockNode.Port = GetPort(item.index);
+                        RemoveAlias(item.index, 'p', remValue: true);
+                    }
 
-                if (item.arg.Contains('o'))  // Receive file data
-                {
-                    SockNode.FilePath = GetTransfer(item.index);
-                    RemoveAlias(item.index, 'o', remValue: true);
-                }
+                    if (item.arg.Contains('e'))  // Executable path
+                    {
+                        SockNode.Exe = GetExecutable(item.index);
+                        RemoveAlias(item.index, 'e', remValue: true);
+                    }
 
-                if (item.arg.Contains('s'))  // Send file data
-                {
-                    SockNode.FilePath = GetTransfer(item.index);
-                    RemoveAlias(item.index, 's', remValue: true);
-                }
+                    if (item.arg.Contains('o'))  // Receive file data
+                    {
+                        SockNode.FilePath = GetTransfer(item.index);
+                        RemoveAlias(item.index, 'o', remValue: true);
+                    }
 
-                if (item.arg.Contains('t'))  // Send string data
-                {
-                    Payload = GetTextPayload(item.index);
-                    RemoveAlias(item.index, 't', remValue: true);
-                }
+                    if (item.arg.Contains('s'))  // Send file data
+                    {
+                        SockNode.FilePath = GetTransfer(item.index);
+                        RemoveAlias(item.index, 's', remValue: true);
+                    }
 
-                if (ArgsValueAt(item.index) == "-")
-                {
-                    Args.RemoveAt(IndexOfFlag("-"));
+                    if (item.arg.Contains('t'))  // Send string data
+                    {
+                        Payload = GetTextPayload(item.index);
+                        RemoveAlias(item.index, 't', remValue: true);
+                    }
+
+                    if (ArgsValueAt(item.index) == "-")
+                    {
+                        Args.RemoveAt(IndexOfFlag("-"));
+                    }
                 }
             }
         }
@@ -224,66 +227,69 @@ namespace DotnetCat.Utils
         /// </summary>
         public static void ParseFlagArgs()
         {
-            // Locate all flag arguments
-            var query = from arg in Args.ToList()
-                        let index = IndexOfFlag(arg)
-                        where arg.StartsWith("--")
-                        select new { arg, index };
-
-            foreach (var item in query)
+            if (SockNode is not null)
             {
-                switch (item.arg)
+                // Locate all flag arguments
+                var query = from arg in Args.ToList()
+                            let index = IndexOfFlag(arg)
+                            where arg.StartsWith("--")
+                            select new { arg, index };
+
+                foreach (var item in query)
                 {
-                    case "--listen":              // Listen for connection
+                    switch (item.arg)
                     {
-                        Args.RemoveAt(item.index);
-                        break;
-                    }
-                    case "--verbose":             // Verbose output
-                    {
-                        SockNode.Verbose = true;
-                        Args.RemoveAt(item.index);
-                        break;
-                    }
-                    case "--debug":               // Debug output
-                    {
-                        Debug = SockNode.Verbose = true;
-                        Args.RemoveAt(item.index);
-                        break;
-                    }
-                    case "--zero-io":             // Zero-IO (test connection)
-                    {
-                        PipeVariant = PipeType.Status;
-                        Args.RemoveAt(item.index);
-                        break;
-                    }
-                    case "--port":                // Connection port
-                    {
-                        SockNode.Port = GetPort(item.index);
-                        RemoveFlag(ArgsValueAt(item.index));
-                        break;
-                    }
-                    case "--exec":                // Executable path
-                    {
-                        SockNode.Exe = GetExecutable(item.index);
-                        RemoveFlag(ArgsValueAt(item.index));
-                        break;
-                    }
-                    case "--text":                // Send string data
-                    {
-                        Payload = GetTextPayload(item.index);
-                        RemoveFlag(ArgsValueAt(item.index));
-                        break;
-                    }
-                    case "--send" or "--output":  // Send or receive file
-                    {
-                        SockNode.FilePath = GetTransfer(item.index);
-                        RemoveFlag(ArgsValueAt(item.index));
-                        break;
-                    }
-                    default:
-                    {
-                        break;
+                        case "--listen":              // Listen for connection
+                        {
+                            Args.RemoveAt(item.index);
+                            break;
+                        }
+                        case "--verbose":             // Verbose output
+                        {
+                            SockNode.Verbose = true;
+                            Args.RemoveAt(item.index);
+                            break;
+                        }
+                        case "--debug":               // Debug output
+                        {
+                            Debug = SockNode.Verbose = true;
+                            Args.RemoveAt(item.index);
+                            break;
+                        }
+                        case "--zero-io":             // Zero-IO (test connection)
+                        {
+                            PipeVariant = PipeType.Status;
+                            Args.RemoveAt(item.index);
+                            break;
+                        }
+                        case "--port":                // Connection port
+                        {
+                            SockNode.Port = GetPort(item.index);
+                            RemoveFlag(ArgsValueAt(item.index));
+                            break;
+                        }
+                        case "--exec":                // Executable path
+                        {
+                            SockNode.Exe = GetExecutable(item.index);
+                            RemoveFlag(ArgsValueAt(item.index));
+                            break;
+                        }
+                        case "--text":                // Send string data
+                        {
+                            Payload = GetTextPayload(item.index);
+                            RemoveFlag(ArgsValueAt(item.index));
+                            break;
+                        }
+                        case "--send" or "--output":  // Send or receive file
+                        {
+                            SockNode.FilePath = GetTransfer(item.index);
+                            RemoveFlag(ArgsValueAt(item.index));
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
                     }
                 }
             }
@@ -405,7 +411,7 @@ namespace DotnetCat.Utils
         /// <summary>
         ///  Get executable path for command execution
         /// </summary>
-        private static string GetExecutable(int index)
+        private static string? GetExecutable(int index)
         {
             if (!ValidIndex(index + 1))
             {
@@ -413,7 +419,7 @@ namespace DotnetCat.Utils
             }
 
             string exec = ArgsValueAt(index + 1);
-            (string path, bool exists) = FileSys.ExistsOnPath(exec);
+            (string? path, bool exists) = FileSys.ExistsOnPath(exec);
 
             // Failed to locate executable
             if (!exists)
@@ -436,15 +442,26 @@ namespace DotnetCat.Utils
             {
                 Error.Handle(Except.NamedArgs, Args[index], true);
             }
-            string path = Path.GetFullPath(ArgsValueAt(index + 1));
+            TransferOpt transferOpt = Program.Transfer;
+            int pathPos = index + 1;
 
-            // Invalid file path
-            if (!File.Exists(path) && !Directory.GetParent(path).Exists)
+            string path = FileSys.ResolvePath(ArgsValueAt(pathPos)) ?? string.Empty;
+            string parentPath = Directory.GetParent(path)?.FullName ?? string.Empty;
+
+            bool pathExists = FileSys.FileExists(path);
+            bool parentExists = FileSys.DirectoryExists(parentPath);
+
+            // Invalid file path received
+            if (!pathExists && (transferOpt is TransferOpt.Transmit))
             {
                 Error.Handle(Except.FilePath, path, true);
             }
-
+            else if (!parentExists && (transferOpt is TransferOpt.Collect))
+            {
+                Error.Handle(Except.FilePath, parentPath, true);
+            }
             PipeVariant = PipeType.File;
+
             return path;
         }
 

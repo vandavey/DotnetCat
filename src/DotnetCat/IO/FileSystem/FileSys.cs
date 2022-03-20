@@ -32,8 +32,9 @@ namespace DotnetCat.IO.FileSystem
                 "py",   // Python script
                 "sh"    // Bash/shell script
             };
+            string envVar = Command.GetEnvVariable("PATH") ?? string.Empty;
 
-            _envPaths = Command.GetEnvVariable("PATH").Split(Path.PathSeparator);
+            _envPaths = envVar.Split(Path.PathSeparator);
             _userHomePath = GetUserHomePath();
         }
 
@@ -48,7 +49,7 @@ namespace DotnetCat.IO.FileSystem
         /// <summary>
         ///  Determine whether a file system entry exists for the given path
         /// </summary>
-        public static bool Exists(string path)
+        public static bool Exists(string? path)
         {
             return FileExists(path) || DirectoryExists(path);
         }
@@ -56,7 +57,7 @@ namespace DotnetCat.IO.FileSystem
         /// <summary>
         ///  Determine whether a directory exists at the given path
         /// </summary>
-        public static bool FileExists(string path)
+        public static bool FileExists(string? path)
         {
             bool exists = !path.IsNullOrEmpty();
 
@@ -71,7 +72,7 @@ namespace DotnetCat.IO.FileSystem
         /// <summary>
         ///  Determine whether a file exists at the given path
         /// </summary>
-        public static bool DirectoryExists(string path)
+        public static bool DirectoryExists(string? path)
         {
             bool exists = !path.IsNullOrEmpty();
 
@@ -86,9 +87,9 @@ namespace DotnetCat.IO.FileSystem
         /// <summary>
         ///  Get the file name with or without extension from the given file path
         /// </summary>
-        public static string GetFileName(string path, bool withExt = true)
+        public static string? GetFileName(string? path, bool withExt = true)
         {
-            string fileName = null;
+            string? fileName = null;
 
             if (!path.IsNullOrEmpty())
             {
@@ -108,14 +109,14 @@ namespace DotnetCat.IO.FileSystem
         /// <summary>
         ///  Resolve the absolute file path of the given relative path
         /// </summary>
-        public static string ResolvePath(string path)
+        public static string? ResolvePath(string? path)
         {
-            string fullPath = path;
+            string fullPath = path ?? string.Empty;
 
             if (!fullPath.IsNullOrEmpty())
             {
                 // Ensure drives are properly interpreted
-                if (fullPath.EndsWith(":"))
+                if (fullPath.EndsWithValue(":"))
                 {
                     fullPath += Path.DirectorySeparatorChar;
                 }
@@ -129,13 +130,13 @@ namespace DotnetCat.IO.FileSystem
         /// <summary>
         ///  Determine if the executable name exists on the environment path
         /// </summary>
-        public static (string path, bool exists) ExistsOnPath(string exe)
+        public static (string? path, bool exists) ExistsOnPath(string? exe)
         {
             if (exe.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(exe));
             }
-            (string path, bool exists) = (exe, Exists(exe));
+            (string? path, bool exists) = (exe, Exists(exe));
 
             // Resolve absolute path
             if (!exists)
@@ -148,14 +149,14 @@ namespace DotnetCat.IO.FileSystem
         /// <summary>
         ///  Search environment path for the given executable
         /// </summary>
-        private static string FindExecutable(string exeName)
+        private static string? FindExecutable(string? exeName)
         {
             if (exeName.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(exeName));
             }
 
-            string fullPath = default;
+            string? fullPath = default;
             bool exePathFound = false;
 
             // Search environment path directories
@@ -168,10 +169,10 @@ namespace DotnetCat.IO.FileSystem
                         continue;
                     }
 
-                    string fileName = (from file in Directory.GetFiles(path)
-                                       let name = GetFileName(file, false)
-                                       where name == GetFileName(exeName, false)
-                                       select name).FirstOrDefault();
+                    string? fileName = (from file in Directory.GetFiles(path)
+                                        let name = GetFileName(file, false)
+                                        where name == GetFileName(exeName, false)
+                                        select name).FirstOrDefault();
 
                     // Try to match executable extension
                     if (fileName is not null)

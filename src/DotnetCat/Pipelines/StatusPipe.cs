@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -16,8 +17,14 @@ namespace DotnetCat.Pipelines
         /// <summary>
         ///  Initialize object
         /// </summary>
-        public StatusPipe(StreamWriter dest) : base(string.Empty, dest)
+        public StatusPipe(StreamWriter? dest) : base(string.Empty, dest)
         {
+            if (Program.SockNode is null)
+            {
+                string msg = $"{nameof(Program.SockNode)} cannot be null";
+                throw new InvalidOperationException(msg);
+            }
+
             Node node = Program.SockNode;
             string target = $"{node.DestName}:{node.Port}";
 
@@ -31,8 +38,8 @@ namespace DotnetCat.Pipelines
         {
             Connected = true;
 
-            StringBuilder data = new(await Source.ReadToEndAsync());
-            await Dest.WriteAsync(data, token);
+            StringBuilder data = new(await ReadToEndAsync());
+            await WriteAsync(data, token);
 
             Style.Output(StatusMsg);
 

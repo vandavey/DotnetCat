@@ -12,7 +12,7 @@ namespace DotnetCat.Pipelines
         /// <summary>
         ///  Initialize object
         /// </summary>
-        public StreamPipe(StreamReader src, StreamWriter dest) : base()
+        public StreamPipe(StreamReader? src, StreamWriter? dest) : base()
         {
             Source = src ?? throw new ArgumentNullException(nameof(src));
             Dest = dest ?? throw new ArgumentNullException(nameof(dest));

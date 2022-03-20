@@ -32,13 +32,13 @@ namespace DotnetCat
         public static string EOL => Environment.NewLine;
 
         /// User-defined string payload
-        public static string Payload { get; set; }
+        public static string? Payload { get; set; }
 
         /// Command-line arguments
-        public static List<string> Args { get; set; }
+        public static List<string>? Args { get; set; }
 
         /// Network socket node
-        public static Node SockNode { get; set; }
+        public static Node? SockNode { get; set; }
 
         /// Operating system
         public static Platform OS { get; private set; }
@@ -47,7 +47,7 @@ namespace DotnetCat
         public static TransferOpt Transfer { get; private set; }
 
         /// Original cmd-line arguments
-        public static List<string> OrigArgs { get; private set; }
+        public static List<string>? OrigArgs { get; private set; }
 
         /// <summary>
         ///  Primary application entry point
@@ -166,8 +166,11 @@ namespace DotnetCat
                     string arg = string.Join(", ", args[item.pos..]);
                     Error.Handle(Except.StringEOL, arg, true);
                 }
+                else  // Calculate position delta
+                {
+                    delta = eolQuery.pos - item.pos;
+                }
 
-                delta = eolQuery.pos - item.pos;
                 int endIndex = item.pos + delta;
 
                 // Append fragments and remove duplicates
@@ -213,57 +216,60 @@ namespace DotnetCat
             Parser.ParseCharArgs();
             Parser.ParseFlagArgs();
 
-            // Validate remaining cmd-line arguments
-            switch (Args.Count)
+            if (SockNode is not null)
             {
-                case 0:   // Missing TARGET
+                // Validate remaining cmd-line arguments
+                switch (Args?.Count)
                 {
-                    if (SockNode is ClientNode)
+                    case 0:   // Missing TARGET
                     {
-                        Error.Handle(Except.RequiredArgs, "TARGET", true);
+                        if (SockNode is ClientNode)
+                        {
+                            Error.Handle(Except.RequiredArgs, "TARGET", true);
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 1:   // Validate TARGET
-                {
-                    if (Args[0].StartsWith('-'))
+                    case 1:   // Validate TARGET
                     {
-                        Error.Handle(Except.UnknownArgs, Args[0], true);
-                    }
-                    Exception ex = default;
+                        if (Args[0].StartsWith('-'))
+                        {
+                            Error.Handle(Except.UnknownArgs, Args[0], true);
+                        }
+                        Exception? ex = default;
 
-                    // Parse or resolve IP address
-                    if (IPAddress.TryParse(Args[0], out IPAddress addr))
-                    {
-                        SockNode.Addr = addr;
-                    }
-                    else
-                    {
-                        (SockNode.Addr, ex) = Net.ResolveName(Args[0]);
-                    }
+                        // Parse or resolve IP address
+                        if (IPAddress.TryParse(Args[0], out IPAddress? addr))
+                        {
+                            SockNode.Addr = addr;
+                        }
+                        else
+                        {
+                            (SockNode.Addr, ex) = Net.ResolveName(Args[0]);
+                        }
 
-                    SockNode.DestName = Args[0];
+                        SockNode.DestName = Args[0];
 
-                    // Invalid destination host
-                    if (SockNode.Addr is null)
-                    {
-                        Error.Handle(Except.InvalidAddr, Args[0], true, ex);
+                        // Invalid destination host
+                        if (SockNode.Addr is null)
+                        {
+                            Error.Handle(Except.InvalidAddr, Args[0], true, ex);
+                        }
+                        break;
                     }
-                    break;
-                }
-                default:  // Unexpected arguments
-                {
-                    string argsStr = string.Join(", ", Args);
+                    default:  // Unexpected arguments
+                    {
+                        string? argsStr = Args?.ToArray().Join(", ");
 
-                    if (Args[0].StartsWith('-'))
-                    {
-                        Error.Handle(Except.UnknownArgs, argsStr, true);
+                        if (Args?[0].StartsWithValue('-') ?? false)
+                        {
+                            Error.Handle(Except.UnknownArgs, argsStr, true);
+                        }
+                        Error.Handle(Except.InvalidArgs, argsStr, true);
+                        break;
                     }
-                    Error.Handle(Except.InvalidArgs, argsStr, true);
-                    break;
                 }
             }
-            SockNode.Connect();
+            SockNode?.Connect();
         }
     }
 }

@@ -20,12 +20,13 @@ namespace DotnetCat.Pipelines
         /// <summary>
         ///  Initialize object
         /// </summary>
-        public TextPipe(string data, StreamWriter dest) : base()
+        public TextPipe(string? data, StreamWriter? dest) : base()
         {
             if (data is null)
             {
                 throw new ArgumentNullException(nameof(data));
             }
+            _memoryStream = new MemoryStream();
 
             Payload = _payload = data;
             StatusMsg = "Payload successfully transmitted";
@@ -71,8 +72,8 @@ namespace DotnetCat.Pipelines
         {
             Connected = true;
 
-            StringBuilder data = new(await Source.ReadToEndAsync());
-            await Dest.WriteAsync(data, token);
+            StringBuilder data = new(await ReadToEndAsync());
+            await WriteAsync(data, token);
 
             if (Program.Verbose)
             {
