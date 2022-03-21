@@ -16,7 +16,7 @@ namespace DotnetCat.Contracts
         /// </summary>
         void PipeError(Except type,
                        HostEndPoint target,
-                       Exception ex = default,
+                       Exception? ex = default,
                        Level level = default);
     }
 }

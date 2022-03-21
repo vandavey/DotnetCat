@@ -15,10 +15,10 @@ namespace DotnetCat.Pipelines
         /// <summary>
         ///  Initialize object
         /// </summary>
-        public ProcessPipe(StreamReader src, StreamWriter dest) : base()
+        public ProcessPipe(StreamReader? src, StreamWriter? dest) : base()
         {
-            Source = src ?? throw new ArgumentNullException(nameof(src));
-            Dest = dest ?? throw new ArgumentNullException(nameof(dest));
+            Source = src ?? throw new InvalidOperationException(nameof(src));
+            Dest = dest ?? throw new InvalidOperationException(nameof(dest));
         }
 
         /// <summary>
@@ -32,12 +32,11 @@ namespace DotnetCat.Pipelines
         protected override async Task ConnectAsync(CancellationToken token)
         {
             StringBuilder data = new();
-            Memory<char> buffer = new(new char[1024]);
 
             int charsRead;
             Connected = true;
 
-            while (Client.Connected)
+            while (Client is not null && Client.Connected)
             {
                 // Connection cancellation requested
                 if (token.IsCancellationRequested)
@@ -46,8 +45,8 @@ namespace DotnetCat.Pipelines
                     break;
                 }
 
-                charsRead = await Source.ReadAsync(buffer, token);
-                data.Append(buffer.ToArray(), 0, charsRead);
+                charsRead = await ReadAsync(token);
+                data.Append(Buffer.ToArray(), 0, charsRead);
 
                 // Client disconnected
                 if (!Client.Connected || (charsRead <= 0))
@@ -57,7 +56,7 @@ namespace DotnetCat.Pipelines
                 }
 
                 // Write buffered data to stream
-                await Dest.WriteAsync(FixLineEndings(data), token);
+                await WriteAsync(FixLineEndings(data), token);
                 data.Clear();
             }
 

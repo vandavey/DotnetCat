@@ -21,17 +21,17 @@ namespace DotnetCat.Network.Nodes
     /// </summary>
     internal class Node : ISockErrorHandled
     {
-        private bool _validArgCombos;     // Valid cmd-line arg combos
+        private bool _validArgCombos;      // Valid cmd-line arg combos
 
-        private string _destName;         // Target host name
+        private string? _destName;         // Target host name
 
-        private Process _process;         // Executable process
+        private Process? _process;         // Executable process
 
-        private StreamReader _netReader;  // TCP stream reader
+        private StreamReader? _netReader;  // TCP stream reader
 
-        private StreamWriter _netWriter;  // TCP stream writer
+        private StreamWriter? _netWriter;  // TCP stream writer
 
-        private List<Pipeline> _pipes;    // Pipeline list
+        private List<Pipeline>? _pipes;    // Pipeline list
 
         /// <summary>
         ///  Initialize object
@@ -71,13 +71,13 @@ namespace DotnetCat.Network.Nodes
         public int Port { get; set; }
 
         /// Executable file path
-        public string Exe { get; set; }
+        public string? Exe { get; set; }
 
         /// Transfer file path
-        public string FilePath { get; set; }
+        public string? FilePath { get; set; }
 
         /// Destination host name
-        public string DestName
+        public string? DestName
         {
             get => _destName ?? ((Addr is null) ? "" : Addr.ToString());
             set
@@ -87,7 +87,7 @@ namespace DotnetCat.Network.Nodes
         }
 
         /// IPv4 address
-        public IPAddress Addr { get; set; }
+        public IPAddress? Addr { get; set; }
 
         /// TCP network client
         public TcpClient Client { get; set; }
@@ -102,14 +102,14 @@ namespace DotnetCat.Network.Nodes
         protected bool UsingExe => !Exe.IsNullOrEmpty();
 
         /// TCP network stream
-        protected NetworkStream NetStream { get; set; }
+        protected NetworkStream? NetStream { get; set; }
 
         /// <summary>
         ///  Initialize and run an executable process
         /// </summary>
-        public bool StartProcess(string exe)
+        public bool StartProcess(string? exe)
         {
-            (string path, bool exists) = FileSys.ExistsOnPath(exe);
+            (string? path, bool exists) = FileSys.ExistsOnPath(exe);
 
             if (!exists)
             {
@@ -145,7 +145,7 @@ namespace DotnetCat.Network.Nodes
         /// </summary>
         public virtual void PipeError(Except type,
                                       HostEndPoint target,
-                                      Exception ex = default,
+                                      Exception? ex = default,
                                       Level level = default) {
             Dispose();
             Error.Handle(type, target.ToString(), ex, level);
@@ -155,8 +155,8 @@ namespace DotnetCat.Network.Nodes
         ///  Dispose of unmanaged resources and handle error
         /// </summary>
         public virtual void PipeError(Except type,
-                                      string arg,
-                                      Exception ex = default,
+                                      string? arg,
+                                      Exception? ex = default,
                                       Level level = default) {
             Dispose();
             Error.Handle(type, arg, ex, level);
@@ -339,9 +339,9 @@ namespace DotnetCat.Network.Nodes
                 {
                     pipes.AddRange(new ProcessPipe[]
                     {
-                        new ProcessPipe(_netReader, _process.StandardInput),
-                        new ProcessPipe(_process.StandardOutput, _netWriter),
-                        new ProcessPipe(_process.StandardError, _netWriter)
+                        new ProcessPipe(_netReader, _process?.StandardInput),
+                        new ProcessPipe(_process?.StandardOutput, _netWriter),
+                        new ProcessPipe(_process?.StandardError, _netWriter)
                     });
                     break;
                 }
@@ -367,26 +367,31 @@ namespace DotnetCat.Network.Nodes
         /// <summary>
         ///  Determine if command-shell has exited
         /// </summary>
-        private bool ProcessExited() => UsingExe && _process.HasExited;
+        private bool ProcessExited() => UsingExe && (_process?.HasExited ?? false);
 
         /// <summary>
         ///  Determine if all pipelines are connected/active
         /// </summary>
         private bool PipelinesConnected()
         {
-            int nullCount = _pipes.Where(p => p is null).Count();
+            int nullCount = 0;
 
-            if ((_pipes.Count == 0) || (nullCount == _pipes.Count))
+            if (_pipes is not null)
             {
-                return false;
-            }
+                nullCount = _pipes.Where(p => p is null).Count();
 
-            // Check if non-null pipes are connected
-            foreach (Pipeline pipe in _pipes)
-            {
-                if ((pipe is not null) && !pipe.Connected)
+                if ((_pipes.Count == 0) || (nullCount == _pipes.Count))
                 {
                     return false;
+                }
+
+                // Check if non-null pipes are connected
+                foreach (Pipeline pipe in _pipes)
+                {
+                    if ((pipe is not null) && !pipe.Connected)
+                    {
+                        return false;
+                    }
                 }
             }
             return true;

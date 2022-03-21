@@ -36,32 +36,40 @@ namespace DotnetCat.Pipelines
         protected static Platform OS => Program.OS;
 
         /// Operating system
-        protected static TcpClient Client => Program.SockNode.Client;
+        protected static TcpClient? Client => Program.SockNode?.Client;
+
+        /// TCP client is connected
+        protected static bool ClientConnected => Client?.Connected ?? false;
 
         /// Platform based EOL escape sequence
         protected StringBuilder NewLine { get; }
 
         /// Pipeline cancellation token
-        protected CancellationTokenSource CTS { get; set; }
+        protected CancellationTokenSource? CTS { get; set; }
+
+        /// Character memory buffer
+        protected Memory<char> Buffer { get; set; }
 
         /// Pipeline data source
-        protected StreamReader Source { get; set; }
+        protected StreamReader? Source { get; set; }
 
         /// Pipeline data destination
-        protected StreamWriter Dest { get; set; }
+        protected StreamWriter? Dest { get; set; }
 
         /// Pipeline data transfer task
-        protected Task Worker { get; set; }
+        protected Task? Worker { get; set; }
 
         /// <summary>
         ///  Activate communication between the pipe streams
         /// </summary>
         public virtual void Connect()
         {
-            _ = Source ?? throw new ArgumentNullException(nameof(Source));
-            _ = Dest ?? throw new ArgumentNullException(nameof(Dest));
+            _ = Source ?? throw new InvalidOperationException(nameof(Source));
+            _ = Dest ?? throw new InvalidOperationException(nameof(Dest));
 
             CTS = new CancellationTokenSource();
+            Buffer = new Memory<char>(new char[1024]);
+
             Worker = ConnectAsync(CTS.Token);
         }
 
@@ -102,44 +110,46 @@ namespace DotnetCat.Pipelines
         protected virtual async Task ConnectAsync(CancellationToken token)
         {
             StringBuilder data = new();
-            Memory<char> buffer = new(new char[1024]);
 
             int charsRead;
             Connected = true;
 
-            while (Client.Connected)
+            if (Client is not null)
             {
-                // Connection cancellation requested
-                if (token.IsCancellationRequested)
+                while (Client.Connected)
                 {
-                    Disconnect();
-                    break;
-                }
+                    // Connection cancellation requested
+                    if (token.IsCancellationRequested)
+                    {
+                        Disconnect();
+                        break;
+                    }
 
-                charsRead = await Source.ReadAsync(buffer, token);
-                data.Append(buffer.ToArray(), 0, charsRead);
+                    charsRead = await ReadAsync(token);
+                    data.Append(Buffer.ToArray(), 0, charsRead);
 
-                // Client disconnected
-                if (!Client.Connected || (charsRead <= 0))
-                {
-                    Disconnect();
-                    break;
-                }
-                data = FixLineEndings(data);  // Normalize EOL sequences
+                    // Client disconnected
+                    if (!Client.Connected || (charsRead <= 0))
+                    {
+                        Disconnect();
+                        break;
+                    }
 
-                // Clear console buffer if requested
-                if (Command.IsClearCmd(data.ToString()))
-                {
-                    await Dest.WriteAsync(NewLine, token);
+                    data = FixLineEndings(data);  // Normalize EOL sequences
+
+                    // Clear console buffer if requested
+                    if (Command.IsClearCmd(data.ToString()))
+                    {
+                        await WriteAsync(NewLine, token);
+                    }
+                    else
+                    {
+                        await WriteAsync(data, token);
+                    }
+                    data.Clear();
                 }
-                else
-                {
-                    await Dest.WriteAsync(data, token);
-                }
-                data.Clear();
+                Dispose();
             }
-
-            Dispose();
         }
 
         /// <summary>
@@ -148,6 +158,46 @@ namespace DotnetCat.Pipelines
         protected static StringBuilder FixLineEndings(StringBuilder data)
         {
             return (OS is Platform.Win) ? data : data.Replace("\r\n", "\n");
+        }
+
+        /// <summary>
+        ///  Asynchronously read stream data into the underlying memory buffer
+        /// </summary>
+        protected virtual async ValueTask<int> ReadAsync(CancellationToken token)
+        {
+            int bytesRead = -1;
+
+            if (Source is not null && ClientConnected)
+            {
+                bytesRead = await Source.ReadAsync(Buffer, token);
+            }
+            return bytesRead;
+        }
+
+        /// <summary>
+        ///  Asynchronously read all the data from the source stream
+        /// </summary>
+        protected virtual async ValueTask<string> ReadToEndAsync()
+        {
+            string buffer = string.Empty;
+
+            if (Source is not null && ClientConnected)
+            {
+                buffer = await Source.ReadToEndAsync();
+            }
+            return buffer;
+        }
+
+        /// <summary>
+        ///  Asynchronously write the given data to the destination stream
+        /// </summary>
+        protected virtual async Task WriteAsync(StringBuilder data,
+                                                CancellationToken token) {
+
+            if (Dest is not null && ClientConnected)
+            {
+                await Dest.WriteAsync(data, token);
+            }
         }
     }
 }

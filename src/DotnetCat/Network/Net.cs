@@ -18,7 +18,7 @@ namespace DotnetCat.Network
         /// <summary>
         ///  Resolve the IPv4 address of given host name
         /// </summary>
-        public static (IPAddress ip, Exception ex) ResolveName(string hostName)
+        public static (IPAddress? ip, Exception? ex) ResolveName(string hostName)
         {
             IPHostEntry dnsAns;
             string machineName = Environment.MachineName;
@@ -56,7 +56,8 @@ namespace DotnetCat.Network
 
             // Get active local IP address
             socket.Connect("8.8.8.8", 53);
-            return ((socket.LocalEndPoint as IPEndPoint).Address, null);
+
+            return ((socket?.LocalEndPoint as IPEndPoint)?.Address, null);
         }
     }
 }

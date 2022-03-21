@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using DotnetCat.Contracts;
 using DotnetCat.Errors;
 using DotnetCat.IO;
-using ArgNullException = System.ArgumentNullException;
 
 namespace DotnetCat.Network.Nodes
 {
@@ -14,7 +13,7 @@ namespace DotnetCat.Network.Nodes
     /// </summary>
     internal class ServerNode : Node, ISockErrorHandled
     {
-        private Socket _listener;  // Listener socket
+        private Socket? _listener;  // Listener socket
 
         /// <summary>
         ///  Initialize object
@@ -31,7 +30,7 @@ namespace DotnetCat.Network.Nodes
         /// </summary>
         public override void Connect()
         {
-            _ = Addr ?? throw new ArgNullException(nameof(Addr));
+            _ = Addr ?? throw new ArgumentNullException(nameof(Addr));
             HostEndPoint remoteEP = new();
 
             ValidateArgCombinations();
@@ -41,10 +40,13 @@ namespace DotnetCat.Network.Nodes
 
             try  // Listen for inbound connection
             {
-                _listener.Listen(1);
+                _listener?.Listen(1);
                 Style.Info("Listening for incoming connections...");
 
-                Client.Client = _listener.Accept();
+                if (_listener is not null)
+                {
+                    Client.Client = _listener.Accept();
+                }
                 NetStream = Client.GetStream();
 
                 // Start executable process
@@ -53,13 +55,15 @@ namespace DotnetCat.Network.Nodes
                     PipeError(Except.ExeProcess, Exe);
                 }
 
-                IPEndPoint ep = Client.Client.RemoteEndPoint as IPEndPoint;
+                IPEndPoint? ep = Client.Client.RemoteEndPoint as IPEndPoint;
                 remoteEP = new HostEndPoint(ep);
 
                 Style.Info($"Connected to {remoteEP}");
 
                 base.Connect();
                 WaitForExit();
+
+                Console.WriteLine();
 
                 // Connection closed status
                 Style.Info($"Connection to {remoteEP} closed");
@@ -69,7 +73,7 @@ namespace DotnetCat.Network.Nodes
                 PipeError(Except.ConnectionRefused,
                           remoteEP,
                           ex,
-                          Level.Warn);
+                          Level.Error);
             }
             catch (IOException ex)      // Connection lost
             {
@@ -84,7 +88,7 @@ namespace DotnetCat.Network.Nodes
         /// </summary>
         public override void PipeError(Except type,
                                        HostEndPoint target,
-                                       Exception ex = default,
+                                       Exception? ex = default,
                                        Level level = default) {
             Dispose();
             Error.Handle(type, target.ToString(), ex, level);
@@ -94,8 +98,8 @@ namespace DotnetCat.Network.Nodes
         ///  Dispose of unmanaged resources and handle error
         /// </summary>
         public override void PipeError(Except type,
-                                       string arg,
-                                       Exception ex = default,
+                                       string? arg,
+                                       Exception? ex = default,
                                        Level level = default) {
             Dispose();
             Error.Handle(type, arg, ex, level);
@@ -117,7 +121,7 @@ namespace DotnetCat.Network.Nodes
         /// </summary>
         private void BindListener(IPEndPoint ep)
         {
-            _ = ep ?? throw new ArgNullException(nameof(ep));
+            _ = ep ?? throw new ArgumentNullException(nameof(ep));
 
             _listener = new Socket(AddressFamily.InterNetwork,
                                    SocketType.Stream,

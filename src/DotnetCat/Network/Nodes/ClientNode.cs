@@ -13,7 +13,7 @@ namespace DotnetCat.Network.Nodes
     /// </summary>
     internal class ClientNode : Node, ISockErrorHandled
     {
-        private HostEndPoint _targetEP;  // Remote target
+        private HostEndPoint? _targetEP;  // Remote target
 
         /// <summary>
         ///  Initialize object
@@ -62,11 +62,11 @@ namespace DotnetCat.Network.Nodes
             }
             catch (AggregateException ex)  // Connection refused
             {
-                PipeError(Except.ConnectionRefused, _targetEP, ex, Level.Warn);
+                PipeError(Except.ConnectionRefused, _targetEP, ex, Level.Error);
             }
             catch (SocketException ex)     // Error (likely timeout)
             {
-                PipeError(Except.ConnectionTimeout, _targetEP, ex, Level.Warn);
+                PipeError(Except.ConnectionTimeout, _targetEP, ex, Level.Error);
             }
             catch (IOException ex)         // Connection lost
             {

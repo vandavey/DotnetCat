@@ -9,9 +9,9 @@ namespace DotnetCat.Network
     /// </summary>
     internal class HostEndPoint
     {
-        private int _port;         // Network port number
+        private int _port;          // Network port number
 
-        private string _hostName;  // Network host name
+        private string? _hostName;  // Network host name
 
         /// <summary>
         ///  Initialize object
@@ -25,7 +25,7 @@ namespace DotnetCat.Network
         /// <summary>
         ///  Initialize object
         /// </summary>
-        public HostEndPoint(string hostName, int port)
+        public HostEndPoint(string? hostName, int port)
         {
             HostName = hostName;
             Port = port;
@@ -34,8 +34,10 @@ namespace DotnetCat.Network
         /// <summary>
         ///  Initialize object
         /// </summary>
-        public HostEndPoint(IPEndPoint ep)
+        public HostEndPoint(IPEndPoint? ep)
         {
+            _  = ep ?? throw new ArgumentNullException(nameof(ep));
+
             HostName = ep.Address.ToString();
             Port = ep.Port;
         }
@@ -55,7 +57,7 @@ namespace DotnetCat.Network
         }
 
         /// Network host name
-        public string HostName
+        public string? HostName
         {
             get => _hostName;
             set
@@ -71,7 +73,7 @@ namespace DotnetCat.Network
         /// <summary>
         ///  Return a string that represents a Target
         /// </summary>
-        public override string ToString()
+        public override string? ToString()
         {
             if ((Port <= -1) || HostName.IsNullOrEmpty())
             {

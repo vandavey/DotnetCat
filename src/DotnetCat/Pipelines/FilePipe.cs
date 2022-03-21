@@ -20,7 +20,7 @@ namespace DotnetCat.Pipelines
         /// <summary>
         ///  Initialize object
         /// </summary>
-        public FilePipe(StreamReader src, string path) : base()
+        public FilePipe(StreamReader? src, string? path) : base()
         {
             if (path.IsNullOrEmpty())
             {
@@ -29,7 +29,7 @@ namespace DotnetCat.Pipelines
             _transfer = TransferOpt.Collect;
 
             Source = src ?? throw new ArgumentNullException(nameof(src));
-            FilePath = path;
+            FilePath = path ?? throw new ArgumentNullException(nameof(path));
 
             Dest = new StreamWriter(CreateFile(FilePath))
             {
@@ -40,7 +40,7 @@ namespace DotnetCat.Pipelines
         /// <summary>
         ///  Initialize object
         /// </summary>
-        public FilePipe(string path, StreamWriter dest) : base()
+        public FilePipe(string? path, StreamWriter? dest) : base()
         {
             if (path.IsNullOrEmpty())
             {
@@ -61,14 +61,14 @@ namespace DotnetCat.Pipelines
         public static bool Verbose => Program.Verbose;
 
         /// Source or destination path
-        public string FilePath { get; set; }
+        public string? FilePath { get; set; }
 
         /// <summary>
         ///  Dispose of unmanaged resources and handle error
         /// </summary>
         public virtual void PipeError(Except type,
-                                      string arg,
-                                      Exception ex = default,
+                                      string? arg,
+                                      Exception? ex = default,
                                       Level level = default) {
             Dispose();
             Error.Handle(type, arg, ex, level);
@@ -83,12 +83,12 @@ namespace DotnetCat.Pipelines
             {
                 PipeError(Except.EmptyPath, "-o/--output");
             }
-            DirectoryInfo info = Directory.GetParent(path);
+            DirectoryInfo? info = Directory.GetParent(path);
 
             // Directory does not exist
-            if (!Directory.Exists(info.FullName))
+            if (!Directory.Exists(info?.FullName))
             {
-                PipeError(Except.DirectoryPath, info.FullName);
+                PipeError(Except.DirectoryPath, info?.FullName);
             }
 
             return new FileStream(path,
@@ -102,13 +102,13 @@ namespace DotnetCat.Pipelines
         /// <summary>
         ///  Open specified FileStream to read or write
         /// </summary>
-        protected FileStream OpenFile(string path)
+        protected FileStream OpenFile(string? path)
         {
             if (path.IsNullOrEmpty())
             {
                 PipeError(Except.EmptyPath, "-s/--send");
             }
-            FileSystemInfo info = new FileInfo(path);
+            FileSystemInfo info = new FileInfo(path ?? string.Empty);
 
             // Specified file does not exist
             if (!info.Exists)
@@ -145,8 +145,8 @@ namespace DotnetCat.Pipelines
                 }
             }
 
-            data.Append(await Source.ReadToEndAsync());
-            await Dest.WriteAsync(data, token);
+            data.Append(await ReadToEndAsync());
+            await WriteAsync(data, token);
 
             // Print connection completed info
             if (Verbose)
