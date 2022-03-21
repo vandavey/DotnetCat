@@ -20,7 +20,7 @@ namespace DotnetCat.Utils
         private static readonly string _help;  // Help information
 
         /// <summary>
-        ///  Initialize static member
+        ///  Initialize static members
         /// </summary>
         static Parser()
         {

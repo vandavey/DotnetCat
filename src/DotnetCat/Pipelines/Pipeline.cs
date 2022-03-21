@@ -125,31 +125,26 @@ namespace DotnetCat.Pipelines
                         break;
                     }
 
-                    if (Source is not null)
-                    {
-                        charsRead = await Source.ReadAsync(Buffer, token);
-                        data.Append(Buffer.ToArray(), 0, charsRead);
+                    charsRead = await ReadAsync(token);
+                    data.Append(Buffer.ToArray(), 0, charsRead);
 
-                        // Client disconnected
-                        if (!Client.Connected || (charsRead <= 0))
-                        {
-                            Disconnect();
-                            break;
-                        }
+                    // Client disconnected
+                    if (!Client.Connected || (charsRead <= 0))
+                    {
+                        Disconnect();
+                        break;
                     }
+
                     data = FixLineEndings(data);  // Normalize EOL sequences
 
                     // Clear console buffer if requested
-                    if (Dest is not null)
+                    if (Command.IsClearCmd(data.ToString()))
                     {
-                        if (Command.IsClearCmd(data.ToString()))
-                        {
-                            await Dest.WriteAsync(NewLine, token);
-                        }
-                        else
-                        {
-                            await Dest.WriteAsync(data, token);
-                        }
+                        await WriteAsync(NewLine, token);
+                    }
+                    else
+                    {
+                        await WriteAsync(data, token);
                     }
                     data.Clear();
                 }

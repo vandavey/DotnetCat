@@ -60,15 +60,9 @@ namespace DotnetCat.Utils
         /// </summary>
         public static bool StartsWithValue(this string? str, char value)
         {
-            bool startsWith = false;
-
-            if (str is not null)
-            {
-                startsWith = str?.StartsWith(value) ?? false;
-            }
-            return startsWith;
+            return str?.StartsWith(value) ?? false;
         }
-        
+
         /// <summary>
         ///  Determine whether the string starts with the given string value
         /// </summary>
