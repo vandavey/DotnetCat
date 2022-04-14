@@ -136,7 +136,7 @@ The entire DotnetCat source code repository can be downloaded
 ## Remarks
 
 * This application is designed to be used as a multi-functional command-line
-  networking tool.
+  networking tool, and should only be used on your own systems.
 
 * Please use discretion, as this application is still in development.
 
