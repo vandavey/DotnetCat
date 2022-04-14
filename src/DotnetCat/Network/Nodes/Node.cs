@@ -265,14 +265,7 @@ namespace DotnetCat.Network.Nodes
             _netReader = new StreamReader(NetStream);
 
             // Initialize socket pipeline(s)
-            _pipes = pipeType switch
-            {
-                PipeType.File        => GetPipelines(PipeType.File),
-                PipeType.Process     => GetPipelines(PipeType.Process),
-                PipeType.Status      => GetPipelines(PipeType.Status),
-                PipeType.Text        => GetPipelines(PipeType.Text),
-                PipeType.Stream or _ => GetPipelines(PipeType.Stream)
-            };
+            _pipes = GetPipelines(pipeType);
         }
 
         /// <summary>
