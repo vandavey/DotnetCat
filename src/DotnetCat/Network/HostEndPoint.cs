@@ -11,7 +11,7 @@ namespace DotnetCat.Network
     {
         private int _port;          // Network port number
 
-        private string? _hostName;  // Network host name
+        private string? _hostName;  // Network hostname
 
         /// <summary>
         ///  Initialize object
@@ -28,6 +28,15 @@ namespace DotnetCat.Network
         public HostEndPoint(string? hostName, int port)
         {
             HostName = hostName;
+            Port = port;
+        }
+
+        /// <summary>
+        ///  Initialize object
+        /// </summary>
+        public HostEndPoint(IPAddress address, int port)
+        {
+            HostName = address.ToString();
             Port = port;
         }
 
@@ -56,7 +65,7 @@ namespace DotnetCat.Network
             }
         }
 
-        /// Network host name
+        /// Network hostname
         public string? HostName
         {
             get => _hostName;
@@ -71,11 +80,11 @@ namespace DotnetCat.Network
         }
 
         /// <summary>
-        ///  Return a string that represents a Target
+        ///  Get a string that represents the underlying IPv4 endpoint information
         /// </summary>
         public override string? ToString()
         {
-            if ((Port <= -1) || HostName.IsNullOrEmpty())
+            if (Port <= -1 || HostName.IsNullOrEmpty())
             {
                 return base.ToString();
             }

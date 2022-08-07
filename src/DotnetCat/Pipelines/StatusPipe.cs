@@ -26,7 +26,7 @@ namespace DotnetCat.Pipelines
             }
 
             Node node = Program.SockNode;
-            string target = $"{node.DestName}:{node.Port}";
+            string target = $"{node.HostName}:{node.Port}";
 
             StatusMsg = $"Connection accepted by {target}";
         }

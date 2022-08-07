@@ -75,7 +75,7 @@ namespace DotnetCat.Pipelines
             StringBuilder data = new(await ReadToEndAsync());
             await WriteAsync(data, token);
 
-            if (Program.Verbose)
+            if (Program.Args.Verbose)
             {
                 Style.Output(StatusMsg);
             }

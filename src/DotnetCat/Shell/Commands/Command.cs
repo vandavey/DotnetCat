@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using DotnetCat.IO;
 using DotnetCat.IO.FileSystem;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Shell.Commands
 {
@@ -61,16 +62,20 @@ namespace DotnetCat.Shell.Commands
         public static bool IsClearCmd(string data, bool doClear = true)
         {
             bool isClear = false;
-            data = data.Replace(Environment.NewLine, string.Empty).Trim();
 
-            // Clear command detected
-            if (_clsCommands.Contains(data))
+            if (!data.IsNullOrEmpty())
             {
-                if (doClear)  // Clear console buffer
+                data = data.Replace(Environment.NewLine, string.Empty).Trim();
+
+                // Clear command detected
+                if (_clsCommands.Contains(data.ToLower()))
                 {
-                    Sequence.ClearScreen();
+                    if (doClear)  // Clear console buffer
+                    {
+                        Sequence.ClearScreen();
+                    }
+                    isClear = true;
                 }
-                isClear = true;
             }
             return isClear;
         }

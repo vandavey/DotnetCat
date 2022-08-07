@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ArgNullException = System.ArgumentNullException;
+using DotnetCat.Utils;
 
 namespace DotnetCat.IO
 {
@@ -49,8 +49,10 @@ namespace DotnetCat.IO
         /// <summary>
         private static void Status(Level level, string msg)
         {
-            _ = msg ?? throw new ArgNullException(nameof(msg));
-
+            if (msg.IsNullOrEmpty())
+            {
+                throw new ArgumentNullException(nameof(msg));
+            }
             int index = IndexOfStatus(level);
 
             // Get standard output/error stream

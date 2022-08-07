@@ -19,16 +19,16 @@ namespace DotnetCat.Network.Nodes
     /// <summary>
     ///  Base class for all socket nodes in Nodes namespace
     /// </summary>
-    internal class Node : ISockErrorHandled
+    internal abstract class Node : ISockErrorHandled
     {
         private bool _validArgCombos;      // Valid cmd-line arg combos
+        private int _port;                 // Network port number
 
-        private string? _destName;         // Target host name
+        private string? _hostName;         // Target host name
 
         private Process? _process;         // Executable process
 
         private StreamReader? _netReader;  // TCP stream reader
-
         private StreamWriter? _netWriter;  // TCP stream writer
 
         private List<Pipeline>? _pipes;    // Pipeline list
@@ -38,25 +38,40 @@ namespace DotnetCat.Network.Nodes
         /// </summary>
         protected Node()
         {
-            _validArgCombos = false;
-            _destName = default;
-            _process = default;
+            _hostName = default;
             _netReader = default;
             _netWriter = default;
             _pipes = default;
+            _process = default;
+            _validArgCombos = false;
 
             Port = 44444;
             Verbose = false;
+
             Client = new TcpClient();
         }
 
         /// <summary>
         ///  Initialize object
         /// </summary>
-        protected Node(IPAddress address) : this()
+        protected Node(IPAddress addr, int port = 44444) : this()
         {
-            Addr = address;
-            DestName = Addr.ToString();
+            Address = addr;
+            HostName = addr.ToString();
+            Port = port;
+        }
+        
+        /// <summary>
+        ///  Initialize object
+        /// </summary>
+        protected Node(CmdLineArgs args) : this()
+        {
+            Address = args.Address;
+            Exe = args.ExePath;
+            FilePath = args.FilePath;
+            HostName = args.HostName;
+            Port = args.Port;
+            Verbose = args.Verbose;
         }
 
         /// <summary>
@@ -68,7 +83,18 @@ namespace DotnetCat.Network.Nodes
         public bool Verbose { get; set; }
 
         /// Network port number
-        public int Port { get; set; }
+        public int Port
+        {
+            get => _port;
+            set
+            {
+                if (!Net.IsValidPort(value))
+                {
+                    throw new ArgumentException("Invalid port", nameof(value));
+                }
+                _port = value;
+            }
+        }
 
         /// Executable file path
         public string? Exe { get; set; }
@@ -77,17 +103,14 @@ namespace DotnetCat.Network.Nodes
         public string? FilePath { get; set; }
 
         /// Destination host name
-        public string? DestName
+        public string? HostName
         {
-            get => _destName ?? ((Addr is null) ? "" : Addr.ToString());
-            set
-            {
-                _destName = value ?? ((Addr is null) ? "" : Addr.ToString());
-            }
+            get => _hostName ?? (Address is null ? "" : Address.ToString());
+            set => _hostName = value ?? (Address is null ? "" : Address.ToString());
         }
 
-        /// IPv4 address
-        public IPAddress? Addr { get; set; }
+        /// IPv4 network address
+        public IPAddress? Address { get; set; }
 
         /// TCP network client
         public TcpClient Client { get; set; }
@@ -95,7 +118,7 @@ namespace DotnetCat.Network.Nodes
         /// Performing file transfer
         protected static bool Transfer
         {
-            get => Program.Transfer is not TransferOpt.None;
+            get => Program.Args.TransOpt is not TransferOpt.None;
         }
 
         /// Using executable pipeline
@@ -136,7 +159,7 @@ namespace DotnetCat.Network.Nodes
                 ValidateArgCombinations();
             }
 
-            AddPipes(Program.PipeVariant);
+            AddPipes(Program.Args.PipeVariant);
             _pipes?.ForEach(pipe => pipe?.Connect());
         }
 
@@ -197,7 +220,7 @@ namespace DotnetCat.Network.Nodes
                 PipeError(Except.ArgsCombo, "--exec, --output/--send");
             }
 
-            bool isTextPipe = !Program.Payload.IsNullOrEmpty();
+            bool isTextPipe = !Program.Args.Payload.IsNullOrEmpty();
 
             // Combination: --exec, --text
             if (UsingExe && isTextPipe)
@@ -213,7 +236,7 @@ namespace DotnetCat.Network.Nodes
                 PipeError(Except.ArgsCombo, "--text, --output/--send");
             }
 
-            if (Parser.IndexOfFlag("--zero-io", Program.OrigArgs) != -1)
+            if (Parser.IndexOfFlag(Program.OrigArgs, "--zero-io") != -1)
             {
                 // Invalid combo: --listen, --zero-io
                 if (Program.SockNode is ServerNode)
@@ -312,13 +335,13 @@ namespace DotnetCat.Network.Nodes
                 }
                 case PipeType.File:    // File-transfer pipeline
                 {
-                    if (Program.Transfer is TransferOpt.None)
+                    if (Program.Args.TransOpt is TransferOpt.None)
                     {
-                        throw new ArgumentException(nameof(Program.Transfer));
+                        throw new ArgumentException(nameof(Program.Args.TransOpt));
                     }
 
                     // Add file-transfer stream pipe
-                    if (Program.Transfer is TransferOpt.Collect)
+                    if (Program.Args.TransOpt is TransferOpt.Collect)
                     {
                         pipes.Add(new FilePipe(_netReader, FilePath));
                     }
@@ -345,7 +368,7 @@ namespace DotnetCat.Network.Nodes
                 }
                 case PipeType.Text:     // Text pipeline
                 {
-                    pipes.Add(new TextPipe(Program.Payload, _netWriter));
+                    pipes.Add(new TextPipe(Program.Args.Payload, _netWriter));
                     break;
                 }
                 default:
@@ -373,7 +396,7 @@ namespace DotnetCat.Network.Nodes
             {
                 nullCount = _pipes.Where(p => p is null).Count();
 
-                if ((_pipes.Count == 0) || (nullCount == _pipes.Count))
+                if (_pipes.Count == 0 || nullCount == _pipes.Count)
                 {
                     return false;
                 }
@@ -381,7 +404,7 @@ namespace DotnetCat.Network.Nodes
                 // Check if non-null pipes are connected
                 foreach (Pipeline pipe in _pipes)
                 {
-                    if ((pipe is not null) && !pipe.Connected)
+                    if (pipe is not null && !pipe.Connected)
                     {
                         return false;
                     }

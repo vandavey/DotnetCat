@@ -18,9 +18,11 @@ namespace DotnetCat.Network
         /// <summary>
         ///  Resolve the IPv4 address of given host name
         /// </summary>
-        public static (IPAddress? ip, Exception? ex) ResolveName(string hostName)
+        public static (IPAddress ip, Exception? ex) ResolveName(string hostName)
         {
             IPHostEntry dnsAns;
+            IPAddress ipAddress = IPAddress.Any;
+
             string machineName = Environment.MachineName;
 
             try  // Resolve host name as IP address
@@ -34,7 +36,7 @@ namespace DotnetCat.Network
             }
             catch (SocketException ex)  // No DNS entries found
             {
-                return (null, ex);
+                return (ipAddress, ex);
             }
 
             if (dnsAns.HostName.ToLower() != machineName.ToLower())
@@ -47,17 +49,23 @@ namespace DotnetCat.Network
                         return (addr, null);
                     }
                 }
-                return (null, new SocketException(11001));
+                return (ipAddress, new SocketException(11001));
             }
 
             using Socket socket = new(AddressFamily.InterNetwork,
                                       SocketType.Dgram,
                                       ProtocolType.Udp);
 
-            // Get active local IP address
             socket.Connect("8.8.8.8", 53);
 
-            return ((socket?.LocalEndPoint as IPEndPoint)?.Address, null);
+            // Get the active local IP endpoint
+            IPEndPoint? endPoint = socket?.LocalEndPoint as IPEndPoint;
+
+            if (endPoint is not null)
+            {
+                ipAddress = endPoint.Address;
+            }
+            return (ipAddress, null);
         }
     }
 }

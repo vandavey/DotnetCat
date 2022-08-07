@@ -13,7 +13,7 @@ namespace DotnetCat.Pipelines
     /// <summary>
     ///  Base class for all pipelines in the Pipelines namespace
     /// </summary>
-    internal class Pipeline : IConnectable
+    internal abstract class Pipeline : IConnectable
     {
         /// <summary>
         ///  Initialize object
@@ -93,14 +93,6 @@ namespace DotnetCat.Pipelines
             CTS?.Dispose();
             Client?.Dispose();
 
-            try  // Try to dispose of task
-            {
-                Worker?.Dispose();
-            }
-            catch (InvalidOperationException)
-            {
-            }
-
             GC.SuppressFinalize(this);
         }
 
@@ -153,11 +145,11 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Fix line terminators based on OS platform
+        ///  Transform line-endings based on the local operating system
         /// </summary>
         protected static StringBuilder FixLineEndings(StringBuilder data)
         {
-            return (OS is Platform.Win) ? data : data.Replace("\r\n", "\n");
+            return OS is Platform.Win ? data : data.Replace("\r\n", "\n");
         }
 
         /// <summary>

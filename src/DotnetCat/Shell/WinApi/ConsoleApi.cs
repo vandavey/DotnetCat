@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.InteropServices;
-using DotnetCat.Utils;
 using BOOL = System.Boolean;
 using DWORD = System.UInt32;
 using HANDLE = System.IntPtr;
@@ -20,23 +19,24 @@ namespace DotnetCat.Shell.WinApi
 
         private const nint INVALID_HANDLE_VALUE = -1;
 
-        private static bool _virtualTermEnabled;  // VT sequences enabled
-
         /// <summary>
         ///  Initialize static members
         /// </summary>
         static ConsoleApi()
         {
-            _virtualTermEnabled = !IsWindows();
+            VirtualTermEnabled = !IsWindows();
             EnableVirtualTerm();
         }
+
+        /// Virtual terminal sequences enabled
+        public static bool VirtualTermEnabled { get; private set; }
 
         /// <summary>
         ///  Enable console virtual terminal sequence processing
         /// </summary>
         public static void EnableVirtualTerm()
         {
-            if (!_virtualTermEnabled && IsWindows())
+            if (!VirtualTermEnabled && IsWindows())
             {
                 InMode inMode = InMode.ENABLE_VIRTUAL_TERMINAL_INPUT;
                 OutMode outMode = OutMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
@@ -50,7 +50,7 @@ namespace DotnetCat.Shell.WinApi
         /// </summary>
         public static void EnableVirtualTerm(InMode inMode, OutMode outMode)
         {
-            if (!_virtualTermEnabled && IsWindows())
+            if (!VirtualTermEnabled && IsWindows())
             {
                 HANDLE stdInHandle = GetStdHandle(STD_INPUT_HANDLE);
                 HANDLE stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -67,14 +67,14 @@ namespace DotnetCat.Shell.WinApi
                 SetMode(stdInHandle, stdInMode);
                 SetMode(stdOutHandle, stdOutMode);
 
-                _virtualTermEnabled = true;
+                VirtualTermEnabled = true;
             }
         }
 
         /// <summary>
         ///  Get new mode to set for a standard console stream buffer
         /// </summary>
-        public static DWORD GetMode(HANDLE handle, DWORD mode)
+        private static DWORD GetMode(HANDLE handle, DWORD mode)
         {
             if (!IsWindows())
             {
@@ -90,7 +90,7 @@ namespace DotnetCat.Shell.WinApi
             // Invalid console mode
             if (mode == NULL)
             {
-                throw new ArgumentException("No bit flag set", nameof(mode));
+                throw new ArgumentNullException(nameof(mode), "No bit flag set");
             }
 
             // Failed to get console stream mode
@@ -104,7 +104,7 @@ namespace DotnetCat.Shell.WinApi
         /// <summary>
         ///  Set new mode for a standard console stream
         /// </summary>
-        public static void SetMode(HANDLE handle, DWORD mode)
+        private static void SetMode(HANDLE handle, DWORD mode)
         {
             if (!IsWindows())
             {
@@ -118,7 +118,7 @@ namespace DotnetCat.Shell.WinApi
 
             if (mode == NULL)
             {
-                throw new ArgumentException("No bit flag set", nameof(mode));
+                throw new ArgumentNullException(nameof(mode), "No bit flag set");
             }
 
             // Failed to set console stream mode
@@ -161,7 +161,10 @@ namespace DotnetCat.Shell.WinApi
         /// <summary>
         ///  Determine if the operating system is Windows
         /// </summary>
-        private static BOOL IsWindows() => Program.OS is Platform.Win;
+        private static BOOL IsWindows()
+        {
+            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        }
 
         /// <summary>
         ///  Determine if a standard console stream handle is valid
@@ -185,7 +188,7 @@ namespace DotnetCat.Shell.WinApi
         }
 
         /// <summary>
-        ///  Display the last Windows console API error code
+        ///  Throw an exception with the last Windows Console API error code
         /// </summary>
         private static void ExternError(string externName)
         {

@@ -9,9 +9,11 @@ namespace DotnetCat.IO
     /// </summary>
     internal static class Sequence
     {
-        private const string CLEAR = "\x1b[H\x1b[2J\x1b[3J";
-
         private const string ESCAPE = "\x1b";
+
+        private const string CLEAR = $"{ESCAPE}[H{ESCAPE}[2J{ESCAPE}[3J";
+
+        private const string RESET = $"{ESCAPE}[0m";
 
         /// <summary>
         ///  Initialize static members
@@ -40,7 +42,7 @@ namespace DotnetCat.IO
             {
                 throw new ArgumentNullException(nameof(msg));
             }
-            return $"{GetColorSequence(color)}{msg}\x1b[0m";
+            return $"{GetColorSequence(color)}{msg}{RESET}";
         }
 
         /// <summary>
@@ -65,7 +67,8 @@ namespace DotnetCat.IO
                 ConsoleColor.Red         => $"{ESCAPE}[1;31m",
                 ConsoleColor.Magenta     => $"{ESCAPE}[1;35m",
                 ConsoleColor.Yellow      => $"{ESCAPE}[1;33m",
-                _ or ConsoleColor.White  => $"{ESCAPE}[1;37m",
+                ConsoleColor.White       => $"{ESCAPE}[1;37m",
+                _                        => RESET,
             };
         }
     }

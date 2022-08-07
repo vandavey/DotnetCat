@@ -80,21 +80,21 @@ namespace DotnetCat.Utils
         /// <summary>
         ///  Join the given array using the specified delimiter
         /// </summary>
-        public static string Join<T>(this T[] array, string? delim = default)
+        public static string Join<T>(this T[]? array, string? delim = default)
         {
             if (array.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(array));
             }
-            return string.Join(delim ?? string.Empty, array);
+            return string.Join(delim ?? string.Empty, array ?? Array.Empty<T>());
         }
 
         /// <summary>
         ///  Join the given array using the system specific line separator
         /// </summary>
-        public static string JoinLines<T>(this T[] array)
+        public static string JoinLines<T>(this T[]? array)
         {
-            return Join(array, Program.EOL);
+            return Join(array, Environment.NewLine);
         }
     }
 }

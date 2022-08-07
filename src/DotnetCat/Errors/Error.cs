@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using DotnetCat.IO;
 using DotnetCat.Utils;
-using Env = System.Environment;
 
 namespace DotnetCat.Errors
 {
@@ -25,7 +24,7 @@ namespace DotnetCat.Errors
         public static void Handle(Except exType,
                                   string? arg,
                                   Exception? ex = default) {
-            // Call overload
+
             Handle(exType, arg, false, ex);
         }
 
@@ -36,7 +35,7 @@ namespace DotnetCat.Errors
                                   string? arg,
                                   Exception? ex,
                                   Level level = default) {
-            // Call overload
+
             Handle(exType, arg, false, ex, level);
         }
 
@@ -73,7 +72,7 @@ namespace DotnetCat.Errors
             }
 
             // Print debug information
-            if (Program.Debug && ex is not null)
+            if (Program.Args.Debug && ex is not null)
             {
                 if (ex is AggregateException aggregateEx)
                 {
@@ -82,7 +81,7 @@ namespace DotnetCat.Errors
 
                 string header = $"----[ {ex?.GetType().FullName} ]----";
 
-                Console.WriteLine(string.Join(Env.NewLine, new string[]
+                Console.WriteLine(string.Join(Environment.NewLine, new string[]
                 {
                     header,
                     ex?.ToString() ?? string.Empty,
@@ -91,7 +90,7 @@ namespace DotnetCat.Errors
             }
 
             Console.WriteLine();
-            Env.Exit(1);
+            Environment.Exit(1);
         }
 
         /// <summary>

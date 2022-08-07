@@ -58,7 +58,7 @@ namespace DotnetCat.Pipelines
         ~FilePipe() => Dispose();
 
         /// Enable verbose console output
-        public static bool Verbose => Program.Verbose;
+        public static bool Verbose => Program.Args.Verbose;
 
         /// Source or destination path
         public string? FilePath { get; set; }

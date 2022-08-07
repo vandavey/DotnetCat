@@ -60,7 +60,7 @@ namespace DotnetCat.Pipelines
                 data.Clear();
             }
 
-            if (!Program.UsingExe)
+            if (!Program.Args.UsingExe)
             {
                 Console.WriteLine();
             }

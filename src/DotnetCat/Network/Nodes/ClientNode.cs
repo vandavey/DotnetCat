@@ -1,17 +1,18 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
-using DotnetCat.Contracts;
 using DotnetCat.Errors;
 using DotnetCat.IO;
 using DotnetCat.Pipelines;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Network.Nodes
 {
     /// <summary>
     ///  Client node for TCP socket connections
     /// </summary>
-    internal class ClientNode : Node, ISockErrorHandled
+    internal class ClientNode : Node
     {
         private HostEndPoint? _targetEP;  // Remote target
 
@@ -19,6 +20,11 @@ namespace DotnetCat.Network.Nodes
         ///  Initialize object
         /// </summary>
         public ClientNode() : base() => _targetEP = default;
+
+        /// <summary>
+        ///  Initialize object
+        /// </summary>
+        public ClientNode(CmdLineArgs args) : base(args) => _targetEP = default;
 
         /// <summary>
         ///  Cleanup resources
@@ -30,26 +36,26 @@ namespace DotnetCat.Network.Nodes
         /// </summary>
         public override void Connect()
         {
-            _ = Addr ?? throw new ArgumentNullException(nameof(Addr));
-            _targetEP = new HostEndPoint(DestName, Port);
+            _ = Address ?? throw new ArgumentNullException(nameof(Address));
+            _targetEP = new HostEndPoint(HostName, Port);
 
             ValidateArgCombinations();
 
             try  // Connect with timeout
             {
-                if (!Client.ConnectAsync(Addr, Port).Wait(3500))
+                if (!Client.ConnectAsync(Address, Port).Wait(3500))
                 {
                     throw new SocketException(10060);  // Socket timeout
                 }
                 NetStream = Client.GetStream();
 
                 // Start executable process
-                if (Program.UsingExe && !StartProcess(Exe))
+                if (Program.Args.UsingExe && !StartProcess(Exe))
                 {
                     PipeError(Except.ExeProcess, Exe);
                 }
 
-                if (Program.PipeVariant is not PipeType.Status)
+                if (Program.Args?.PipeVariant is not PipeType.Status)
                 {
                     Style.Info($"Connected to {_targetEP}");
                 }
@@ -70,7 +76,7 @@ namespace DotnetCat.Network.Nodes
             }
             catch (IOException ex)         // Connection lost
             {
-                PipeError(Except.ConnectionLost, Addr.ToString(), ex);
+                PipeError(Except.ConnectionLost, Address.ToString(), ex);
             }
 
             Dispose();

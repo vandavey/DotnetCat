@@ -2,16 +2,16 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using DotnetCat.Contracts;
 using DotnetCat.Errors;
 using DotnetCat.IO;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Network.Nodes
 {
     /// <summary>
     ///  Server node for TCP socket connections
     /// </summary>
-    internal class ServerNode : Node, ISockErrorHandled
+    internal class ServerNode : Node
     {
         private Socket? _listener;  // Listener socket
 
@@ -19,6 +19,11 @@ namespace DotnetCat.Network.Nodes
         ///  Initialize object
         /// </summary>
         public ServerNode() : base(IPAddress.Any) => _listener = default;
+
+        /// <summary>
+        ///  Initialize object
+        /// </summary>
+        public ServerNode(CmdLineArgs args) : base(args) => _listener = default;
 
         /// <summary>
         ///  Cleanup resources
@@ -30,13 +35,13 @@ namespace DotnetCat.Network.Nodes
         /// </summary>
         public override void Connect()
         {
-            _ = Addr ?? throw new ArgumentNullException(nameof(Addr));
+            _ = Address ?? throw new ArgumentNullException(nameof(Address));
             HostEndPoint remoteEP = new();
 
             ValidateArgCombinations();
 
             // Bind listener socket to local endpoint
-            BindListener(new IPEndPoint(Addr, Port));
+            BindListener(new IPEndPoint(Address, Port));
 
             try  // Listen for inbound connection
             {
@@ -50,7 +55,7 @@ namespace DotnetCat.Network.Nodes
                 NetStream = Client.GetStream();
 
                 // Start executable process
-                if (Program.UsingExe && !StartProcess(Exe))
+                if (Program.Args.UsingExe && !StartProcess(Exe))
                 {
                     PipeError(Except.ExeProcess, Exe);
                 }
