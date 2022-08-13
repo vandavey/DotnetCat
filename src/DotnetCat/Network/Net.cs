@@ -6,26 +6,24 @@ using System.Net.Sockets;
 namespace DotnetCat.Network
 {
     /// <summary>
-    ///  Network information controller
+    ///  Network and socket utility class.
     /// </summary>
     internal static class Net
     {
         /// <summary>
-        ///  Determine if the given port number is valid
+        ///  Determine whether the given port is a valid network port number.
         /// </summary>
         public static bool IsValidPort(int port) => port is > 0 and <= 65535;
 
         /// <summary>
-        ///  Resolve the IPv4 address of given host name
+        ///  Resolve the IPv4 address associated with the given hostname.
         /// </summary>
         public static (IPAddress ip, Exception? ex) ResolveName(string hostName)
         {
             IPHostEntry dnsAns;
-            IPAddress ipAddress = IPAddress.Any;
+            IPAddress address = IPAddress.Any;
 
-            string machineName = Environment.MachineName;
-
-            try  // Resolve host name as IP address
+            try  // Resolve IPv4 from hostname
             {
                 dnsAns = Dns.GetHostEntry(hostName);
 
@@ -36,36 +34,47 @@ namespace DotnetCat.Network
             }
             catch (SocketException ex)  // No DNS entries found
             {
-                return (ipAddress, ex);
+                return (address, ex);
             }
 
-            if (dnsAns.HostName.ToLower() != machineName.ToLower())
+            // Return the first IPv4 address
+            if (dnsAns.HostName.ToLower() != Environment.MachineName.ToLower())
             {
                 foreach (IPAddress addr in dnsAns.AddressList)
                 {
-                    // Return the first IPv4 address
                     if (addr.AddressFamily is AddressFamily.InterNetwork)
                     {
                         return (addr, null);
                     }
                 }
-                return (ipAddress, new SocketException(11001));
+                return (address, GetException(SocketError.HostNotFound));
             }
 
+            return (ActiveLocalAddress(), null);
+        }
+
+        /// <summary>
+        ///  Get a new socket exception initialized with the given socket error.
+        /// </summary>
+        public static SocketException GetException(SocketError error)
+        {
+            return new SocketException(Convert.ToInt32(error));
+        }
+
+        /// <summary>
+        ///  Get the currently active local IPv4 address.
+        /// </summary>
+        private static IPAddress ActiveLocalAddress()
+        {
             using Socket socket = new(AddressFamily.InterNetwork,
                                       SocketType.Dgram,
                                       ProtocolType.Udp);
 
             socket.Connect("8.8.8.8", 53);
+            socket.Disconnect(false);
+            socket.Close();
 
-            // Get the active local IP endpoint
-            IPEndPoint? endPoint = socket?.LocalEndPoint as IPEndPoint;
-
-            if (endPoint is not null)
-            {
-                ipAddress = endPoint.Address;
-            }
-            return (ipAddress, null);
+            return (socket?.LocalEndPoint as IPEndPoint)?.Address ?? IPAddress.Any;
         }
     }
 }

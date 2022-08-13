@@ -5,37 +5,47 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
+using DotnetCat.IO;
 using DotnetCat.Shell.Commands;
 using DotnetCat.Utils;
 
 namespace DotnetCat.Pipelines
 {
     /// <summary>
-    ///  Base class for all pipelines in the Pipelines namespace
+    ///  Base class for all pipelines in the DotnetCat.Pipelines namespace.
     /// </summary>
     internal abstract class Pipeline : IConnectable
     {
+        protected const int BUFFER_SIZE = 1024;  // Memory buffer size
+
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         protected Pipeline()
         {
             Connected = false;
+
+            Args = new CmdLineArgs();
             NewLine = new StringBuilder(Environment.NewLine);
         }
 
         /// <summary>
-        ///  Cleanup resources
+        ///  Initialize the object.
+        /// </summary>
+        protected Pipeline(CmdLineArgs args) : this() => Args = args;
+
+        /// <summary>
+        ///  Release the unmanaged object resources.
         /// </summary>
         ~Pipeline() => Dispose();
 
-        /// Pipeline is active
+        /// Underlying streams are connected
         public bool Connected { get; protected set; }
 
         /// Operating system
         protected static Platform OS => Program.OS;
 
-        /// Operating system
+        /// TCP socket client
         protected static TcpClient? Client => Program.SockNode?.Client;
 
         /// TCP client is connected
@@ -44,11 +54,14 @@ namespace DotnetCat.Pipelines
         /// Platform based EOL escape sequence
         protected StringBuilder NewLine { get; }
 
-        /// Pipeline cancellation token
+        /// Pipeline cancellation token source
         protected CancellationTokenSource? CTS { get; set; }
 
         /// Character memory buffer
         protected Memory<char> Buffer { get; set; }
+
+        /// Command-line arguments
+        protected CmdLineArgs Args { get; set; }
 
         /// Pipeline data source
         protected StreamReader? Source { get; set; }
@@ -60,7 +73,7 @@ namespace DotnetCat.Pipelines
         protected Task? Worker { get; set; }
 
         /// <summary>
-        ///  Activate communication between the pipe streams
+        ///  Active communication between the underlying streams.
         /// </summary>
         public virtual void Connect()
         {
@@ -68,13 +81,13 @@ namespace DotnetCat.Pipelines
             _ = Dest ?? throw new InvalidOperationException(nameof(Dest));
 
             CTS = new CancellationTokenSource();
-            Buffer = new Memory<char>(new char[1024]);
+            Buffer = new Memory<char>(new char[BUFFER_SIZE]);
 
             Worker = ConnectAsync(CTS.Token);
         }
 
         /// <summary>
-        ///  Cancel communication throughout pipe
+        ///  Cancel communication between the underlying streams.
         /// </summary>
         public virtual void Disconnect()
         {
@@ -83,7 +96,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Release any unmanaged resources
+        ///  Release all the underlying unmanaged resources.
         /// <summary>
         public virtual void Dispose()
         {
@@ -97,7 +110,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Connect pipeline and activate async communication
+        ///  Asynchronously transfer data between the underlying streams.
         /// </summary>
         protected virtual async Task ConnectAsync(CancellationToken token)
         {
@@ -110,7 +123,6 @@ namespace DotnetCat.Pipelines
             {
                 while (Client.Connected)
                 {
-                    // Connection cancellation requested
                     if (token.IsCancellationRequested)
                     {
                         Disconnect();
@@ -120,21 +132,21 @@ namespace DotnetCat.Pipelines
                     charsRead = await ReadAsync(token);
                     data.Append(Buffer.ToArray(), 0, charsRead);
 
-                    // Client disconnected
-                    if (!Client.Connected || (charsRead <= 0))
+                    // Socket client was disconnected
+                    if (!Client.Connected || charsRead <= 0)
                     {
                         Disconnect();
                         break;
                     }
+                    data = FixLineEndings(data);
 
-                    data = FixLineEndings(data);  // Normalize EOL sequences
-
-                    // Clear console buffer if requested
+                    // Clear console screen buffer
                     if (Command.IsClearCmd(data.ToString()))
                     {
+                        Sequence.ClearScreen();
                         await WriteAsync(NewLine, token);
                     }
-                    else
+                    else  // Send the command
                     {
                         await WriteAsync(data, token);
                     }
@@ -145,7 +157,8 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Transform line-endings based on the local operating system
+        ///  Normalize line-endings based on the local operating system
+        ///  so shell commands are properly interpreted.
         /// </summary>
         protected static StringBuilder FixLineEndings(StringBuilder data)
         {
@@ -153,7 +166,8 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Asynchronously read stream data into the underlying memory buffer
+        ///  Asynchronously read data from the underlying source stream
+        ///  and write it to the underlying memory buffer.
         /// </summary>
         protected virtual async ValueTask<int> ReadAsync(CancellationToken token)
         {
@@ -167,7 +181,8 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Asynchronously read all the data from the source stream
+        ///  Asynchronously read all the data that is currently available
+        ///  in the underlying source stream.
         /// </summary>
         protected virtual async ValueTask<string> ReadToEndAsync()
         {
@@ -181,7 +196,8 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Asynchronously write the given data to the destination stream
+        ///  Asynchronously write all the given data to the
+        ///  underlying destination stream.
         /// </summary>
         protected virtual async Task WriteAsync(StringBuilder data,
                                                 CancellationToken token) {

@@ -5,7 +5,7 @@ using DotnetCat.Utils;
 namespace DotnetCat.Network
 {
     /// <summary>
-    ///  Network endpoint host information
+    ///  IPv4 hostname socket endpoint.
     /// </summary>
     internal class HostEndPoint
     {
@@ -14,7 +14,7 @@ namespace DotnetCat.Network
         private string? _hostName;  // Network hostname
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         public HostEndPoint()
         {
@@ -23,7 +23,7 @@ namespace DotnetCat.Network
         }
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         public HostEndPoint(string? hostName, int port)
         {
@@ -32,7 +32,7 @@ namespace DotnetCat.Network
         }
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         public HostEndPoint(IPAddress address, int port)
         {
@@ -41,7 +41,7 @@ namespace DotnetCat.Network
         }
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         public HostEndPoint(IPEndPoint? ep)
         {
@@ -80,7 +80,7 @@ namespace DotnetCat.Network
         }
 
         /// <summary>
-        ///  Get a string that represents the underlying IPv4 endpoint information
+        ///  Get the string representation of the underlying endpoint information.
         /// </summary>
         public override string? ToString()
         {

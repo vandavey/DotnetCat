@@ -11,25 +11,24 @@ using DotnetCat.Utils;
 namespace DotnetCat.Pipelines
 {
     /// <summary>
-    ///  Pipeline class for file related data
+    ///  Stream pipeline used to transfer file data.
     /// </summary>
     internal class FilePipe : Pipeline, IErrorHandled
     {
         private readonly TransferOpt _transfer;  // File transfer option
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
-        public FilePipe(StreamReader? src, string? path) : base()
+        public FilePipe(CmdLineArgs args, StreamReader? src) : base(args)
         {
-            if (path.IsNullOrEmpty())
+            if (args.FilePath.IsNullOrEmpty())
             {
-                throw new ArgumentNullException(nameof(path));
+                throw new ArgumentNullException(nameof(args));
             }
             _transfer = TransferOpt.Collect;
 
             Source = src ?? throw new ArgumentNullException(nameof(src));
-            FilePath = path ?? throw new ArgumentNullException(nameof(path));
 
             Dest = new StreamWriter(CreateFile(FilePath))
             {
@@ -38,33 +37,37 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
-        public FilePipe(string? path, StreamWriter? dest) : base()
+        public FilePipe(CmdLineArgs args, StreamWriter? dest) : base(args)
         {
-            if (path.IsNullOrEmpty())
+            if (args.FilePath.IsNullOrEmpty())
             {
-                throw new ArgumentNullException(nameof(path));
+                throw new ArgumentNullException(nameof(args));
             }
             _transfer = TransferOpt.Transmit;
 
             Dest = dest ?? throw new ArgumentNullException(nameof(dest));
-            Source = new StreamReader(OpenFile(FilePath = path));
+            Source = new StreamReader(OpenFile(FilePath));
         }
 
         /// <summary>
-        ///  Cleanup resources
+        ///  Release the unmanaged object resources.
         /// </summary>
         ~FilePipe() => Dispose();
 
         /// Enable verbose console output
-        public static bool Verbose => Program.Args.Verbose;
+        public bool Verbose => Args.Verbose;
 
         /// Source or destination path
-        public string? FilePath { get; set; }
+        public string FilePath
+        {
+            get => Args.FilePath ??= string.Empty;
+            set => Args.FilePath = value ?? string.Empty;
+        }
 
         /// <summary>
-        ///  Dispose of unmanaged resources and handle error
+        ///  Dispose of all unmanaged resources and handle the given error.
         /// </summary>
         public virtual void PipeError(Except type,
                                       string? arg,
@@ -75,7 +78,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Create and open new file for writing
+        ///  Create or overwrite a file at the given file path for writing.
         /// </summary>
         protected FileStream CreateFile(string path)
         {
@@ -95,12 +98,12 @@ namespace DotnetCat.Pipelines
                                   FileMode.Create,
                                   FileAccess.Write,
                                   FileShare.Write,
-                                  bufferSize: 1024,
+                                  bufferSize: BUFFER_SIZE,
                                   useAsync: true);
         }
 
         /// <summary>
-        ///  Open specified FileStream to read or write
+        ///  Open an existing file at the given file path for reading.
         /// </summary>
         protected FileStream OpenFile(string? path)
         {
@@ -108,7 +111,7 @@ namespace DotnetCat.Pipelines
             {
                 PipeError(Except.EmptyPath, "-s/--send");
             }
-            FileSystemInfo info = new FileInfo(path ?? string.Empty);
+            FileInfo info = new(path ?? string.Empty);
 
             // Specified file does not exist
             if (!info.Exists)
@@ -125,19 +128,19 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Activate async network communication
+        ///  Asynchronously perform the file transfer between the underlying streams.
         /// </summary>
         protected override async Task ConnectAsync(CancellationToken token)
         {
             Connected = true;
             StringBuilder data = new();
 
-            // Print connection started info
+            // Print file transfer start message
             if (Verbose)
             {
                 if (_transfer is TransferOpt.Transmit)
                 {
-                    Style.Info($"Transmitting '{FilePath}'...");
+                    Style.Info($"Transmitting '{FilePath}' data...");
                 }
                 else
                 {
@@ -148,7 +151,7 @@ namespace DotnetCat.Pipelines
             data.Append(await ReadToEndAsync());
             await WriteAsync(data, token);
 
-            // Print connection completed info
+            // Print file transfer complete message
             if (Verbose)
             {
                 if (_transfer is TransferOpt.Transmit)

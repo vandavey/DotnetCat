@@ -1,7 +1,7 @@
 namespace DotnetCat.Pipelines
 {
     /// <summary>
-    ///  Socket pipeline enumeration type
+    ///  Stream pipeline enumeration type.
     /// </summary>
     internal enum PipeType : ushort
     {

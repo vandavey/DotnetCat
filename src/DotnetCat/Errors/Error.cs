@@ -1,25 +1,24 @@
 using System;
-using System.Collections.Generic;
 using DotnetCat.IO;
 using DotnetCat.Utils;
 
 namespace DotnetCat.Errors
 {
     /// <summary>
-    ///  Error and exception controller
+    ///  Error and exception utility class.
     /// </summary>
     internal static class Error
     {
-        // Error message dictionary
-        private static readonly Dictionary<Except, ErrorMessage> _errors;
-
         /// <summary>
-        ///  Initialize static members
+        ///  Initialize the static class members.
         /// </summary>
-        static Error() => _errors = GetErrorDict();
+        static Error() => Debug = false;
+
+        /// Enable verbose exceptions
+        public static bool Debug { get; set; }
 
         /// <summary>
-        ///  Handle special exceptions related to DotNetCat
+        ///  Handle user-defined exceptions related to DotnetCat.
         /// </summary>
         public static void Handle(Except exType,
                                   string? arg,
@@ -29,7 +28,7 @@ namespace DotnetCat.Errors
         }
 
         /// <summary>
-        ///  Handle special exceptions related to DotNetCat
+        ///  Handle user-defined exceptions related to DotnetCat.
         /// </summary>
         public static void Handle(Except exType,
                                   string? arg,
@@ -40,18 +39,14 @@ namespace DotnetCat.Errors
         }
 
         /// <summary>
-        ///  Handle special exceptions related to DotNetCat
+        ///  Handle user-defined exceptions related to DotnetCat.
         /// </summary>
         public static void Handle(Except exType,
                                   string? arg,
                                   bool showUsage,
                                   Exception? ex = default,
                                   Level level = default) {
-            // Unknown error
-            if (!_errors.ContainsKey(exType))
-            {
-                throw new ArgumentException(null, nameof(exType));
-            }
+
             _ = arg ?? throw new ArgumentNullException(nameof(arg));
 
             // Display program usage
@@ -59,20 +54,22 @@ namespace DotnetCat.Errors
             {
                 Console.WriteLine(Parser.Usage);
             }
-            _errors[exType].Build(arg);
+
+            ErrorMessage errorMsg = GetErrorMessage(exType);
+            errorMsg.Build(arg);
 
             // Print warning/error message
             if (level is Level.Warn)
             {
-                Style.Warn(_errors[exType].Message);
+                Style.Warn(errorMsg.Message);
             }
             else
             {
-                Style.Error(_errors[exType].Message);
+                Style.Error(errorMsg.Message);
             }
 
             // Print debug information
-            if (Program.Args.Debug && ex is not null)
+            if (Debug && ex is not null)
             {
                 if (ex is AggregateException aggregateEx)
                 {
@@ -81,7 +78,7 @@ namespace DotnetCat.Errors
 
                 string header = $"----[ {ex?.GetType().FullName} ]----";
 
-                Console.WriteLine(string.Join(Environment.NewLine, new string[]
+                Console.WriteLine(string.Join(Environment.NewLine, new[]
                 {
                     header,
                     ex?.ToString() ?? string.Empty,
@@ -94,89 +91,39 @@ namespace DotnetCat.Errors
         }
 
         /// <summary>
-        ///  Get dictionary of errors related to DotnetCat
+        ///  Get a new error message that corresponds to the given
+        ///  exception enumeration type.
         /// </summary>
-        private static Dictionary<Except, ErrorMessage> GetErrorDict()
+        private static ErrorMessage GetErrorMessage(Except exType)
         {
-            return new Dictionary<Except, ErrorMessage>
-            {
-                {
-                    Except.ArgsCombo,
-                    new ErrorMessage("Invalid argument combination: %")
-                },
-                {
-                    Except.ConnectionLost,
-                    new ErrorMessage("Connection unexpectedly closed by %")
-                },
-                {
-                    Except.ConnectionRefused,
-                    new ErrorMessage("Connection was actively refused by %")
-                },
-                {
-                    Except.ConnectionTimeout,
-                    new ErrorMessage("Socket timeout occurred: %")
-                },
-                {
-                    Except.DirectoryPath,
-                    new ErrorMessage("Unable to locate parent directory '%'")
-                },
-                {
-                    Except.EmptyPath,
-                    new ErrorMessage("A value is required for option(s): %")
-                },
-                {
-                    Except.ExePath,
-                    new ErrorMessage("Unable to locate executable file '%'")
-                },
-                {
-                    Except.ExeProcess,
-                    new ErrorMessage("Unable to launch executable process: %")
-                },
-                {
-                    Except.FilePath,
-                    new ErrorMessage("Unable to locate file path '%'")
-                },
-                {
-                    Except.InvalidAddr,
-                    new ErrorMessage("Unable to resolve hostname '%'")
-                },
-                {
-                    Except.InvalidArgs,
-                    new ErrorMessage("Unable to validate argument(s): %")
-                },
-                {
-                    Except.InvalidPort,
-                    new ErrorMessage("'%' is not a valid port number")
-                },
-                {
-                    Except.NamedArgs,
-                    new ErrorMessage("Missing value for named argument(s): %")
-                },
-                {
-                    Except.Payload,
-                    new ErrorMessage("Invalid payload for argument(s): %")
-                },
-                {
-                    Except.RequiredArgs,
-                    new ErrorMessage("Missing required argument(s): %")
-                },
-                {
-                    Except.SocketBind,
-                    new ErrorMessage("The endpoint is already in use: %")
-                },
-                {
-                    Except.StringEOL,
-                    new ErrorMessage("Missing EOL in argument(s): %")
-                },
-                {
-                    Except.Unhandled,
-                    new ErrorMessage("Unhandled exception occurred: %")
-                },
-                {
-                    Except.UnknownArgs,
-                    new ErrorMessage("Received unknown argument(s): %")
-                }
-            };
+            return new ErrorMessage(GetErrorFormatMessage(exType));
         }
+
+        /// <summary>
+        ///  Get the raw error message string that corresponds to the
+        ///  given exception enumeration type.
+        /// </summary>
+        private static string GetErrorFormatMessage(Except exType) => exType switch
+        {
+            Except.ArgsCombo         => "Invalid argument combination: %",
+            Except.ConnectionLost    => "Connection unexpectedly closed by %",
+            Except.ConnectionRefused => "Connection was actively refused by %",
+            Except.ConnectionTimeout => "Socket timeout occurred: %",
+            Except.DirectoryPath     => "Unable to locate parent directory '%'",
+            Except.EmptyPath         => "A value is required for option(s): %",
+            Except.ExePath           => "Unable to locate executable file '%'",
+            Except.ExeProcess        => "Unable to launch executable process: %",
+            Except.FilePath          => "Unable to locate file path '%'",
+            Except.InvalidAddr       => "Unable to resolve hostname '%'",
+            Except.InvalidArgs       => "Unable to validate argument(s): %",
+            Except.InvalidPort       => "'%' is not a valid port number",
+            Except.NamedArgs         => "Missing value for named argument(s): %",
+            Except.RequiredArgs      => "Invalid payload for argument(s): %",
+            Except.Payload           => "Missing required argument(s): %",
+            Except.SocketBind        => "The endpoint is already in use: %",
+            Except.StringEOL         => "Missing EOL in argument(s): %",
+            Except.UnknownArgs       => "Received unknown argument(s): %",
+            Except.Unhandled or _    => "Unhandled exception occurred: %",
+        };
     }
 }

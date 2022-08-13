@@ -9,41 +9,39 @@ using DotnetCat.Utils;
 namespace DotnetCat.Network.Nodes
 {
     /// <summary>
-    ///  Server node for TCP socket connections
+    ///  Server socket node with an underlying TCP socket client and listener socket.
     /// </summary>
     internal class ServerNode : Node
     {
         private Socket? _listener;  // Listener socket
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         public ServerNode() : base(IPAddress.Any) => _listener = default;
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         public ServerNode(CmdLineArgs args) : base(args) => _listener = default;
 
         /// <summary>
-        ///  Cleanup resources
+        ///  Release the unmanaged object resources.
         /// </summary>
         ~ServerNode() => Dispose();
 
         /// <summary>
-        ///  Listen for incoming TCP connections
+        ///  Listen for an inbound TCP connection on the underlying listener socket.
         /// </summary>
         public override void Connect()
         {
             _ = Address ?? throw new ArgumentNullException(nameof(Address));
             HostEndPoint remoteEP = new();
 
-            ValidateArgCombinations();
-
-            // Bind listener socket to local endpoint
+            ValidateArgsCombinations();
             BindListener(new IPEndPoint(Address, Port));
 
-            try  // Listen for inbound connection
+            try  // Listen for an inbound connection
             {
                 _listener?.Listen(1);
                 Style.Info("Listening for incoming connections...");
@@ -54,10 +52,10 @@ namespace DotnetCat.Network.Nodes
                 }
                 NetStream = Client.GetStream();
 
-                // Start executable process
-                if (Program.Args.UsingExe && !StartProcess(Exe))
+                // Start the executable process
+                if (Args.UsingExe && !StartProcess(ExePath))
                 {
-                    PipeError(Except.ExeProcess, Exe);
+                    PipeError(Except.ExeProcess, ExePath);
                 }
 
                 IPEndPoint? ep = Client.Client.RemoteEndPoint as IPEndPoint;
@@ -69,16 +67,11 @@ namespace DotnetCat.Network.Nodes
                 WaitForExit();
 
                 Console.WriteLine();
-
-                // Connection closed status
                 Style.Info($"Connection to {remoteEP} closed");
             }
             catch (SocketException ex)  // Error (likely refused)
             {
-                PipeError(Except.ConnectionRefused,
-                          remoteEP,
-                          ex,
-                          Level.Error);
+                PipeError(Except.ConnectionRefused, remoteEP, ex);
             }
             catch (IOException ex)      // Connection lost
             {
@@ -89,7 +82,7 @@ namespace DotnetCat.Network.Nodes
         }
 
         /// <summary>
-        ///  Dispose of unmanaged resources and handle error
+        ///  Dispose of all unmanaged resources and handle the given error.
         /// </summary>
         public override void PipeError(Except type,
                                        HostEndPoint target,
@@ -100,7 +93,7 @@ namespace DotnetCat.Network.Nodes
         }
 
         /// <summary>
-        ///  Dispose of unmanaged resources and handle error
+        ///  Dispose of all unmanaged resources and handle the given error.
         /// </summary>
         public override void PipeError(Except type,
                                        string? arg,
@@ -111,7 +104,7 @@ namespace DotnetCat.Network.Nodes
         }
 
         /// <summary>
-        ///  Release any unmanaged resources
+        ///  Release all the underlying unmanaged resources.
         /// </summary>
         public override void Dispose()
         {
@@ -122,7 +115,7 @@ namespace DotnetCat.Network.Nodes
         }
 
         /// <summary>
-        ///  Bind the listener socket to an endpoint
+        ///  Bind the underlying listener socket to the given IPv4 endpoint.
         /// </summary>
         private void BindListener(IPEndPoint ep)
         {
@@ -132,7 +125,7 @@ namespace DotnetCat.Network.Nodes
                                    SocketType.Stream,
                                    ProtocolType.Tcp);
 
-            try  // Bind socket to endpoint
+            try  // Bind the listener socket
             {
                 _listener.Bind(ep);
             }

@@ -5,13 +5,13 @@ using DotnetCat.IO;
 namespace DotnetCat.Contracts
 {
     /// <summary>
-    ///  Enforce mechanisms to release unmanaged resources
-    ///  before exiting (when an error occurs)
+    ///  Interface for enforcing mechanisms to release unmanaged resources
+    ///  before exiting the application (when an error occurs).
     /// </summary>
     internal interface IErrorHandled : IConnectable
     {
         /// <summary>
-        ///  Release unmanaged resources and handle error
+        ///  Dispose of all unmanaged resources and handle the given error.
         /// </summary>
         void PipeError(Except type,
                        string arg,

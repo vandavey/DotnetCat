@@ -11,52 +11,53 @@ using DotnetCat.Pipelines;
 namespace DotnetCat.Utils
 {
     /// <summary>
-    ///  Command-line argument parser and validator
+    ///  Command-line argument parser and validator.
     /// </summary>
     internal class Parser
     {
-        private readonly string _eol;   // Platform EOL string
+        private static readonly string _title;  // Application title
 
-        private readonly string _help;  // Help information
+        private readonly string _eol;           // Platform EOL string
+        private readonly string _help;          // Help information
+
+        private readonly CmdLineArgs _args;     // Command-line arguments
+
+        private List<string> _argsList;         // Command-line argument list
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the static class members.
+        /// </summary>
+        static Parser()
+        {
+            _title = Program.OS is Platform.Nix ? "dncat" : "dncat.exe";
+        }
+
+        /// <summary>
+        ///  Initialize the object.
         /// </summary>
         public Parser()
         {
             _eol = Environment.NewLine;
             _help = GetHelp();
 
-            Args = new CmdLineArgs();
-            ArgsList = new List<string>();
-        }
-
-        /// Application title string
-        public static string AppTitle
-        {
-            get => Program.OS is Platform.Nix ? "dncat" : "dncat.exe";
+            _args = new CmdLineArgs();
+            _argsList = new List<string>();
         }
 
         /// Application repository URL
         public static string Repo => "https://github.com/vandavey/DotnetCat";
 
         /// Application usage string
-        public static string Usage => $"Usage: {AppTitle} [OPTIONS] TARGET";
-
-        /// Command-line arguments
-        public CmdLineArgs Args { get; set; }
-
-        /// Command-line argument list
-        public List<string> ArgsList { get; set; }
+        public static string Usage => $"Usage: {_title} [OPTIONS] TARGET";
 
         /// <summary>
-        ///  Check for help flag in cmd-line arguments
+        ///  Determine whether any of the help flags (-h, -?, --help) exist
+        ///  in the given command-line argument array.
         /// </summary>
         public static bool NeedsHelp(string[] args)
         {
-            // Count matching arguments
             int count = (from arg in args.ToList()
-                         where arg.ToLower() == "--help"
+                         where arg == "--help"
                              || (arg.Length > 1
                                  && arg[0] == '-'
                                  && arg[1] != '-'
@@ -67,7 +68,8 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Get the matching cmd-line argument index
+        ///  Get the index of the given flag (--foo) or flag alias (-f) argument
+        ///  in the specified command-line argument list.
         /// </summary>
         public static int IndexOfFlag(List<string>? args,
                                       string flag,
@@ -82,12 +84,10 @@ namespace DotnetCat.Utils
                 return args?.IndexOf(flag) ?? -1;
             }
 
-            // Assign argument alias
             alias ??= flag.Where(c => char.IsLetter(c)).FirstOrDefault();
 
-            // Query cmd-line arguments
             List<int> query = (from arg in args
-                               where arg.ToLower() == flag.ToLower()
+                               where arg == flag
                                    || (arg.Contains(alias ?? '\0')
                                        && arg[0] == '-'
                                        && arg[1] != '-')
@@ -97,43 +97,47 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Parse the command-line arguments from the given array
+        ///  Parse and validate all the arguments in the given
+        ///  command-line argument array.
         /// </summary>
         public CmdLineArgs Parse(string[] args)
         {
-            ArgsList = DefragArguments(args);
+            _argsList = DefragArguments(args);
 
             ParseCharArgs();
             ParseFlagArgs();
             ParsePositionalArgs();
 
-            return Args;
+            return _args;
         }
 
         /// <summary>
-        ///  Get index of cmd-line argument with the specified char
+        ///  Get index of the given flag alias (-f) argument in the underlying
+        ///  command-line argument list.
         /// </summary>
         public int IndexOfAlias(char alias)
         {
-            List<int> query = (from arg in ArgsList.ToList()
+            List<int> query = (from arg in _argsList.ToList()
                                where arg.Contains(alias)
                                    && arg[0] == '-'
                                    && arg[1] != '-'
-                               select ArgsList.IndexOf(arg)).ToList();
+                               select _argsList.IndexOf(arg)).ToList();
 
             return query.Count > 0 ? query[0] : -1;
         }
 
         /// <summary>
-        ///  Get the matching cmd-line argument index
+        ///  Get the index of the given flag (--foo) or flag alias (-f) argument
+        ///  in the underlying command-line argument list.
         /// </summary>
         public int IndexOfFlag(string flag, char? alias = default)
         {
-            return IndexOfFlag(ArgsList, flag, alias);
+            return IndexOfFlag(_argsList, flag, alias);
         }
 
         /// <summary>
-        ///  Print application help message to console output
+        ///  Write the extended application usage information to the standard
+        ///  console output stream and exit the application.
         /// </summary>
         public void PrintHelp()
         {
@@ -142,23 +146,23 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Defragment the given command-line arguments
+        ///  Defragment the given fragmented command-line arguments so
+        ///  quoted strings are interpreted as single arguments.
         /// </summary>
         private static List<string> DefragArguments(string[] args)
         {
             int delta = 0;
             List<string> list = args.ToList();
 
-            // Get arguments starting with quote
-            var query = from arg in args
-                        let pos = Array.IndexOf(args, arg)
-                        let quote = arg.FirstOrDefault()
-                        let valid = arg.EndsWith(quote) && arg.Length >= 2
-                        where arg.StartsWith("'")
-                            || arg.StartsWith("\"")
-                        select new { arg, pos, quote, valid };
+            var bolQuery = from arg in args
+                           let pos = Array.IndexOf(args, arg)
+                           let quote = arg.FirstOrDefault()
+                           let valid = arg.EndsWith(quote) && arg.Length >= 2
+                           where arg.StartsWith("'")
+                               || arg.StartsWith("\"")
+                           select new { arg, pos, quote, valid };
 
-            foreach (var item in query)
+            foreach (var item in bolQuery)
             {
                 // Skip processed arguments
                 if (delta > 0)
@@ -175,7 +179,6 @@ namespace DotnetCat.Utils
                     continue;
                 }
 
-                // Get argument containing string EOL
                 var eolQuery = (from arg in args
                                 let pos = Array.IndexOf(args, arg, item.pos + 1)
                                 where pos > item.pos
@@ -210,12 +213,12 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Parse named command-line arguments that start with one dash (e.g., -f)
+        ///  Parse the named flag alias arguments in the underlying command-line
+        ///  argument list. Flag alias arguments begin with one dash (-f).
         /// </summary>
         private void ParseCharArgs()
         {
-            // Locate all char flag arguments
-            var query = from arg in ArgsList.ToList()
+            var query = from arg in _argsList.ToList()
                         let index = IndexOfFlag(arg)
                         where arg.Length >= 2
                             && arg[0] == '-'
@@ -226,75 +229,74 @@ namespace DotnetCat.Utils
             {
                 if (item.arg.Contains('l'))  // Listen for connection
                 {
-                    Args.Listen = true;
+                    _args.Listen = true;
                     RemoveAlias(item.index, 'l');
                 }
 
                 if (item.arg.Contains('v'))  // Verbose output
                 {
-                    Args.Verbose = true;
+                    _args.Verbose = true;
                     RemoveAlias(item.index, 'v');
                 }
 
                 if (item.arg.Contains('z'))  // Zero-IO (test connection)
                 {
-                    Args.PipeVariant = PipeType.Status;
+                    _args.PipeVariant = PipeType.Status;
                     RemoveAlias(item.index, 'z');
                 }
 
                 if (item.arg.Contains('d'))  // Debug output
                 {
-                    Args.Debug = Args.Verbose = true;
+                    _args.Debug = _args.Verbose = Error.Debug = true;
                     RemoveAlias(item.index, 'd');
                 }
 
                 if (item.arg.Contains('p'))  // Connection port
                 {
-                    Args.Port = GetPort(item.index);
-                    RemoveAlias(item.index, 'p', remValue: true);
+                    _args.Port = GetPort(item.index);
+                    RemoveAlias(item.index, 'p', removeValue: true);
                 }
 
                 if (item.arg.Contains('e'))  // Executable path
                 {
-                    Args.ExePath = GetExecutable(item.index);
-                    RemoveAlias(item.index, 'e', remValue: true);
+                    _args.ExePath = GetExecutable(item.index);
+                    RemoveAlias(item.index, 'e', removeValue: true);
                 }
 
                 if (item.arg.Contains('o'))  // Receive file data
                 {
-                    Args.FilePath = GetTransfer(item.index);
-                    Args.TransOpt = TransferOpt.Collect;
-                    RemoveAlias(item.index, 'o', remValue: true);
+                    _args.FilePath = GetTransfer(item.index);
+                    _args.TransOpt = TransferOpt.Collect;
+                    RemoveAlias(item.index, 'o', removeValue: true);
                 }
 
                 if (item.arg.Contains('s'))  // Send file data
                 {
-                    Args.FilePath = GetTransfer(item.index);
-                    Args.TransOpt = TransferOpt.Transmit;
-                    RemoveAlias(item.index, 's', remValue: true);
+                    _args.FilePath = GetTransfer(item.index);
+                    _args.TransOpt = TransferOpt.Transmit;
+                    RemoveAlias(item.index, 's', removeValue: true);
                 }
 
                 if (item.arg.Contains('t'))  // Send string data
                 {
-                    Args.Payload = GetTextPayload(item.index);
-                    RemoveAlias(item.index, 't', remValue: true);
+                    _args.Payload = GetTextPayload(item.index);
+                    RemoveAlias(item.index, 't', removeValue: true);
                 }
 
                 if (ArgsValueAt(item.index) == "-")
                 {
-                    ArgsList.RemoveAt(IndexOfFlag("-"));
+                    _argsList.RemoveAt(IndexOfFlag("-"));
                 }
             }
         }
 
         /// <summary>
-        ///  Parse named command-line arguments that start with
-        ///  two dashes (e.g., --foo)
+        ///  Parse the named flag arguments in the underlying command-line
+        ///  argument list. Flag arguments begin with two dashes (--foo).
         /// </summary>
         private void ParseFlagArgs()
         {
-            // Locate all flag arguments
-            var query = from arg in ArgsList.ToList()
+            var query = from arg in _argsList.ToList()
                         let index = IndexOfFlag(arg)
                         where arg.StartsWith("--")
                         select new { arg, index };
@@ -305,57 +307,57 @@ namespace DotnetCat.Utils
                 {
                     case "--listen":   // Listen for connection
                     {
-                        Args.Listen = true;
-                        ArgsList.RemoveAt(item.index);
+                        _args.Listen = true;
+                        _argsList.RemoveAt(item.index);
                         break;
                     }
                     case "--verbose":  // Verbose output
                     {
-                        Args.Verbose = true;
-                        ArgsList.RemoveAt(item.index);
+                        _args.Verbose = true;
+                        _argsList.RemoveAt(item.index);
                         break;
                     }
                     case "--debug":    // Debug output
                     {
-                        Args.Debug = Args.Verbose = true;
-                        ArgsList.RemoveAt(item.index);
+                        _args.Debug = _args.Verbose = Error.Debug = true;
+                        _argsList.RemoveAt(item.index);
                         break;
                     }
                     case "--zero-io":  // Zero-IO (test connection)
                     {
-                        Args.PipeVariant = PipeType.Status;
-                        ArgsList.RemoveAt(item.index);
+                        _args.PipeVariant = PipeType.Status;
+                        _argsList.RemoveAt(item.index);
                         break;
                     }
                     case "--port":     // Connection port
                     {
-                        Args.Port = GetPort(item.index);
+                        _args.Port = GetPort(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
                     case "--exec":     // Executable path
                     {
-                        Args.ExePath = GetExecutable(item.index);
+                        _args.ExePath = GetExecutable(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
                     case "--text":     // Send string data
                     {
-                        Args.Payload = GetTextPayload(item.index);
+                        _args.Payload = GetTextPayload(item.index);
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
                     case "--output":   // Receive file data
                     {
-                        Args.FilePath = GetTransfer(item.index);
-                        Args.TransOpt = TransferOpt.Collect;
+                        _args.FilePath = GetTransfer(item.index);
+                        _args.TransOpt = TransferOpt.Collect;
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
                     case "--send":     // Send file data
                     {
-                        Args.FilePath = GetTransfer(item.index);
-                        Args.TransOpt = TransferOpt.Transmit;
+                        _args.FilePath = GetTransfer(item.index);
+                        _args.TransOpt = TransferOpt.Transmit;
                         RemoveFlag(ArgsValueAt(item.index));
                         break;
                     }
@@ -368,16 +370,16 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Parse positional command-line arguments
+        ///  Parse the positional (required) arguments in the underlying
+        ///  command-line argument list.
         /// </summary>
         private void ParsePositionalArgs()
         {
-            // Validate remaining cmd-line arguments
-            switch (ArgsList.Count)
+            switch (_argsList.Count)
             {
                 case 0:   // Missing TARGET
                 {
-                    if (!Args.Listen)
+                    if (!_args.Listen)
                     {
                         Error.Handle(Except.RequiredArgs, "TARGET", true);
                     }
@@ -385,36 +387,34 @@ namespace DotnetCat.Utils
                 }
                 case 1:   // Validate TARGET
                 {
-                    if (ArgsList[0].StartsWith('-'))
+                    if (_argsList[0].StartsWith('-'))
                     {
-                        Error.Handle(Except.UnknownArgs, ArgsList[0], true);
+                        Error.Handle(Except.UnknownArgs, _argsList[0], true);
                     }
                     Exception? ex = default;
 
                     // Parse the connection IPv4 address
-                    if (IPAddress.TryParse(ArgsList[0], out IPAddress? addr))
+                    if (IPAddress.TryParse(_argsList[0], out IPAddress? addr))
                     {
-                        Args.Address = addr;
+                        _args.Address = addr;
                     }
                     else  // Resolve the hostname
                     {
-                        (Args.Address, ex) = Net.ResolveName(ArgsList[0]);
+                        (_args.Address, ex) = Net.ResolveName(_argsList[0]);
                     }
+                    _args.HostName = _argsList[0];
 
-                    Args.HostName = ArgsList[0];
-
-                    // Invalid destination host
-                    if (Args.Address == IPAddress.Any)
+                    if (_args.Address == IPAddress.Any)
                     {
-                        Error.Handle(Except.InvalidAddr, ArgsList[0], true, ex: ex);
+                        Error.Handle(Except.InvalidAddr, _argsList[0], true, ex: ex);
                     }
                     break;
                 }
                 default:  // Unexpected arguments
                 {
-                    string argsStr = ArgsList.ToArray().Join(", ");
+                    string argsStr = _argsList.ToArray().Join(", ");
 
-                    if (ArgsList[0].StartsWithValue('-'))
+                    if (_argsList[0].StartsWithValue('-'))
                     {
                         Error.Handle(Except.UnknownArgs, argsStr, true);
                     }
@@ -425,102 +425,96 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Get application help message as a string
+        ///  Get the extended application usage information message.
         /// </summary>
-        private string GetHelp()
+        private string GetHelp() => string.Join(_eol, new string[]
         {
-            return string.Join(_eol, new string[]
-            {
-                $"DotnetCat ({Repo})",
-                $"{Usage}{_eol}",
-                $"Remote command shell application{_eol}",
-                "Positional Arguments:",
-                $"  TARGET                    Remote or local IPv4 address{_eol}",
-                "Optional Arguments:",
-                "  -h/-?,   --help           Show this help message and exit",
-                "  -v,      --verbose        Enable verbose console output",
-                "  -d,      --debug          Output verbose error information",
-                "  -l,      --listen         Listen for incoming connections",
-                "  -z,      --zero-io        Report connection status only",
-                "  -p PORT, --port PORT      Specify port to use for endpoint.",
-                "                            (Default: 44444)",
-                "  -e EXEC, --exec EXEC      Executable process file path",
-                "  -o PATH, --output PATH    Receive file from remote host",
-                "  -s PATH, --send PATH      Send local file or folder",
-                $"  -t DATA, --text DATA      Send string to remote host{_eol}",
-                "Usage Examples:",
-                $"  {AppTitle} --listen --exec powershell.exe",
-                $"  {AppTitle} -d -p 44444 localhost",
-                $"  {AppTitle} -vo test.txt -p 2009 192.168.1.9 {_eol}",
-            });
-        }
+            $"DotnetCat ({Repo})",
+            $"{Usage}{_eol}",
+            $"Remote command shell application{_eol}",
+            "Positional Arguments:",
+            $"  TARGET                    Remote or local IPv4 address{_eol}",
+            "Optional Arguments:",
+            "  -h/-?,   --help           Show this help message and exit",
+            "  -v,      --verbose        Enable verbose console output",
+            "  -d,      --debug          Output verbose error information",
+            "  -l,      --listen         Listen for incoming connections",
+            "  -z,      --zero-io        Report connection status only",
+            "  -p PORT, --port PORT      Specify port to use for endpoint.",
+            "                            (Default: 44444)",
+            "  -e EXEC, --exec EXEC      Executable process file path",
+            "  -o PATH, --output PATH    Receive file from remote host",
+            "  -s PATH, --send PATH      Send local file or folder",
+            $"  -t DATA, --text DATA      Send string to remote host{_eol}",
+            "Usage Examples:",
+            $"  {_title} --listen --exec powershell.exe",
+            $"  {_title} -d -p 44444 localhost",
+            $"  {_title} -vo test.txt -p 2009 192.168.1.9 {_eol}",
+        });
 
         /// <summary>
-        ///  Remove character (alias) from a cmd-line argument
+        ///  Remove the given flag alias (-f) character from the argument located at
+        ///  the specified index in the underlying command-line argument list.
         /// </summary>
-        private void RemoveAlias(int index,
-                                 char alias,
-                                 bool remValue = false) {
-
-            // Invalid index received
-            if (!ValidIndex(index) || (remValue && !ValidIndex(index + 1)))
+        private void RemoveAlias(int index, char alias, bool removeValue = false)
+        {
+            if (!ValidIndex(index) || (removeValue && !ValidIndex(index + 1)))
             {
                 throw new IndexOutOfRangeException(nameof(index));
             }
-            ArgsList[index] = ArgsList[index].Replace(alias.ToString(), "");
+            _argsList[index] = _argsList[index].Replace(alias.ToString(), "");
 
-            // Remove arg value if requested
-            if (remValue)
+            if (removeValue)
             {
-                ArgsList.RemoveAt(index + 1);
+                _argsList.RemoveAt(index + 1);
             }
         }
 
         /// <summary>
-        ///  Determine if the argument index is valid
+        ///  Determine whether the given index is a valid index of an argument
+        ///  in the underlying command-line argument list.
         /// </summary>
-        private bool ValidIndex(int index)
-        {
-            return index >= 0 && index < ArgsList.Count;
-        }
+        private bool ValidIndex(int index) => index >= 0 && index < _argsList.Count;
 
         /// <summary>
-        ///  Remove named argument/value in cmd-line arguments
+        ///  Remove the given flag (--flag) argument from the underlying command-line
+        ///  argument list. Optionally remove the corresponding value argument.
         /// </summary>
-        private void RemoveFlag(string arg, bool noValue = false)
+        private void RemoveFlag(string arg, bool removeValue = false)
         {
             int index = IndexOfFlag(arg);
 
-            for (int i = 0; i < (noValue ? 1 : 2); i++)
+            for (int i = 0; i < (removeValue ? 1 : 2); i++)
             {
-                ArgsList.RemoveAt(index);
+                _argsList.RemoveAt(index);
             }
         }
 
         /// <summary>
-        ///  Get value of an argument in cmd-line arguments
+        ///  Get the value of the argument located at the given index in
+        ///  the underlying command-line argument list.
         /// </summary>
         private string ArgsValueAt(int index)
         {
             if (!ValidIndex(index))
             {
-                Error.Handle(Except.NamedArgs, ArgsList[index - 1], true);
+                Error.Handle(Except.NamedArgs, _argsList[index - 1], true);
             }
-            return ArgsList[index];
+            return _argsList[index];
         }
 
         /// <summary>
-        ///  Get port number from argument index
+        ///  Parse and validate the network port number argument located at the
+        ///  given index in the underlying command-line argument list.
         /// </summary>
         private int GetPort(int index)
         {
             if (!ValidIndex(index + 1))
             {
-                Error.Handle(Except.NamedArgs, ArgsList[index], true);
+                Error.Handle(Except.NamedArgs, _argsList[index], true);
             }
             string portStr = ArgsValueAt(index + 1);
 
-            // Handle invalid port strings
             if (!int.TryParse(portStr, out int port) || !Net.IsValidPort(port))
             {
                 Console.WriteLine(Usage);
@@ -530,38 +524,37 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Get executable path for command execution
+        ///  Parse and validate the executable path argument located at the
+        ///  given index in the underlying command-line argument list.
         /// </summary>
         private string? GetExecutable(int index)
         {
             if (!ValidIndex(index + 1))
             {
-                Error.Handle(Except.NamedArgs, ArgsList[index], true);
+                Error.Handle(Except.NamedArgs, _argsList[index], true);
             }
 
             string exec = ArgsValueAt(index + 1);
             (string? path, bool exists) = FileSys.ExistsOnPath(exec);
 
-            // Failed to locate executable
             if (!exists)
             {
                 Error.Handle(Except.ExePath, exec, true);
             }
-
-            Args.UsingExe = true;
-            Args.PipeVariant = PipeType.Process;
+            _args.PipeVariant = PipeType.Process;
 
             return path;
         }
 
         /// <summary>
-        ///  Get file path to write to or read from
+        ///  Parse and validate the transfer file path argument located at the
+        ///  given index in the underlying command-line argument list.
         /// </summary>
         private string GetTransfer(int index)
         {
             if (!ValidIndex(index + 1))
             {
-                Error.Handle(Except.NamedArgs, ArgsList[index], true);
+                Error.Handle(Except.NamedArgs, _argsList[index], true);
             }
             int pathPos = index + 1;
 
@@ -571,38 +564,37 @@ namespace DotnetCat.Utils
             bool pathExists = FileSys.FileExists(path);
             bool parentExists = FileSys.DirectoryExists(parentPath);
 
-            // Invalid file path received
-            if (!pathExists && (Args.TransOpt is TransferOpt.Transmit))
+            if (!pathExists && _args.TransOpt is TransferOpt.Transmit)
             {
                 Error.Handle(Except.FilePath, path, true);
             }
-            else if (!parentExists && (Args.TransOpt is TransferOpt.Collect))
+            else if (!parentExists && _args.TransOpt is TransferOpt.Collect)
             {
                 Error.Handle(Except.FilePath, parentPath, true);
             }
-            Args.PipeVariant = PipeType.File;
+            _args.PipeVariant = PipeType.File;
 
             return path;
         }
 
         /// <summary>
-        ///  Get string network payload
+        ///  Parse and validate the arbitrary payload argument located at the
+        ///  given index in the underlying command-line argument list.
         /// </summary>
         private string GetTextPayload(int index)
         {
             if (!ValidIndex(index + 1))
             {
-                Error.Handle(Except.NamedArgs, ArgsList[index], true);
+                Error.Handle(Except.NamedArgs, _argsList[index], true);
             }
             string data = ArgsValueAt(index + 1);
 
-            // Invalid payload string
             if (data.IsNullOrEmpty())
             {
-                Error.Handle(Except.Payload, ArgsList[index], true);
+                Error.Handle(Except.Payload, _argsList[index], true);
             }
+            _args.PipeVariant = PipeType.Text;
 
-            Args.PipeVariant = PipeType.Text;
             return data;
         }
     }

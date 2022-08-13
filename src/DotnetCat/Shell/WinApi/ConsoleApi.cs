@@ -7,7 +7,7 @@ using HANDLE = System.IntPtr;
 namespace DotnetCat.Shell.WinApi
 {
     /// <summary>
-    ///  Utility class providing Windows console API interoperability
+    ///  Windows console API interoperability utility class.
     /// </summary>
     internal static class ConsoleApi
     {
@@ -20,7 +20,7 @@ namespace DotnetCat.Shell.WinApi
         private const nint INVALID_HANDLE_VALUE = -1;
 
         /// <summary>
-        ///  Initialize static members
+        ///  Initialize the static class members.
         /// </summary>
         static ConsoleApi()
         {
@@ -28,11 +28,11 @@ namespace DotnetCat.Shell.WinApi
             EnableVirtualTerm();
         }
 
-        /// Virtual terminal sequences enabled
+        /// Virtual terminal processing enabled
         public static bool VirtualTermEnabled { get; private set; }
 
         /// <summary>
-        ///  Enable console virtual terminal sequence processing
+        ///  Enable console virtual terminal sequence processing.
         /// </summary>
         public static void EnableVirtualTerm()
         {
@@ -46,7 +46,8 @@ namespace DotnetCat.Shell.WinApi
         }
 
         /// <summary>
-        ///  Enable console virtual terminal sequence processing
+        ///  Enable console virtual terminal sequence processing using the
+        ///  given console input and console output modes.
         /// </summary>
         public static void EnableVirtualTerm(InMode inMode, OutMode outMode)
         {
@@ -61,8 +62,8 @@ namespace DotnetCat.Shell.WinApi
                     ExternError(nameof(GetStdHandle));
                 }
 
-                DWORD stdInMode = GetMode(stdInHandle, GetWord(inMode));
-                DWORD stdOutMode = GetMode(stdOutHandle, GetWord(outMode));
+                DWORD stdInMode = GetMode(stdInHandle, GetDWORD(inMode));
+                DWORD stdOutMode = GetMode(stdOutHandle, GetDWORD(outMode));
 
                 SetMode(stdInHandle, stdInMode);
                 SetMode(stdOutHandle, stdOutMode);
@@ -72,7 +73,8 @@ namespace DotnetCat.Shell.WinApi
         }
 
         /// <summary>
-        ///  Get new mode to set for a standard console stream buffer
+        ///  Get a new mode to set for the console buffer that
+        ///  corresponds to the given console buffer handle.
         /// </summary>
         private static DWORD GetMode(HANDLE handle, DWORD mode)
         {
@@ -81,13 +83,11 @@ namespace DotnetCat.Shell.WinApi
                 throw new PlatformNotSupportedException(nameof(GetMode));
             }
 
-            // Invalid stream handle
             if (!ValidHandle(handle))
             {
                 throw new ArgumentException("Invalid handle", nameof(handle));
             }
 
-            // Invalid console mode
             if (mode == NULL)
             {
                 throw new ArgumentNullException(nameof(mode), "No bit flag set");
@@ -102,7 +102,8 @@ namespace DotnetCat.Shell.WinApi
         }
 
         /// <summary>
-        ///  Set new mode for a standard console stream
+        ///  Set the mode of the console buffer that corresponds
+        ///  to the given console buffer handle.
         /// </summary>
         private static void SetMode(HANDLE handle, DWORD mode)
         {
@@ -129,7 +130,8 @@ namespace DotnetCat.Shell.WinApi
         }
 
         /// <summary>
-        ///  Get new mode to set for a standard console stream buffer
+        ///  Get the current input mode or output mode of the given
+        ///  console input buffer or console output buffer.
         /// </summary>
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -137,21 +139,22 @@ namespace DotnetCat.Shell.WinApi
                                                   out DWORD lpMode);
 
         /// <summary>
-        ///  Get the most recent Windows console API error code
+        ///  Get the calling thread's most recent Windows error code.
         /// </summary>
         [DllImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.U4)]
         private static extern DWORD GetLastError();
 
         /// <summary>
-        ///  Get a handle to a standard console stream
+        ///  Get a handle to the given standard console buffer.
         /// </summary>
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.SysInt)]
         private static extern HANDLE GetStdHandle(int nStdHandle);
 
         /// <summary>
-        ///  Set new mode for a standard console stream
+        ///  Set the input mode or output mode of the given console
+        ///  input buffer or console output buffer.
         /// </summary>
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -159,7 +162,7 @@ namespace DotnetCat.Shell.WinApi
                                                   DWORD dwMode);
 
         /// <summary>
-        ///  Determine if the operating system is Windows
+        ///  Determine whether the local operating system is Windows.
         /// </summary>
         private static BOOL IsWindows()
         {
@@ -167,18 +170,18 @@ namespace DotnetCat.Shell.WinApi
         }
 
         /// <summary>
-        ///  Determine if a standard console stream handle is valid
+        ///  Determine whether the given console buffer handle is valid.
         /// </summary>
         private static BOOL ValidHandle(HANDLE handle)
         {
             bool invalidHandle = handle == INVALID_HANDLE_VALUE;
-            return !invalidHandle || (handle != HANDLE.Zero);
+            return !invalidHandle || handle != HANDLE.Zero;
         }
 
         /// <summary>
-        ///  Convert the given mode enumeration object to a DWORD
+        ///  Convert the given console mode enumeration object to a DWORD.
         /// </summary>
-        private static DWORD GetWord<TEnum>(TEnum mode) where TEnum : Enum
+        private static DWORD GetDWORD<TEnum>(TEnum mode) where TEnum : Enum
         {
             if (mode is not InMode and not OutMode)
             {
@@ -188,7 +191,8 @@ namespace DotnetCat.Shell.WinApi
         }
 
         /// <summary>
-        ///  Throw an exception with the last Windows Console API error code
+        ///  Throw an exception for an error that occurred in the external
+        ///  function that corresponds to the given extern name.
         /// </summary>
         private static void ExternError(string externName)
         {

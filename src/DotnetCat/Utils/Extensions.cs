@@ -1,24 +1,27 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Text;
+
+[assembly: InternalsVisibleTo("DotnetCatTests")]
 
 namespace DotnetCat.Utils
 {
     /// <summary>
-    ///  Utility class for custom extension methods
+    ///  Utility class for user-defined extension methods.
     /// </summary>
     internal static class Extensions
     {
         /// <summary>
-        ///  Determine whether the given string is null or empty
+        ///  Determine whether a string is null or empty.
         /// </summary>
         public static bool IsNullOrEmpty(this string? str)
         {
-            return str is null || (str.Trim().Length == 0);
+            return str is null || str.Trim().Length == 0;
         }
 
         /// <summary>
-        ///  Determine whether the given string builder is null or empty
+        ///  Determine whether a string builder is null or empty.
         /// </summary>
         public static bool IsNullOrEmpty(this StringBuilder? sb)
         {
@@ -26,23 +29,23 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Determine whether the given array is null or empty
+        ///  Determine whether an array is null or empty.
         /// </summary>
         public static bool IsNullOrEmpty<T>(this T[]? array)
         {
-            return array is null || (array.Length == 0);
+            return array is null || array.Length == 0;
         }
 
         /// <summary>
-        ///  Determine whether the given list is null or empty
+        ///  Determine whether a list is null or empty.
         /// </summary>
         public static bool IsNullOrEmpty<T>(this List<T>? list)
         {
-            return list is null || (list.Count == 0);
+            return list is null || list.Count == 0;
         }
 
         /// <summary>
-        ///  Determine whether the string ends with the given string value
+        ///  Determine whether a string ends with the given string value.
         /// </summary>
         public static bool EndsWithValue(this string? str, string? value)
         {
@@ -56,7 +59,7 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Determine whether the string starts with the given character value
+        ///  Determine whether a string starts with the given character.
         /// </summary>
         public static bool StartsWithValue(this string? str, char value)
         {
@@ -64,7 +67,7 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Determine whether the string starts with the given string value
+        ///  Determine whether a string starts with the given string value.
         /// </summary>
         public static bool StartsWithValue(this string? str, string? value)
         {
@@ -78,7 +81,7 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Join the given array using the specified delimiter
+        ///  Join each element of an array separated by the given delimiter.
         /// </summary>
         public static string Join<T>(this T[]? array, string? delim = default)
         {
@@ -90,7 +93,7 @@ namespace DotnetCat.Utils
         }
 
         /// <summary>
-        ///  Join the given array using the system specific line separator
+        ///  Join each element of an array separated by the default system EOL.
         /// </summary>
         public static string JoinLines<T>(this T[]? array)
         {

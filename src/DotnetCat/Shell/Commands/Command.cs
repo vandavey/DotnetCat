@@ -8,37 +8,38 @@ using DotnetCat.Utils;
 namespace DotnetCat.Shell.Commands
 {
     /// <summary>
-    ///  Command and executable process controller
+    ///  Command and executable process utility class.
     /// </summary>
     internal static class Command
     {
         private static readonly string[] _clsCommands;  // Clear commands
 
         /// <summary>
-        ///  Initialize static members
+        ///  Initialize the static class members.
         /// </summary>
-        static Command()
+        static Command() => _clsCommands = new[]
         {
-            _clsCommands = new string[] { "cls", "clear", "clear-host" };
+            "cls",
+            "clear",
+            "clear-host"
+        };
+
+        /// <summary>
+        ///  Get the value of the given environment variable.
+        /// </summary>
+        public static string? GetEnvVariable(string varName)
+        {
+            return Environment.GetEnvironmentVariable(varName);
         }
 
         /// <summary>
-        ///  Get the value of the specified environment variable
-        /// </summary>
-        public static string? GetEnvVariable(string name)
-        {
-            return Environment.GetEnvironmentVariable(name);
-        }
-
-        /// <summary>
-        ///  Get ProcessStartInfo to use for executable startup
+        ///  Get process startup information to initialize the given command shell.
         /// </summary>
         public static ProcessStartInfo GetExeStartInfo(string? shell)
         {
             _ = shell ?? throw new ArgumentNullException(nameof(shell));
 
-            // Exe process startup information
-            ProcessStartInfo info = new(shell)
+            ProcessStartInfo startInfo = new(shell)
             {
                 CreateNoWindow = true,
                 RedirectStandardError = true,
@@ -51,31 +52,22 @@ namespace DotnetCat.Shell.Commands
             // Profile loading only supported on Windows
             if (OperatingSystem.IsWindows())
             {
-                info.LoadUserProfile = true;
+                startInfo.LoadUserProfile = true;
             }
-            return info;
+            return startInfo;
         }
 
         /// <summary>
-        ///  Determine if the data contains a clear command
+        ///  Determine whether the given data contains a clear command.
         /// </summary>
-        public static bool IsClearCmd(string data, bool doClear = true)
+        public static bool IsClearCmd(string data)
         {
             bool isClear = false;
 
             if (!data.IsNullOrEmpty())
             {
                 data = data.Replace(Environment.NewLine, string.Empty).Trim();
-
-                // Clear command detected
-                if (_clsCommands.Contains(data.ToLower()))
-                {
-                    if (doClear)  // Clear console buffer
-                    {
-                        Sequence.ClearScreen();
-                    }
-                    isClear = true;
-                }
+                isClear = _clsCommands.Contains(data.ToLower());
             }
             return isClear;
         }

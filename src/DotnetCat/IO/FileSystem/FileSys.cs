@@ -8,7 +8,7 @@ using SpecialFolder = System.Environment.SpecialFolder;
 namespace DotnetCat.IO.FileSystem
 {
     /// <summary>
-    ///  File system utility controller
+    ///  File system utility class.
     /// </summary>
     internal static class FileSys
     {
@@ -19,7 +19,7 @@ namespace DotnetCat.IO.FileSystem
         private static readonly string[] _exeExtensions;  // Executable files
 
         /// <summary>
-        ///  Initialize static members
+        ///  Initialize the static class members.
         /// </summary>
         static FileSys()
         {
@@ -39,7 +39,7 @@ namespace DotnetCat.IO.FileSystem
         }
 
         /// <summary>
-        ///  Get the user home directory absolute file path
+        ///  Get the absolute file path of the current user home directory.
         /// </summary>
         public static string GetUserHomePath()
         {
@@ -47,7 +47,7 @@ namespace DotnetCat.IO.FileSystem
         }
 
         /// <summary>
-        ///  Determine whether a file system entry exists for the given path
+        ///  Determine whether a file system entry exists at the given file path.
         /// </summary>
         public static bool Exists(string? path)
         {
@@ -55,13 +55,12 @@ namespace DotnetCat.IO.FileSystem
         }
 
         /// <summary>
-        ///  Determine whether a directory exists at the given path
+        ///  Determine whether a file entry exists at the given file path.
         /// </summary>
         public static bool FileExists(string? path)
         {
             bool exists = !path.IsNullOrEmpty();
 
-            // Test the file path
             if (exists)
             {
                 exists = File.Exists(ResolvePath(path));
@@ -70,13 +69,12 @@ namespace DotnetCat.IO.FileSystem
         }
 
         /// <summary>
-        ///  Determine whether a file exists at the given path
+        ///  Determine whether a directory entry exists at the given file path.
         /// </summary>
         public static bool DirectoryExists(string? path)
         {
             bool exists = !path.IsNullOrEmpty();
 
-            // Test the directory path
             if (exists)
             {
                 exists = Directory.Exists(ResolvePath(path));
@@ -85,7 +83,8 @@ namespace DotnetCat.IO.FileSystem
         }
 
         /// <summary>
-        ///  Get the file name with or without extension from the given file path
+        ///  Get the file from the given file path and optionally
+        ///  exclude the file extension.
         /// </summary>
         public static string? GetFileName(string? path, bool withExt = true)
         {
@@ -107,7 +106,7 @@ namespace DotnetCat.IO.FileSystem
         }
 
         /// <summary>
-        ///  Resolve the absolute file path of the given relative path
+        ///  Resolve the absolute file path of the given relative file path.
         /// </summary>
         public static string? ResolvePath(string? path)
         {
@@ -128,7 +127,8 @@ namespace DotnetCat.IO.FileSystem
         }
 
         /// <summary>
-        ///  Determine if the executable name exists on the environment path
+        ///  Determine whether the given executable file name can be found
+        ///  by searching the local environment path.
         /// </summary>
         public static (string? path, bool exists) ExistsOnPath(string? exe)
         {
@@ -147,7 +147,7 @@ namespace DotnetCat.IO.FileSystem
         }
 
         /// <summary>
-        ///  Search environment path for the given executable
+        ///  Search the local environment path for the given executable name.
         /// </summary>
         private static string? FindExecutable(string? exeName)
         {

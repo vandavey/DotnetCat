@@ -4,18 +4,17 @@ using DotnetCat.Pipelines;
 namespace DotnetCat.Utils
 {
     /// <summary>
-    ///  Command-line arguments container
+    ///  DotnetCat command-line arguments.
     /// </summary>
     internal class CmdLineArgs
     {
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         public CmdLineArgs()
         {
             Debug = false;
             Listen = false;
-            UsingExe = false;
             Verbose = false;
 
             PipeVariant = PipeType.Stream;
@@ -32,11 +31,11 @@ namespace DotnetCat.Utils
         /// Enable verbose exceptions
         public bool Debug { get; set; }
 
-        /// Act as server and listen for inbound connection
+        /// Run server and listen for inbound connection
         public bool Listen { get; set; }
-        
+
         /// Using executable pipeline
-        public bool UsingExe { get; set; }
+        public bool UsingExe => !ExePath.IsNullOrEmpty();
 
         /// Enable verbose console output
         public bool Verbose { get; set; }

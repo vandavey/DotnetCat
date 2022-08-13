@@ -3,12 +3,12 @@ using System;
 namespace DotnetCat.IO
 {
     /// <summary>
-    ///  Application console status configuration
+    ///  Console status message configuration information.
     /// </summary>
     internal class Status
     {
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         public Status(ConsoleColor color, Level level)
         {

@@ -5,30 +5,28 @@ using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
 using DotnetCat.IO;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Pipelines
 {
     /// <summary>
-    ///  Pipeline for user defined string data
+    ///  Stream pipeline used to transfer arbitrary string data.
     /// </summary>
     internal class TextPipe : Pipeline, IConnectable
     {
-        private string _payload;             // String payload
-
-        private MemoryStream _memoryStream;  // Memory buffer
+        private MemoryStream _memoryStream;  // Memory stream buffer
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
-        public TextPipe(string? data, StreamWriter? dest) : base()
+        public TextPipe(CmdLineArgs args, StreamWriter? dest) : base(args)
         {
-            if (data is null)
+            if (args.Payload.IsNullOrEmpty())
             {
-                throw new ArgumentNullException(nameof(data));
+                throw new ArgumentNullException(nameof(args));
             }
-            _memoryStream = new MemoryStream();
 
-            Payload = _payload = data;
+            _memoryStream = new MemoryStream();
             StatusMsg = "Payload successfully transmitted";
 
             Dest = dest ?? throw new ArgumentNullException(nameof(dest));
@@ -36,18 +34,23 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Cleanup resources
+        ///  Release the unmanaged object resources.
         /// </summary>
         ~TextPipe() => Dispose();
 
         /// String network payload
         protected string Payload
         {
-            get => _payload ?? string.Empty;
+            get => Args.Payload ?? string.Empty;
             set
             {
-                _payload = value ?? throw new ArgumentException(null, nameof(value));
+                if (value.IsNullOrEmpty())
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
                 _memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(value));
+                Args.Payload = value;
             }
         }
 
@@ -55,7 +58,7 @@ namespace DotnetCat.Pipelines
         protected string StatusMsg { get; set; }
 
         /// <summary>
-        ///  Release any unmanaged resources
+        ///  Release all the underlying unmanaged resources.
         /// </summary>
         public override void Dispose()
         {
@@ -66,7 +69,8 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Activate async network communication
+        ///  Asynchronously transfer the user-defined string payload
+        ///  between the underlying streams.
         /// </summary>
         protected override async Task ConnectAsync(CancellationToken token)
         {
@@ -75,7 +79,7 @@ namespace DotnetCat.Pipelines
             StringBuilder data = new(await ReadToEndAsync());
             await WriteAsync(data, token);
 
-            if (Program.Args.Verbose)
+            if (Args.Verbose)
             {
                 Style.Output(StatusMsg);
             }

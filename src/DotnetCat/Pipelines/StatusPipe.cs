@@ -6,18 +6,19 @@ using System.Threading.Tasks;
 using DotnetCat.Contracts;
 using DotnetCat.IO;
 using DotnetCat.Network.Nodes;
+using DotnetCat.Utils;
 
 namespace DotnetCat.Pipelines
 {
     /// <summary>
-    ///  Pipeline class for connection testing
+    ///  Stream pipeline used to perform network connection testing.
     /// </summary>
     internal class StatusPipe : TextPipe, IConnectable
     {
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
-        public StatusPipe(StreamWriter? dest) : base(string.Empty, dest)
+        public StatusPipe(CmdLineArgs args, StreamWriter? dest) : base(args, dest)
         {
             if (Program.SockNode is null)
             {
@@ -32,7 +33,7 @@ namespace DotnetCat.Pipelines
         }
 
         /// <summary>
-        ///  Activate async network communication
+        ///  Asynchronously transfer an empty string between the underlying streams.
         /// </summary>
         protected override async Task ConnectAsync(CancellationToken token)
         {

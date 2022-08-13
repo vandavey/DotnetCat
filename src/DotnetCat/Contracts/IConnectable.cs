@@ -3,13 +3,13 @@ using System;
 namespace DotnetCat.Contracts
 {
     /// <summary>
-    ///  Enforce mechanisms to connect and dispose of
-    ///  any unmanaged object resources
+    ///  Interface for enforcing mechanisms to connect and
+    ///  release unmanaged object resources.
     /// </summary>
     internal interface IConnectable : IDisposable
     {
         /// <summary>
-        ///  Connect the unmanaged resources
+        ///  Connect the unmanaged resource(s).
         /// </summary>
         void Connect();
     }

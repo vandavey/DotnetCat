@@ -9,23 +9,16 @@ using DotnetCat.Utils;
 namespace DotnetCat
 {
     /// <summary>
-    ///  Primary application startup object
+    ///  Primary application startup object.
     /// </summary>
     internal class Program
     {
         private static CmdLineArgs? _args;  // Command-line arguments
 
-        private static Parser? _parser;     // Argument parser
+        private static Parser? _parser;     // Command-line argument parser
 
         /// Local operating system
         public static Platform OS { get; private set; }
-
-        /// Command-line arguments object
-        public static CmdLineArgs Args
-        {
-            get => _args ??= new CmdLineArgs();
-            set => _args = value;
-        }
 
         /// Network socket node
         public static Node? SockNode { get; private set; }
@@ -33,18 +26,12 @@ namespace DotnetCat
         /// Original command-line arguments list
         public static List<string>? OrigArgs { get; private set; }
 
-        /// Command-line argument parser
-        private static Parser ArgParser
-        {
-            get => _parser ??= new Parser();
-            set => _parser = value;
-        }
-
         /// <summary>
-        ///  Static application entry point
+        ///  Static application entry point.
         /// </summary>
         public static void Main(string[] args)
         {
+            _parser = new Parser();
             Console.Title = $"DotnetCat ({Parser.Repo})";
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -59,7 +46,7 @@ namespace DotnetCat
             // Display help information and exit
             if (args.IsNullOrEmpty() || Parser.NeedsHelp(args))
             {
-                ArgParser.PrintHelp();
+                _parser.PrintHelp();
             }
             OrigArgs = args.ToList();
 
@@ -71,28 +58,32 @@ namespace DotnetCat
         }
 
         /// <summary>
-        ///  Parse the command-line arguments and initialize the socket node
+        ///  Parse the given command-line argument array and initialize
+        ///  the primary socket node.
         /// </summary>
         private static void InitializeNode(string[] args)
         {
-            // Check for incomplete alias
             if (args.Contains("-"))
             {
                 Error.Handle(Except.InvalidArgs, "-", true);
             }
 
-            // Check for incomplete flag
             if (args.Contains("--"))
             {
                 Error.Handle(Except.InvalidArgs, "--", true);
             }
-            Args = ArgParser.Parse(args);
 
-            SockNode = Args.Listen ? new ServerNode(Args) : new ClientNode(Args);
+            if (_parser is null)
+            {
+                throw new InvalidOperationException("Null argument parser");
+            }
+
+            _args = _parser.Parse(args);
+            SockNode = _args.Listen ? new ServerNode(_args) : new ClientNode(_args);
         }
 
         /// <summary>
-        ///  Connect the TCP socket client or server node
+        ///  Connect the primary network client node or server node.
         /// </summary>
         private static void ConnectNode()
         {
