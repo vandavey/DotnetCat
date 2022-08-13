@@ -5,10 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
 using DotnetCat.Errors;
-using DotnetCat.IO;
 using DotnetCat.Utils;
 
-namespace DotnetCat.Pipelines
+namespace DotnetCat.IO.Pipelines
 {
     /// <summary>
     ///  Stream pipeline used to transfer file data.

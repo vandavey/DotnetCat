@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using DotnetCat.Contracts;
 
-namespace DotnetCat.Pipelines
+namespace DotnetCat.IO.Pipelines
 {
     /// <summary>
     ///  Stream pipeline used to transfer standard console stream data.

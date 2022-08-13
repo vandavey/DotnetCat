@@ -1,4 +1,4 @@
-namespace DotnetCat.Pipelines
+namespace DotnetCat.IO.Pipelines
 {
     /// <summary>
     ///  Stream pipeline enumeration type.

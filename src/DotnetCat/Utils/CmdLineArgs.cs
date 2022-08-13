@@ -1,5 +1,5 @@
 using System.Net;
-using DotnetCat.Pipelines;
+using DotnetCat.IO.Pipelines;
 
 namespace DotnetCat.Utils
 {

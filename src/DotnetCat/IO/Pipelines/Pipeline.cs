@@ -5,14 +5,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
-using DotnetCat.IO;
 using DotnetCat.Shell.Commands;
 using DotnetCat.Utils;
 
-namespace DotnetCat.Pipelines
+namespace DotnetCat.IO.Pipelines
 {
     /// <summary>
-    ///  Base class for all pipelines in the DotnetCat.Pipelines namespace.
+    ///  Base class for all pipelines in the DotnetCat.IO.Pipelines namespace.
     /// </summary>
     internal abstract class Pipeline : IConnectable
     {

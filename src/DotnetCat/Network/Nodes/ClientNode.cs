@@ -3,7 +3,7 @@ using System.IO;
 using System.Net.Sockets;
 using DotnetCat.Errors;
 using DotnetCat.IO;
-using DotnetCat.Pipelines;
+using DotnetCat.IO.Pipelines;
 using DotnetCat.Utils;
 
 namespace DotnetCat.Network.Nodes

@@ -10,7 +10,7 @@ using DotnetCat.Contracts;
 using DotnetCat.Errors;
 using DotnetCat.IO;
 using DotnetCat.IO.FileSystem;
-using DotnetCat.Pipelines;
+using DotnetCat.IO.Pipelines;
 using DotnetCat.Shell.Commands;
 using DotnetCat.Utils;
 

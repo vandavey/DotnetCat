@@ -1,4 +1,4 @@
-namespace DotnetCat.Pipelines
+namespace DotnetCat.IO.Pipelines
 {
     /// <summary>
     ///  Stream file transfer option enumeration type.

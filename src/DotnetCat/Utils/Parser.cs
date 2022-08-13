@@ -5,8 +5,8 @@ using System.Linq;
 using System.Net;
 using DotnetCat.Errors;
 using DotnetCat.IO.FileSystem;
+using DotnetCat.IO.Pipelines;
 using DotnetCat.Network;
-using DotnetCat.Pipelines;
 
 namespace DotnetCat.Utils
 {

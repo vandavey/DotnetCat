@@ -4,11 +4,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
-using DotnetCat.IO;
 using DotnetCat.Network.Nodes;
 using DotnetCat.Utils;
 
-namespace DotnetCat.Pipelines
+namespace DotnetCat.IO.Pipelines
 {
     /// <summary>
     ///  Stream pipeline used to perform network connection testing.

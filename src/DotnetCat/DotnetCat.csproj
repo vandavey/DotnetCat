@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <!--
-     DotnetCat project properties -->
+     DotnetCat project properties
+    -->
     <PropertyGroup>
         <ApplicationIcon>Resources/Icon.ico</ApplicationIcon>
         <AssemblyName>dncat</AssemblyName>
@@ -23,7 +24,8 @@
     <!--
      Config :: Debug
      Target :: x64
-     RID    :: win-x64 -->
+     RID    :: win-x64
+    -->
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
         <OutputPath>bin/Debug</OutputPath>
         <PlatformTarget>x64</PlatformTarget>
@@ -36,7 +38,8 @@
     <!--
      Config :: Release
      Target :: x64
-     RID    :: win-x64 -->
+     RID    :: win-x64
+    -->
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
         <DebugSymbols>false</DebugSymbols>
         <DebugType>none</DebugType>
@@ -52,7 +55,8 @@
     <!--
      Config :: Release
      Target :: x86
-     RID    :: win-x86 -->
+     RID    :: win-x86
+    -->
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
         <DebugSymbols>false</DebugSymbols>
         <DebugType>none</DebugType>
@@ -68,7 +72,8 @@
     <!--
      Config :: Linux
      Target :: x64
-     RID    :: linux-x64 -->
+     RID    :: linux-x64
+    -->
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Linux|x64'">
         <DebugSymbols>false</DebugSymbols>
         <DebugType>none</DebugType>
@@ -83,7 +88,8 @@
     <!--
      Config :: ARM64
      Target :: AnyCPU
-     RID    :: linux-arm64 -->
+     RID    :: linux-arm64
+    -->
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ARM64|AnyCPU'">
         <DebugSymbols>false</DebugSymbols>
         <DebugType>none</DebugType>
@@ -96,15 +102,16 @@
     </PropertyGroup>
 
     <!--
-     Include source code and resources -->
+     Include source code and resources
+    -->
     <ItemGroup>
         <Folder Include="Contracts/" />
         <Folder Include="Errors/" />
         <Folder Include="IO/" />
         <Folder Include="IO/FileSystem/" />
+        <Folder Include="IO/Pipelines/" />
         <Folder Include="Network/" />
         <Folder Include="Network/Nodes/" />
-        <Folder Include="Pipelines/" />
         <Folder Include="Properties/" />
         <Folder Include="Properties/PublishProfiles/" />
         <Folder Include="Resources/" />
