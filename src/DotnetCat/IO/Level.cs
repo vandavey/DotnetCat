@@ -1,7 +1,7 @@
 namespace DotnetCat.IO
 {
     /// <summary>
-    ///  Console output status level enumeration type
+    ///  Console output level enumeration type.
     /// </summary>
     internal enum Level : ushort
     {

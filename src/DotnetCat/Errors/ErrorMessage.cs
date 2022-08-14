@@ -4,20 +4,20 @@ using DotnetCat.Utils;
 namespace DotnetCat.Errors
 {
     /// <summary>
-    ///  Custom errors specifically related to DotNetCat
+    ///  Custom error message specifically related to DotnetCat.
     /// </summary>
     internal class ErrorMessage
     {
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         public ErrorMessage(string msg) => Message = msg;
 
-        /// Error message
+        /// Error message string
         public string Message { get; private set; }
 
         /// <summary>
-        ///  Format error with the specified argument
+        ///  Interpolate the given argument in the underlying message string.
         /// </summary>
         public string Build(string arg)
         {
@@ -45,7 +45,8 @@ namespace DotnetCat.Errors
         }
 
         /// <summary>
-        ///  Determine if the message contains format specifier ('%', '{}')
+        ///  Determine whether the underlying message string contains
+        ///  any format specifier substrings ('%', '{}').
         /// </summary>
         private bool MsgBuilt()
         {

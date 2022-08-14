@@ -5,26 +5,29 @@ using DotnetCat.Utils;
 namespace DotnetCat.IO
 {
     /// <summary>
-    ///  Virtual terminal escape sequence controller
+    ///  Virtual terminal escape sequence utility class.
     /// </summary>
     internal static class Sequence
     {
-        private const string CLEAR = "\x1b[H\x1b[2J\x1b[3J";
-
         private const string ESCAPE = "\x1b";
 
+        private const string CLEAR = $"{ESCAPE}[H{ESCAPE}[2J{ESCAPE}[3J";
+
+        private const string RESET = $"{ESCAPE}[0m";
+
         /// <summary>
-        ///  Initialize static members
+        ///  Initialize the static class members.
         /// </summary>
         static Sequence() => ConsoleApi.EnableVirtualTerm();
 
         /// <summary>
-        ///  Clear the current console buffer
+        ///  Clear the current console screen buffer.
         /// </summary>
         public static void ClearScreen() => Console.Write(CLEAR);
 
         /// <summary>
-        ///  Get the escape sequence for a colored string
+        ///  Get the ANSI foreground color SGR escape sequence that
+        ///  corresponds to the given console color.
         /// </summary>
         public static string GetColorStr(ConsoleColor color)
         {
@@ -32,7 +35,8 @@ namespace DotnetCat.IO
         }
 
         /// <summary>
-        ///  Get the escape sequence for a colored string
+        ///  Style the given message using ANSI SGR escape sequences so the
+        ///  foreground color is changed and terminated by a reset sequence.
         /// </summary>
         public static string GetColorStr(string msg, ConsoleColor color)
         {
@@ -40,11 +44,12 @@ namespace DotnetCat.IO
             {
                 throw new ArgumentNullException(nameof(msg));
             }
-            return $"{GetColorSequence(color)}{msg}\x1b[0m";
+            return $"{GetColorSequence(color)}{msg}{RESET}";
         }
 
         /// <summary>
-        ///  Get the escape sequence for the given console color
+        ///  Get the ANSI foreground color SGR escape sequence that
+        ///  corresponds to the given console color.
         /// </summary>
         private static string GetColorSequence(ConsoleColor color)
         {
@@ -65,7 +70,8 @@ namespace DotnetCat.IO
                 ConsoleColor.Red         => $"{ESCAPE}[1;31m",
                 ConsoleColor.Magenta     => $"{ESCAPE}[1;35m",
                 ConsoleColor.Yellow      => $"{ESCAPE}[1;33m",
-                _ or ConsoleColor.White  => $"{ESCAPE}[1;37m",
+                ConsoleColor.White       => $"{ESCAPE}[1;37m",
+                _                        => RESET,
             };
         }
     }

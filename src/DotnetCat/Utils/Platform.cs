@@ -1,11 +1,11 @@
 namespace DotnetCat.Utils
 {
     /// <summary>
-    ///  Local operating system enumeration type
+    ///  Operating system platform enumeration type.
     /// </summary>
     internal enum Platform : ushort
     {
-        Nix,  // Unix based operating system
+        Nix,  // Unix/Linux based operating system
         Win   // Windows based operating system
     }
 }

@@ -5,16 +5,16 @@ using DotnetCat.Utils;
 namespace DotnetCat.Network
 {
     /// <summary>
-    ///  Network endpoint host information
+    ///  IPv4 hostname socket endpoint.
     /// </summary>
     internal class HostEndPoint
     {
         private int _port;          // Network port number
 
-        private string? _hostName;  // Network host name
+        private string? _hostName;  // Network hostname
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         public HostEndPoint()
         {
@@ -23,7 +23,7 @@ namespace DotnetCat.Network
         }
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
         /// </summary>
         public HostEndPoint(string? hostName, int port)
         {
@@ -32,7 +32,16 @@ namespace DotnetCat.Network
         }
 
         /// <summary>
-        ///  Initialize object
+        ///  Initialize the object.
+        /// </summary>
+        public HostEndPoint(IPAddress address, int port)
+        {
+            HostName = address.ToString();
+            Port = port;
+        }
+
+        /// <summary>
+        ///  Initialize the object.
         /// </summary>
         public HostEndPoint(IPEndPoint? ep)
         {
@@ -56,7 +65,7 @@ namespace DotnetCat.Network
             }
         }
 
-        /// Network host name
+        /// Network hostname
         public string? HostName
         {
             get => _hostName;
@@ -71,15 +80,21 @@ namespace DotnetCat.Network
         }
 
         /// <summary>
-        ///  Return a string that represents a Target
+        ///  Get the string representation of the underlying endpoint information.
         /// </summary>
         public override string? ToString()
         {
-            if ((Port <= -1) || HostName.IsNullOrEmpty())
+            string? endPointStr;
+
+            if (Port <= -1 || HostName.IsNullOrEmpty())
             {
-                return base.ToString();
+                endPointStr = base.ToString();
             }
-            return $"{HostName}:{Port}";
+            else
+            {
+                endPointStr = $"{HostName}:{Port}";
+            }
+            return endPointStr;
         }
     }
 }

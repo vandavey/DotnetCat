@@ -6,13 +6,13 @@ using DotnetCat.Network;
 namespace DotnetCat.Contracts
 {
     /// <summary>
-    ///  Enforce mechanisms to release unmanaged socket
-    ///  resources before exiting (when an error occurs)
+    ///  Interface for enforcing mechanisms to release unmanaged socket
+    ///  resources before exiting the application (when an error occurs).
     /// </summary>
     internal interface ISockErrorHandled : IErrorHandled
     {
         /// <summary>
-        ///  Release unmanaged resources and handle error
+        ///  Dispose of all unmanaged socket resources and handle the given error.
         /// </summary>
         void PipeError(Except type,
                        HostEndPoint target,

@@ -1,7 +1,7 @@
 namespace DotnetCat.Errors
 {
     /// <summary>
-    ///  DotnetCat error/exception enumeration type
+    ///  DotnetCat error and exception enumeration type.
     /// </summary>
     internal enum Except : ushort
     {
@@ -15,7 +15,7 @@ namespace DotnetCat.Errors
         ExePath,            // Invalid executable file path
         ExeProcess,         // Executable process error(s)
         FilePath,           // Invalid file path received (general)
-        InvalidAddr,        // Invalid IP address or host name
+        InvalidAddr,        // Invalid IP address or hostname
         InvalidArgs,        // Invalid cmd-line argument(s)
         InvalidPort,        // Invalid network port(s) number
         NamedArgs,          // Invalid named (optional) argument(s)
