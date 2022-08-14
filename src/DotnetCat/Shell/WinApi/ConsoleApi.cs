@@ -1,8 +1,11 @@
 using System;
+
+#if WINDOWS_OS
 using System.Runtime.InteropServices;
 using BOOL = System.Boolean;
 using DWORD = System.UInt32;
 using HANDLE = System.IntPtr;
+#endif // WINDOWS_OS
 
 namespace DotnetCat.Shell.WinApi
 {
@@ -11,6 +14,7 @@ namespace DotnetCat.Shell.WinApi
     /// </summary>
     internal static class ConsoleApi
     {
+    #if WINDOWS_OS
         private const int NULL = 0;
 
         private const int STD_INPUT_HANDLE = -10;
@@ -18,13 +22,14 @@ namespace DotnetCat.Shell.WinApi
         private const int STD_OUTPUT_HANDLE = -11;
 
         private const nint INVALID_HANDLE_VALUE = -1;
+    #endif // WINDOWS_OS
 
         /// <summary>
         ///  Initialize the static class members.
         /// </summary>
         static ConsoleApi()
         {
-            VirtualTermEnabled = !IsWindows();
+            VirtualTermEnabled = !OperatingSystem.IsWindows();
             EnableVirtualTerm();
         }
 
@@ -36,22 +41,25 @@ namespace DotnetCat.Shell.WinApi
         /// </summary>
         public static void EnableVirtualTerm()
         {
-            if (!VirtualTermEnabled && IsWindows())
+        #if WINDOWS_OS
+            if (!VirtualTermEnabled)
             {
                 InMode inMode = InMode.ENABLE_VIRTUAL_TERMINAL_INPUT;
                 OutMode outMode = OutMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
                 EnableVirtualTerm(inMode, outMode);
             }
+        #endif // WINDOWS_OS
         }
 
+    #if WINDOWS_OS
         /// <summary>
         ///  Enable console virtual terminal sequence processing using the
         ///  given console input and console output modes.
         /// </summary>
         public static void EnableVirtualTerm(InMode inMode, OutMode outMode)
         {
-            if (!VirtualTermEnabled && IsWindows())
+            if (!VirtualTermEnabled)
             {
                 HANDLE stdInHandle = GetStdHandle(STD_INPUT_HANDLE);
                 HANDLE stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -78,11 +86,6 @@ namespace DotnetCat.Shell.WinApi
         /// </summary>
         private static DWORD GetMode(HANDLE handle, DWORD mode)
         {
-            if (!IsWindows())
-            {
-                throw new PlatformNotSupportedException(nameof(GetMode));
-            }
-
             if (!ValidHandle(handle))
             {
                 throw new ArgumentException("Invalid handle", nameof(handle));
@@ -107,11 +110,6 @@ namespace DotnetCat.Shell.WinApi
         /// </summary>
         private static void SetMode(HANDLE handle, DWORD mode)
         {
-            if (!IsWindows())
-            {
-                throw new PlatformNotSupportedException(nameof(SetMode));
-            }
-
             if (!ValidHandle(handle))
             {
                 throw new ArgumentException("Invalid handle", nameof(handle));
@@ -162,11 +160,6 @@ namespace DotnetCat.Shell.WinApi
                                                   DWORD dwMode);
 
         /// <summary>
-        ///  Determine whether the local operating system is Windows.
-        /// </summary>
-        private static BOOL IsWindows() => OperatingSystem.IsWindows();
-
-        /// <summary>
         ///  Determine whether the given console buffer handle is valid.
         /// </summary>
         private static BOOL ValidHandle(HANDLE handle)
@@ -198,5 +191,6 @@ namespace DotnetCat.Shell.WinApi
 
             throw new ExternalException(externName);
         }
+    #endif // WINDOWS_OS
     }
 }

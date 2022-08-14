@@ -1,3 +1,4 @@
+#if WINDOWS_OS
 using System;
 using DWORD = System.UInt32;
 
@@ -17,3 +18,4 @@ namespace DotnetCat.Shell.WinApi
         ENABLE_LVB_GRID_WORLDWIDE          = 0x0010
     }
 }
+#endif // WINDOWS_OS

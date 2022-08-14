@@ -1,3 +1,4 @@
+#if WINDOWS_OS
 using System;
 using DWORD = System.UInt32;
 
@@ -22,3 +23,4 @@ namespace DotnetCat.Shell.WinApi
         ENABLE_VIRTUAL_TERMINAL_INPUT = 0x0200
     }
 }
+#endif // WINDOWS_OS
