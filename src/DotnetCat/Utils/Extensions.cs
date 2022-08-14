@@ -1,9 +1,6 @@
 using System;
-using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using System.Text;
-
-[assembly: InternalsVisibleTo("DotnetCatTests")]
 
 namespace DotnetCat.Utils
 {

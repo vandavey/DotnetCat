@@ -4,7 +4,7 @@ using DWORD = System.UInt32;
 namespace DotnetCat.Shell.WinApi
 {
     /// <summary>
-    ///  Window API console input mode enumeration type flags.
+    ///  Windows API console input mode enumeration type flags.
     /// </summary>
     [Flags]
     public enum InMode : DWORD
