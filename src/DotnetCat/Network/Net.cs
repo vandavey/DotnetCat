@@ -71,8 +71,6 @@ namespace DotnetCat.Network
                                       ProtocolType.Udp);
 
             socket.Connect("8.8.8.8", 53);
-            socket.Disconnect(false);
-            socket.Close();
 
             return (socket?.LocalEndPoint as IPEndPoint)?.Address ?? IPAddress.Any;
         }

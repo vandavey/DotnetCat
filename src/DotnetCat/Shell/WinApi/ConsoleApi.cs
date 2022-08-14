@@ -164,10 +164,7 @@ namespace DotnetCat.Shell.WinApi
         /// <summary>
         ///  Determine whether the local operating system is Windows.
         /// </summary>
-        private static BOOL IsWindows()
-        {
-            return RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-        }
+        private static BOOL IsWindows() => OperatingSystem.IsWindows();
 
         /// <summary>
         ///  Determine whether the given console buffer handle is valid.

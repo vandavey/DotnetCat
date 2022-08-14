@@ -84,11 +84,17 @@ namespace DotnetCat.Network
         /// </summary>
         public override string? ToString()
         {
+            string? endPointStr;
+
             if (Port <= -1 || HostName.IsNullOrEmpty())
             {
-                return base.ToString();
+                endPointStr = base.ToString();
             }
-            return $"{HostName}:{Port}";
+            else
+            {
+                endPointStr = $"{HostName}:{Port}";
+            }
+            return endPointStr;
         }
     }
 }

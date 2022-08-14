@@ -427,7 +427,7 @@ namespace DotnetCat.Utils
         /// <summary>
         ///  Get the extended application usage information message.
         /// </summary>
-        private string GetHelp() => string.Join(_eol, new string[]
+        private string GetHelp() => string.Join(_eol, new[]
         {
             $"DotnetCat ({Repo})",
             $"{Usage}{_eol}",

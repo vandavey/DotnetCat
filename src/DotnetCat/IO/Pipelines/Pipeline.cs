@@ -72,7 +72,7 @@ namespace DotnetCat.IO.Pipelines
         protected Task? Worker { get; set; }
 
         /// <summary>
-        ///  Active communication between the underlying streams.
+        ///  Activate communication between the underlying streams.
         /// </summary>
         public virtual void Connect()
         {
