@@ -6,133 +6,132 @@ using DotnetCat.Errors;
 using DotnetCat.IO;
 using DotnetCat.Utils;
 
-namespace DotnetCat.Network.Nodes
+namespace DotnetCat.Network.Nodes;
+
+/// <summary>
+///  Server socket node with an underlying TCP socket client and listener socket.
+/// </summary>
+internal class ServerNode : Node
 {
+    private Socket? _listener;  // Listener socket
+
     /// <summary>
-    ///  Server socket node with an underlying TCP socket client and listener socket.
+    ///  Initialize the object.
     /// </summary>
-    internal class ServerNode : Node
+    public ServerNode() : base(IPAddress.Any) => _listener = default;
+
+    /// <summary>
+    ///  Initialize the object.
+    /// </summary>
+    public ServerNode(CmdLineArgs args) : base(args) => _listener = default;
+
+    /// <summary>
+    ///  Release the unmanaged object resources.
+    /// </summary>
+    ~ServerNode() => Dispose();
+
+    /// <summary>
+    ///  Listen for an inbound TCP connection on the underlying listener socket.
+    /// </summary>
+    public override void Connect()
     {
-        private Socket? _listener;  // Listener socket
+        _ = Address ?? throw new ArgumentNullException(nameof(Address));
+        HostEndPoint remoteEP = new();
 
-        /// <summary>
-        ///  Initialize the object.
-        /// </summary>
-        public ServerNode() : base(IPAddress.Any) => _listener = default;
+        ValidateArgsCombinations();
+        BindListener(new IPEndPoint(Address, Port));
 
-        /// <summary>
-        ///  Initialize the object.
-        /// </summary>
-        public ServerNode(CmdLineArgs args) : base(args) => _listener = default;
-
-        /// <summary>
-        ///  Release the unmanaged object resources.
-        /// </summary>
-        ~ServerNode() => Dispose();
-
-        /// <summary>
-        ///  Listen for an inbound TCP connection on the underlying listener socket.
-        /// </summary>
-        public override void Connect()
+        try  // Listen for an inbound connection
         {
-            _ = Address ?? throw new ArgumentNullException(nameof(Address));
-            HostEndPoint remoteEP = new();
+            _listener?.Listen(1);
+            Style.Info("Listening for incoming connections...");
 
-            ValidateArgsCombinations();
-            BindListener(new IPEndPoint(Address, Port));
-
-            try  // Listen for an inbound connection
+            if (_listener is not null)
             {
-                _listener?.Listen(1);
-                Style.Info("Listening for incoming connections...");
-
-                if (_listener is not null)
-                {
-                    Client.Client = _listener.Accept();
-                }
-                NetStream = Client.GetStream();
-
-                // Start the executable process
-                if (Args.UsingExe && !StartProcess(ExePath))
-                {
-                    PipeError(Except.ExeProcess, ExePath);
-                }
-
-                IPEndPoint? ep = Client.Client.RemoteEndPoint as IPEndPoint;
-                remoteEP = new HostEndPoint(ep);
-
-                Style.Info($"Connected to {remoteEP}");
-
-                base.Connect();
-                WaitForExit();
-
-                Console.WriteLine();
-                Style.Info($"Connection to {remoteEP} closed");
+                Client.Client = _listener.Accept();
             }
-            catch (SocketException ex)  // Error (likely refused)
+            NetStream = Client.GetStream();
+
+            // Start the executable process
+            if (Args.UsingExe && !StartProcess(ExePath))
             {
-                PipeError(Except.ConnectionRefused, remoteEP, ex);
-            }
-            catch (IOException ex)      // Connection lost
-            {
-                PipeError(Except.ConnectionLost, remoteEP, ex);
+                PipeError(Except.ExeProcess, ExePath);
             }
 
-            Dispose();
-        }
+            IPEndPoint? ep = Client.Client.RemoteEndPoint as IPEndPoint;
+            remoteEP = new HostEndPoint(ep);
 
-        /// <summary>
-        ///  Dispose of all unmanaged resources and handle the given error.
-        /// </summary>
-        public override void PipeError(Except type,
-                                       HostEndPoint target,
-                                       Exception? ex = default,
-                                       Level level = default) {
-            Dispose();
-            Error.Handle(type, target.ToString(), ex, level);
-        }
+            Style.Info($"Connected to {remoteEP}");
 
-        /// <summary>
-        ///  Dispose of all unmanaged resources and handle the given error.
-        /// </summary>
-        public override void PipeError(Except type,
-                                       string? arg,
-                                       Exception? ex = default,
-                                       Level level = default) {
-            Dispose();
-            Error.Handle(type, arg, ex, level);
-        }
+            base.Connect();
+            WaitForExit();
 
-        /// <summary>
-        ///  Release all the underlying unmanaged resources.
-        /// </summary>
-        public override void Dispose()
+            Console.WriteLine();
+            Style.Info($"Connection to {remoteEP} closed");
+        }
+        catch (SocketException ex)  // Error (likely refused)
         {
-            _listener?.Close();
-            base.Dispose();
-
-            GC.SuppressFinalize(this);
+            PipeError(Except.ConnectionRefused, remoteEP, ex);
+        }
+        catch (IOException ex)      // Connection lost
+        {
+            PipeError(Except.ConnectionLost, remoteEP, ex);
         }
 
-        /// <summary>
-        ///  Bind the underlying listener socket to the given IPv4 endpoint.
-        /// </summary>
-        private void BindListener(IPEndPoint ep)
+        Dispose();
+    }
+
+    /// <summary>
+    ///  Dispose of all unmanaged resources and handle the given error.
+    /// </summary>
+    public override void PipeError(Except type,
+                                   HostEndPoint target,
+                                   Exception? ex = default,
+                                   Level level = default) {
+        Dispose();
+        Error.Handle(type, target.ToString(), ex, level);
+    }
+
+    /// <summary>
+    ///  Dispose of all unmanaged resources and handle the given error.
+    /// </summary>
+    public override void PipeError(Except type,
+                                   string? arg,
+                                   Exception? ex = default,
+                                   Level level = default) {
+        Dispose();
+        Error.Handle(type, arg, ex, level);
+    }
+
+    /// <summary>
+    ///  Release all the underlying unmanaged resources.
+    /// </summary>
+    public override void Dispose()
+    {
+        _listener?.Close();
+        base.Dispose();
+
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///  Bind the underlying listener socket to the given IPv4 endpoint.
+    /// </summary>
+    private void BindListener(IPEndPoint ep)
+    {
+        _ = ep ?? throw new ArgumentNullException(nameof(ep));
+
+        _listener = new Socket(AddressFamily.InterNetwork,
+                               SocketType.Stream,
+                               ProtocolType.Tcp);
+
+        try  // Bind the listener socket
         {
-            _ = ep ?? throw new ArgumentNullException(nameof(ep));
-
-            _listener = new Socket(AddressFamily.InterNetwork,
-                                   SocketType.Stream,
-                                   ProtocolType.Tcp);
-
-            try  // Bind the listener socket
-            {
-                _listener.Bind(ep);
-            }
-            catch (SocketException ex)
-            {
-                PipeError(Except.SocketBind, ep.ToString(), ex);
-            }
+            _listener.Bind(ep);
+        }
+        catch (SocketException ex)
+        {
+            PipeError(Except.SocketBind, ep.ToString(), ex);
         }
     }
 }

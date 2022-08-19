@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <!--
      DotnetCat project properties
     -->
@@ -105,14 +105,14 @@
      Define Linux compiler constants
     -->
     <PropertyGroup Condition="'$(Configuration)'=='ARM64' OR '$(Configuration)'=='Linux'">
-        <DefineConstants>LINUX_OS</DefineConstants>
+        <DefineConstants>LINUX</DefineConstants>
     </PropertyGroup>
 
     <!--
      Define Windows compiler constants
     -->
     <PropertyGroup Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Release'">
-        <DefineConstants>WINDOWS_OS</DefineConstants>
+        <DefineConstants>WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <!--

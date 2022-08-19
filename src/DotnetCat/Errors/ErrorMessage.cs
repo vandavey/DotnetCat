@@ -1,56 +1,55 @@
 using System;
 using DotnetCat.Utils;
 
-namespace DotnetCat.Errors
+namespace DotnetCat.Errors;
+
+/// <summary>
+///  Custom error message specifically related to DotnetCat.
+/// </summary>
+internal class ErrorMessage
 {
     /// <summary>
-    ///  Custom error message specifically related to DotnetCat.
+    ///  Initialize the object.
     /// </summary>
-    internal class ErrorMessage
+    public ErrorMessage(string msg) => Message = msg;
+
+    /// Error message string
+    public string Message { get; private set; }
+
+    /// <summary>
+    ///  Interpolate the given argument in the underlying message string.
+    /// </summary>
+    public string Build(string arg)
     {
-        /// <summary>
-        ///  Initialize the object.
-        /// </summary>
-        public ErrorMessage(string msg) => Message = msg;
+        bool isBuilt = MsgBuilt();
+        bool nullArg = arg.IsNullOrEmpty();
 
-        /// Error message string
-        public string Message { get; private set; }
-
-        /// <summary>
-        ///  Interpolate the given argument in the underlying message string.
-        /// </summary>
-        public string Build(string arg)
+        // Missing required argument
+        if (nullArg && !isBuilt)
         {
-            bool isBuilt = MsgBuilt();
-            bool nullArg = arg.IsNullOrEmpty();
-
-            // Missing required argument
-            if (nullArg && !isBuilt)
-            {
-                throw new ArgumentNullException(nameof(arg));
-            }
-
-            // Message already built
-            if (!nullArg && isBuilt)
-            {
-                string errorMsg = "The message has already been built";
-                throw new ArgumentException(errorMsg, nameof(arg));
-            }
-
-            if (!isBuilt)
-            {
-                Message = Message.Replace("%", arg).Replace("{}", arg);
-            }
-            return Message;
+            throw new ArgumentNullException(nameof(arg));
         }
 
-        /// <summary>
-        ///  Determine whether the underlying message string contains
-        ///  any format specifier substrings ('%', '{}').
-        /// </summary>
-        private bool MsgBuilt()
+        // Message already built
+        if (!nullArg && isBuilt)
         {
-            return !Message.Contains('%') && !Message.Contains("{}");
+            string errorMsg = "The message has already been built";
+            throw new ArgumentException(errorMsg, nameof(arg));
         }
+
+        if (!isBuilt)
+        {
+            Message = Message.Replace("%", arg).Replace("{}", arg);
+        }
+        return Message;
+    }
+
+    /// <summary>
+    ///  Determine whether the underlying message string contains
+    ///  any format specifier substrings ('%', '{}').
+    /// </summary>
+    private bool MsgBuilt()
+    {
+        return !Message.Contains('%') && !Message.Contains("{}");
     }
 }

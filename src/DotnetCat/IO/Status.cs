@@ -1,39 +1,38 @@
 using System;
 
-namespace DotnetCat.IO
+namespace DotnetCat.IO;
+
+/// <summary>
+///  Console status message configuration information.
+/// </summary>
+internal class Status
 {
     /// <summary>
-    ///  Console status message configuration information.
+    ///  Initialize the object.
     /// </summary>
-    internal class Status
+    public Status(ConsoleColor color, Level level)
     {
-        /// <summary>
-        ///  Initialize the object.
-        /// </summary>
-        public Status(ConsoleColor color, Level level)
+        Level = level;
+        EscSequence = Sequence.GetColorStr(Color = color);
+
+        Symbol = level switch
         {
-            Level = level;
-            EscSequence = Sequence.GetColorStr(Color = color);
-
-            Symbol = level switch
-            {
-                Level.Error     => "[x]",
-                Level.Output    => "[+]",
-                Level.Warn      => "[!]",
-                Level.Info or _ => "[*]"
-            };
-        }
-
-        /// Status symbol color
-        public ConsoleColor Color { get; }
-
-        /// Status output level
-        public Level Level { get; }
-
-        /// Foreground color sequence
-        public string EscSequence { get; }
-
-        /// Status prefix symbol
-        public string Symbol { get; }
+            Level.Error     => "[x]",
+            Level.Output    => "[+]",
+            Level.Warn      => "[!]",
+            Level.Info or _ => "[*]"
+        };
     }
+
+    /// Status symbol color
+    public ConsoleColor Color { get; }
+
+    /// Status output level
+    public Level Level { get; }
+
+    /// Foreground color sequence
+    public string EscSequence { get; }
+
+    /// Status prefix symbol
+    public string Symbol { get; }
 }
