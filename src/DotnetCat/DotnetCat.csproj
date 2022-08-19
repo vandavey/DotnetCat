@@ -102,6 +102,20 @@
     </PropertyGroup>
 
     <!--
+     Define Linux compiler constants
+    -->
+    <PropertyGroup Condition="'$(Configuration)'=='ARM64' OR '$(Configuration)'=='Linux'">
+        <DefineConstants>LINUX</DefineConstants>
+    </PropertyGroup>
+
+    <!--
+     Define Windows compiler constants
+    -->
+    <PropertyGroup Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Release'">
+        <DefineConstants>WINDOWS</DefineConstants>
+    </PropertyGroup>
+
+    <!--
      Include source code and resources
     -->
     <ItemGroup>

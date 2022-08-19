@@ -6,66 +6,65 @@ using System.Threading.Tasks;
 using DotnetCat.Contracts;
 using DotnetCat.Utils;
 
-namespace DotnetCat.IO.Pipelines
+namespace DotnetCat.IO.Pipelines;
+
+/// <summary>
+///  Stream pipeline used to transfer executable process data.
+/// </summary>
+internal class ProcessPipe : Pipeline, IConnectable
 {
     /// <summary>
-    ///  Stream pipeline used to transfer executable process data.
+    ///  Initialize the object.
     /// </summary>
-    internal class ProcessPipe : Pipeline, IConnectable
+    public ProcessPipe(CmdLineArgs args, StreamReader? src, StreamWriter? dest)
+        : base(args) {
+
+        Source = src ?? throw new InvalidOperationException(nameof(src));
+        Dest = dest ?? throw new InvalidOperationException(nameof(dest));
+    }
+
+    /// <summary>
+    ///  Release the unmanaged object resources.
+    /// </summary>
+    ~ProcessPipe() => Dispose();
+
+    /// <summary>
+    ///  Asynchronously transfer the executable process data
+    ///  between the underlying streams.
+    /// </summary>
+    protected override async Task ConnectAsync(CancellationToken token)
     {
-        /// <summary>
-        ///  Initialize the object.
-        /// </summary>
-        public ProcessPipe(CmdLineArgs args, StreamReader? src, StreamWriter? dest)
-            : base(args) {
+        StringBuilder data = new();
 
-            Source = src ?? throw new InvalidOperationException(nameof(src));
-            Dest = dest ?? throw new InvalidOperationException(nameof(dest));
-        }
+        int charsRead;
+        Connected = true;
 
-        /// <summary>
-        ///  Release the unmanaged object resources.
-        /// </summary>
-        ~ProcessPipe() => Dispose();
-
-        /// <summary>
-        ///  Asynchronously transfer the executable process data
-        ///  between the underlying streams.
-        /// </summary>
-        protected override async Task ConnectAsync(CancellationToken token)
+        while (Client is not null && Client.Connected)
         {
-            StringBuilder data = new();
-
-            int charsRead;
-            Connected = true;
-
-            while (Client is not null && Client.Connected)
+            if (token.IsCancellationRequested)
             {
-                if (token.IsCancellationRequested)
-                {
-                    Disconnect();
-                    break;
-                }
-
-                charsRead = await ReadAsync(token);
-                data.Append(Buffer.ToArray(), 0, charsRead);
-
-                // Socket client was disconnected
-                if (!Client.Connected || charsRead <= 0)
-                {
-                    Disconnect();
-                    break;
-                }
-
-                await WriteAsync(FixLineEndings(data), token);
-                data.Clear();
+                Disconnect();
+                break;
             }
 
-            if (!Args.UsingExe)
+            charsRead = await ReadAsync(token);
+            data.Append(Buffer.ToArray(), 0, charsRead);
+
+            // Socket client was disconnected
+            if (!Client.Connected || charsRead <= 0)
             {
-                Console.WriteLine();
+                Disconnect();
+                break;
             }
-            Dispose();
+
+            await WriteAsync(FixLineEndings(data), token);
+            data.Clear();
         }
+
+        if (!Args.UsingExe)
+        {
+            Console.WriteLine();
+        }
+        Dispose();
     }
 }

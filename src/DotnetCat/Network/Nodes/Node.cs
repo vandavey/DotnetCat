@@ -14,406 +14,404 @@ using DotnetCat.IO.Pipelines;
 using DotnetCat.Shell.Commands;
 using DotnetCat.Utils;
 
-namespace DotnetCat.Network.Nodes
+namespace DotnetCat.Network.Nodes;
+
+/// <summary>
+///  Base class for all socket nodes in the DotnetCat.Network.Nodes namespace.
+/// </summary>
+internal abstract class Node : ISockErrorHandled
 {
+    private bool _validArgsCombos;     // Valid cmd-line arg combos
+
+    private string? _hostName;         // Target hostname
+
+    private Process? _process;         // Executable process
+
+    private StreamReader? _netReader;  // TCP stream reader
+
+    private StreamWriter? _netWriter;  // TCP stream writer
+
+    private List<Pipeline>? _pipes;    // Pipeline list
+
     /// <summary>
-    ///  Base class for all socket nodes in the DotnetCat.Network.Nodes namespace.
+    ///  Initialize the object.
     /// </summary>
-    internal abstract class Node : ISockErrorHandled
+    protected Node()
     {
-        private bool _validArgsCombos;     // Valid cmd-line arg combos
+        _hostName = default;
+        _netReader = default;
+        _netWriter = default;
+        _pipes = default;
+        _process = default;
+        _validArgsCombos = false;
 
-        private string? _hostName;         // Target hostname
+        Args = new CmdLineArgs();
+        Client = new TcpClient();
 
-        private Process? _process;         // Executable process
+        Port = 44444;
+        Verbose = false;
+    }
 
-        private StreamReader? _netReader;  // TCP stream reader
+    /// <summary>
+    ///  Initialize the object.
+    /// </summary>
+    protected Node(IPAddress addr, int port = 44444) : this()
+    {
+        Address = addr;
+        HostName = addr.ToString();
+        Port = port;
+    }
 
-        private StreamWriter? _netWriter;  // TCP stream writer
+    /// <summary>
+    ///  Initialize the object.
+    /// </summary>
+    protected Node(CmdLineArgs args) : this() => Args = args;
 
-        private List<Pipeline>? _pipes;    // Pipeline list
+    /// <summary>
+    ///  Release the unmanaged object resources.
+    /// </summary>
+    ~Node() => Dispose();
 
-        /// <summary>
-        ///  Initialize the object.
-        /// </summary>
-        protected Node()
+    /// Enable verbose console output
+    public bool Verbose
+    {
+        get => Args.Verbose;
+        set => Args.Verbose = value;
+    }
+
+    /// Network port number
+    public int Port
+    {
+        get => Args.Port;
+        set
         {
-            _hostName = default;
-            _netReader = default;
-            _netWriter = default;
-            _pipes = default;
-            _process = default;
-            _validArgsCombos = false;
-
-            Args = new CmdLineArgs();
-            Client = new TcpClient();
-
-            Port = 44444;
-            Verbose = false;
-        }
-
-        /// <summary>
-        ///  Initialize the object.
-        /// </summary>
-        protected Node(IPAddress addr, int port = 44444) : this()
-        {
-            Address = addr;
-            HostName = addr.ToString();
-            Port = port;
-        }
-
-        /// <summary>
-        ///  Initialize the object.
-        /// </summary>
-        protected Node(CmdLineArgs args) : this() => Args = args;
-
-        /// <summary>
-        ///  Release the unmanaged object resources.
-        /// </summary>
-        ~Node() => Dispose();
-
-        /// Enable verbose console output
-        public bool Verbose
-        {
-            get => Args.Verbose;
-            set => Args.Verbose = value;
-        }
-
-        /// Network port number
-        public int Port
-        {
-            get => Args.Port;
-            set
+            if (!Net.IsValidPort(value))
             {
-                if (!Net.IsValidPort(value))
-                {
-                    throw new ArgumentException("Invalid port", nameof(value));
-                }
-                Args.Port = value;
+                throw new ArgumentException("Invalid port", nameof(value));
             }
+            Args.Port = value;
         }
+    }
 
-        /// Executable file path
-        public string? ExePath
+    /// Executable file path
+    public string? ExePath
+    {
+        get => Args.ExePath;
+        set => Args.ExePath = value;
+    }
+
+    /// Transfer file path
+    public string? FilePath
+    {
+        get => Args.FilePath;
+        set => Args.FilePath = value;
+    }
+
+    /// Network hostname
+    public string? HostName
+    {
+        get => _hostName ?? (Address is null ? "" : Address.ToString());
+        set => _hostName = value ?? (Address is null ? "" : Address.ToString());
+    }
+
+    /// IPv4 network address
+    public IPAddress? Address
+    {
+        get => Args.Address;
+        set => Args.Address = value ?? IPAddress.Any;
+    }
+
+    /// TCP socket client
+    public TcpClient Client { get; set; }
+
+    /// File transfer option
+    protected bool Transfer => Args.TransOpt is not TransferOpt.None;
+
+    /// Using an executable pipeline
+    protected bool UsingExe => Args.UsingExe;
+
+    /// Command-line arguments
+    protected CmdLineArgs Args { get; set; }
+
+    /// TCP network stream
+    protected NetworkStream? NetStream { get; set; }
+
+    /// <summary>
+    ///  Initialize and run a new executable process on the local system.
+    /// </summary>
+    public bool StartProcess(string? exe)
+    {
+        (string? path, bool exists) = FileSys.ExistsOnPath(exe);
+
+        if (!exists)
         {
-            get => Args.ExePath;
-            set => Args.ExePath = value;
-        }
-
-        /// Transfer file path
-        public string? FilePath
-        {
-            get => Args.FilePath;
-            set => Args.FilePath = value;
-        }
-
-        /// Network hostname
-        public string? HostName
-        {
-            get => _hostName ?? (Address is null ? "" : Address.ToString());
-            set => _hostName = value ?? (Address is null ? "" : Address.ToString());
-        }
-
-        /// IPv4 network address
-        public IPAddress? Address
-        {
-            get => Args.Address;
-            set => Args.Address = value ?? IPAddress.Any;
-        }
-
-        /// TCP socket client
-        public TcpClient Client { get; set; }
-
-        /// File transfer option
-        protected bool Transfer => Args.TransOpt is not TransferOpt.None;
-
-        /// Using an executable pipeline
-        protected bool UsingExe => Args.UsingExe;
-
-        /// Command-line arguments
-        protected CmdLineArgs Args { get; set; }
-
-        /// TCP network stream
-        protected NetworkStream? NetStream { get; set; }
-
-        /// <summary>
-        ///  Initialize and run a new executable process on the local system.
-        /// </summary>
-        public bool StartProcess(string? exe)
-        {
-            (string? path, bool exists) = FileSys.ExistsOnPath(exe);
-
-            if (!exists)
-            {
-                Dispose();
-                Error.Handle(Except.ExePath, exe, true);
-            }
-
-            _process = new Process
-            {
-                StartInfo = Command.GetExeStartInfo(ExePath = path)
-            };
-            return _process.Start();
-        }
-
-        /// <summary>
-        ///  Activate asynchronous communication between the source and
-        ///  destination streams in each of the underlying pipelines.
-        /// </summary>
-        public virtual void Connect()
-        {
-            _ = NetStream ?? throw new ArgumentNullException(nameof(NetStream));
-
-            if (!_validArgsCombos)
-            {
-                ValidateArgsCombinations();
-            }
-
-            AddPipes(Args.PipeVariant);
-            _pipes?.ForEach(p => p?.Connect());
-        }
-
-        /// <summary>
-        ///  Dispose of all unmanaged resources and handle the given error.
-        /// </summary>
-        public virtual void PipeError(Except type,
-                                      HostEndPoint target,
-                                      Exception? ex = default,
-                                      Level level = default) {
             Dispose();
-            Error.Handle(type, target.ToString(), ex, level);
+            Error.Handle(Except.ExePath, exe, true);
         }
 
-        /// <summary>
-        ///  Dispose of all unmanaged resources and handle the given error.
-        /// </summary>
-        public virtual void PipeError(Except type,
-                                      string? arg,
-                                      Exception? ex = default,
-                                      Level level = default) {
-            Dispose();
-            Error.Handle(type, arg, ex, level);
-        }
-
-        /// <summary>
-        ///  Release all the underlying unmanaged resources.
-        /// </summary>
-        public virtual void Dispose()
+        _process = new Process
         {
-            _pipes?.ForEach(p => p?.Dispose());
+            StartInfo = Command.GetExeStartInfo(ExePath = path)
+        };
+        return _process.Start();
+    }
 
-            _process?.Dispose();
-            _netReader?.Dispose();
-            _netWriter?.Dispose();
+    /// <summary>
+    ///  Activate asynchronous communication between the source and
+    ///  destination streams in each of the underlying pipelines.
+    /// </summary>
+    public virtual void Connect()
+    {
+        _ = NetStream ?? throw new ArgumentNullException(nameof(NetStream));
 
-            Client?.Close();
-            NetStream?.Dispose();
-
-            GC.SuppressFinalize(this);
+        if (!_validArgsCombos)
+        {
+            ValidateArgsCombinations();
         }
 
-        /// <summary>
-        ///  Validate the underlying command-line argument combinations.
-        /// </summary>
-        protected void ValidateArgsCombinations()
+        AddPipes(Args.PipeVariant);
+        _pipes?.ForEach(p => p?.Connect());
+    }
+
+    /// <summary>
+    ///  Dispose of all unmanaged resources and handle the given error.
+    /// </summary>
+    public virtual void PipeError(Except type,
+                                  HostEndPoint target,
+                                  Exception? ex = default,
+                                  Level level = default) {
+        Dispose();
+        Error.Handle(type, target.ToString(), ex, level);
+    }
+
+    /// <summary>
+    ///  Dispose of all unmanaged resources and handle the given error.
+    /// </summary>
+    public virtual void PipeError(Except type,
+                                  string? arg,
+                                  Exception? ex = default,
+                                  Level level = default) {
+        Dispose();
+        Error.Handle(type, arg, ex, level);
+    }
+
+    /// <summary>
+    ///  Release all the underlying unmanaged resources.
+    /// </summary>
+    public virtual void Dispose()
+    {
+        _pipes?.ForEach(p => p?.Dispose());
+
+        _process?.Dispose();
+        _netReader?.Dispose();
+        _netWriter?.Dispose();
+
+        Client?.Close();
+        NetStream?.Dispose();
+
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///  Validate the underlying command-line argument combinations.
+    /// </summary>
+    protected void ValidateArgsCombinations()
+    {
+        if (!_validArgsCombos)
         {
-            if (!_validArgsCombos)
+            // Combination: --exec, --output/--send
+            if (UsingExe && Transfer)
             {
-                // Combination: --exec, --output/--send
-                if (UsingExe && Transfer)
+                Console.WriteLine(Parser.Usage);
+                PipeError(Except.ArgsCombo, "--exec, --output/--send");
+            }
+
+            bool isTextPipe = !Args.Payload.IsNullOrEmpty();
+
+            // Combination: --exec, --text
+            if (UsingExe && isTextPipe)
+            {
+                Console.WriteLine(Parser.Usage);
+                PipeError(Except.ArgsCombo, "--exec, --text");
+            }
+
+            // Combination: --text, --output/--send
+            if (isTextPipe && Transfer)
+            {
+                Console.WriteLine(Parser.Usage);
+                PipeError(Except.ArgsCombo, "--text, --output/--send");
+            }
+
+            if (Parser.IndexOfFlag(Program.OrigArgs, "--zero-io") != -1)
+            {
+                // Invalid combo: --listen, --zero-io
+                if (Program.SockNode is ServerNode)
                 {
                     Console.WriteLine(Parser.Usage);
-                    PipeError(Except.ArgsCombo, "--exec, --output/--send");
+                    PipeError(Except.ArgsCombo, "--listen, --zero-io");
                 }
 
-                bool isTextPipe = !Args.Payload.IsNullOrEmpty();
-
-                // Combination: --exec, --text
-                if (UsingExe && isTextPipe)
+                // Combination: --zero-io, --text
+                if (isTextPipe)
                 {
                     Console.WriteLine(Parser.Usage);
-                    PipeError(Except.ArgsCombo, "--exec, --text");
+                    PipeError(Except.ArgsCombo, "--zero-io, --text");
                 }
 
-                // Combination: --text, --output/--send
-                if (isTextPipe && Transfer)
+                // Combination: --zero-io, --output/--send
+                if (Transfer)
                 {
                     Console.WriteLine(Parser.Usage);
-                    PipeError(Except.ArgsCombo, "--text, --output/--send");
+                    PipeError(Except.ArgsCombo, "--zero-io, --output/--send");
                 }
 
-                if (Parser.IndexOfFlag(Program.OrigArgs, "--zero-io") != -1)
+                // Combination: --exec, --zero-io
+                if (UsingExe)
                 {
-                    // Invalid combo: --listen, --zero-io
-                    if (Program.SockNode is ServerNode)
-                    {
-                        Console.WriteLine(Parser.Usage);
-                        PipeError(Except.ArgsCombo, "--listen, --zero-io");
-                    }
-
-                    // Combination: --zero-io, --text
-                    if (isTextPipe)
-                    {
-                        Console.WriteLine(Parser.Usage);
-                        PipeError(Except.ArgsCombo, "--zero-io, --text");
-                    }
-
-                    // Combination: --zero-io, --output/--send
-                    if (Transfer)
-                    {
-                        Console.WriteLine(Parser.Usage);
-                        PipeError(Except.ArgsCombo, "--zero-io, --output/--send");
-                    }
-
-                    // Combination: --exec, --zero-io
-                    if (UsingExe)
-                    {
-                        Console.WriteLine(Parser.Usage);
-                        PipeError(Except.ArgsCombo, "--exec, --zero-io");
-                    }
+                    Console.WriteLine(Parser.Usage);
+                    PipeError(Except.ArgsCombo, "--exec, --zero-io");
                 }
-
-                _validArgsCombos = true;
             }
-        }
 
-        /// <summary>
-        ///  Initialize the underlying pipelines based on the given pipeline type.
-        /// </summary>
-        protected void AddPipes(PipeType pipeType)
+            _validArgsCombos = true;
+        }
+    }
+
+    /// <summary>
+    ///  Initialize the underlying pipelines based on the given pipeline type.
+    /// </summary>
+    protected void AddPipes(PipeType pipeType)
+    {
+        if (NetStream is null || !NetStream.CanRead || !NetStream.CanWrite)
         {
-            if (NetStream is null || !NetStream.CanRead || !NetStream.CanWrite)
-            {
-                throw new ArgumentException(nameof(NetStream));
-            }
-
-            _netWriter = new StreamWriter(NetStream)
-            {
-                AutoFlush = true
-            };
-            _netReader = new StreamReader(NetStream);
-
-            // Initialize the pipeline(s)
-            _pipes = GetPipelines(pipeType);
+            throw new ArgumentException(nameof(NetStream));
         }
 
-        /// <summary>
-        ///  Wait for the underlying pipeline(s) to be disconnected or
-        ///  the system command shell process to exit.
-        /// </summary>
-        protected void WaitForExit(int msPollDelay = 100)
+        _netWriter = new StreamWriter(NetStream)
         {
-            while (Client.Connected)
-            {
-                Task.Delay(msPollDelay).Wait();
+            AutoFlush = true
+        };
+        _netReader = new StreamReader(NetStream);
 
-                if (ProcessExited() || !PipelinesConnected())
-                {
-                    break;
-                }
-            }
-        }
+        // Initialize the pipeline(s)
+        _pipes = GetPipelines(pipeType);
+    }
 
-        /// <summary>
-        ///  Get a list of pipelines based on the given pipeline type.
-        /// </summary>
-        private List<Pipeline> GetPipelines(PipeType type)
+    /// <summary>
+    ///  Wait for the underlying pipeline(s) to be disconnected or
+    ///  the system command shell process to exit.
+    /// </summary>
+    protected void WaitForExit(int msPollDelay = 100)
+    {
+        while (Client.Connected)
         {
-            List<Pipeline> pipes = new();
+            Task.Delay(msPollDelay).Wait();
 
-            switch (type)
+            if (ProcessExited() || !PipelinesConnected())
             {
-                case PipeType.Stream:   // Stream pipelines
-                {
-                    Stream stdInput = Console.OpenStandardInput();
-                    Stream stdOutput = Console.OpenStandardOutput();
-
-                    // Add stream pipelines
-                    pipes.AddRange(new[]
-                    {
-                        new StreamPipe(_netReader, new StreamWriter(stdOutput)
-                        {
-                            AutoFlush = true
-                        }),
-                        new StreamPipe(new StreamReader(stdInput), _netWriter)
-                    });
-                    break;
-                }
-                case PipeType.File:    // File-transfer pipeline
-                {
-                    if (Args.TransOpt is TransferOpt.None)
-                    {
-                        throw new ArgumentException(nameof(Args.TransOpt));
-                    }
-
-                    if (Args.TransOpt is TransferOpt.Collect)
-                    {
-                        pipes.Add(new FilePipe(Args, _netReader));
-                    }
-                    else
-                    {
-                        pipes.Add(new FilePipe(Args, _netWriter));
-                    }
-                    break;
-                }
-                case PipeType.Process:  // Process pipelines
-                {
-                    pipes.AddRange(new[]
-                    {
-                        new ProcessPipe(Args, _netReader, _process?.StandardInput),
-                        new ProcessPipe(Args, _process?.StandardOutput, _netWriter),
-                        new ProcessPipe(Args, _process?.StandardError, _netWriter)
-                    });
-                    break;
-                }
-                case PipeType.Status:   // Zero-IO pipeline
-                {
-                    pipes.Add(new StatusPipe(Args, _netWriter));
-                    break;
-                }
-                case PipeType.Text:     // Text pipeline
-                {
-                    pipes.Add(new TextPipe(Args, _netWriter));
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
+                break;
             }
-
-            return pipes;
         }
+    }
 
-        /// <summary>
-        ///  Determine whether the underlying command shell process exited.
-        /// </summary>
-        private bool ProcessExited() => UsingExe && (_process?.HasExited ?? false);
+    /// <summary>
+    ///  Get a list of pipelines based on the given pipeline type.
+    /// </summary>
+    private List<Pipeline> GetPipelines(PipeType type)
+    {
+        List<Pipeline> pipes = new();
 
-        /// <summary>
-        ///  Determine whether all the non-null underlying pipelines are connected.
-        /// </summary>
-        private bool PipelinesConnected()
+        switch (type)
         {
-            bool connected = true;
-
-            if (_pipes is not null)
+            case PipeType.Stream:   // Stream pipelines
             {
-                int nullCount = _pipes.Where(p => p is null).Count();
+                Stream standardInput = Console.OpenStandardInput();
+                Stream standardOutput = Console.OpenStandardOutput();
 
-                if (_pipes.Count > 0 && nullCount != _pipes.Count)
+                pipes.AddRange(new StreamPipe[]
                 {
-                    foreach (Pipeline pipe in _pipes)
+                    new StreamPipe(_netReader, new StreamWriter(standardOutput)
                     {
-                        if (pipe is not null && !pipe.Connected)
-                        {
-                            connected = false;
-                            break;
-                        }
+                        AutoFlush = true
+                    }),
+                    new StreamPipe(new StreamReader(standardInput), _netWriter)
+                });
+                break;
+            }
+            case PipeType.File:    // File-transfer pipeline
+            {
+                if (Args.TransOpt is TransferOpt.None)
+                {
+                    throw new ArgumentException(nameof(Args.TransOpt));
+                }
+
+                if (Args.TransOpt is TransferOpt.Collect)
+                {
+                    pipes.Add(new FilePipe(Args, _netReader));
+                }
+                else
+                {
+                    pipes.Add(new FilePipe(Args, _netWriter));
+                }
+                break;
+            }
+            case PipeType.Process:  // Process pipelines
+            {
+                pipes.AddRange(new ProcessPipe[]
+                {
+                    new ProcessPipe(Args, _netReader, _process?.StandardInput),
+                    new ProcessPipe(Args, _process?.StandardOutput, _netWriter),
+                    new ProcessPipe(Args, _process?.StandardError, _netWriter)
+                });
+                break;
+            }
+            case PipeType.Status:   // Zero-IO pipeline
+            {
+                pipes.Add(new StatusPipe(Args, _netWriter));
+                break;
+            }
+            case PipeType.Text:     // Text pipeline
+            {
+                pipes.Add(new TextPipe(Args, _netWriter));
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+
+        return pipes;
+    }
+
+    /// <summary>
+    ///  Determine whether the underlying command shell process exited.
+    /// </summary>
+    private bool ProcessExited() => UsingExe && (_process?.HasExited ?? false);
+
+    /// <summary>
+    ///  Determine whether all the non-null underlying pipelines are connected.
+    /// </summary>
+    private bool PipelinesConnected()
+    {
+        bool connected = true;
+
+        if (_pipes is not null)
+        {
+            int nullCount = _pipes.Where(p => p is null).Count();
+
+            if (_pipes.Count > 0 && nullCount != _pipes.Count)
+            {
+                foreach (Pipeline pipe in _pipes)
+                {
+                    if (pipe is not null && !pipe.Connected)
+                    {
+                        connected = false;
+                        break;
                     }
                 }
             }
-            return connected;
         }
+        return connected;
     }
 }

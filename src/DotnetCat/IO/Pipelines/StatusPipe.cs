@@ -4,47 +4,43 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
-using DotnetCat.Network.Nodes;
 using DotnetCat.Utils;
 
-namespace DotnetCat.IO.Pipelines
+namespace DotnetCat.IO.Pipelines;
+
+/// <summary>
+///  Stream pipeline used to perform network connection testing.
+/// </summary>
+internal class StatusPipe : TextPipe, IConnectable
 {
     /// <summary>
-    ///  Stream pipeline used to perform network connection testing.
+    ///  Initialize the object.
     /// </summary>
-    internal class StatusPipe : TextPipe, IConnectable
+    public StatusPipe(CmdLineArgs args, StreamWriter? dest) : base(args, dest)
     {
-        /// <summary>
-        ///  Initialize the object.
-        /// </summary>
-        public StatusPipe(CmdLineArgs args, StreamWriter? dest) : base(args, dest)
+        if (Program.SockNode is null)
         {
-            if (Program.SockNode is null)
-            {
-                string msg = $"{nameof(Program.SockNode)} cannot be null";
-                throw new InvalidOperationException(msg);
-            }
-
-            Node node = Program.SockNode;
-            string target = $"{node.HostName}:{node.Port}";
-
-            StatusMsg = $"Connection accepted by {target}";
+            string msg = $"{nameof(Program.SockNode)} cannot be null";
+            throw new InvalidOperationException(msg);
         }
 
-        /// <summary>
-        ///  Asynchronously transfer an empty string between the underlying streams.
-        /// </summary>
-        protected override async Task ConnectAsync(CancellationToken token)
-        {
-            Connected = true;
+        string target = $"{Program.SockNode.HostName}:{Program.SockNode.Port}";
+        StatusMsg = $"Connection accepted by {target}";
+    }
 
-            StringBuilder data = new(await ReadToEndAsync());
-            await WriteAsync(data, token);
+    /// <summary>
+    ///  Asynchronously transfer an empty string between the underlying streams.
+    /// </summary>
+    protected override async Task ConnectAsync(CancellationToken token)
+    {
+        Connected = true;
 
-            Style.Output(StatusMsg);
+        StringBuilder data = new(await ReadToEndAsync());
+        await WriteAsync(data, token);
 
-            Disconnect();
-            Dispose();
-        }
+        Style.Output(StatusMsg);
+
+        Disconnect();
+        Dispose();
     }
 }
