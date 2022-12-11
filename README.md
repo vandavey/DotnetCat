@@ -9,6 +9,26 @@ targeting the [.NET 6 runtime](https://dotnet.microsoft.com/download/dotnet/6.0)
 
 ***
 
+## Overview
+
+DotnetCat is a multithreaded console application that can be used to spawn bind and reverse command
+shells, upload and download files, perform connection testing, and transfer user-defined payloads.
+This application uses Transmission Control Protocol (TCP) network sockets to transfer network data.
+
+The architecture of DotnetCat is composed of unidirectional pipelines responsible for asynchronously
+transferring binary data from one stream to another. This allows a single destination or source
+stream to be used by multiple pipelines simultaneously without causing thread lock issues.
+
+### Features
+
+* Bind command shells
+* Reverse command shells
+* Remote file uploads and downloads
+* Connection probing
+* User-defined data transmission
+
+***
+
 ## Basic Usage
 
 * Linux Systems
