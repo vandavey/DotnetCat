@@ -3,7 +3,7 @@ namespace DotnetCat.IO;
 /// <summary>
 ///  Console output level enumeration type.
 /// </summary>
-internal enum Level : ushort
+internal enum Level : byte
 {
     Error,   // Error/exception messages (stderr)
     Info,    // General messages (stdout)

@@ -10,7 +10,7 @@ using DotnetCat.Utils;
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Stream pipeline used to transfer file data.
+///  Unidirectional stream pipeline used to transfer file data.
 /// </summary>
 internal class FilePipe : Pipeline, IErrorHandled
 {

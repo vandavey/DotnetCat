@@ -3,7 +3,7 @@ namespace DotnetCat.IO.Pipelines;
 /// <summary>
 ///  Stream file transfer option enumeration type.
 /// </summary>
-internal enum TransferOpt : ushort
+internal enum TransferOpt : byte
 {
     None,      // No redirection
     Collect,   // Redirect source stream data to a file stream.

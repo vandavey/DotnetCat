@@ -3,7 +3,7 @@ namespace DotnetCat.IO.Pipelines;
 /// <summary>
 ///  Stream pipeline enumeration type.
 /// </summary>
-internal enum PipeType : ushort
+internal enum PipeType : byte
 {
     Stream,   // Standard console stream pipeline
     File,     // File transfer pipeline

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using DotnetCat.Errors;
 
 namespace DotnetCat.Network;
 
@@ -47,18 +48,46 @@ internal static class Net
                     return (addr, null);
                 }
             }
-            return (address, GetException(SocketError.HostNotFound));
+            return (address, GetSocketException(SocketError.HostNotFound));
         }
 
         return (ActiveLocalAddress(), null);
     }
 
     /// <summary>
-    ///  Get a new socket exception initialized with the given socket error.
+    ///  Get a new socket exception initialized from the given socket error.
     /// </summary>
-    public static SocketException GetException(SocketError error)
+    public static SocketException GetSocketException(SocketError error)
     {
         return new SocketException(Convert.ToInt32(error));
+    }
+
+    /// <summary>
+    ///  Get the DotnetCat exception associated with the given socket exception.
+    /// </summary>
+    public static Except GetExcept(SocketException? ex)
+    {
+        return ex?.SocketErrorCode switch
+        {
+            SocketError.HostNotFound        => Except.HostNotFound,
+            SocketError.ConnectionReset     => Except.ConnectionRefused,
+            SocketError.ConnectionRefused   => Except.ConnectionRefused,
+            SocketError.AddressAlreadyInUse => Except.AddressInUse,
+            SocketError.TimedOut            => Except.TimedOut,
+            SocketError.SocketError or _    => Except.SocketError
+        };
+    }
+
+    /// <summary>
+    ///  Get the DotnetCat exception associated with the given aggregate exception.
+    /// </summary>
+    public static Except GetExcept(AggregateException ex)
+    {
+        Exception? exception = (from Exception innerEx in ex.InnerExceptions
+                                where innerEx is SocketException
+                                select innerEx).FirstOrDefault();
+
+        return GetExcept(exception as SocketException);
     }
 
     /// <summary>

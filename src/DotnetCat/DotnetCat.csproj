@@ -122,7 +122,6 @@
         <Folder Include="Contracts/" />
         <Folder Include="Errors/" />
         <Folder Include="IO/" />
-        <Folder Include="IO/FileSystem/" />
         <Folder Include="IO/Pipelines/" />
         <Folder Include="Network/" />
         <Folder Include="Network/Nodes/" />

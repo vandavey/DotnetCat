@@ -9,7 +9,7 @@ using DotnetCat.Utils;
 namespace DotnetCat.Network.Nodes;
 
 /// <summary>
-///  Client socket node with an underlying TCP socket client.
+///  TCP network socket client node.
 /// </summary>
 internal class ClientNode : Node
 {
@@ -44,7 +44,7 @@ internal class ClientNode : Node
         {
             if (!Client.ConnectAsync(Address, Port).Wait(3500))
             {
-                throw Net.GetException(SocketError.TimedOut);
+                throw Net.GetSocketException(SocketError.TimedOut);
             }
             NetStream = Client.GetStream();
 
@@ -64,17 +64,17 @@ internal class ClientNode : Node
 
             Style.Info($"Connection to {_targetEP} closed");
         }
-        catch (AggregateException ex)  // Connection refused
+        catch (AggregateException ex)  // Asynchronous socket error
         {
-            PipeError(Except.ConnectionRefused, _targetEP, ex, Level.Error);
+            PipeError(Net.GetExcept(ex), _targetEP, ex, Level.Error);
         }
-        catch (SocketException ex)     // Error (likely timeout)
+        catch (SocketException ex)     // Socket error
         {
-            PipeError(Except.ConnectionTimeout, _targetEP, ex, Level.Error);
+            PipeError(Net.GetExcept(ex), _targetEP, ex, Level.Error);
         }
-        catch (IOException ex)         // Connection lost
+        catch (IOException ex)         // Connection was reset
         {
-            PipeError(Except.ConnectionLost, Address.ToString(), ex);
+            PipeError(Except.ConnectionReset, Address.ToString(), ex);
         }
 
         Dispose();

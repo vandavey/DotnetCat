@@ -9,11 +9,11 @@ namespace DotnetCat.IO;
 /// </summary>
 internal static class Sequence
 {
-    private const string ESCAPE = "\x1b";
+    private const string ESC = "\x1b";
 
-    private const string CLEAR = $"{ESCAPE}[H{ESCAPE}[2J{ESCAPE}[3J";
+    private const string CLEAR = $"{ESC}[H{ESC}[2J{ESC}[3J";
 
-    private const string RESET = $"{ESCAPE}[0m";
+    private const string RESET = $"{ESC}[0m";
 
     /// <summary>
     ///  Initialize the static class members.
@@ -55,22 +55,22 @@ internal static class Sequence
     {
         return color switch
         {
-            ConsoleColor.Black       => $"{ESCAPE}[0;30m",
-            ConsoleColor.DarkBlue    => $"{ESCAPE}[0;34m",
-            ConsoleColor.DarkGreen   => $"{ESCAPE}[0;32m",
-            ConsoleColor.DarkCyan    => $"{ESCAPE}[0;36m",
-            ConsoleColor.DarkRed     => $"{ESCAPE}[0;31m",
-            ConsoleColor.DarkMagenta => $"{ESCAPE}[0;35m",
-            ConsoleColor.DarkYellow  => $"{ESCAPE}[0;33m",
-            ConsoleColor.Gray        => $"{ESCAPE}[0;37m",
-            ConsoleColor.DarkGray    => $"{ESCAPE}[1;30m",
-            ConsoleColor.Blue        => $"{ESCAPE}[1;34m",
-            ConsoleColor.Green       => $"{ESCAPE}[1;32m",
-            ConsoleColor.Cyan        => $"{ESCAPE}[1;36m",
-            ConsoleColor.Red         => $"{ESCAPE}[1;31m",
-            ConsoleColor.Magenta     => $"{ESCAPE}[1;35m",
-            ConsoleColor.Yellow      => $"{ESCAPE}[1;33m",
-            ConsoleColor.White       => $"{ESCAPE}[1;37m",
+            ConsoleColor.Black       => $"{ESC}[0;30m",
+            ConsoleColor.DarkBlue    => $"{ESC}[0;34m",
+            ConsoleColor.DarkGreen   => $"{ESC}[0;32m",
+            ConsoleColor.DarkCyan    => $"{ESC}[0;36m",
+            ConsoleColor.DarkRed     => $"{ESC}[0;31m",
+            ConsoleColor.DarkMagenta => $"{ESC}[0;35m",
+            ConsoleColor.DarkYellow  => $"{ESC}[0;33m",
+            ConsoleColor.Gray        => $"{ESC}[0;37m",
+            ConsoleColor.DarkGray    => $"{ESC}[1;30m",
+            ConsoleColor.Blue        => $"{ESC}[1;34m",
+            ConsoleColor.Green       => $"{ESC}[1;32m",
+            ConsoleColor.Cyan        => $"{ESC}[1;36m",
+            ConsoleColor.Red         => $"{ESC}[1;31m",
+            ConsoleColor.Magenta     => $"{ESC}[1;35m",
+            ConsoleColor.Yellow      => $"{ESC}[1;33m",
+            ConsoleColor.White       => $"{ESC}[1;37m",
             _                        => RESET,
         };
     }

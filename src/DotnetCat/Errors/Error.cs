@@ -95,25 +95,26 @@ internal static class Error
     {
         return new ErrorMessage(exType switch
         {
+            Except.AddressInUse      => "The endpoint is already in use: %",
             Except.ArgsCombo         => "Invalid argument combination: %",
-            Except.ConnectionLost    => "Connection unexpectedly closed by %",
             Except.ConnectionRefused => "Connection was actively refused by %",
-            Except.ConnectionTimeout => "Socket timeout occurred: %",
+            Except.ConnectionReset   => "Connection was reset by %",
             Except.DirectoryPath     => "Unable to locate parent directory '%'",
             Except.EmptyPath         => "A value is required for option(s): %",
             Except.ExePath           => "Unable to locate executable file '%'",
             Except.ExeProcess        => "Unable to launch executable process: %",
             Except.FilePath          => "Unable to locate file path '%'",
-            Except.InvalidAddr       => "Unable to resolve hostname '%'",
+            Except.HostNotFound      => "Unable to resolve hostname: '%'",
             Except.InvalidArgs       => "Unable to validate argument(s): %",
             Except.InvalidPort       => "'%' is not a valid port number",
             Except.NamedArgs         => "Missing value for named argument(s): %",
-            Except.RequiredArgs      => "Invalid payload for argument(s): %",
-            Except.Payload           => "Missing required argument(s): %",
-            Except.SocketBind        => "The endpoint is already in use: %",
+            Except.Payload           => "Invalid payload data: %",
+            Except.RequiredArgs      => "Missing required argument(s): %",
+            Except.SocketError       => "Unspecified socket error occurred: %",
             Except.StringEOL         => "Missing EOL in argument(s): %",
+            Except.TimedOut          => "Socket timeout occurred: %",
             Except.UnknownArgs       => "Received unknown argument(s): %",
-            Except.Unhandled or _    => "Unhandled exception occurred: %",
+            Except.Unhandled or _    => "Unhandled exception occurred: %"
         });
     }
 }
