@@ -9,7 +9,7 @@ using DotnetCat.Utils;
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Stream pipeline used to transfer executable process data.
+///  Unidirectional stream pipeline used to transfer executable process data.
 /// </summary>
 internal class ProcessPipe : Pipeline, IConnectable
 {

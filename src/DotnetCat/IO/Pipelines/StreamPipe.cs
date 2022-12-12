@@ -5,7 +5,7 @@ using DotnetCat.Contracts;
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Stream pipeline used to transfer standard console stream data.
+///  Unidirectional stream pipeline used to transfer standard console stream data.
 /// </summary>
 internal class StreamPipe : Pipeline, IConnectable
 {

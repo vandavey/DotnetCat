@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using DotnetCat.Contracts;
 using DotnetCat.Errors;
 using DotnetCat.IO;
-using DotnetCat.IO.FileSystem;
 using DotnetCat.IO.Pipelines;
 using DotnetCat.Shell.Commands;
 using DotnetCat.Utils;
@@ -17,7 +16,8 @@ using DotnetCat.Utils;
 namespace DotnetCat.Network.Nodes;
 
 /// <summary>
-///  Base class for all socket nodes in the DotnetCat.Network.Nodes namespace.
+///  Abstract TCP network socket node. This is the base class
+///  for all socket nodes in the Network.Nodes namespace.
 /// </summary>
 internal abstract class Node : ISockErrorHandled
 {

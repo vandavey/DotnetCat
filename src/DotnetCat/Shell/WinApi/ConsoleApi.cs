@@ -161,7 +161,7 @@ internal static class ConsoleApi
     /// <summary>
     ///  Determine whether the given console buffer handle is valid.
     /// </summary>
-    private static BOOL ValidHandle(HANDLE handle)
+    private static bool ValidHandle(HANDLE handle)
     {
         return handle != INVALID_HANDLE_VALUE && handle != HANDLE.Zero;
     }

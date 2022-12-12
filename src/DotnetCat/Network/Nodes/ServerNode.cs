@@ -9,7 +9,7 @@ using DotnetCat.Utils;
 namespace DotnetCat.Network.Nodes;
 
 /// <summary>
-///  Server socket node with an underlying TCP socket client and listener socket.
+///  TCP network socket server node.
 /// </summary>
 internal class ServerNode : Node
 {
@@ -69,13 +69,13 @@ internal class ServerNode : Node
             Console.WriteLine();
             Style.Info($"Connection to {remoteEP} closed");
         }
-        catch (SocketException ex)  // Error (likely refused)
+        catch (SocketException ex)  // Socket error
         {
-            PipeError(Except.ConnectionRefused, remoteEP, ex);
+            PipeError(Net.GetExcept(ex), remoteEP, ex);
         }
-        catch (IOException ex)      // Connection lost
+        catch (IOException ex)      // Connection was reset
         {
-            PipeError(Except.ConnectionLost, remoteEP, ex);
+            PipeError(Except.ConnectionReset, remoteEP, ex);
         }
 
         Dispose();
@@ -131,7 +131,7 @@ internal class ServerNode : Node
         }
         catch (SocketException ex)
         {
-            PipeError(Except.SocketBind, ep.ToString(), ex);
+            PipeError(Net.GetExcept(ex), ep.ToString(), ex);
         }
     }
 }

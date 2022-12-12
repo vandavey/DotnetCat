@@ -9,7 +9,7 @@ using DotnetCat.Utils;
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Stream pipeline used to perform network connection testing.
+///  Unidirectional stream pipeline used to perform network connection testing.
 /// </summary>
 internal class StatusPipe : TextPipe, IConnectable
 {

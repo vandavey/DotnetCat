@@ -9,7 +9,7 @@ using DotnetCat.Utils;
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Stream pipeline used to transfer arbitrary string data.
+///  Unidirectional stream pipeline used to transfer arbitrary string data.
 /// </summary>
 internal class TextPipe : Pipeline, IConnectable
 {

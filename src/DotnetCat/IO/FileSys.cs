@@ -5,7 +5,7 @@ using DotnetCat.Shell.Commands;
 using DotnetCat.Utils;
 using SpecialFolder = System.Environment.SpecialFolder;
 
-namespace DotnetCat.IO.FileSystem;
+namespace DotnetCat.IO;
 
 /// <summary>
 ///  File system utility class.
@@ -59,9 +59,9 @@ internal static class FileSys
     /// </summary>
     public static bool FileExists(string? path)
     {
-        bool exists = !path.IsNullOrEmpty();
+        bool exists = false;
 
-        if (exists)
+        if (!path.IsNullOrEmpty())
         {
             exists = File.Exists(ResolvePath(path));
         }
@@ -73,9 +73,9 @@ internal static class FileSys
     /// </summary>
     public static bool DirectoryExists(string? path)
     {
-        bool exists = !path.IsNullOrEmpty();
+        bool exists = false;
 
-        if (exists)
+        if (!path.IsNullOrEmpty())
         {
             exists = Directory.Exists(ResolvePath(path));
         }
@@ -138,7 +138,6 @@ internal static class FileSys
         }
         (string? path, bool exists) = (exe, Exists(exe));
 
-        // Resolve absolute path
         if (!exists)
         {
             (path, exists) = (path = FindExecutable(path), Exists(path));
@@ -155,11 +154,8 @@ internal static class FileSys
         {
             throw new ArgumentNullException(nameof(exeName));
         }
-
         string? fullPath = default;
-        bool exePathFound = false;
 
-        // Search environment path directories
         if (!File.Exists(exeName))
         {
             foreach (string path in _envPaths)
@@ -169,37 +165,44 @@ internal static class FileSys
                     continue;
                 }
 
-                string? fileName = (from file in Directory.GetFiles(path)
-                                    let name = GetFileName(file, false)
-                                    where name == GetFileName(exeName, false)
-                                    select name).FirstOrDefault();
-
-                // Try to match executable extension
-                if (fileName is not null)
+                if ((fullPath = GetFullExePath(path, exeName)) is not null)
                 {
-                    foreach (string ext in _exeExtensions)
-                    {
-                        string newExeName = fileName;
-
-                        if (ext != string.Empty)
-                        {
-                            newExeName = Path.ChangeExtension(newExeName, ext);
-                        }
-                        string newPath = Path.Combine(path, newExeName);
-
-                        // Executable match found
-                        if (File.Exists(newPath))
-                        {
-                            fullPath = newPath;
-                            exePathFound = true;
-                            break;
-                        }
-                    }
+                    break;
                 }
+            }
+        }
+        return fullPath;
+    }
 
-                // Terminate file search
-                if (exePathFound)
+    /// <summary>
+    ///  Search files in the given directory for a file whose name
+    ///  matches the specified executable name.
+    /// </summary>
+    private static string? GetFullExePath(string dirPath, string? exeName)
+    {
+        string? fullPath = default;
+
+        string? fileName = (from string file in Directory.GetFiles(dirPath)
+                            let name = GetFileName(file, false)
+                            where name == GetFileName(exeName, false)
+                            select name).FirstOrDefault();
+
+        // Try to match executable extension
+        if (fileName is not null)
+        {
+            foreach (string ext in _exeExtensions)
+            {
+                string newExeName = fileName;
+
+                if (ext != string.Empty)
                 {
+                    newExeName = Path.ChangeExtension(newExeName, ext);
+                }
+                string testPath = Path.Combine(dirPath, newExeName);
+
+                if (File.Exists(testPath))
+                {
+                    fullPath = testPath;
                     break;
                 }
             }

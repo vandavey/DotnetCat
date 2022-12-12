@@ -11,7 +11,8 @@ using DotnetCat.Utils;
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Base class for all pipelines in the DotnetCat.IO.Pipelines namespace.
+///  Abstract unidirectional stream pipeline. This is the base
+///  class for all pipelines in the IO.Pipelines namespace.
 /// </summary>
 internal abstract class Pipeline : IConnectable
 {

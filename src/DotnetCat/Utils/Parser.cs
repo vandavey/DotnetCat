@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using DotnetCat.Errors;
-using DotnetCat.IO.FileSystem;
+using DotnetCat.IO;
 using DotnetCat.IO.Pipelines;
 using DotnetCat.Network;
 
@@ -53,7 +53,7 @@ internal class Parser
     /// </summary>
     public static bool NeedsHelp(string[] args)
     {
-        int count = (from arg in args.ToList()
+        int count = (from string arg in args.ToList()
                      where arg == "--help"
                          || (arg.Length > 1
                              && arg[0] == '-'
@@ -75,22 +75,22 @@ internal class Parser
         {
             throw new ArgumentNullException(nameof(flag));
         }
+        List<string> argsList = args is null ? new() : args.ToList();
 
         if (flag == "-")
         {
-            return args?.IndexOf(flag) ?? -1;
+            return argsList.IndexOf(flag);
         }
-
         alias ??= flag.Where(c => char.IsLetter(c)).FirstOrDefault();
 
-        List<int> query = (from arg in args
-                           where arg == flag
-                               || (arg.Contains(alias ?? '\0')
-                                   && arg[0] == '-'
-                                   && arg[1] != '-')
-                           select args?.IndexOf(flag) ?? -1).ToList();
+        List<int> flagIndexes = (from string arg in argsList
+                                 where arg == flag
+                                     || (arg.Contains(alias ?? '\0')
+                                         && arg[0] == '-'
+                                         && arg[1] != '-')
+                                 select argsList.IndexOf(flag)).ToList();
 
-        return query.Count > 0 ? query[0] : -1;
+        return flagIndexes.Count > 0 ? flagIndexes[0] : -1;
     }
 
     /// <summary>
@@ -99,7 +99,7 @@ internal class Parser
     /// </summary>
     public CmdLineArgs Parse(string[] args)
     {
-        _argsList = DefragArguments(args);
+        _argsList = DefragArguments(args.ToList());
 
         ParseCharArgs();
         ParseFlagArgs();
@@ -114,13 +114,13 @@ internal class Parser
     /// </summary>
     public int IndexOfAlias(char alias)
     {
-        List<int> query = (from arg in _argsList.ToList()
-                           where arg.Contains(alias)
-                               && arg[0] == '-'
-                               && arg[1] != '-'
-                           select _argsList.IndexOf(arg)).ToList();
+        List<int> aliasIndexes = (from string arg in _argsList.ToList()
+                                  where arg.Contains(alias)
+                                      && arg[0] == '-'
+                                      && arg[1] != '-'
+                                  select _argsList.IndexOf(arg)).ToList();
 
-        return query.Count > 0 ? query[0] : -1;
+        return aliasIndexes.Count > 0 ? aliasIndexes.First() : -1;
     }
 
     /// <summary>
@@ -146,19 +146,18 @@ internal class Parser
     ///  Defragment the given fragmented command-line arguments so
     ///  quoted strings are interpreted as single arguments.
     /// </summary>
-    private static List<string> DefragArguments(string[] args)
+    private static List<string> DefragArguments(List<string> args)
     {
         int delta = 0;
         List<string> list = args.ToList();
 
-        var bolQuery = from arg in args
-                       let pos = Array.IndexOf(args, arg)
-                       let quote = arg.FirstOrDefault()
-                       let valid = arg.EndsWith(quote) && arg.Length >= 2
-                       where arg.StartsWith("'") || arg.StartsWith("\"")
-                       select new { arg, pos, quote, valid };
+        var bolResults = from string arg in args
+                         let quote = arg.FirstOrDefault()
+                         let valid = arg.EndsWith(quote) && arg.Length >= 2
+                         where arg.StartsWith("'") || arg.StartsWith("\"")
+                         select new { pos = args.IndexOf(arg), arg, quote, valid };
 
-        foreach (var item in bolQuery)
+        foreach (var item in bolResults)
         {
             // Skip processed arguments
             if (delta > 0)
@@ -171,39 +170,32 @@ internal class Parser
             // Non-fragmented string
             if (item.valid)
             {
-                list[listIndex] = item.arg[1..(item.arg.Length - 1)];
+                list[listIndex] = item.arg[1..^1];
                 continue;
             }
 
-            var eolQuery = (from arg in args
-                            let pos = Array.IndexOf(args, arg, item.pos + 1)
-                            where pos > item.pos
-                                && (arg == item.quote.ToString()
-                                    || arg.EndsWith(item.quote))
-                            select new { arg, pos }).FirstOrDefault();
-
-            // Missing EOL (quote)
-            if (eolQuery is null)
+            (int eolPos, string eolArg) = (from string arg in args
+                                           let pos = args.IndexOf(arg, item.pos + 1)
+                                           where pos > item.pos
+                                               && (arg == item.quote.ToString()
+                                                   || arg.EndsWith(item.quote))
+                                           select (pos, arg)).FirstOrDefault();
+            if (eolArg is null)
             {
-                string arg = string.Join(", ", args[item.pos..]);
+                string arg = string.Join(", ", args.ToArray()[item.pos..^0]);
                 Error.Handle(Except.StringEOL, arg, true);
             }
-            else  // Calculate position delta
-            {
-                delta = eolQuery.pos - item.pos;
-            }
+            delta = eolPos - item.pos;
 
-            int endIndex = item.pos + delta;
-
-            // Append fragments and remove duplicates
-            for (int i = item.pos + 1; i < endIndex + 1; i++)
+            // Append fragments to the list argument
+            for (int i = item.pos + 1; i < item.pos + delta + 1; i++)
             {
                 list[listIndex] += $" {args[i]}";
                 list.Remove(args[i]);
             }
 
             string defragged = list[listIndex];
-            list[listIndex] = defragged[1..(defragged.Length - 1)];
+            list[listIndex] = defragged[1..^1];
         }
         return list;
     }
@@ -214,70 +206,70 @@ internal class Parser
     /// </summary>
     private void ParseCharArgs()
     {
-        var query = from arg in _argsList.ToList()
-                    let index = IndexOfFlag(arg)
-                    where (arg.Length >= 2) && (arg[0] == '-') && (arg[1] != '-')
-                    select new { arg, index };
+        var results = from arg in _argsList.ToList()
+                      let index = IndexOfFlag(arg)
+                      where (arg.Length >= 2) && (arg[0] == '-') && (arg[1] != '-')
+                      select (index, arg);
 
-        foreach (var item in query)
+        foreach ((int index, string arg) in results)
         {
-            if (item.arg.Contains('l'))  // Listen for connection
+            if (arg.Contains('l'))  // Listen for connection
             {
                 _args.Listen = true;
-                RemoveAlias(item.index, 'l');
+                RemoveAlias(index, 'l');
             }
 
-            if (item.arg.Contains('v'))  // Verbose output
+            if (arg.Contains('v'))  // Verbose output
             {
                 _args.Verbose = true;
-                RemoveAlias(item.index, 'v');
+                RemoveAlias(index, 'v');
             }
 
-            if (item.arg.Contains('z'))  // Zero-IO (test connection)
+            if (arg.Contains('z'))  // Zero-IO (test connection)
             {
                 _args.PipeVariant = PipeType.Status;
-                RemoveAlias(item.index, 'z');
+                RemoveAlias(index, 'z');
             }
 
-            if (item.arg.Contains('d'))  // Debug output
+            if (arg.Contains('d'))  // Debug output
             {
                 _args.Debug = _args.Verbose = Error.Debug = true;
-                RemoveAlias(item.index, 'd');
+                RemoveAlias(index, 'd');
             }
 
-            if (item.arg.Contains('p'))  // Connection port
+            if (arg.Contains('p'))  // Connection port
             {
-                _args.Port = GetPort(item.index);
-                RemoveAlias(item.index, 'p', removeValue: true);
+                _args.Port = GetPort(index);
+                RemoveAlias(index, 'p', removeValue: true);
             }
 
-            if (item.arg.Contains('e'))  // Executable path
+            if (arg.Contains('e'))  // Executable path
             {
-                _args.ExePath = GetExecutable(item.index);
-                RemoveAlias(item.index, 'e', removeValue: true);
+                _args.ExePath = GetExecutable(index);
+                RemoveAlias(index, 'e', removeValue: true);
             }
 
-            if (item.arg.Contains('o'))  // Receive file data
+            if (arg.Contains('o'))  // Receive file data
             {
-                _args.FilePath = GetTransfer(item.index);
+                _args.FilePath = GetTransfer(index);
                 _args.TransOpt = TransferOpt.Collect;
-                RemoveAlias(item.index, 'o', removeValue: true);
+                RemoveAlias(index, 'o', removeValue: true);
             }
 
-            if (item.arg.Contains('s'))  // Send file data
+            if (arg.Contains('s'))  // Send file data
             {
-                _args.FilePath = GetTransfer(item.index);
+                _args.FilePath = GetTransfer(index);
                 _args.TransOpt = TransferOpt.Transmit;
-                RemoveAlias(item.index, 's', removeValue: true);
+                RemoveAlias(index, 's', removeValue: true);
             }
 
-            if (item.arg.Contains('t'))  // Send string data
+            if (arg.Contains('t'))  // Send string data
             {
-                _args.Payload = GetTextPayload(item.index);
-                RemoveAlias(item.index, 't', removeValue: true);
+                _args.Payload = GetTextPayload(index);
+                RemoveAlias(index, 't', removeValue: true);
             }
 
-            if (ArgsValueAt(item.index) == "-")
+            if (ArgsValueAt(index) == "-")
             {
                 _argsList.RemoveAt(IndexOfFlag("-"));
             }
@@ -290,69 +282,69 @@ internal class Parser
     /// </summary>
     private void ParseFlagArgs()
     {
-        var query = from arg in _argsList.ToList()
-                    let index = IndexOfFlag(arg)
-                    where arg.StartsWith("--")
-                    select new { arg, index };
+        List<(int, string)> results = (from string arg in _argsList.ToList()
+                                       let index = IndexOfFlag(arg)
+                                       where arg.StartsWith("--")
+                                       select (index, arg)).ToList();
 
-        foreach (var item in query)
+        foreach ((int index, string arg) in results)
         {
-            switch (item.arg)
+            switch (arg)
             {
                 case "--listen":   // Listen for connection
                 {
                     _args.Listen = true;
-                    _argsList.RemoveAt(item.index);
+                    _argsList.RemoveAt(index);
                     break;
                 }
                 case "--verbose":  // Verbose output
                 {
                     _args.Verbose = true;
-                    _argsList.RemoveAt(item.index);
+                    _argsList.RemoveAt(index);
                     break;
                 }
                 case "--debug":    // Debug output
                 {
                     _args.Debug = _args.Verbose = Error.Debug = true;
-                    _argsList.RemoveAt(item.index);
+                    _argsList.RemoveAt(index);
                     break;
                 }
                 case "--zero-io":  // Zero-IO (test connection)
                 {
                     _args.PipeVariant = PipeType.Status;
-                    _argsList.RemoveAt(item.index);
+                    _argsList.RemoveAt(index);
                     break;
                 }
                 case "--port":     // Connection port
                 {
-                    _args.Port = GetPort(item.index);
-                    RemoveFlag(ArgsValueAt(item.index));
+                    _args.Port = GetPort(index);
+                    RemoveFlag(ArgsValueAt(index));
                     break;
                 }
                 case "--exec":     // Executable path
                 {
-                    _args.ExePath = GetExecutable(item.index);
-                    RemoveFlag(ArgsValueAt(item.index));
+                    _args.ExePath = GetExecutable(index);
+                    RemoveFlag(ArgsValueAt(index));
                     break;
                 }
                 case "--text":     // Send string data
                 {
-                    _args.Payload = GetTextPayload(item.index);
-                    RemoveFlag(ArgsValueAt(item.index));
+                    _args.Payload = GetTextPayload(index);
+                    RemoveFlag(ArgsValueAt(index));
                     break;
                 }
                 case "--output":   // Receive file data
                 {
-                    _args.FilePath = GetTransfer(item.index);
+                    _args.FilePath = GetTransfer(index);
                     _args.TransOpt = TransferOpt.Collect;
-                    RemoveFlag(ArgsValueAt(item.index));
+                    RemoveFlag(ArgsValueAt(index));
                     break;
                 }
                 case "--send":     // Send file data
                 {
-                    _args.FilePath = GetTransfer(item.index);
+                    _args.FilePath = GetTransfer(index);
                     _args.TransOpt = TransferOpt.Transmit;
-                    RemoveFlag(ArgsValueAt(item.index));
+                    RemoveFlag(ArgsValueAt(index));
                     break;
                 }
                 default:
@@ -400,7 +392,7 @@ internal class Parser
 
                 if (_args.Address == IPAddress.Any)
                 {
-                    Error.Handle(Except.InvalidAddr, _argsList[0], true, ex: ex);
+                    Error.Handle(Except.HostNotFound, _argsList[0], true, ex: ex);
                 }
                 break;
             }
