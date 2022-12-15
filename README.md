@@ -5,20 +5,21 @@
 # DotnetCat
 
 Remote command shell application written in C#,
-targeting the [.NET 6 runtime](https://dotnet.microsoft.com/download/dotnet/6.0).
+targeting the [.NET 7 runtime](https://dotnet.microsoft.com/download/dotnet/7.0).
 
 ***
 
 ## Overview
 
 DotnetCat is a multithreaded console application that can be used to spawn bind and reverse
-command shells, upload and download files, perform connection testing, and transfer user-defined
+command shells, upload and download files, perform connection testing, and transmit user-defined
 payloads. This application uses Transmission Control Protocol (TCP) network sockets to perform
 network communications.
 
-The architecture of DotnetCat is composed of unidirectional pipelines responsible for asynchronously
-transferring binary data from one stream to another. This allows for a single source or destination
-stream to be used by multiple pipelines simultaneously without causing thread lock issues.
+At its core, the architecture of DotnetCat is composed of unidirectional pipelines responsible for
+asynchronously transferring binary data from one stream to another. This allows for a single source
+or destination stream (e.g., socket stream) to be used by multiple pipelines simultaneously without
+thread lock issues occurring.
 
 ### Features
 

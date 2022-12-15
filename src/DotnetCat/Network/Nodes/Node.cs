@@ -398,9 +398,7 @@ internal abstract class Node : ISockErrorHandled
 
         if (_pipes is not null)
         {
-            int nullCount = _pipes.Where(p => p is null).Count();
-
-            if (_pipes.Count > 0 && nullCount != _pipes.Count)
+            if (_pipes.Any() && _pipes.Count != _pipes.Count(p => p is null))
             {
                 foreach (Pipeline pipe in _pipes)
                 {

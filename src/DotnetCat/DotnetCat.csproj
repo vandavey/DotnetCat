@@ -1,104 +1,51 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <!--
-     DotnetCat project properties
+     Configure DotnetCat project properties
     -->
     <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ApplicationIcon>Resources/Icon.ico</ApplicationIcon>
         <AssemblyName>dncat</AssemblyName>
         <Authors>vandavey</Authors>
         <Configurations>Debug;Release;Linux;ARM64</Configurations>
         <Copyright>Copyright (c) 2020 vandavey</Copyright>
         <Description>DotnetCat</Description>
+        <ErrorReport>none</ErrorReport>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <OutputType>Exe</OutputType>
+        <OutputType>exe</OutputType>
         <PackageLicenseFile>Resources/LICENSE.md</PackageLicenseFile>
-        <Platforms>AnyCPU;x64;x86</Platforms>
+        <Platforms>AnyCPU;x64</Platforms>
+        <PublishReadyToRun>true</PublishReadyToRun>
+        <PublishSingleFile>true</PublishSingleFile>
+        <PublishTrimmed>true</PublishTrimmed>
         <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
         <RootNamespace>DotnetCat</RootNamespace>
         <StartupObject>DotnetCat.Program</StartupObject>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
+        <WarningLevel>7</WarningLevel>
     </PropertyGroup>
 
     <!--
-     Config :: Debug
-     Target :: x64
-     RID    :: win-x64
+     Configure debug specific properties
     -->
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>portable</DebugType>
+        <Optimize>false</Optimize>
         <OutputPath>bin/Debug</OutputPath>
-        <PlatformTarget>x64</PlatformTarget>
-        <PublishSingleFile>false</PublishSingleFile>
-        <PublishTrimmed>false</PublishTrimmed>
-        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-        <WarningLevel>3</WarningLevel>
     </PropertyGroup>
 
     <!--
-     Config :: Release
-     Target :: x64
-     RID    :: win-x64
+     Configure release specific properties
     -->
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PropertyGroup Condition="'$(Configuration)'!='Debug'">
         <DebugSymbols>false</DebugSymbols>
         <DebugType>none</DebugType>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <Optimize>true</Optimize>
         <OutputPath>bin/Release</OutputPath>
-        <PlatformTarget>x64</PlatformTarget>
-        <PublishSingleFile>true</PublishSingleFile>
-        <PublishTrimmed>true</PublishTrimmed>
-        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-        <WarningLevel>3</WarningLevel>
-        <WarningsAsErrors>NU1605</WarningsAsErrors>
-    </PropertyGroup>
-
-    <!--
-     Config :: Release
-     Target :: x86
-     RID    :: win-x86
-    -->
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-        <DebugSymbols>false</DebugSymbols>
-        <DebugType>none</DebugType>
-        <OutputPath>bin/Release</OutputPath>
-        <PlatformTarget>x86</PlatformTarget>
-        <PublishSingleFile>true</PublishSingleFile>
-        <PublishTrimmed>true</PublishTrimmed>
-        <RuntimeIdentifier>win-x86</RuntimeIdentifier>
-        <WarningLevel>3</WarningLevel>
-        <WarningsAsErrors>NU1605</WarningsAsErrors>
-    </PropertyGroup>
-
-    <!--
-     Config :: Linux
-     Target :: x64
-     RID    :: linux-x64
-    -->
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Linux|x64'">
-        <DebugSymbols>false</DebugSymbols>
-        <DebugType>none</DebugType>
-        <OutputPath>bin/Release</OutputPath>
-        <PlatformTarget>x64</PlatformTarget>
-        <PublishSingleFile>true</PublishSingleFile>
-        <PublishTrimmed>true</PublishTrimmed>
-        <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
-        <WarningLevel>3</WarningLevel>
-    </PropertyGroup>
-
-    <!--
-     Config :: ARM64
-     Target :: AnyCPU
-     RID    :: linux-arm64
-    -->
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ARM64|AnyCPU'">
-        <DebugSymbols>false</DebugSymbols>
-        <DebugType>none</DebugType>
-        <OutputPath>bin/Release</OutputPath>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <PublishSingleFile>true</PublishSingleFile>
-        <PublishTrimmed>true</PublishTrimmed>
-        <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
-        <WarningLevel>3</WarningLevel>
     </PropertyGroup>
 
     <!--
