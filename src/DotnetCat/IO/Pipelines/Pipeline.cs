@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
-using DotnetCat.Shell.Commands;
+using DotnetCat.Shell;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;

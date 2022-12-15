@@ -76,7 +76,6 @@
         <Folder Include="Properties/PublishProfiles/" />
         <Folder Include="Resources/" />
         <Folder Include="Shell/" />
-        <Folder Include="Shell/Commands/" />
         <Folder Include="Shell/WinApi/" />
         <Folder Include="Utils/" />
     </ItemGroup>
