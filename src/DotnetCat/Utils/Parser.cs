@@ -35,7 +35,7 @@ internal class Parser
     public Parser()
     {
         _eol = Environment.NewLine;
-        _help = GetHelp();
+        _help = GetHelpMessage();
 
         _args = new CmdLineArgs();
         _argsList = new List<string>();
@@ -81,16 +81,16 @@ internal class Parser
         {
             return argsList.IndexOf(flag);
         }
-        alias ??= flag.Where(c => char.IsLetter(c)).FirstOrDefault();
+        alias ??= flag.FirstOrDefault(char.IsLetter);
 
-        List<int> flagIndexes = (from string arg in argsList
-                                 where arg == flag
-                                     || (arg.Contains(alias ?? '\0')
-                                         && arg[0] == '-'
-                                         && arg[1] != '-')
-                                 select argsList.IndexOf(flag)).ToList();
+        IEnumerable<int> flagIndexes = from string arg in argsList
+                                       where arg == flag
+                                           || (arg.Contains(alias ?? '\0')
+                                               && arg[0] == '-'
+                                               && arg[1] != '-')
+                                       select argsList.IndexOf(flag);
 
-        return flagIndexes.Count > 0 ? flagIndexes[0] : -1;
+        return flagIndexes.Any() ? flagIndexes.First() : -1;
     }
 
     /// <summary>
@@ -114,13 +114,13 @@ internal class Parser
     /// </summary>
     public int IndexOfAlias(char alias)
     {
-        List<int> aliasIndexes = (from string arg in _argsList.ToList()
-                                  where arg.Contains(alias)
-                                      && arg[0] == '-'
-                                      && arg[1] != '-'
-                                  select _argsList.IndexOf(arg)).ToList();
+        IEnumerable<int> aliasIndexes = from string arg in _argsList.ToList()
+                                        where arg.Contains(alias)
+                                            && arg[0] == '-'
+                                            && arg[1] != '-'
+                                        select _argsList.IndexOf(arg);
 
-        return aliasIndexes.Count > 0 ? aliasIndexes.First() : -1;
+        return aliasIndexes.Any() ? aliasIndexes.First() : -1;
     }
 
     /// <summary>
@@ -148,16 +148,18 @@ internal class Parser
     /// </summary>
     private static List<string> DefragArguments(List<string> args)
     {
+        IEnumerable<(int, string, char, bool)> results;
+
         int delta = 0;
         List<string> list = args.ToList();
 
-        var bolResults = from string arg in args
-                         let quote = arg.FirstOrDefault()
-                         let valid = arg.EndsWith(quote) && arg.Length >= 2
-                         where arg.StartsWith("'") || arg.StartsWith("\"")
-                         select new { pos = args.IndexOf(arg), arg, quote, valid };
+        results = from string arg in args
+                  let quote = arg.FirstOrDefault()
+                  let valid = arg.EndsWith(quote) && arg.Length >= 2
+                  where arg.StartsWith("'") || arg.StartsWith("\"")
+                  select (args.IndexOf(arg), arg, quote, valid);
 
-        foreach (var item in bolResults)
+        foreach ((int bolPos, string bolArg, char quote, bool valid) in results)
         {
             // Skip processed arguments
             if (delta > 0)
@@ -165,30 +167,30 @@ internal class Parser
                 delta -= 1;
                 continue;
             }
-            int listIndex = list.IndexOf(item.arg);
+            int listIndex = list.IndexOf(bolArg);
 
             // Non-fragmented string
-            if (item.valid)
+            if (valid)
             {
-                list[listIndex] = item.arg[1..^1];
+                list[listIndex] = bolArg[1..^1];
                 continue;
             }
 
             (int eolPos, string eolArg) = (from string arg in args
-                                           let pos = args.IndexOf(arg, item.pos + 1)
-                                           where pos > item.pos
-                                               && (arg == item.quote.ToString()
-                                                   || arg.EndsWith(item.quote))
+                                           let pos = args.IndexOf(arg, bolPos + 1)
+                                           where pos > bolPos
+                                               && (arg == quote.ToString()
+                                                   || arg.EndsWith(quote))
                                            select (pos, arg)).FirstOrDefault();
             if (eolArg is null)
             {
-                string arg = string.Join(", ", args.ToArray()[item.pos..^0]);
+                string arg = args.ToArray()[bolPos..^0].Join(", ");
                 Error.Handle(Except.StringEOL, arg, true);
             }
-            delta = eolPos - item.pos;
+            delta = eolPos - bolPos;
 
             // Append fragments to the list argument
-            for (int i = item.pos + 1; i < item.pos + delta + 1; i++)
+            for (int i = bolPos + 1; i < bolPos + delta + 1; i++)
             {
                 list[listIndex] += $" {args[i]}";
                 list.Remove(args[i]);
@@ -206,10 +208,12 @@ internal class Parser
     /// </summary>
     private void ParseCharArgs()
     {
-        var results = from arg in _argsList.ToList()
-                      let index = IndexOfFlag(arg)
-                      where (arg.Length >= 2) && (arg[0] == '-') && (arg[1] != '-')
-                      select (index, arg);
+        IEnumerable<(int, string)> results = from arg in _argsList.ToList()
+                                             let index = IndexOfFlag(arg)
+                                             where arg.Length >= 2
+                                                 && arg[0] == '-'
+                                                 && arg[1] != '-'
+                                             select (index, arg);
 
         foreach ((int index, string arg) in results)
         {
@@ -282,10 +286,10 @@ internal class Parser
     /// </summary>
     private void ParseFlagArgs()
     {
-        List<(int, string)> results = (from string arg in _argsList.ToList()
-                                       let index = IndexOfFlag(arg)
-                                       where arg.StartsWith("--")
-                                       select (index, arg)).ToList();
+        IEnumerable<(int, string)> results = from string arg in _argsList.ToList()
+                                             let index = IndexOfFlag(arg)
+                                             where arg.StartsWith("--")
+                                             select (index, arg);
 
         foreach ((int index, string arg) in results)
         {
@@ -413,30 +417,33 @@ internal class Parser
     /// <summary>
     ///  Get the extended application usage information message.
     /// </summary>
-    private string GetHelp() => string.Join(_eol, new string[]
+    private string GetHelpMessage()
     {
-        $"DotnetCat ({Repo})",
-        $"{Usage}{_eol}",
-        $"Remote command shell application{_eol}",
-        "Positional Arguments:",
-        $"  TARGET                    Remote or local IPv4 address{_eol}",
-        "Optional Arguments:",
-        "  -h/-?,   --help           Show this help message and exit",
-        "  -v,      --verbose        Enable verbose console output",
-        "  -d,      --debug          Output verbose error information",
-        "  -l,      --listen         Listen for incoming connections",
-        "  -z,      --zero-io        Report connection status only",
-        "  -p PORT, --port PORT      Specify port to use for endpoint.",
-        "                            (Default: 44444)",
-        "  -e EXEC, --exec EXEC      Executable process file path",
-        "  -o PATH, --output PATH    Receive file from remote host",
-        "  -s PATH, --send PATH      Send local file or folder",
-        $"  -t DATA, --text DATA      Send string to remote host{_eol}",
-        "Usage Examples:",
-        $"  {_title} --listen --exec powershell.exe",
-        $"  {_title} -d -p 44444 localhost",
-        $"  {_title} -vo test.txt -p 2009 192.168.1.9 {_eol}",
-    });
+        string helpMessage = $"""
+            DotnetCat ({Repo})
+            {Usage}{_eol}
+            Remote command shell application{_eol}
+            Positional Arguments:
+              TARGET                    Remote or local IPv4 address{_eol}
+            Optional Arguments:
+              -h/-?,   --help           Show this help message and exit
+              -v,      --verbose        Enable verbose console output
+              -d,      --debug          Output verbose error information
+              -l,      --listen         Listen for incoming connections
+              -z,      --zero-io        Report connection status only
+              -p PORT, --port PORT      Specify port to use for endpoint.
+                                        (Default: 44444)
+              -e EXEC, --exec EXEC      Executable process file path
+              -o PATH, --output PATH    Receive file from remote host
+              -s PATH, --send PATH      Send local file or folder
+              -t DATA, --text DATA      Send string to remote host{_eol}
+            Usage Examples:
+              {_title} --listen --exec powershell.exe
+              {_title} -d -p 44444 localhost
+              {_title} -vo test.txt -p 2009 192.168.1.9{_eol}
+            """;
+        return helpMessage;
+    }
 
     /// <summary>
     ///  Remove the given flag alias (-f) character from the argument located at

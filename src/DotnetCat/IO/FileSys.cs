@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using DotnetCat.Shell.Commands;
+using DotnetCat.Shell;
 using DotnetCat.Utils;
 using SpecialFolder = System.Environment.SpecialFolder;
 

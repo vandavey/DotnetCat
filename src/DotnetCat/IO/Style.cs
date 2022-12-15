@@ -73,7 +73,6 @@ internal static class Style
     /// <summary>
     private static int IndexOfStatus(Level level)
     {
-        Status status = _statuses.Where(s => s.Level == level).First();
-        return _statuses.IndexOf(status);
+        return _statuses.IndexOf(_statuses.First(s => s.Level == level));
     }
 }

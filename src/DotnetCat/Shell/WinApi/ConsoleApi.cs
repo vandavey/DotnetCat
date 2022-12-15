@@ -12,7 +12,7 @@ namespace DotnetCat.Shell.WinApi;
 /// <summary>
 ///  Windows console API interoperability utility class.
 /// </summary>
-internal static class ConsoleApi
+internal static partial class ConsoleApi
 {
 #if WINDOWS
     private const int NULL = 0;
@@ -131,32 +131,32 @@ internal static class ConsoleApi
     ///  Get the current input mode or output mode of the given
     ///  console input buffer or console output buffer.
     /// </summary>
-    [DllImport("kernel32.dll", SetLastError = true)]
+    [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern BOOL GetConsoleMode(HANDLE hConsoleHandle,
-                                              out DWORD lpMode);
+    private static partial BOOL GetConsoleMode(HANDLE hConsoleHandle,
+                                               out DWORD lpMode);
 
     /// <summary>
     ///  Get the calling thread's most recent Windows error code.
     /// </summary>
-    [DllImport("kernel32.dll")]
+    [LibraryImport("kernel32.dll")]
     [return: MarshalAs(UnmanagedType.U4)]
-    private static extern DWORD GetLastError();
+    private static partial DWORD GetLastError();
 
     /// <summary>
     ///  Get a handle to the given standard console buffer.
     /// </summary>
-    [DllImport("kernel32.dll", SetLastError = true)]
+    [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.SysInt)]
-    private static extern HANDLE GetStdHandle(int nStdHandle);
+    private static partial HANDLE GetStdHandle(int nStdHandle);
 
     /// <summary>
     ///  Set the input mode or output mode of the given console
     ///  input buffer or console output buffer.
     /// </summary>
-    [DllImport("kernel32.dll", SetLastError = true)]
+    [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern BOOL SetConsoleMode(HANDLE hConsoleHandle, DWORD dwMode);
+    private static partial BOOL SetConsoleMode(HANDLE hConsoleHandle, DWORD dwMode);
 
     /// <summary>
     ///  Determine whether the given console buffer handle is valid.

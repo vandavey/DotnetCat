@@ -75,12 +75,12 @@ internal static class Error
             }
             string header = $"----[ {ex?.GetType().FullName} ]----";
 
-            Console.WriteLine(string.Join(Environment.NewLine, new string[]
-            {
-                header,
-                ex?.ToString() ?? string.Empty,
-                new string('-', header.Length)
-            }));
+            Console.WriteLine($"""
+                {header}
+                {ex?.ToString()}
+                {new string('-', header.Length)}
+                """
+            );
         }
 
         Console.WriteLine();

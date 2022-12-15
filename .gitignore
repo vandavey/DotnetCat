@@ -1,4 +1,3 @@
-# Ignore patterns
 *.assets
 *.cache
 *.class
@@ -12,7 +11,8 @@
 *.targets
 *.user
 
-# Ignore directories
+launchSettings.json
+
 .atom/
 .dist/
 .idea/
