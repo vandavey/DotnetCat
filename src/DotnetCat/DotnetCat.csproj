@@ -16,7 +16,8 @@
         <Nullable>enable</Nullable>
         <OutputType>exe</OutputType>
         <PackageLicenseFile>Resources/LICENSE.md</PackageLicenseFile>
-        <Platforms>AnyCPU;x64</Platforms>
+        <Platforms>AnyCPU</Platforms>
+        <PlatformTarget>AnyCPU</PlatformTarget>
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishSingleFile>true</PublishSingleFile>
         <PublishTrimmed>true</PublishTrimmed>
