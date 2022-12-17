@@ -93,7 +93,7 @@ internal static partial class ConsoleApi
 
         if (mode == NULL)
         {
-            throw new ArgumentNullException(nameof(mode), "No bit flag set");
+            throw new ArgumentException("No bit flag set", nameof(mode));
         }
 
         // Failed to get console stream mode
@@ -117,7 +117,7 @@ internal static partial class ConsoleApi
 
         if (mode == NULL)
         {
-            throw new ArgumentNullException(nameof(mode), "No bit flag set");
+            throw new ArgumentException("No bit flag set", nameof(mode));
         }
 
         // Failed to set console stream mode

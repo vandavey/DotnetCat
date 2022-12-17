@@ -13,6 +13,7 @@
         <ErrorReport>none</ErrorReport>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <ImplicitUsings>disable</ImplicitUsings>
+        <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
         <OutputType>exe</OutputType>
         <PackageLicenseFile>Resources/LICENSE.md</PackageLicenseFile>

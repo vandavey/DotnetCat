@@ -21,17 +21,17 @@ namespace DotnetCat.Network.Nodes;
 /// </summary>
 internal abstract class Node : ISockErrorHandled
 {
-    private bool _validArgsCombos;     // Valid cmd-line arg combos
+    private readonly List<Pipeline> _pipes;  // Pipeline list
 
-    private string? _hostName;         // Target hostname
+    private bool _validArgsCombos;           // Valid command-line arguments
 
-    private Process? _process;         // Executable process
+    private string? _hostName;               // Target hostname
 
-    private StreamReader? _netReader;  // TCP stream reader
+    private Process? _process;               // Executable process
 
-    private StreamWriter? _netWriter;  // TCP stream writer
+    private StreamReader? _netReader;        // TCP stream reader
 
-    private List<Pipeline>? _pipes;    // Pipeline list
+    private StreamWriter? _netWriter;        // TCP stream writer
 
     /// <summary>
     ///  Initialize the object.
@@ -41,7 +41,7 @@ internal abstract class Node : ISockErrorHandled
         _hostName = default;
         _netReader = default;
         _netWriter = default;
-        _pipes = default;
+        _pipes = new List<Pipeline>();
         _process = default;
         _validArgsCombos = false;
 
@@ -284,7 +284,7 @@ internal abstract class Node : ISockErrorHandled
     {
         if (NetStream is null || !NetStream.CanRead || !NetStream.CanWrite)
         {
-            throw new ArgumentException(nameof(NetStream));
+            throw new InvalidOperationException(nameof(NetStream));
         }
 
         _netWriter = new StreamWriter(NetStream)
@@ -293,8 +293,7 @@ internal abstract class Node : ISockErrorHandled
         };
         _netReader = new StreamReader(NetStream);
 
-        // Initialize the pipeline(s)
-        _pipes = GetPipelines(pipeType);
+        _pipes.AddRange(MakePipes(pipeType));
     }
 
     /// <summary>
@@ -315,73 +314,78 @@ internal abstract class Node : ISockErrorHandled
     }
 
     /// <summary>
-    ///  Get a list of pipelines based on the given pipeline type.
+    ///  Initialize a new list of pipelines from the given pipeline type.
     /// </summary>
-    private List<Pipeline> GetPipelines(PipeType type)
+    private List<Pipeline> MakePipes(PipeType type)
     {
-        List<Pipeline> pipes = new();
+        List<Pipeline> pipelines = new();
 
         switch (type)
         {
-            case PipeType.Stream:   // Stream pipelines
-            {
-                Stream standardInput = Console.OpenStandardInput();
-                Stream standardOutput = Console.OpenStandardOutput();
-
-                pipes.AddRange(new StreamPipe[]
-                {
-                    new StreamPipe(_netReader, new StreamWriter(standardOutput)
-                    {
-                        AutoFlush = true
-                    }),
-                    new StreamPipe(new StreamReader(standardInput), _netWriter)
-                });
+            case PipeType.Stream:
+                pipelines.AddRange(MakeStreamPipes());
                 break;
-            }
-            case PipeType.File:    // File-transfer pipeline
-            {
-                if (Args.TransOpt is TransferOpt.None)
-                {
-                    throw new ArgumentException(nameof(Args.TransOpt));
-                }
-
-                if (Args.TransOpt is TransferOpt.Collect)
-                {
-                    pipes.Add(new FilePipe(Args, _netReader));
-                }
-                else
-                {
-                    pipes.Add(new FilePipe(Args, _netWriter));
-                }
+            case PipeType.File:
+                pipelines.Add(MakeFilePipe());
                 break;
-            }
-            case PipeType.Process:  // Process pipelines
-            {
-                pipes.AddRange(new ProcessPipe[]
-                {
-                    new ProcessPipe(Args, _netReader, _process?.StandardInput),
-                    new ProcessPipe(Args, _process?.StandardOutput, _netWriter),
-                    new ProcessPipe(Args, _process?.StandardError, _netWriter)
-                });
+            case PipeType.Process:
+                pipelines.AddRange(MakeProcessPipes());
                 break;
-            }
-            case PipeType.Status:   // Zero-IO pipeline
-            {
-                pipes.Add(new StatusPipe(Args, _netWriter));
+            case PipeType.Status:
+                pipelines.Add(new StatusPipe(Args, _netWriter));
                 break;
-            }
-            case PipeType.Text:     // Text pipeline
-            {
-                pipes.Add(new TextPipe(Args, _netWriter));
+            case PipeType.Text:
+                pipelines.Add(new TextPipe(Args, _netWriter));
                 break;
-            }
             default:
-            {
                 break;
-            }
         }
+        return pipelines;
+    }
 
-        return pipes;
+    /// <summary>
+    ///  Initialize a new array of console stream pipelines.
+    /// </summary>
+    private StreamPipe[] MakeStreamPipes() => new[]
+    {
+        new StreamPipe(_netReader, new StreamWriter(Console.OpenStandardOutput())
+        {
+            AutoFlush = true
+        }),
+        new StreamPipe(new StreamReader(Console.OpenStandardInput()), _netWriter)
+    };
+
+    /// <summary>
+    ///  Initialize a new array of executable process pipelines.
+    /// </summary>
+    private ProcessPipe[] MakeProcessPipes() => new[]
+    {
+        new ProcessPipe(Args, _netReader, _process?.StandardInput),
+        new ProcessPipe(Args, _process?.StandardOutput, _netWriter),
+        new ProcessPipe(Args, _process?.StandardError, _netWriter)
+    };
+
+    /// <summary>
+    ///  Initialize a new file pipeline.
+    /// </summary>
+    private FilePipe MakeFilePipe()
+    {
+        if (Args.TransOpt is TransferOpt.None)
+        {
+            throw new InvalidOperationException(nameof(Args.TransOpt));
+        }
+        FilePipe filePipe;
+
+        // Pipe data from socket to file
+        if (Args.TransOpt is TransferOpt.Collect)
+        {
+            filePipe = new FilePipe(Args, _netReader);
+        }
+        else  // Pipe data from file to socket
+        {
+            filePipe = new FilePipe(Args, _netWriter);
+        }
+        return filePipe;
     }
 
     /// <summary>
@@ -390,26 +394,7 @@ internal abstract class Node : ISockErrorHandled
     private bool ProcessExited() => UsingExe && (_process?.HasExited ?? false);
 
     /// <summary>
-    ///  Determine whether all the non-null underlying pipelines are connected.
+    ///  Determine whether any of the non-null underlying pipelines are connected.
     /// </summary>
-    private bool PipelinesConnected()
-    {
-        bool connected = true;
-
-        if (_pipes is not null)
-        {
-            if (_pipes.Any() && _pipes.Count != _pipes.Count(p => p is null))
-            {
-                foreach (Pipeline pipe in _pipes)
-                {
-                    if (pipe is not null && !pipe.Connected)
-                    {
-                        connected = false;
-                        break;
-                    }
-                }
-            }
-        }
-        return connected;
-    }
+    private bool PipelinesConnected() => _pipes.Any(p => p?.Connected ?? false);
 }
