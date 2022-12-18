@@ -1,30 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <!--
-     Configure DotnetCat project properties
+     DotnetCatTests project properties
     -->
     <PropertyGroup>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <ApplicationIcon>Resources/Icon.ico</ApplicationIcon>
-        <AssemblyName>dncat</AssemblyName>
+        <ApplicationIcon>../DotnetCat/Resources/Icon.ico</ApplicationIcon>
+        <AssemblyName>DotnetCatTests</AssemblyName>
         <Authors>vandavey</Authors>
         <Configurations>Debug;Release;Linux;ARM64</Configurations>
-        <Copyright>Copyright (c) 2020 vandavey</Copyright>
-        <Description>DotnetCat</Description>
+        <Copyright>Copyright (c) 2022 vandavey</Copyright>
+        <Description>DotnetCat unit tests</Description>
         <ErrorReport>none</ErrorReport>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
         <ImplicitUsings>disable</ImplicitUsings>
         <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
-        <OutputType>exe</OutputType>
-        <PackageLicenseFile>Resources/LICENSE.md</PackageLicenseFile>
+        <OutputType>library</OutputType>
+        <PackageLicenseFile>../DotnetCat/Resources/LICENSE.md</PackageLicenseFile>
         <Platforms>AnyCPU</Platforms>
         <PlatformTarget>AnyCPU</PlatformTarget>
-        <PublishReadyToRun>true</PublishReadyToRun>
-        <PublishSingleFile>true</PublishSingleFile>
-        <PublishTrimmed>true</PublishTrimmed>
         <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
-        <RootNamespace>DotnetCat</RootNamespace>
-        <StartupObject>DotnetCat.Program</StartupObject>
+        <RootNamespace>DotnetCatTests</RootNamespace>
         <TargetFramework>net7.0</TargetFramework>
         <WarningLevel>7</WarningLevel>
     </PropertyGroup>
@@ -35,7 +30,6 @@
     <PropertyGroup Condition="'$(Configuration)'=='Debug'">
         <DebugSymbols>true</DebugSymbols>
         <DebugType>portable</DebugType>
-        <Optimize>false</Optimize>
         <OutputPath>bin/Debug</OutputPath>
     </PropertyGroup>
 
@@ -45,8 +39,6 @@
     <PropertyGroup Condition="'$(Configuration)'!='Debug'">
         <DebugSymbols>false</DebugSymbols>
         <DebugType>none</DebugType>
-        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-        <Optimize>true</Optimize>
         <OutputPath>bin/Release</OutputPath>
     </PropertyGroup>
 
@@ -65,27 +57,28 @@
     </PropertyGroup>
 
     <!--
-     Make internals accessible to the unit tests project
+     Nuget package information
     -->
     <ItemGroup>
-        <InternalsVisibleTo Include="DotnetCatTests" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+        <PackageReference Include="MSTest.TestAdapter" Version="3.0.0" />
+        <PackageReference Include="MSTest.TestFramework" Version="3.0.0" />
     </ItemGroup>
 
     <!--
-     Include source code and resources
+     Project reference to DotnetCat
     -->
     <ItemGroup>
-        <Folder Include="Contracts/" />
+        <ProjectReference Include="../DotnetCat/DotnetCat.csproj" />
+    </ItemGroup>
+
+    <!--
+     Include source code and resource directories
+    -->
+    <ItemGroup>
         <Folder Include="Errors/" />
-        <Folder Include="IO/" />
-        <Folder Include="IO/Pipelines/" />
         <Folder Include="Network/" />
-        <Folder Include="Network/Nodes/" />
         <Folder Include="Properties/" />
-        <Folder Include="Properties/PublishProfiles/" />
-        <Folder Include="Resources/" />
-        <Folder Include="Shell/" />
-        <Folder Include="Shell/WinApi/" />
         <Folder Include="Utils/" />
     </ItemGroup>
 </Project>
