@@ -10,9 +10,9 @@ using DotnetCat.Utils;
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Unidirectional stream pipeline used to transfer file data.
+///  Unidirectional socket pipeline used to transfer file data.
 /// </summary>
-internal class FilePipe : Pipeline, IErrorHandled
+internal class FilePipe : SocketPipe, IErrorHandled
 {
     private readonly TransferOpt _transfer;  // File transfer option
 
@@ -87,7 +87,6 @@ internal class FilePipe : Pipeline, IErrorHandled
         }
         DirectoryInfo? info = Directory.GetParent(path);
 
-        // Directory does not exist
         if (!Directory.Exists(info?.FullName))
         {
             PipeError(Except.DirectoryPath, info?.FullName);
@@ -112,7 +111,6 @@ internal class FilePipe : Pipeline, IErrorHandled
         }
         FileInfo info = new(path ?? string.Empty);
 
-        // Specified file does not exist
         if (!info.Exists)
         {
             PipeError(Except.FilePath, info.FullName);

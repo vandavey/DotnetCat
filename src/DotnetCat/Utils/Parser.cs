@@ -185,7 +185,7 @@ internal class Parser
             if (eolArg is null)
             {
                 string arg = args.ToArray()[bolPos..^0].Join(", ");
-                Error.Handle(Except.StringEOL, arg, true);
+                Error.Handle(Except.StringEol, arg, true);
             }
             delta = eolPos - bolPos;
 

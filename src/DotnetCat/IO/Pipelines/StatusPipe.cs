@@ -3,15 +3,14 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DotnetCat.Contracts;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Unidirectional stream pipeline used to perform network connection testing.
+///  Unidirectional socket pipeline used to perform network connection testing.
 /// </summary>
-internal class StatusPipe : TextPipe, IConnectable
+internal class StatusPipe : TextPipe
 {
     /// <summary>
     ///  Initialize the object.

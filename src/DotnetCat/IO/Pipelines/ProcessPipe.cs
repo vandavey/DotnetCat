@@ -3,15 +3,14 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DotnetCat.Contracts;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Unidirectional stream pipeline used to transfer executable process data.
+///  Unidirectional socket pipeline used to transfer executable process data.
 /// </summary>
-internal class ProcessPipe : Pipeline, IConnectable
+internal class ProcessPipe : SocketPipe
 {
     /// <summary>
     ///  Initialize the object.
@@ -50,7 +49,6 @@ internal class ProcessPipe : Pipeline, IConnectable
             charsRead = await ReadAsync(token);
             data.Append(Buffer.ToArray(), 0, charsRead);
 
-            // Socket client was disconnected
             if (!Client.Connected || charsRead <= 0)
             {
                 Disconnect();

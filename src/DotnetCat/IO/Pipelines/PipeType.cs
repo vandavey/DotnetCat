@@ -1,13 +1,13 @@
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Stream pipeline enumeration type.
+///  Socket pipeline enumeration type.
 /// </summary>
 internal enum PipeType : byte
 {
-    Stream,   // Standard console stream pipeline
-    File,     // File transfer pipeline
-    Process,  // Executable process pipeline
-    Status,   // Connection status pipeline
-    Text      // User-defined text pipeline
+    Stream,   // Standard console stream socket pipeline
+    File,     // File transfer socket pipeline
+    Process,  // Executable process socket pipeline
+    Status,   // Connection status socket pipeline
+    Text      // Text transmission socket pipeline
 }

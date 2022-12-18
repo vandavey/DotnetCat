@@ -14,9 +14,9 @@ internal static class FileSys
 {
     private static readonly string _userHomePath;     // User home path
 
-    private static readonly string[] _envPaths;       // Environment path
+    private static readonly string[] _envPaths;       // Local environment paths
 
-    private static readonly string[] _exeExtensions;  // Executable files
+    private static readonly string[] _exeExtensions;  // Executable file extensions
 
     /// <summary>
     ///  Initialize the static class members.
