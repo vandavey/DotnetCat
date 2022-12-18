@@ -16,10 +16,9 @@ command shells, upload and download files, perform connection testing, and trans
 payloads. This application uses Transmission Control Protocol (TCP) network sockets to perform
 network communications.
 
-At its core, the architecture of DotnetCat is composed of unidirectional pipelines responsible for
-asynchronously transferring binary data from one stream to another. This allows for a single source
-or destination stream (e.g., socket stream) to be used by multiple pipelines simultaneously without
-thread lock issues occurring.
+At its core, DotnetCat is built of unidirectional TCP socket pipelines, each responsible for
+asynchronously reading from or writing to a connected socket. This allows a single socket stream
+to be used by multiple pipelines simultaneously without thread lock issues occurring.
 
 ### Features
 

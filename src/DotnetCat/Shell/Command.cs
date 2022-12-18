@@ -7,7 +7,7 @@ using DotnetCat.Utils;
 namespace DotnetCat.Shell;
 
 /// <summary>
-///  Command-shell and executable process utility class.
+///  Command shell and executable process utility class.
 /// </summary>
 internal static class Command
 {

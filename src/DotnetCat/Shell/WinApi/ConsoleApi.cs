@@ -64,7 +64,6 @@ internal static partial class ConsoleApi
             HANDLE stdInHandle = GetStdHandle(STD_INPUT_HANDLE);
             HANDLE stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-            // Failed to acquire stream handles
             if (!ValidHandle(stdInHandle) || !ValidHandle(stdOutHandle))
             {
                 ExternError(nameof(GetStdHandle));
@@ -96,7 +95,6 @@ internal static partial class ConsoleApi
             throw new ArgumentException("No bit flag set", nameof(mode));
         }
 
-        // Failed to get console stream mode
         if (!GetConsoleMode(handle, out DWORD streamMode))
         {
             ExternError(nameof(GetConsoleMode));
@@ -120,7 +118,6 @@ internal static partial class ConsoleApi
             throw new ArgumentException("No bit flag set", nameof(mode));
         }
 
-        // Failed to set console stream mode
         if (!SetConsoleMode(handle, mode))
         {
             ExternError(nameof(SetConsoleMode));

@@ -69,11 +69,16 @@ internal static class Net
     {
         return ex?.SocketErrorCode switch
         {
-            SocketError.HostNotFound        => Except.HostNotFound,
-            SocketError.ConnectionReset     => Except.ConnectionRefused,
-            SocketError.ConnectionRefused   => Except.ConnectionRefused,
             SocketError.AddressAlreadyInUse => Except.AddressInUse,
+            SocketError.NetworkDown         => Except.NetworkDown,
+            SocketError.NetworkUnreachable  => Except.NetworkUnreachable,
+            SocketError.NetworkReset        => Except.NetworkReset,
+            SocketError.ConnectionAborted   => Except.ConnectionAborted,
+            SocketError.ConnectionReset     => Except.ConnectionReset,
             SocketError.TimedOut            => Except.TimedOut,
+            SocketError.ConnectionRefused   => Except.ConnectionRefused,
+            SocketError.HostUnreachable     => Except.HostUnreachable,
+            SocketError.HostNotFound        => Except.HostNotFound,
             SocketError.SocketError or _    => Except.SocketError
         };
     }

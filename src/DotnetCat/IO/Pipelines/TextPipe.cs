@@ -3,15 +3,14 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DotnetCat.Contracts;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Unidirectional stream pipeline used to transfer arbitrary string data.
+///  Unidirectional socket pipeline used to transmit arbitrary string data.
 /// </summary>
-internal class TextPipe : Pipeline, IConnectable
+internal class TextPipe : SocketPipe
 {
     private MemoryStream _memoryStream;  // Memory stream buffer
 

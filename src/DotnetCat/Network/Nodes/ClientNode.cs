@@ -64,11 +64,11 @@ internal class ClientNode : Node
 
             Style.Info($"Connection to {_targetEP} closed");
         }
-        catch (AggregateException ex)  // Asynchronous socket error
+        catch (AggregateException ex)  // Asynchronous socket error occurred
         {
             PipeError(Net.GetExcept(ex), _targetEP, ex, Level.Error);
         }
-        catch (SocketException ex)     // Socket error
+        catch (SocketException ex)     // Socket error occurred
         {
             PipeError(Net.GetExcept(ex), _targetEP, ex, Level.Error);
         }

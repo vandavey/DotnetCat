@@ -5,23 +5,22 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
-using DotnetCat.Shell;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Abstract unidirectional stream pipeline. This is the base
-///  class for all pipelines in the IO.Pipelines namespace.
+///  Abstract unidirectional socket pipeline. This is the base class for all
+///  socket pipelines in the <c>DotnetCat.IO.Pipelines</c> namespace.
 /// </summary>
-internal abstract class Pipeline : IConnectable
+internal abstract class SocketPipe : IConnectable
 {
     protected const int BUFFER_SIZE = 1024;  // Memory buffer size
 
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    protected Pipeline()
+    protected SocketPipe()
     {
         Connected = false;
 
@@ -32,12 +31,12 @@ internal abstract class Pipeline : IConnectable
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    protected Pipeline(CmdLineArgs args) : this() => Args = args;
+    protected SocketPipe(CmdLineArgs args) : this() => Args = args;
 
     /// <summary>
     ///  Release the unmanaged object resources.
     /// </summary>
-    ~Pipeline() => Dispose();
+    ~SocketPipe() => Dispose();
 
     /// Underlying streams are connected
     public bool Connected { get; protected set; }
@@ -112,49 +111,7 @@ internal abstract class Pipeline : IConnectable
     /// <summary>
     ///  Asynchronously transfer data between the underlying streams.
     /// </summary>
-    protected virtual async Task ConnectAsync(CancellationToken token)
-    {
-        StringBuilder data = new();
-
-        int charsRead;
-        Connected = true;
-
-        if (Client is not null)
-        {
-            while (Client.Connected)
-            {
-                if (token.IsCancellationRequested)
-                {
-                    Disconnect();
-                    break;
-                }
-
-                charsRead = await ReadAsync(token);
-                data.Append(Buffer.ToArray(), 0, charsRead);
-
-                // Socket client was disconnected
-                if (!Client.Connected || charsRead <= 0)
-                {
-                    Disconnect();
-                    break;
-                }
-                data = FixLineEndings(data);
-
-                // Clear console screen buffer
-                if (Command.IsClearCmd(data.ToString()))
-                {
-                    Sequence.ClearScreen();
-                    await WriteAsync(NewLine, token);
-                }
-                else  // Send the command
-                {
-                    await WriteAsync(data, token);
-                }
-                data.Clear();
-            }
-            Dispose();
-        }
-    }
+    protected abstract Task ConnectAsync(CancellationToken token);
 
     /// <summary>
     ///  Normalize line-endings based on the local operating system

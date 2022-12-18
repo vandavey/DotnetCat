@@ -16,22 +16,22 @@ using DotnetCat.Utils;
 namespace DotnetCat.Network.Nodes;
 
 /// <summary>
-///  Abstract TCP network socket node. This is the base class
-///  for all socket nodes in the Network.Nodes namespace.
+///  Abstract TCP network socket node. This is the base class for all
+///  socket nodes in the <c>DotnetCat.Network.Nodes</c> namespace.
 /// </summary>
 internal abstract class Node : ISockErrorHandled
 {
-    private readonly List<Pipeline> _pipes;  // Pipeline list
+    private readonly List<SocketPipe> _pipes;  // Pipeline list
 
-    private bool _validArgsCombos;           // Valid command-line arguments
+    private bool _validArgsCombos;             // Valid command-line arguments
 
-    private string? _hostName;               // Target hostname
+    private string? _hostName;                 // Target hostname
 
-    private Process? _process;               // Executable process
+    private Process? _process;                 // Executable process
 
-    private StreamReader? _netReader;        // TCP stream reader
+    private StreamReader? _netReader;          // TCP stream reader
 
-    private StreamWriter? _netWriter;        // TCP stream writer
+    private StreamWriter? _netWriter;          // TCP stream writer
 
     /// <summary>
     ///  Initialize the object.
@@ -41,7 +41,7 @@ internal abstract class Node : ISockErrorHandled
         _hostName = default;
         _netReader = default;
         _netWriter = default;
-        _pipes = new List<Pipeline>();
+        _pipes = new List<SocketPipe>();
         _process = default;
         _validArgsCombos = false;
 
@@ -316,9 +316,9 @@ internal abstract class Node : ISockErrorHandled
     /// <summary>
     ///  Initialize a new list of pipelines from the given pipeline type.
     /// </summary>
-    private List<Pipeline> MakePipes(PipeType type)
+    private List<SocketPipe> MakePipes(PipeType type)
     {
-        List<Pipeline> pipelines = new();
+        List<SocketPipe> pipelines = new();
 
         switch (type)
         {

@@ -69,7 +69,7 @@ internal class ServerNode : Node
             Console.WriteLine();
             Style.Info($"Connection to {remoteEP} closed");
         }
-        catch (SocketException ex)  // Socket error
+        catch (SocketException ex)  // Socket error occurred
         {
             PipeError(Net.GetExcept(ex), remoteEP, ex);
         }
