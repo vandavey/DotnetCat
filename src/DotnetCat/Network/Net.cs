@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -48,18 +49,30 @@ internal static class Net
                     return (addr, null);
                 }
             }
-            return (address, GetSocketException(SocketError.HostNotFound));
+            return (address, MakeException(SocketError.HostNotFound));
         }
 
         return (ActiveLocalAddress(), null);
     }
 
     /// <summary>
-    ///  Get a new socket exception initialized from the given socket error.
+    ///  Initialize a new socket exception from the given socket error.
     /// </summary>
-    public static SocketException GetSocketException(SocketError error)
+    public static SocketException MakeException(SocketError error)
     {
-        return new SocketException(Convert.ToInt32(error));
+        return new SocketException((int)error);
+    }
+
+    /// <summary>
+    ///  Get the DotnetCat exception associated with the given aggregate exception.
+    /// </summary>
+    public static Except GetExcept(AggregateException ex)
+    {
+        IEnumerable<SocketException> results = from innerEx in ex.InnerExceptions
+                                               where innerEx is SocketException
+                                               select innerEx as SocketException;
+
+        return GetExcept(results.FirstOrDefault());
     }
 
     /// <summary>
@@ -81,18 +94,6 @@ internal static class Net
             SocketError.HostNotFound        => Except.HostNotFound,
             SocketError.SocketError or _    => Except.SocketError
         };
-    }
-
-    /// <summary>
-    ///  Get the DotnetCat exception associated with the given aggregate exception.
-    /// </summary>
-    public static Except GetExcept(AggregateException ex)
-    {
-        Exception? exception = (from Exception innerEx in ex.InnerExceptions
-                                where innerEx is SocketException
-                                select innerEx).FirstOrDefault();
-
-        return GetExcept(exception as SocketException);
     }
 
     /// <summary>

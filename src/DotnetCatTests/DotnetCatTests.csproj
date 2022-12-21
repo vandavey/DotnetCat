@@ -76,6 +76,7 @@
      Include source code and resource directories
     -->
     <ItemGroup>
+        <Folder Include="Network/" />
         <Folder Include="Properties/" />
         <Folder Include="Shell/" />
         <Folder Include="Utils/" />

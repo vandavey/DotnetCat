@@ -168,7 +168,7 @@ internal static partial class ConsoleApi
     /// </summary>
     private static DWORD GetDWORD<TEnum>(TEnum mode) where TEnum : Enum
     {
-        if (mode is not InMode and not OutMode)
+        if (Enum.GetUnderlyingType(typeof(TEnum)) != typeof(uint))
         {
             throw new ArgumentException("Invalid enum type", nameof(mode));
         }

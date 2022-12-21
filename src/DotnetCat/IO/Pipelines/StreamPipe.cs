@@ -22,6 +22,11 @@ internal class StreamPipe : SocketPipe
     }
 
     /// <summary>
+    ///  Release the unmanaged object resources.
+    /// </summary>
+    ~StreamPipe() => Dispose();
+
+    /// <summary>
     ///  Asynchronously transfer console stream data between the underlying streams.
     /// </summary>
     protected override async Task ConnectAsync(CancellationToken token)

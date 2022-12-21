@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotnetCat.Utils;
@@ -47,47 +46,6 @@ public class ExtensionsTests
     public void IsNullOrEmpty_PopulatedString_ReturnsFalse(string? str)
     {
         bool actual = str.IsNullOrEmpty();
-        Assert.IsFalse(actual);
-    }
-
-    /// <summary>
-    ///  Assert that a null input string builder return true.
-    /// </summary>
-    [TestMethod]
-    public void IsNullOrEmpty_NullStringBuilder_ReturnsTrue()
-    {
-        StringBuilder? sb = null;
-        bool actual = sb.IsNullOrEmpty();
-
-        Assert.IsTrue(actual);
-    }
-
-    /// <summary>
-    ///  Assert that an empty or blank input string builder returns true.
-    /// </summary>
-    [DataTestMethod]
-    [DataRow("")]
-    [DataRow("    ")]
-    public void IsNullOrEmpty_EmptyOrBlankStringBuilder_ReturnsTrue(string? str)
-    {
-        StringBuilder? sb = new(str);
-        bool actual = sb.IsNullOrEmpty();
-
-        Assert.IsTrue(actual);
-    }
-
-    /// <summary>
-    ///  Assert that a populated input string builder returns true.
-    /// </summary>
-    [DataTestMethod]
-    [DataRow("testing")]
-    [DataRow("  testing")]
-    [DataRow("testing  ")]
-    public void IsNullOrEmpty_PopulatedStringBuilder_ReturnsFalse(string? str)
-    {
-        StringBuilder? sb = new(str);
-        bool actual = sb.IsNullOrEmpty();
-
         Assert.IsFalse(actual);
     }
 
@@ -270,7 +228,7 @@ public class ExtensionsTests
         string expected = string.Join(delim, array);
         string actual = array.Join(delim);
 
-        Assert.AreEqual(expected, actual);
+        Assert.AreEqual(actual, expected);
     }
 
     /// <summary>

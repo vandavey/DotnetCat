@@ -60,10 +60,10 @@ public class CommandTests
     [DataTestMethod]
     [DataRow("test")]
     [DataRow("data.exe")]
-    public void GetExeStartInfo_NonNullShell_ReturnsNewObject(string shell)
+    public void GetExeStartInfo_NonNullShell_ReturnsNewStartInfo(string shell)
     {
-        ProcessStartInfo info = Command.GetExeStartInfo(shell);
-        Assert.IsNotNull(info);
+        ProcessStartInfo actual = Command.GetExeStartInfo(shell);
+        Assert.IsNotNull(actual);
     }
 
     /// <summary>
@@ -88,8 +88,8 @@ public class CommandTests
     [DataRow("Clear-Host")]
     public void IsClearCmd_ValidCommand_ReturnsTrue(string command)
     {
-        bool validCommand = Command.IsClearCmd(command);
-        Assert.IsTrue(validCommand);
+        bool actual = Command.IsClearCmd(command);
+        Assert.IsTrue(actual);
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ public class CommandTests
     [DataRow("Get-Location")]
     public void IsClearCmd_InvalidCommand_ReturnsFalse(string command)
     {
-        bool validCommand = Command.IsClearCmd(command);
-        Assert.IsFalse(validCommand);
+        bool actual = Command.IsClearCmd(command);
+        Assert.IsFalse(actual);
     }
 }

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace DotnetCat.Utils;
 
@@ -14,31 +14,15 @@ internal static class Extensions
     /// </summary>
     public static bool IsNullOrEmpty(this string? str)
     {
-        return str is null || str.Trim().Length == 0;
+        return str is null || !str.Trim().Any();
     }
 
     /// <summary>
-    ///  Determine whether a string builder is null or empty.
+    ///  Determine whether a collection is null or empty.
     /// </summary>
-    public static bool IsNullOrEmpty(this StringBuilder? sb)
+    public static bool IsNullOrEmpty<T>(this IEnumerable<T>? iEnum)
     {
-        return sb is null || sb.ToString().Trim().IsNullOrEmpty();
-    }
-
-    /// <summary>
-    ///  Determine whether an array is null or empty.
-    /// </summary>
-    public static bool IsNullOrEmpty<T>(this T[]? array)
-    {
-        return array is null || array.Length == 0;
-    }
-
-    /// <summary>
-    ///  Determine whether a list is null or empty.
-    /// </summary>
-    public static bool IsNullOrEmpty<T>(this List<T>? list)
-    {
-        return list is null || list.Count == 0;
+        return iEnum is null || !iEnum.Any();
     }
 
     /// <summary>
@@ -78,22 +62,22 @@ internal static class Extensions
     }
 
     /// <summary>
-    ///  Join each element of an array separated by the given delimiter.
+    ///  Join each element of a collection separated by the given delimiter.
     /// </summary>
-    public static string Join<T>(this T[]? array, string? delim = default)
+    public static string Join<T>(this IEnumerable<T>? iEnum, string? delim = default)
     {
-        if (array.IsNullOrEmpty())
+        if (iEnum.IsNullOrEmpty())
         {
-            throw new ArgumentNullException(nameof(array));
+            throw new ArgumentNullException(nameof(iEnum));
         }
-        return string.Join(delim ?? string.Empty, array ?? Array.Empty<T>());
+        return string.Join(delim, iEnum ?? Array.Empty<T>());
     }
 
     /// <summary>
-    ///  Join each element of an array separated by the default system EOL.
+    ///  Join each element of a collection separated by the default system EOL.
     /// </summary>
-    public static string JoinLines<T>(this T[]? array)
+    public static string JoinLines<T>(this IEnumerable<T>? iEnum)
     {
-        return Join(array, Environment.NewLine);
+        return Join(iEnum, Environment.NewLine);
     }
 }
