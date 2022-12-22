@@ -65,6 +65,13 @@
     </PropertyGroup>
 
     <!--
+     Make internals accessible to the unit tests project
+    -->
+    <ItemGroup>
+        <InternalsVisibleTo Include="DotnetCatTests" />
+    </ItemGroup>
+
+    <!--
      Include source code and resources
     -->
     <ItemGroup>

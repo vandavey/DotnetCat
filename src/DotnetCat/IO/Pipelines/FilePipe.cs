@@ -132,33 +132,25 @@ internal class FilePipe : SocketPipe, IErrorHandled
         Connected = true;
         StringBuilder data = new();
 
-        // Print file transfer start message
-        if (Verbose)
+        if (Verbose && _transfer is TransferOpt.Collect)
         {
-            if (_transfer is TransferOpt.Transmit)
-            {
-                Style.Info($"Transmitting '{FilePath}' data...");
-            }
-            else
-            {
-                Style.Info($"Writing socket data to '{FilePath}'...");
-            }
+            Style.Info($"Downloading socket data to '{FilePath}'...");
+        }
+        else if (Verbose && _transfer is TransferOpt.Transmit)
+        {
+            Style.Info($"Transmitting '{FilePath}' data...");
         }
 
         data.Append(await ReadToEndAsync());
         await WriteAsync(data, token);
 
-        // Print file transfer complete message
-        if (Verbose)
+        if (Verbose && _transfer is TransferOpt.Collect)
         {
-            if (_transfer is TransferOpt.Transmit)
-            {
-                Style.Output("File successfully transmitted");
-            }
-            else
-            {
-                Style.Output("File download completed");
-            }
+            Style.Output($"File successfully downloaded to '{FilePath}'");
+        }
+        else if (Verbose && _transfer is TransferOpt.Transmit)
+        {
+            Style.Output("File successfully transmitted");
         }
 
         Disconnect();

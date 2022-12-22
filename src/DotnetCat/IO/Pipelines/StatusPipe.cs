@@ -28,6 +28,11 @@ internal class StatusPipe : TextPipe
     }
 
     /// <summary>
+    ///  Release the unmanaged object resources.
+    /// </summary>
+    ~StatusPipe() => Dispose();
+
+    /// <summary>
     ///  Asynchronously transfer an empty string between the underlying streams.
     /// </summary>
     protected override async Task ConnectAsync(CancellationToken token)

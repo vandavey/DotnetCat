@@ -40,11 +40,11 @@ internal class ClientNode : Node
 
         ValidateArgsCombinations();
 
-        try  // Connect with timeout
+        try  // Connect with 3.5-second timeout
         {
             if (!Client.ConnectAsync(Address, Port).Wait(3500))
             {
-                throw Net.GetSocketException(SocketError.TimedOut);
+                throw Net.MakeException(SocketError.TimedOut);
             }
             NetStream = Client.GetStream();
 

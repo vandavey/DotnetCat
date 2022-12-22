@@ -21,7 +21,7 @@ namespace DotnetCat.Network.Nodes;
 /// </summary>
 internal abstract class Node : ISockErrorHandled
 {
-    private readonly List<SocketPipe> _pipes;  // Pipeline list
+    private readonly List<SocketPipe> _pipes;  // TCP socket pipelines
 
     private bool _validArgsCombos;             // Valid command-line arguments
 

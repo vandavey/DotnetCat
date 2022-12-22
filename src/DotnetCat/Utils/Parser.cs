@@ -148,10 +148,10 @@ internal class Parser
     /// </summary>
     private static List<string> DefragArguments(List<string> args)
     {
-        IEnumerable<(int, string, char, bool)> results;
-
         int delta = 0;
         List<string> list = args.ToList();
+
+        IEnumerable<(int, string, char, bool)> results;
 
         results = from string arg in args
                   let quote = arg.FirstOrDefault()
@@ -184,7 +184,7 @@ internal class Parser
                                            select (pos, arg)).FirstOrDefault();
             if (eolArg is null)
             {
-                string arg = args.ToArray()[bolPos..^0].Join(", ");
+                string arg = args.ToArray()[bolPos..].Join(", ");
                 Error.Handle(Except.StringEol, arg, true);
             }
             delta = eolPos - bolPos;
@@ -402,7 +402,7 @@ internal class Parser
             }
             default:  // Unexpected arguments
             {
-                string argsStr = _argsList.ToArray().Join(", ");
+                string argsStr = _argsList.Join(", ");
 
                 if (_argsList[0].StartsWithValue('-'))
                 {
