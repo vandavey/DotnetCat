@@ -37,7 +37,7 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that a populated input string returns true.
+    ///  Assert that a populated input string returns false.
     /// </summary>
     [DataTestMethod]
     [DataRow("testing")]
