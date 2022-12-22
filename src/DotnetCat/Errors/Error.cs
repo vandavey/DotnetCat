@@ -1,5 +1,6 @@
 using System;
 using DotnetCat.IO;
+using DotnetCat.Network;
 using DotnetCat.Utils;
 
 namespace DotnetCat.Errors;
@@ -71,7 +72,7 @@ internal static class Error
         {
             if (ex is AggregateException aggregateEx)
             {
-                ex = aggregateEx.InnerException;
+                ex = Net.GetException(aggregateEx) ?? ex;
             }
             string header = $"----[ {ex?.GetType().FullName} ]----";
 
