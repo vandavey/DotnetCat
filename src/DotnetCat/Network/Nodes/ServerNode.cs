@@ -36,15 +36,17 @@ internal class ServerNode : Node
     public override void Connect()
     {
         _ = Address ?? throw new ArgumentNullException(nameof(Address));
-        HostEndPoint remoteEP = new();
+
+        IPEndPoint? remoteEP = default;
+        IPEndPoint localEP = new(Address, Port);
 
         ValidateArgsCombinations();
-        BindListener(new IPEndPoint(Address, Port));
+        BindListener(localEP);
 
         try  // Listen for an inbound connection
         {
             _listener?.Listen(1);
-            Style.Info("Listening for incoming connections...");
+            Style.Info($"Listening for incoming connections on {localEP}...");
 
             if (_listener is not null)
             {
@@ -52,15 +54,12 @@ internal class ServerNode : Node
             }
             NetStream = Client.GetStream();
 
-            // Start the executable process
             if (Args.UsingExe && !StartProcess(ExePath))
             {
                 PipeError(Except.ExeProcess, ExePath);
             }
 
-            IPEndPoint? ep = Client.Client.RemoteEndPoint as IPEndPoint;
-            remoteEP = new HostEndPoint(ep);
-
+            remoteEP = Client.Client.RemoteEndPoint as IPEndPoint;
             Style.Info($"Connected to {remoteEP}");
 
             base.Connect();
@@ -71,11 +70,11 @@ internal class ServerNode : Node
         }
         catch (SocketException ex)  // Socket error occurred
         {
-            PipeError(Net.GetExcept(ex), remoteEP, ex);
+            PipeError(Net.GetExcept(ex), new HostEndPoint(remoteEP), ex);
         }
         catch (IOException ex)      // Connection was reset
         {
-            PipeError(Except.ConnectionReset, remoteEP, ex);
+            PipeError(Except.ConnectionReset, new HostEndPoint(remoteEP), ex);
         }
 
         Dispose();

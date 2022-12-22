@@ -50,6 +50,37 @@ public class NetTests
     }
 
     /// <summary>
+    ///  Assert that an input <c>AggregateException</c> with a nested
+    ///  <c>SocketException</c> returns the nested <c>SocketException</c>.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow(SocketError.SocketError)]
+    [DataRow(SocketError.ConnectionRefused)]
+    [DataRow(SocketError.SystemNotReady)]
+    public void GetException_NestedException_ReturnsException(SocketError error)
+    {
+        SocketException expected = new((int)error);
+        AggregateException aggregateEx = new(expected);
+
+        SocketException? actual = Net.GetException(aggregateEx);
+
+        Assert.AreEqual(actual, expected);
+    }
+
+    /// <summary>
+    ///  Assert that an input <c>AggregateException</c> without a nested
+    ///  <c>SocketException</c> returns null.
+    /// </summary>
+    [TestMethod]
+    public void GetException_NoNestedException_ReturnsNull()
+    {
+        AggregateException aggregateEx = new();
+        SocketException? actual = Net.GetException(aggregateEx);
+
+        Assert.IsNull(actual);
+    }
+
+    /// <summary>
     ///  Assert that a valid input network port number returns true.
     /// </summary>
     [DataTestMethod]

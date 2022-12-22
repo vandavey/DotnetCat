@@ -67,7 +67,7 @@ public class CommandTests
     }
 
     /// <summary>
-    ///  Assert that a null input shell name causes a new
+    ///  Assert that a null input shell name causes an
     ///  <c>ArgumentNullException</c> to be thrown.
     /// </summary>
     [TestMethod]

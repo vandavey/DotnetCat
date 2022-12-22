@@ -64,19 +64,15 @@ internal static class Net
     }
 
     /// <summary>
-    ///  Get the DotnetCat exception associated with the given aggregate exception.
+    ///  Get the exception enum member associated to the given aggregate exception.
     /// </summary>
     public static Except GetExcept(AggregateException ex)
     {
-        IEnumerable<SocketException> results = from innerEx in ex.InnerExceptions
-                                               where innerEx is SocketException
-                                               select innerEx as SocketException;
-
-        return GetExcept(results.FirstOrDefault());
+        return GetExcept(GetException(ex));
     }
 
     /// <summary>
-    ///  Get the DotnetCat exception associated with the given socket exception.
+    ///  Get the exception enum member associated to the given socket exception.
     /// </summary>
     public static Except GetExcept(SocketException? ex)
     {
@@ -97,6 +93,17 @@ internal static class Net
     }
 
     /// <summary>
+    ///  Get the first socket exception nested within the given aggregate exception.
+    /// </summary>
+    public static SocketException? GetException(AggregateException ex)
+    {
+        IEnumerable<SocketException> results = from innerEx in ex.InnerExceptions
+                                               where innerEx is SocketException
+                                               select innerEx as SocketException;
+        return results.FirstOrDefault();
+    }
+
+    /// <summary>
     ///  Get the currently active local IPv4 address.
     /// </summary>
     private static IPAddress ActiveLocalAddress()
@@ -107,6 +114,6 @@ internal static class Net
 
         socket.Connect("8.8.8.8", 53);
 
-        return (socket?.LocalEndPoint as IPEndPoint)?.Address ?? IPAddress.Any;
+        return (socket.LocalEndPoint as IPEndPoint)?.Address ?? IPAddress.Any;
     }
 }
