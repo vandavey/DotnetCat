@@ -1,8 +1,14 @@
-<p align="center">
+<div align="center">
     <img src="src/DotnetCat/Resources/Icon.ico" width=175 alt="logo">
-</p>
+</div>
 
 # DotnetCat
+
+![csharp-11](https://img.shields.io/badge/c%23-v11-9325ff)
+![repo-stars](https://img.shields.io/github/stars/vandavey/DotnetCat)
+![repo-forks](https://img.shields.io/github/forks/vandavey/DotnetCat)
+![contributors](https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue)
+![license](https://img.shields.io/github/license/vandavey/DotnetCat)
 
 Remote command shell application written in C#,
 targeting the [.NET 7 runtime](https://dotnet.microsoft.com/download/dotnet/7.0).
