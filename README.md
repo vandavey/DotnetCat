@@ -1,8 +1,32 @@
-<p align="center">
+<div align="center">
     <img src="src/DotnetCat/Resources/Icon.ico" width=175 alt="logo">
-</p>
+</div>
 
 # DotnetCat
+
+<a href="https://learn.microsoft.com/en-us/dotnet/csharp">
+    <img src="https://img.shields.io/badge/c%23-v11-9325ff" alt="csharp-11">
+</a>
+
+<a href="https://github.com/vandavey/DotnetCat">
+    <img src="https://img.shields.io/github/stars/vandavey/DotnetCat" alt="repo-stars">
+</a>
+
+<a href="https://github.com/vandavey/DotnetCat/network/members">
+    <img src="https://img.shields.io/github/forks/vandavey/DotnetCat" alt="repo-forks">
+</a>
+
+<a href="https://github.com/vandavey/DotnetCat/pulls">
+    <img src="https://img.shields.io/github/issues-pr/vandavey/DotnetCat" alt="pull-requests">
+</a>
+
+<a href="https://github.com/vandavey/DotnetCat/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue" alt="contributors">
+</a>
+
+<a href="LICENSE.md">
+    <img src="https://img.shields.io/github/license/vandavey/DotnetCat" alt="license">
+</a>
 
 Remote command shell application written in C#,
 targeting the [.NET 7 runtime](https://dotnet.microsoft.com/download/dotnet/7.0).
@@ -13,12 +37,13 @@ targeting the [.NET 7 runtime](https://dotnet.microsoft.com/download/dotnet/7.0)
 
 DotnetCat is a multithreaded console application that can be used to spawn bind and reverse
 command shells, upload and download files, perform connection testing, and transmit user-defined
-payloads. This application uses Transmission Control Protocol (TCP) network sockets to perform
-network communications.
+payloads. This application uses [Transmission Control Protocol (TCP)](https://www.ietf.org/rfc/rfc9293.html)
+network sockets to perform network communications.
 
-At its core, DotnetCat is built of unidirectional TCP socket pipelines, each responsible for
-asynchronously reading from or writing to a connected socket. This allows a single socket stream
-to be used by multiple pipelines simultaneously without thread lock issues occurring.
+At its core, DotnetCat is built of unidirectional TCP [socket pipelines](src/DotnetCat/IO/Pipelines),
+each responsible for asynchronously reading from or writing to a connected socket. This allows a
+single socket stream to be used by multiple pipelines simultaneously without thread lock issues
+occurring.
 
 ### Features
 
