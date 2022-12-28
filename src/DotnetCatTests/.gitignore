@@ -1,6 +1,0 @@
-/bin/
-/obj/
-/TestResults/
-
-!/bin/.gitignore
-!/obj/.gitignore

@@ -1,32 +1,29 @@
 <div align="center">
-    <img src="src/DotnetCat/Resources/Icon.ico" width=175 alt="logo">
+    <img src="src/DotnetCat/Resources/Icon.ico" width=175px alt="logo">
 </div>
 
 # DotnetCat
 
-<a href="https://learn.microsoft.com/en-us/dotnet/csharp">
-    <img src="https://img.shields.io/badge/c%23-v11-9325ff" alt="csharp-11">
-</a>
-
-<a href="https://github.com/vandavey/DotnetCat">
-    <img src="https://img.shields.io/github/stars/vandavey/DotnetCat" alt="repo-stars">
-</a>
-
-<a href="https://github.com/vandavey/DotnetCat/network/members">
-    <img src="https://img.shields.io/github/forks/vandavey/DotnetCat" alt="repo-forks">
-</a>
-
-<a href="https://github.com/vandavey/DotnetCat/pulls">
-    <img src="https://img.shields.io/github/issues-pr/vandavey/DotnetCat" alt="pull-requests">
-</a>
-
-<a href="https://github.com/vandavey/DotnetCat/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue" alt="contributors">
-</a>
-
-<a href="LICENSE.md">
-    <img src="https://img.shields.io/github/license/vandavey/DotnetCat" alt="license">
-</a>
+<div>
+    <a href="https://learn.microsoft.com/en-us/dotnet/csharp">
+        <img src="https://img.shields.io/badge/c%23-v11-9325ff" alt="csharp-11">
+    </a>
+    <a href="#">
+        <img src="https://img.shields.io/github/stars/vandavey/DotnetCat" alt="repo-stars">
+    </a>
+    <a href="https://github.com/vandavey/DotnetCat/network/members">
+        <img src="https://img.shields.io/github/forks/vandavey/DotnetCat" alt="repo-forks">
+    </a>
+    <a href="https://github.com/vandavey/DotnetCat/pulls">
+        <img src="https://img.shields.io/github/issues-pr/vandavey/DotnetCat" alt="pull-requests">
+    </a>
+    <a href="https://github.com/vandavey/DotnetCat/graphs/contributors">
+        <img src="https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue" alt="contributors">
+    </a>
+    <a href="LICENSE.md">
+        <img src="https://img.shields.io/github/license/vandavey/DotnetCat" alt="license">
+    </a>
+</div>
 
 Remote command shell application written in C#,
 targeting the [.NET 7 runtime](https://dotnet.microsoft.com/download/dotnet/7.0).
