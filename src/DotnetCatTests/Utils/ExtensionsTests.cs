@@ -22,7 +22,7 @@ public class ExtensionsTests
         string? str = null;
         bool actual = str.IsNullOrEmpty();
 
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, "Expected null string to be null or empty");
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ public class ExtensionsTests
     public void IsNullOrEmpty_EmptyOrBlankString_ReturnsTrue(string? str)
     {
         bool actual = str.IsNullOrEmpty();
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, "Expected empty/blank string to be null or empty");
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class ExtensionsTests
     public void IsNullOrEmpty_PopulatedString_ReturnsFalse(string? str)
     {
         bool actual = str.IsNullOrEmpty();
-        Assert.IsFalse(actual);
+        Assert.IsFalse(actual, "Expected populated string to not be null or empty");
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ public class ExtensionsTests
         string[]? array = null;
         bool actual = array.IsNullOrEmpty();
 
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, "Expected null array to be null or empty");
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ public class ExtensionsTests
         string[] array = Array.Empty<string>();
         bool actual = array.IsNullOrEmpty();
 
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, "Expected empty array to be null or empty");
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ public class ExtensionsTests
     public void IsNullOrEmpty_PopulatedArray_ReturnsFalse(params object[] array)
     {
         bool actual = array.IsNullOrEmpty();
-        Assert.IsFalse(actual);
+        Assert.IsFalse(actual, "Expected populated array to not be null or empty");
     }
 
     /// <summary>
@@ -95,7 +95,7 @@ public class ExtensionsTests
         List<string>? list = null;
         bool actual = list.IsNullOrEmpty();
 
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, "Expected null list to be null or empty");
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ public class ExtensionsTests
         List<object> list = new();
         bool actual = list.IsNullOrEmpty();
 
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, "Expected empty list to be null or empty");
     }
 
     /// <summary>
@@ -121,7 +121,7 @@ public class ExtensionsTests
         List<object> list = array.ToList();
         bool actual = list.IsNullOrEmpty();
 
-        Assert.IsFalse(actual);
+        Assert.IsFalse(actual, "Expected populated list to not be null or empty");
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ public class ExtensionsTests
     public void EndsWithValue_StringDoes_ReturnsTrue(string? str, string? value)
     {
         bool actual = str.EndsWithValue(value);
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'");
     }
 
     /// <summary>
@@ -148,7 +148,7 @@ public class ExtensionsTests
     public void EndsWithValue_StringDoesNot_ReturnsFalse(string? str, string? value)
     {
         bool actual = str.EndsWithValue(value);
-        Assert.IsFalse(actual);
+        Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'");
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ public class ExtensionsTests
     public void StartsWithValue_StringDoes_ReturnsTrue(string? str, string? value)
     {
         bool actual = str.StartsWithValue(value);
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, $"Expected '{str}' to start with '{value}'");
     }
 
     /// <summary>
@@ -175,7 +175,7 @@ public class ExtensionsTests
     public void StartsWithValue_StringDoesNot_ReturnsFalse(string? str,
                                                            string? value) {
         bool actual = str.StartsWithValue(value);
-        Assert.IsFalse(actual);
+        Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'");
     }
 
     /// <summary>
@@ -187,7 +187,7 @@ public class ExtensionsTests
     public void StartsWithValue_CharDoes_ReturnsTrue(string? str, char value)
     {
         bool actual = str.StartsWithValue(value);
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, $"Expected '{str}' to start with '{value}'");
     }
 
     /// <summary>
@@ -200,7 +200,7 @@ public class ExtensionsTests
     public void StartsWithValue_CharDoesNot_ReturnsFalse(string? str, char value)
     {
         bool actual = str.StartsWithValue(value);
-        Assert.IsFalse(actual);
+        Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'");
     }
 
     /// <summary>
@@ -229,7 +229,7 @@ public class ExtensionsTests
         string expected = string.Join(delim, array);
         string actual = array.Join(delim);
 
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(actual, expected, $"Expected result of '{expected}'");
     }
 
     /// <summary>

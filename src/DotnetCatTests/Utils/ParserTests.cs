@@ -27,7 +27,7 @@ public class ParserTests
         List<string>? argsList = args.ToList();
         int actual = Parser.IndexOfFlag(argsList, flag, alias);
 
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(actual, expected, $"Expected result index of '{expected}'");
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class ParserTests
         int expected = -1;
         int actual = Parser.IndexOfFlag(argsList, flag, alias);
 
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(actual, expected, $"Expected result index of '{expected}'");
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public class ParserTests
     public void NeedsHelp_HelpFlag_ReturnsTrue(params string[] args)
     {
         bool actual = Parser.NeedsHelp(args);
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, $"Expected result to be '{true}'");
     }
 
     /// <summary>
@@ -81,6 +81,6 @@ public class ParserTests
     public void NeedsHelp_NoHelpFlag_ReturnsFalse(params string[] args)
     {
         bool actual = Parser.NeedsHelp(args);
-        Assert.IsFalse(actual);
+        Assert.IsFalse(actual, $"Expected result to be '{false}'");
     }
 }

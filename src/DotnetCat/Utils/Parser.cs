@@ -18,7 +18,6 @@ internal class Parser
     private static readonly string _title;  // Application title
 
     private readonly string _eol;           // Platform EOL string
-    private readonly string _help;          // Help information
 
     private readonly CmdLineArgs _args;     // Command-line arguments
 
@@ -35,8 +34,6 @@ internal class Parser
     public Parser()
     {
         _eol = Environment.NewLine;
-        _help = GetHelpMessage();
-
         _args = new CmdLineArgs();
         _argsList = new List<string>();
     }
@@ -120,7 +117,7 @@ internal class Parser
     /// </summary>
     public void PrintHelp()
     {
-        Console.WriteLine(_help);
+        Console.WriteLine(GetHelpMessage());
         Environment.Exit(0);
     }
 
