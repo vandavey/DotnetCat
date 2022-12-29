@@ -6,7 +6,7 @@ using DotnetCat.Shell;
 namespace DotnetCatTests.Shell;
 
 /// <summary>
-///  Unit tests for utility class <c>DotnetCat.Shell.Command</c>.
+///  Unit tests for utility class <see cref="Command">DotnetCat.Shell.Command</see>.
 /// </summary>
 [TestClass]
 public class CommandTests
@@ -19,10 +19,10 @@ public class CommandTests
     [DataRow("PATH")]
     public void GetEnvVariable_ValidEnvVariableName_EqualsExpected(string name)
     {
-        string? actualValue = Command.GetEnvVariable(name);
-        string? expectedValue = Environment.GetEnvironmentVariable(name);
+        string? expected = Environment.GetEnvironmentVariable(name);
+        string? actual = Command.GetEnvVariable(name);
 
-        Assert.AreEqual(actualValue, expectedValue);
+        Assert.AreEqual(actual, expected, $"Incorrect value for variable '{name}'");
     }
 
     /// <summary>
@@ -33,8 +33,8 @@ public class CommandTests
     [DataRow("DotnetCatTest_Data")]
     public void GetEnvVariable_InvalidEnvVariableName_ReturnsNull(string name)
     {
-        string? varValue = Command.GetEnvVariable(name);
-        Assert.IsNull(varValue);
+        string? actual = Command.GetEnvVariable(name);
+        Assert.IsNull(actual, $"Value for variable '{name}' should be null");
     }
 
     /// <summary>
@@ -44,10 +44,10 @@ public class CommandTests
     [TestMethod]
     public void GetEnvVariable_NullEnvVariableName_ThrowsArgumentNullException()
     {
-        string? varName = null;
+        string? name = null;
 
     #nullable disable
-        Func<string> func = () => Command.GetEnvVariable(varName);
+        Func<string> func = () => Command.GetEnvVariable(name);
     #nullable enable
 
         Assert.ThrowsException<ArgumentNullException>(func);
@@ -63,7 +63,7 @@ public class CommandTests
     public void GetExeStartInfo_NonNullShell_ReturnsNewStartInfo(string shell)
     {
         ProcessStartInfo actual = Command.GetExeStartInfo(shell);
-        Assert.IsNotNull(actual);
+        Assert.IsNotNull(actual, "Resulting startup information should not be null");
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ public class CommandTests
     public void IsClearCmd_ValidCommand_ReturnsTrue(string command)
     {
         bool actual = Command.IsClearCmd(command);
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, $"'{command}' should be a clear-screen command");
     }
 
     /// <summary>
@@ -102,6 +102,6 @@ public class CommandTests
     public void IsClearCmd_InvalidCommand_ReturnsFalse(string command)
     {
         bool actual = Command.IsClearCmd(command);
-        Assert.IsFalse(actual);
+        Assert.IsFalse(actual, $"'{command}' should not be a clear-screen command");
     }
 }

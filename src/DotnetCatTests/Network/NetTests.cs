@@ -7,7 +7,7 @@ using DotnetCat.Network;
 namespace DotnetCatTests.Network;
 
 /// <summary>
-///  Unit tests for utility class <c>DotnetCat.Network.Net</c>.
+///  Unit tests for utility class <see cref="Net">DotnetCat.Network.Net</see>.
 /// </summary>
 [TestClass]
 public class NetTests
@@ -28,7 +28,7 @@ public class NetTests
         Except expected = (Except)expectedByte;
         Except actual = Net.GetExcept(aggregateEx);
 
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(actual, expected, $"Enum result should be '{expected}'");
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public class NetTests
         Except expected = (Except)expectedByte;
         Except actual = Net.GetExcept(socketEx);
 
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(actual, expected, $"Enum result should be '{expected}'");
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ public class NetTests
 
         SocketException? actual = Net.GetException(aggregateEx);
 
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(actual, expected, "Failure extracting socket exception");
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ public class NetTests
         AggregateException aggregateEx = new();
         SocketException? actual = Net.GetException(aggregateEx);
 
-        Assert.IsNull(actual);
+        Assert.IsNull(actual, "Resulting socket exception should be null");
     }
 
     /// <summary>
@@ -90,7 +90,7 @@ public class NetTests
     public void IsValidPort_ValidPort_ReturnsTrue(int port)
     {
         bool actual = Net.IsValidPort(port);
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, $"Port '{port}' should be considered valid");
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public class NetTests
     public void IsValidPort_InvalidPort_ReturnsFalse(int port)
     {
         bool actual = Net.IsValidPort(port);
-        Assert.IsFalse(actual);
+        Assert.IsFalse(actual, $"Port '{port}' should be considered invalid");
     }
 
     /// <summary>
@@ -114,9 +114,11 @@ public class NetTests
     [DataRow(SocketError.HostDown)]
     [DataRow(SocketError.NetworkUnreachable)]
     [DataRow(SocketError.TimedOut)]
-    public void MakeException_Error_ReturnsWithCorrectError(SocketError error)
+    public void MakeException_Error_ReturnsWithCorrectError(SocketError expected)
     {
-        SocketException actual = Net.MakeException(error);
-        Assert.AreEqual(actual.SocketErrorCode, error);
+        SocketException socketEx = Net.MakeException(expected);
+        SocketError actual = socketEx.SocketErrorCode;
+
+        Assert.AreEqual(actual, expected, $"Expected error code of '{expected}'");
     }
 }
