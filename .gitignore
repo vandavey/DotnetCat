@@ -1,10 +1,12 @@
 *.assets
+*.bak
 *.cache
 *.class
 *.com
 *.dgspec
 *.dll
 *.dll.config
+*.old
 *.pdb
 *.props
 *.suo
@@ -13,8 +15,11 @@
 
 launchSettings.json
 
+*.old*/
+*bak*/
 .atom/
 .dist/
 .idea/
 .vs/
 .vscode/
+TestResults/
