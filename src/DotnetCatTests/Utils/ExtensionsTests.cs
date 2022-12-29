@@ -7,7 +7,8 @@ using DotnetCat.Utils;
 namespace DotnetCatTests.Utils;
 
 /// <summary>
-///  Unit tests for utility class <c>DotnetCat.Utils.Extensions</c>.
+///  Unit tests for utility class
+///  <see cref="Extensions">DotnetCat.Utils.Extensions</see>.
 /// </summary>
 [TestClass]
 public class ExtensionsTests

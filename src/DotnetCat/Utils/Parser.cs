@@ -48,8 +48,8 @@ internal class Parser
     public static string Usage => $"Usage: {_title} [OPTIONS] TARGET";
 
     /// <summary>
-    ///  Determine whether any of the help flags (-h, -?, --help) exist
-    ///  in the given command-line argument array.
+    ///  Determine whether any of the help flags (`-h`, `-?`, `--help`)
+    ///  exist in the given command-line argument array.
     /// </summary>
     public static bool NeedsHelp(string[] args)
     {
@@ -65,8 +65,8 @@ internal class Parser
     }
 
     /// <summary>
-    ///  Get the index of the given flag (--foo) or flag alias (-f) argument
-    ///  in the specified command-line argument list.
+    ///  Get the index of the given flag (`--foo`) or flag alias (`-f`)
+    ///  argument in the specified command-line argument list.
     /// </summary>
     public static int IndexOfFlag(List<string>? args,
                                   string flag,
@@ -75,22 +75,28 @@ internal class Parser
         {
             throw new ArgumentNullException(nameof(flag));
         }
+
+        int flagIndex;
         List<string> argsList = args is null ? new() : args.ToList();
 
-        if (flag == "-")
+        if (flag != "-")
         {
-            return argsList.IndexOf(flag);
+            alias ??= flag.FirstOrDefault(char.IsLetter);
+
+            IEnumerable<int> flagIndexes = from string arg in argsList
+                                           where arg == flag
+                                               || (arg.Contains(alias ?? '\0')
+                                                   && arg[0] == '-'
+                                                   && arg[1] != '-')
+                                           select argsList.IndexOf(arg);
+
+            flagIndex = flagIndexes.Any() ? flagIndexes.First() : -1;
         }
-        alias ??= flag.FirstOrDefault(char.IsLetter);
-
-        IEnumerable<int> flagIndexes = from string arg in argsList
-                                       where arg == flag
-                                           || (arg.Contains(alias ?? '\0')
-                                               && arg[0] == '-'
-                                               && arg[1] != '-')
-                                       select argsList.IndexOf(flag);
-
-        return flagIndexes.Any() ? flagIndexes.First() : -1;
+        else  // Find index where value is `-`
+        {
+            flagIndex = argsList.IndexOf(flag);
+        }
+        return flagIndex;
     }
 
     /// <summary>
@@ -106,30 +112,6 @@ internal class Parser
         ParsePositionalArgs();
 
         return _args;
-    }
-
-    /// <summary>
-    ///  Get index of the given flag alias (-f) argument in the underlying
-    ///  command-line argument list.
-    /// </summary>
-    public int IndexOfAlias(char alias)
-    {
-        IEnumerable<int> aliasIndexes = from string arg in _argsList.ToList()
-                                        where arg.Contains(alias)
-                                            && arg[0] == '-'
-                                            && arg[1] != '-'
-                                        select _argsList.IndexOf(arg);
-
-        return aliasIndexes.Any() ? aliasIndexes.First() : -1;
-    }
-
-    /// <summary>
-    ///  Get the index of the given flag (--foo) or flag alias (-f) argument
-    ///  in the underlying command-line argument list.
-    /// </summary>
-    public int IndexOfFlag(string flag, char? alias = default)
-    {
-        return IndexOfFlag(_argsList, flag, alias);
     }
 
     /// <summary>
@@ -204,7 +186,7 @@ internal class Parser
 
     /// <summary>
     ///  Parse the named flag alias arguments in the underlying command-line
-    ///  argument list. Flag alias arguments begin with one dash (-f).
+    ///  argument list. Flag alias arguments begin with one dash (`-f`).
     /// </summary>
     private void ParseCharArgs()
     {
@@ -281,8 +263,17 @@ internal class Parser
     }
 
     /// <summary>
+    ///  Get the index of the given flag (`--foo`) or flag alias (`-f`)
+    ///  argument in the underlying command-line argument list.
+    /// </summary>
+    private int IndexOfFlag(string flag, char? alias = default)
+    {
+        return IndexOfFlag(_argsList, flag, alias);
+    }
+
+    /// <summary>
     ///  Parse the named flag arguments in the underlying command-line
-    ///  argument list. Flag arguments begin with two dashes (--foo).
+    ///  argument list. Flag arguments begin with two dashes (`--foo`).
     /// </summary>
     private void ParseFlagArgs()
     {
@@ -446,8 +437,8 @@ internal class Parser
     }
 
     /// <summary>
-    ///  Remove the given flag alias (-f) character from the argument located at
-    ///  the specified index in the underlying command-line argument list.
+    ///  Remove the given flag alias (`-f`) character from the argument located
+    ///  at the specified index in the underlying command-line argument list.
     /// </summary>
     private void RemoveAlias(int index, char alias, bool removeValue = false)
     {
@@ -470,7 +461,7 @@ internal class Parser
     private bool ValidIndex(int index) => index >= 0 && index < _argsList.Count;
 
     /// <summary>
-    ///  Remove the given flag (--foo) argument from the underlying command-line
+    ///  Remove the given flag (`--foo`) argument from the underlying command-line
     ///  argument list. Optionally remove the corresponding value argument.
     /// </summary>
     private void RemoveFlag(string arg, bool removeValue = true)

@@ -7,7 +7,7 @@ using DotnetCat.Network;
 namespace DotnetCatTests.Network;
 
 /// <summary>
-///  Unit tests for utility class <c>DotnetCat.Network.Net</c>.
+///  Unit tests for utility class <see cref="Net">DotnetCat.Network.Net</see>.
 /// </summary>
 [TestClass]
 public class NetTests

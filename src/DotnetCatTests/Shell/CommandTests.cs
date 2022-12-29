@@ -6,7 +6,7 @@ using DotnetCat.Shell;
 namespace DotnetCatTests.Shell;
 
 /// <summary>
-///  Unit tests for utility class <c>DotnetCat.Shell.Command</c>.
+///  Unit tests for utility class <see cref="Command">DotnetCat.Shell.Command</see>.
 /// </summary>
 [TestClass]
 public class CommandTests
