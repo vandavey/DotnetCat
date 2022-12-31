@@ -8,48 +8,56 @@ namespace DotnetCat.Errors;
 /// </summary>
 internal class ErrorMessage
 {
+    private string? _message;  // Error message
+
     /// <summary>
     ///  Initialize the object.
     /// </summary>
     public ErrorMessage(string msg) => Message = msg;
 
     /// Error message string
-    public string Message { get; private set; }
+    public string Message
+    {
+        get => _message ??= string.Empty;
+        private set
+        {
+            if (value.IsNullOrEmpty())
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
+            if (MsgBuilt(value))
+            {
+                throw new ArgumentException("Message already built", nameof(value));
+            }
+            _message = value;
+        }
+    }
 
     /// <summary>
     ///  Interpolate the given argument in the underlying message string.
     /// </summary>
-    public string Build(string arg)
+    public string Build(string? arg)
     {
-        bool isBuilt = MsgBuilt();
-        bool nullArg = arg.IsNullOrEmpty();
-
-        // Missing required argument
-        if (nullArg && !isBuilt)
+        if (MsgBuilt())
         {
-            throw new ArgumentNullException(nameof(arg));
+            throw new InvalidOperationException("Underlying message already built");
         }
+        return _message = Message.Replace("%", arg).Replace("{}", arg);
+    }
 
-        // Message already built
-        if (!nullArg && isBuilt)
-        {
-            string errorMsg = "The message has already been built";
-            throw new ArgumentException(errorMsg, nameof(arg));
-        }
-
-        if (!isBuilt)
-        {
-            Message = Message.Replace("%", arg).Replace("{}", arg);
-        }
-        return Message;
+    /// <summary>
+    ///  Determine whether the given message string contains
+    ///  any format specifier substrings (`%`, `{}`).
+    /// </summary>
+    private static bool MsgBuilt(string msg)
+    {
+        return !msg.Contains('%') && !msg.Contains("{}");
     }
 
     /// <summary>
     ///  Determine whether the underlying message string contains
-    ///  any format specifier substrings ('%', '{}').
+    ///  any format specifier substrings (`%`, `{}`).
     /// </summary>
-    private bool MsgBuilt()
-    {
-        return !Message.Contains('%') && !Message.Contains("{}");
-    }
+    private bool MsgBuilt() => MsgBuilt(Message);
 }

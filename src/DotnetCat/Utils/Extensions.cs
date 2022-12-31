@@ -20,9 +20,9 @@ internal static class Extensions
     /// <summary>
     ///  Determine whether a collection is null or empty.
     /// </summary>
-    public static bool IsNullOrEmpty<T>(this IEnumerable<T>? iEnum)
+    public static bool IsNullOrEmpty<T>(this IEnumerable<T>? values)
     {
-        return iEnum is null || !iEnum.Any();
+        return values is null || !values.Any();
     }
 
     /// <summary>
@@ -64,20 +64,21 @@ internal static class Extensions
     /// <summary>
     ///  Join each element of a collection separated by the given delimiter.
     /// </summary>
-    public static string Join<T>(this IEnumerable<T>? iEnum, string? delim = default)
-    {
-        if (iEnum.IsNullOrEmpty())
+    public static string Join<T>(this IEnumerable<T>? values,
+                                 string? delim = default) {
+
+        if (values.IsNullOrEmpty())
         {
-            throw new ArgumentNullException(nameof(iEnum));
+            throw new ArgumentNullException(nameof(values));
         }
-        return string.Join(delim, iEnum ?? Array.Empty<T>());
+        return string.Join(delim, values ?? Array.Empty<T>());
     }
 
     /// <summary>
     ///  Join each element of a collection separated by the default system EOL.
     /// </summary>
-    public static string JoinLines<T>(this IEnumerable<T>? iEnum)
+    public static string JoinLines<T>(this IEnumerable<T>? values)
     {
-        return Join(iEnum, Environment.NewLine);
+        return Join(values, Environment.NewLine);
     }
 }

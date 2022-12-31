@@ -7,14 +7,15 @@ using DotnetCat.Network;
 namespace DotnetCatTests.Network;
 
 /// <summary>
-///  Unit tests for utility class <see cref="Net">DotnetCat.Network.Net</see>.
+///  Unit tests for utility class <see cref="Net"/>.
 /// </summary>
 [TestClass]
 public class NetTests
 {
+#region MethodTests
     /// <summary>
     ///  Assert that an input <c>AggregateException</c> returns the
-    ///  expected <c>Except</c> enumeration type member.
+    ///  expected <see cref="Except"/> enumeration type member.
     /// </summary>
     [DataTestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
@@ -33,7 +34,7 @@ public class NetTests
 
     /// <summary>
     ///  Assert that an input <c>SocketException</c> returns the
-    ///  expected <c>Except</c> enumeration type member.
+    ///  expected <see cref="Except"/> enumeration type member.
     /// </summary>
     [DataTestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
@@ -119,6 +120,7 @@ public class NetTests
         SocketException socketEx = Net.MakeException(expected);
         SocketError actual = socketEx.SocketErrorCode;
 
-        Assert.AreEqual(actual, expected, $"Expected error code of '{expected}'");
+        Assert.AreEqual(actual, expected, $"Expected error code: '{expected}'");
     }
+#endregion // MethodTests
 }

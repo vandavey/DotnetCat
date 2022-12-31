@@ -7,12 +7,12 @@ using DotnetCat.Utils;
 namespace DotnetCatTests.Utils;
 
 /// <summary>
-///  Unit tests for utility class
-///  <see cref="Extensions">DotnetCat.Utils.Extensions</see>.
+///  Unit tests for utility class <see cref="Extensions"/>.
 /// </summary>
 [TestClass]
 public class ExtensionsTests
 {
+#region MethodTests
     /// <summary>
     ///  Assert that a null input string returns true.
     /// </summary>
@@ -229,7 +229,7 @@ public class ExtensionsTests
         string expected = string.Join(delim, array);
         string actual = array.Join(delim);
 
-        Assert.AreEqual(actual, expected, $"Expected result of '{expected}'");
+        Assert.AreEqual(actual, expected, $"Expected result string: '{expected}'");
     }
 
     /// <summary>
@@ -244,4 +244,5 @@ public class ExtensionsTests
 
         Assert.ThrowsException<ArgumentNullException>(func);
     }
+#endregion // MethodTests
 }
