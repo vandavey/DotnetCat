@@ -7,7 +7,7 @@ using SpecialFolder = System.Environment.SpecialFolder;
 namespace DotnetCatTests.IO;
 
 /// <summary>
-///  Unit tests for utility class <see cref="FileSys">DotnetCat.IO.FileSys</see>.
+///  Unit tests for utility class <see cref="FileSys"/>.
 /// </summary>
 [TestClass]
 public class FileSysTests
@@ -40,6 +40,7 @@ public class FileSysTests
     }
 #endregion // PropertyTests
 
+#region MethodTests
     /// <summary>
     ///  Assert that a valid (existing) input path returns true.
     /// </summary>
@@ -222,4 +223,5 @@ public class FileSysTests
         string? actual = FileSys.GetFileName(path, withExt);
         Assert.IsNull(actual, "Expected resulting file name to be null");
     }
+#endregion // MethodTests
 }

@@ -6,11 +6,12 @@ using DotnetCat.Utils;
 namespace DotnetCatTests.Utils;
 
 /// <summary>
-///  Unit tests for class <see cref="Parser">DotnetCat.Utils.Parser</see>.
+///  Unit tests for class <see cref="Parser"/>.
 /// </summary>
 [TestClass]
 public class ParserTests
 {
+#region MethodTests
     /// <summary>
     ///  Assert that an input command-line argument array containing the
     ///  specified argument flag or flag alias returns the correct index.
@@ -83,4 +84,5 @@ public class ParserTests
         bool actual = Parser.NeedsHelp(args);
         Assert.IsFalse(actual, "Did not expect a help flag or flag alias");
     }
+#endregion // MethodTests
 }
