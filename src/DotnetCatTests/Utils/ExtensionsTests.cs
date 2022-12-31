@@ -229,7 +229,7 @@ public class ExtensionsTests
         string expected = string.Join(delim, array);
         string actual = array.Join(delim);
 
-        Assert.AreEqual(actual, expected, $"Expected result of '{expected}'");
+        Assert.AreEqual(actual, expected, $"Expected result string: '{expected}'");
     }
 
     /// <summary>

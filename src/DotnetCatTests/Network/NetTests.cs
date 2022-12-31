@@ -119,6 +119,6 @@ public class NetTests
         SocketException socketEx = Net.MakeException(expected);
         SocketError actual = socketEx.SocketErrorCode;
 
-        Assert.AreEqual(actual, expected, $"Expected error code of '{expected}'");
+        Assert.AreEqual(actual, expected, $"Expected error code: '{expected}'");
     }
 }

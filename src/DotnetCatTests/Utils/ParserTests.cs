@@ -13,7 +13,7 @@ public class ParserTests
 {
     /// <summary>
     ///  Assert that an input command-line argument array containing the
-    ///  specified argument flag or alias returns the correct index.
+    ///  specified argument flag or flag alias returns the correct index.
     /// </summary>
     [DataTestMethod]
     [DataRow("--send", 's', 0, "-vls", "~/data.txt", "localhost")]
@@ -27,12 +27,12 @@ public class ParserTests
         List<string>? argsList = args.ToList();
         int actual = Parser.IndexOfFlag(argsList, flag, alias);
 
-        Assert.AreEqual(actual, expected, $"Expected result index of '{expected}'");
+        Assert.AreEqual(actual, expected, $"Expected result index: '{expected}'");
     }
 
     /// <summary>
     ///  Assert that an input command-line argument array not containing
-    ///  the specified argument flag or alias returns -1.
+    ///  the specified argument flag or flag alias returns -1.
     /// </summary>
     [DataTestMethod]
     [DataRow("--send", 's', "-vlo", "~/data.txt", "localhost")]
@@ -47,12 +47,12 @@ public class ParserTests
         int expected = -1;
         int actual = Parser.IndexOfFlag(argsList, flag, alias);
 
-        Assert.AreEqual(actual, expected, $"Expected result index of '{expected}'");
+        Assert.AreEqual(actual, expected, $"Expected result index: '{expected}'");
     }
 
     /// <summary>
-    ///  Assert that an input command-line argument array containing
-    ///  a help flag or alias (`-?`, `-h`, `--help`) returns true.
+    ///  Assert that an input command-line argument array containing a
+    ///  help flag or flag alias (`-?`, `-h`, `--help`) returns true.
     /// </summary>
     [DataTestMethod]
     [DataRow("-?")]
@@ -67,12 +67,12 @@ public class ParserTests
     public void NeedsHelp_HelpFlag_ReturnsTrue(params string[] args)
     {
         bool actual = Parser.NeedsHelp(args);
-        Assert.IsTrue(actual, $"Expected result to be '{true}'");
+        Assert.IsTrue(actual, "Expected a help flag or flag alias");
     }
 
     /// <summary>
     ///  Assert that an input command-line argument array not containing
-    ///  a help flag or alias (`-?`, `-h`, `--help`) returns false.
+    ///  a help flag or flag alias (`-?`, `-h`, `--help`) returns false.
     /// </summary>
     [DataTestMethod]
     [DataRow("-vp", "22", "-e", "pwsh.exe")]
@@ -81,6 +81,6 @@ public class ParserTests
     public void NeedsHelp_NoHelpFlag_ReturnsFalse(params string[] args)
     {
         bool actual = Parser.NeedsHelp(args);
-        Assert.IsFalse(actual, $"Expected result to be '{false}'");
+        Assert.IsFalse(actual, "Did not expect a help flag or flag alias");
     }
 }
