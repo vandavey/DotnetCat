@@ -208,8 +208,8 @@ public class FileSysTests
     }
 
     /// <summary>
-    ///  Assert that an invalid (null, empty, blank) input path returns
-    ///  the correct file name (with and without the extension).
+    ///  Assert that an invalid (null, empty, blank) input path
+    ///  returns null (with and without the extension).
     /// </summary>
     [DataTestMethod]
     [DataRow(null, true)]
