@@ -40,7 +40,7 @@ internal static class Command
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             UseShellExecute = false,
-            WorkingDirectory = FileSys.GetUserHomePath()
+            WorkingDirectory = FileSys.UserProfile
         };
 
         // Profile loading only supported on Windows

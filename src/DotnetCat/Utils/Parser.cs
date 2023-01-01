@@ -50,15 +50,14 @@ internal class Parser
     /// </summary>
     public static bool NeedsHelp(string[] args)
     {
-        int count = (from string arg in args.ToList()
-                     where arg == "--help"
-                         || (arg.Length > 1
-                             && arg[0] == '-'
-                             && arg[1] != '-'
-                             && (arg.Contains('h') || arg.Contains('?')))
-                     select arg).Count();
-
-        return count > 0;
+        bool needsHelp = (from string arg in args.ToList()
+                          where arg == "--help"
+                              || (arg.Length > 1
+                                  && arg[0] == '-'
+                                  && arg[1] != '-'
+                                  && (arg.Contains('h') || arg.Contains('?')))
+                          select arg).Any();
+        return needsHelp;
     }
 
     /// <summary>
@@ -74,7 +73,7 @@ internal class Parser
         }
 
         int flagIndex;
-        List<string> argsList = args is null ? new() : args.ToList();
+        List<string> argsList = args?.ToList() ?? new();
 
         if (flag != "-")
         {

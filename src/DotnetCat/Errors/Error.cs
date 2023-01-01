@@ -53,9 +53,7 @@ internal static class Error
         {
             Console.WriteLine(Parser.Usage);
         }
-
-        ErrorMessage errorMsg = GetErrorMessage(exType);
-        errorMsg.Build(arg);
+        ErrorMessage errorMsg = MakeErrorMessage(exType, arg);
 
         // Print warning/error message
         if (level is Level.Warn)
@@ -92,9 +90,9 @@ internal static class Error
     ///  Get a new error message that corresponds to the given
     ///  exception enumeration type.
     /// </summary>
-    private static ErrorMessage GetErrorMessage(Except exType)
-    {
-        return new ErrorMessage(exType switch
+    private static ErrorMessage MakeErrorMessage(Except exType,
+                                                 string? arg = default) {
+        ErrorMessage message = new(exType switch
         {
             Except.AddressInUse       => "The endpoint is already in use: %",
             Except.ArgsCombo          => "Invalid argument combination: %",
@@ -121,5 +119,11 @@ internal static class Error
             Except.TimedOut           => "Socket timeout occurred: %",
             Except.Unhandled or _     => "Unhandled exception occurred: %"
         });
+
+        if (!arg.IsNullOrEmpty())
+        {
+            message.Build(arg);
+        }
+        return message;
     }
 }

@@ -12,8 +12,6 @@ namespace DotnetCat.IO;
 /// </summary>
 internal static class FileSys
 {
-    private static readonly string _userHomePath;     // User home path
-
     private static readonly string[] _envPaths;       // Local environment paths
 
     private static readonly string[] _exeExtensions;  // Executable file extensions
@@ -23,6 +21,8 @@ internal static class FileSys
     /// </summary>
     static FileSys()
     {
+        string envVar = Command.GetEnvVariable("PATH") ?? string.Empty;
+
         _exeExtensions = new string[]
         {
             "",     // Linux binary (ELF)
@@ -32,18 +32,13 @@ internal static class FileSys
             "py",   // Python script
             "sh"    // Bash/shell script
         };
-        string envVar = Command.GetEnvVariable("PATH") ?? string.Empty;
-
         _envPaths = envVar.Split(Path.PathSeparator);
-        _userHomePath = GetUserHomePath();
     }
 
-    /// <summary>
-    ///  Get the absolute file path of the current user home directory.
-    /// </summary>
-    public static string GetUserHomePath()
+    /// User home directory absolute file path
+    public static string UserProfile
     {
-        return Environment.GetFolderPath(SpecialFolder.UserProfile);
+        get => Environment.GetFolderPath(SpecialFolder.UserProfile);
     }
 
     /// <summary>
@@ -121,7 +116,7 @@ internal static class FileSys
             }
 
             // Ensure home path is properly interpreted
-            fullPath = Path.GetFullPath(fullPath.Replace("~", _userHomePath));
+            fullPath = Path.GetFullPath(fullPath.Replace("~", UserProfile));
         }
         return fullPath;
     }

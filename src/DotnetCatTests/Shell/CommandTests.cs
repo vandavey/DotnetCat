@@ -6,17 +6,25 @@ using DotnetCat.Shell;
 namespace DotnetCatTests.Shell;
 
 /// <summary>
-///  Unit tests for utility class <see cref="Command">DotnetCat.Shell.Command</see>.
+///  Unit tests for utility class <see cref="Command"/>.
 /// </summary>
 [TestClass]
 public class CommandTests
 {
+#region MethodTests
     /// <summary>
     ///  Assert that a valid input environment variable name returns the
     ///  value of the corresponding variable in the local system.
     /// </summary>
     [DataTestMethod]
     [DataRow("PATH")]
+#if WINDOWS
+    [DataRow("USERNAME")]
+    [DataRow("USERPROFILE")]
+#elif LINUX
+    [DataRow("HOME")]
+    [DataRow("USER")]
+#endif // WINDOWS
     public void GetEnvVariable_ValidEnvVariableName_EqualsExpected(string name)
     {
         string? expected = Environment.GetEnvironmentVariable(name);
@@ -104,4 +112,5 @@ public class CommandTests
         bool actual = Command.IsClearCmd(command);
         Assert.IsFalse(actual, $"'{command}' should not be a clear-screen command");
     }
+#endregion // MethodTests
 }
