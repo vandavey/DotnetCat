@@ -125,6 +125,35 @@ public class ExtensionsTests
     }
 
     /// <summary>
+    ///  Assert that an input string ending with a specific character returns true.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow("test data", 'a')]
+    [DataRow(" test data ", ' ')]
+    [DataRow("test data 1", '1')]
+    [DataRow("test data\0", '\0')]
+    public void EndsWithValue_CharDoes_ReturnsTrue(string? str, char value)
+    {
+        bool actual = str.EndsWithValue(value);
+        Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'");
+    }
+
+    /// <summary>
+    ///  Assert that an input string not ending with a
+    ///  specific character returns false.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow(null, 't')]
+    [DataRow(" test data", ' ')]
+    [DataRow("test data", 't')]
+    [DataRow("\0test data", '\0')]
+    public void EndsWithValue_CharDoesNot_ReturnsFalse(string? str, char value)
+    {
+        bool actual = str.EndsWithValue(value);
+        Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'");
+    }
+
+    /// <summary>
     ///  Assert that an input string ending with a specific substring returns true.
     /// </summary>
     [DataTestMethod]
@@ -152,6 +181,35 @@ public class ExtensionsTests
     }
 
     /// <summary>
+    ///  Assert that an input string starting with a specific character returns true.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow("test data", 't')]
+    [DataRow(" test data ", ' ')]
+    [DataRow("1 test data", '1')]
+    [DataRow("\0test data", '\0')]
+    public void StartsWithValue_CharDoes_ReturnsTrue(string? str, char value)
+    {
+        bool actual = str.StartsWithValue(value);
+        Assert.IsTrue(actual, $"Expected '{str}' to start with '{value}'");
+    }
+
+    /// <summary>
+    ///  Assert that an input string not starting with a
+    ///  specific character returns false.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow(null, 't')]
+    [DataRow(" test data ", 't')]
+    [DataRow("test data ", ' ')]
+    [DataRow("test data\0", '\0')]
+    public void StartsWithValue_CharDoesNot_ReturnsFalse(string? str, char value)
+    {
+        bool actual = str.StartsWithValue(value);
+        Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'");
+    }
+
+    /// <summary>
     ///  Assert that an input string starting with a specific substring returns true.
     /// </summary>
     [DataTestMethod]
@@ -174,31 +232,6 @@ public class ExtensionsTests
     [DataRow("test data", " test ")]
     public void StartsWithValue_StringDoesNot_ReturnsFalse(string? str,
                                                            string? value) {
-        bool actual = str.StartsWithValue(value);
-        Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'");
-    }
-
-    /// <summary>
-    ///  Assert that an input string starting with a specific character returns true.
-    /// </summary>
-    [DataTestMethod]
-    [DataRow("test data", 't')]
-    [DataRow(" test data ", ' ')]
-    public void StartsWithValue_CharDoes_ReturnsTrue(string? str, char value)
-    {
-        bool actual = str.StartsWithValue(value);
-        Assert.IsTrue(actual, $"Expected '{str}' to start with '{value}'");
-    }
-
-    /// <summary>
-    ///  Assert that an input string not starting with a
-    ///  specific character returns false.
-    /// </summary>
-    [DataTestMethod]
-    [DataRow(null, 't')]
-    [DataRow(" test data ", 't')]
-    public void StartsWithValue_CharDoesNot_ReturnsFalse(string? str, char value)
-    {
         bool actual = str.StartsWithValue(value);
         Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'");
     }
