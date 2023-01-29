@@ -8,7 +8,7 @@
         <AssemblyName>dncat</AssemblyName>
         <Authors>vandavey</Authors>
         <Configurations>Debug;Release;Linux;ARM64</Configurations>
-        <Copyright>Copyright (c) 2020 vandavey</Copyright>
+        <Copyright>Copyright (c) 2023 vandavey</Copyright>
         <Description>DotnetCat</Description>
         <ErrorReport>none</ErrorReport>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>

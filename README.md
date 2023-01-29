@@ -187,8 +187,8 @@ The entire DotnetCat source code repository can be downloaded
   any claim, damages or other liability arising from, out of or in connection with
   the software or the use or other dealings in the software.
 
-  > For more information, click [here](LICENSE.md) to view the
-    software's [MIT license](LICENSE.md).
+    > For more information, click [here](LICENSE.md) to view the
+      software's [MIT license](LICENSE.md).
 
 ***
 

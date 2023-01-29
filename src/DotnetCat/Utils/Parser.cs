@@ -126,58 +126,46 @@ internal class Parser
     /// </summary>
     private static List<string> DefragArguments(List<string> args)
     {
-        int delta = 0;
-        List<string> list = args.ToList();
+        List<string> defragArgs = new();
 
-        IEnumerable<(int, string, char, bool)> results;
-
-        results = from string arg in args
-                  let quote = arg.FirstOrDefault()
-                  let valid = arg.EndsWith(quote) && arg.Length >= 2
-                  where arg.StartsWith("'") || arg.StartsWith("\"")
-                  select (args.IndexOf(arg), arg, quote, valid);
-
-        foreach ((int bolPos, string bolArg, char quote, bool valid) in results)
+        // Defragment the given arguments
+        for (int i = 0; i < args.Count; i++)
         {
-            // Skip processed arguments
-            if (delta > 0)
-            {
-                delta -= 1;
-                continue;
-            }
-            int listIndex = list.IndexOf(bolArg);
+            bool begQuoted = args[i].StartsWithValue('\'');
 
-            // Non-fragmented string
-            if (valid)
+            if (!begQuoted || (begQuoted && args[i].EndsWithValue('\'')))
             {
-                list[listIndex] = bolArg[1..^1];
+                defragArgs.Add(args[i]);
                 continue;
             }
 
-            (int eolPos, string eolArg) = (from string arg in args
-                                           let pos = args.IndexOf(arg, bolPos + 1)
-                                           where pos > bolPos
-                                               && (arg == quote.ToString()
-                                                   || arg.EndsWith(quote))
-                                           select (pos, arg)).FirstOrDefault();
-            if (eolArg is null)
+            if (i == args.Count - 1)
             {
-                string arg = args.ToArray()[bolPos..].Join(", ");
-                Error.Handle(Except.StringEol, arg, true);
-            }
-            delta = eolPos - bolPos;
-
-            // Append fragments to the list argument
-            for (int i = bolPos + 1; i < bolPos + delta + 1; i++)
-            {
-                list[listIndex] += $" {args[i]}";
-                list.Remove(args[i]);
+                defragArgs.Add(args[i]);
+                break;
             }
 
-            string defragged = list[listIndex];
-            list[listIndex] = defragged[1..^1];
+            // Locate terminating argument and parse the range
+            for (int j = i + 1; j < args.Count; j++)
+            {
+                if (args[j].EndsWithValue('\''))
+                {
+                    string argStr = args.ToArray()[i..(j + 1)].Join(" ");
+
+                    // Remove leading and trailing quotes
+                    if (argStr.Length >= 2)
+                    {
+                        argStr = argStr[1..^1];
+                    }
+                    defragArgs.Add(argStr);
+
+                    i = j;
+                    break;
+                }
+            }
         }
-        return list;
+
+        return defragArgs;
     }
 
     /// <summary>
@@ -233,15 +221,15 @@ internal class Parser
 
             if (arg.Contains('o'))  // Receive file data
             {
-                _args.FilePath = GetTransfer(index);
                 _args.TransOpt = TransferOpt.Collect;
+                _args.FilePath = GetTransferPath(index);
                 RemoveAlias(index, 'o', removeValue: true);
             }
 
             if (arg.Contains('s'))  // Send file data
             {
-                _args.FilePath = GetTransfer(index);
                 _args.TransOpt = TransferOpt.Transmit;
+                _args.FilePath = GetTransferPath(index);
                 RemoveAlias(index, 's', removeValue: true);
             }
 
@@ -326,15 +314,15 @@ internal class Parser
                 }
                 case "--output":   // Receive file data
                 {
-                    _args.FilePath = GetTransfer(index);
                     _args.TransOpt = TransferOpt.Collect;
+                    _args.FilePath = GetTransferPath(index);
                     RemoveFlag(ArgsValueAt(index));
                     break;
                 }
                 case "--send":     // Send file data
                 {
-                    _args.FilePath = GetTransfer(index);
                     _args.TransOpt = TransferOpt.Transmit;
+                    _args.FilePath = GetTransferPath(index);
                     RemoveFlag(ArgsValueAt(index));
                     break;
                 }
@@ -530,27 +518,39 @@ internal class Parser
     ///  Parse and validate the transfer file path argument located at the
     ///  given index in the underlying command-line argument list.
     /// </summary>
-    private string GetTransfer(int index)
+    private string GetTransferPath(int index)
     {
+        if (_args.TransOpt is TransferOpt.None)
+        {
+            throw new InvalidOperationException("File transfer option must be set");
+        }
+
+        // No corresponding argument value
         if (!ValidIndex(index + 1))
         {
             Error.Handle(Except.NamedArgs, _argsList[index], true);
         }
+
         int pathPos = index + 1;
+        string path = FileSys.ResolvePath(ArgsValueAt(pathPos));
 
-        string path = FileSys.ResolvePath(ArgsValueAt(pathPos)) ?? string.Empty;
-        string parentPath = Directory.GetParent(path)?.FullName ?? string.Empty;
-
-        bool pathExists = FileSys.FileExists(path);
-        bool parentExists = FileSys.DirectoryExists(parentPath);
-
-        if (!pathExists && _args.TransOpt is TransferOpt.Transmit)
+        // File path resolution failure
+        if (path.IsNullOrEmpty())
         {
             Error.Handle(Except.FilePath, path, true);
         }
-        else if (!parentExists && _args.TransOpt is TransferOpt.Collect)
+        string parentPath = Directory.GetParent(path)?.FullName ?? string.Empty;
+
+        // Parent path must exist for both collection and transmission
+        if (parentPath.IsNullOrEmpty() || !FileSys.DirectoryExists(parentPath))
         {
-            Error.Handle(Except.FilePath, parentPath, true);
+            Error.Handle(Except.DirectoryPath, parentPath, true);
+        }
+
+        // File must exist to be transmitted
+        if (!FileSys.FileExists(path) && _args.TransOpt is TransferOpt.Transmit)
+        {
+            Error.Handle(Except.FilePath, path, true);
         }
         _args.PipeVariant = PipeType.File;
 

@@ -26,7 +26,15 @@ internal static class Extensions
     }
 
     /// <summary>
-    ///  Determine whether a string ends with the given string value.
+    ///  Determine whether a string ends with the given character.
+    /// </summary>
+    public static bool EndsWithValue(this string? str, char value)
+    {
+        return str?.EndsWith(value) ?? false;
+    }
+
+    /// <summary>
+    ///  Determine whether a string ends with the given substring.
     /// </summary>
     public static bool EndsWithValue(this string? str, string? value)
     {
@@ -48,7 +56,7 @@ internal static class Extensions
     }
 
     /// <summary>
-    ///  Determine whether a string starts with the given string value.
+    ///  Determine whether a string starts with the given substring.
     /// </summary>
     public static bool StartsWithValue(this string? str, string? value)
     {

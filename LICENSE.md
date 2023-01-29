@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright © 2020 vandavey
+Copyright © 2023 vandavey
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
