@@ -146,7 +146,7 @@ internal class Parser
             }
 
             // Locate terminating argument and parse the range
-            for (int j = i + 1; i < args.Count; j++)
+            for (int j = i + 1; j < args.Count; j++)
             {
                 if (args[j].EndsWithValue('\''))
                 {
