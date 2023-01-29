@@ -52,29 +52,14 @@ internal static class FileSys
     /// <summary>
     ///  Determine whether a file entry exists at the given file path.
     /// </summary>
-    public static bool FileExists(string? path)
-    {
-        bool exists = false;
-
-        if (!path.IsNullOrEmpty())
-        {
-            exists = File.Exists(ResolvePath(path));
-        }
-        return exists;
-    }
+    public static bool FileExists(string? path) => File.Exists(ResolvePath(path));
 
     /// <summary>
     ///  Determine whether a directory entry exists at the given file path.
     /// </summary>
     public static bool DirectoryExists(string? path)
     {
-        bool exists = false;
-
-        if (!path.IsNullOrEmpty())
-        {
-            exists = Directory.Exists(ResolvePath(path));
-        }
-        return exists;
+        return Directory.Exists(ResolvePath(path));
     }
 
     /// <summary>
@@ -103,7 +88,7 @@ internal static class FileSys
     /// <summary>
     ///  Resolve the absolute file path of the given relative file path.
     /// </summary>
-    public static string? ResolvePath(string? path)
+    public static string ResolvePath(string? path)
     {
         string fullPath = path ?? string.Empty;
 
