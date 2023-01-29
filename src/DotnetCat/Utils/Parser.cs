@@ -221,15 +221,15 @@ internal class Parser
 
             if (arg.Contains('o'))  // Receive file data
             {
-                _args.FilePath = GetTransfer(index);
                 _args.TransOpt = TransferOpt.Collect;
+                _args.FilePath = GetTransferPath(index);
                 RemoveAlias(index, 'o', removeValue: true);
             }
 
             if (arg.Contains('s'))  // Send file data
             {
-                _args.FilePath = GetTransfer(index);
                 _args.TransOpt = TransferOpt.Transmit;
+                _args.FilePath = GetTransferPath(index);
                 RemoveAlias(index, 's', removeValue: true);
             }
 
@@ -314,15 +314,15 @@ internal class Parser
                 }
                 case "--output":   // Receive file data
                 {
-                    _args.FilePath = GetTransfer(index);
                     _args.TransOpt = TransferOpt.Collect;
+                    _args.FilePath = GetTransferPath(index);
                     RemoveFlag(ArgsValueAt(index));
                     break;
                 }
                 case "--send":     // Send file data
                 {
-                    _args.FilePath = GetTransfer(index);
                     _args.TransOpt = TransferOpt.Transmit;
+                    _args.FilePath = GetTransferPath(index);
                     RemoveFlag(ArgsValueAt(index));
                     break;
                 }
@@ -518,27 +518,39 @@ internal class Parser
     ///  Parse and validate the transfer file path argument located at the
     ///  given index in the underlying command-line argument list.
     /// </summary>
-    private string GetTransfer(int index)
+    private string GetTransferPath(int index)
     {
+        if (_args.TransOpt is TransferOpt.None)
+        {
+            throw new InvalidOperationException("File transfer option must be set");
+        }
+
+        // No corresponding argument value
         if (!ValidIndex(index + 1))
         {
             Error.Handle(Except.NamedArgs, _argsList[index], true);
         }
+
         int pathPos = index + 1;
+        string path = FileSys.ResolvePath(ArgsValueAt(pathPos));
 
-        string path = FileSys.ResolvePath(ArgsValueAt(pathPos)) ?? string.Empty;
-        string parentPath = Directory.GetParent(path)?.FullName ?? string.Empty;
-
-        bool pathExists = FileSys.FileExists(path);
-        bool parentExists = FileSys.DirectoryExists(parentPath);
-
-        if (!pathExists && _args.TransOpt is TransferOpt.Transmit)
+        // File path resolution failure
+        if (path.IsNullOrEmpty())
         {
             Error.Handle(Except.FilePath, path, true);
         }
-        else if (!parentExists && _args.TransOpt is TransferOpt.Collect)
+        string parentPath = Directory.GetParent(path)?.FullName ?? string.Empty;
+
+        // Parent path must exist for both collection and transmission
+        if (parentPath.IsNullOrEmpty() || !FileSys.DirectoryExists(parentPath))
         {
-            Error.Handle(Except.FilePath, parentPath, true);
+            Error.Handle(Except.DirectoryPath, parentPath, true);
+        }
+
+        // File must exist to be transmitted
+        if (!FileSys.FileExists(path) && _args.TransOpt is TransferOpt.Transmit)
+        {
+            Error.Handle(Except.FilePath, path, true);
         }
         _args.PipeVariant = PipeType.File;
 
