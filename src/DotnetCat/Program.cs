@@ -8,8 +8,6 @@ using DotnetCat.Utils;
 
 namespace DotnetCat;
 
-// TODO: Fix file path validation so path is validated prior to socket connection
-
 /// <summary>
 ///  Primary application startup object.
 /// </summary>
