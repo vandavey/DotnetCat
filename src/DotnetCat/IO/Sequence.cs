@@ -5,7 +5,7 @@ using DotnetCat.Utils;
 namespace DotnetCat.IO;
 
 /// <summary>
-///  Virtual terminal escape sequence utility class.
+///  Virtual terminal control sequence utility class.
 /// </summary>
 internal static class Sequence
 {
@@ -26,7 +26,7 @@ internal static class Sequence
     public static void ClearScreen() => Console.Write(CLEAR);
 
     /// <summary>
-    ///  Get the ANSI foreground color SGR escape sequence that
+    ///  Get the ANSI foreground color SGR control sequence that
     ///  corresponds to the given console color.
     /// </summary>
     public static string GetColorStr(ConsoleColor color)
@@ -35,7 +35,7 @@ internal static class Sequence
     }
 
     /// <summary>
-    ///  Style the given message using ANSI SGR escape sequences so the
+    ///  Style the given message using ANSI SGR control sequences so the
     ///  foreground color is changed and terminated by a reset sequence.
     /// </summary>
     public static string GetColorStr(string msg, ConsoleColor color)
@@ -48,7 +48,7 @@ internal static class Sequence
     }
 
     /// <summary>
-    ///  Get the ANSI foreground color SGR escape sequence that
+    ///  Get the ANSI foreground color SGR control sequence that
     ///  corresponds to the given console color.
     /// </summary>
     private static string GetColorSequence(ConsoleColor color)

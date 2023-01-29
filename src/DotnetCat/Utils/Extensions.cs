@@ -40,6 +40,20 @@ internal static class Extensions
     }
 
     /// <summary>
+    ///  Determine whether a string ends with the given character.
+    /// </summary>
+    public static bool EndsWithValue(this string? str, char value)
+    {
+        bool endsWith = false;
+
+        if (str is not null)
+        {
+            endsWith = str.EndsWith(value);
+        }
+        return endsWith;
+    }
+
+    /// <summary>
     ///  Determine whether a string starts with the given character.
     /// </summary>
     public static bool StartsWithValue(this string? str, char value)

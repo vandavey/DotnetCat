@@ -50,7 +50,7 @@ internal abstract class SocketPipe : IConnectable
     /// TCP client is connected
     protected static bool ClientConnected => Client?.Connected ?? false;
 
-    /// Platform based EOL escape sequence
+    /// Platform based EOL control sequence
     protected StringBuilder NewLine { get; }
 
     /// Pipeline cancellation token source

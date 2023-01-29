@@ -126,58 +126,46 @@ internal class Parser
     /// </summary>
     private static List<string> DefragArguments(List<string> args)
     {
-        int delta = 0;
-        List<string> list = args.ToList();
+        List<string> defragArgs = new();
 
-        IEnumerable<(int, string, char, bool)> results;
-
-        results = from string arg in args
-                  let quote = arg.FirstOrDefault()
-                  let valid = arg.EndsWith(quote) && arg.Length >= 2
-                  where arg.StartsWith("'") || arg.StartsWith("\"")
-                  select (args.IndexOf(arg), arg, quote, valid);
-
-        foreach ((int bolPos, string bolArg, char quote, bool valid) in results)
+        // Defragment the given arguments
+        for (int i = 0; i < args.Count; i++)
         {
-            // Skip processed arguments
-            if (delta > 0)
-            {
-                delta -= 1;
-                continue;
-            }
-            int listIndex = list.IndexOf(bolArg);
+            bool begQuoted = args[i].StartsWithValue('\'');
 
-            // Non-fragmented string
-            if (valid)
+            if (!begQuoted || (begQuoted && args[i].EndsWithValue('\'')))
             {
-                list[listIndex] = bolArg[1..^1];
+                defragArgs.Add(args[i]);
                 continue;
             }
 
-            (int eolPos, string eolArg) = (from string arg in args
-                                           let pos = args.IndexOf(arg, bolPos + 1)
-                                           where pos > bolPos
-                                               && (arg == quote.ToString()
-                                                   || arg.EndsWith(quote))
-                                           select (pos, arg)).FirstOrDefault();
-            if (eolArg is null)
+            if (i == args.Count - 1)
             {
-                string arg = args.ToArray()[bolPos..].Join(", ");
-                Error.Handle(Except.StringEol, arg, true);
-            }
-            delta = eolPos - bolPos;
-
-            // Append fragments to the list argument
-            for (int i = bolPos + 1; i < bolPos + delta + 1; i++)
-            {
-                list[listIndex] += $" {args[i]}";
-                list.Remove(args[i]);
+                defragArgs.Add(args[i]);
+                break;
             }
 
-            string defragged = list[listIndex];
-            list[listIndex] = defragged[1..^1];
+            // Locate terminating argument and parse the range
+            for (int j = i + 1; j < args.Count; j++)
+            {
+                if (args[j].EndsWithValue('\''))
+                {
+                    string argStr = args.ToArray()[i..(j + 1)].Join(" ");
+
+                    // Remove leading and trailing quotes
+                    if (argStr.Length >= 2)
+                    {
+                        argStr = argStr[1..^1];
+                    }
+                    defragArgs.Add(argStr);
+
+                    i = j;
+                    break;
+                }
+            }
         }
-        return list;
+
+        return defragArgs;
     }
 
     /// <summary>
