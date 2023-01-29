@@ -302,7 +302,7 @@ internal abstract class Node : ISockErrorHandled
     /// </summary>
     protected void WaitForExit(int msPollDelay = 100)
     {
-        while (Client.Connected)
+        do
         {
             Task.Delay(msPollDelay).Wait();
 
@@ -311,6 +311,7 @@ internal abstract class Node : ISockErrorHandled
                 break;
             }
         }
+        while (Client.Connected);
     }
 
     /// <summary>
