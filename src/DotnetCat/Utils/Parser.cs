@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using DotnetCat.Errors;
@@ -356,7 +355,7 @@ internal class Parser
                 {
                     Error.Handle(Except.UnknownArgs, _argsList[0], true);
                 }
-                Exception? ex = default;
+                Exception? ex = null;
 
                 // Parse the connection IPv4 address
                 if (IPAddress.TryParse(_argsList[0], out IPAddress? addr))
@@ -532,14 +531,14 @@ internal class Parser
         }
 
         int pathPos = index + 1;
-        string path = FileSys.ResolvePath(ArgsValueAt(pathPos));
+        string? path = FileSys.ResolvePath(ArgsValueAt(pathPos));
 
         // File path resolution failure
         if (path.IsNullOrEmpty())
         {
             Error.Handle(Except.FilePath, path, true);
         }
-        string parentPath = Directory.GetParent(path)?.FullName ?? string.Empty;
+        string parentPath = FileSys.ParentPath(path) ?? string.Empty;
 
         // Parent path must exist for both collection and transmission
         if (parentPath.IsNullOrEmpty() || !FileSys.DirectoryExists(parentPath))

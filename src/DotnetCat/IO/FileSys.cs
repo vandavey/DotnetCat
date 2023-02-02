@@ -86,22 +86,36 @@ internal static class FileSys
     }
 
     /// <summary>
+    ///  Get the absolute parent directory path from the given file path.
+    /// </summary>
+    public static string? ParentPath(string? path)
+    {
+        string? parent = null;
+
+        if (!path.IsNullOrEmpty())
+        {
+            parent = Directory.GetParent(path)?.FullName;
+        }
+        return ResolvePath(parent);
+    }
+
+    /// <summary>
     ///  Resolve the absolute file path of the given relative file path.
     /// </summary>
-    public static string ResolvePath(string? path)
+    public static string? ResolvePath(string? path)
     {
-        string fullPath = path ?? string.Empty;
+        string? fullPath = null;
 
-        if (!fullPath.IsNullOrEmpty())
+        if (!path.IsNullOrEmpty())
         {
             // Ensure drives are properly interpreted
-            if (fullPath.EndsWithValue(":"))
+            if (Program.OS is Platform.Win && path.EndsWithValue(":"))
             {
-                fullPath += Path.DirectorySeparatorChar;
+                path += Path.DirectorySeparatorChar;
             }
 
             // Ensure home path is properly interpreted
-            fullPath = Path.GetFullPath(fullPath.Replace("~", UserProfile));
+            fullPath = Path.GetFullPath(path.Replace("~", UserProfile));
         }
         return fullPath;
     }
@@ -116,11 +130,13 @@ internal static class FileSys
         {
             throw new ArgumentNullException(nameof(exe));
         }
-        (string? path, bool exists) = (exe, Exists(exe));
+
+        string? path = exe;
+        bool exists = Exists(exe);
 
         if (!exists)
         {
-            (path, exists) = (path = FindExecutable(path), Exists(path));
+            exists = Exists(path = FindExecutable(path));
         }
         return (path, exists);
     }
@@ -134,9 +150,9 @@ internal static class FileSys
         {
             throw new ArgumentNullException(nameof(exeName));
         }
-        string? fullPath = default;
+        string? fullPath = null;
 
-        if (!File.Exists(exeName))
+        if (!FileExists(exeName))
         {
             foreach (string path in _envPaths)
             {
@@ -160,7 +176,7 @@ internal static class FileSys
     /// </summary>
     private static string? GetFullExePath(string dirPath, string? exeName)
     {
-        string? fullPath = default;
+        string? fullPath = null;
 
         string? fileName = (from string file in Directory.GetFiles(dirPath)
                             let name = GetFileName(file, false)
@@ -180,7 +196,7 @@ internal static class FileSys
                 }
                 string testPath = Path.Combine(dirPath, newExeName);
 
-                if (File.Exists(testPath))
+                if (FileExists(testPath))
                 {
                     fullPath = testPath;
                     break;

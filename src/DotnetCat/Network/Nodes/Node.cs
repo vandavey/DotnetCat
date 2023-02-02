@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -38,11 +39,11 @@ internal abstract class Node : ISockErrorHandled
     /// </summary>
     protected Node()
     {
-        _hostName = default;
-        _netReader = default;
-        _netWriter = default;
+        _hostName = null;
+        _netReader = null;
+        _netWriter = null;
         _pipes = new List<SocketPipe>();
-        _process = default;
+        _process = null;
         _validArgsCombos = false;
 
         Args = new CmdLineArgs();
@@ -108,10 +109,10 @@ internal abstract class Node : ISockErrorHandled
     }
 
     /// Network hostname
-    public string? HostName
+    public string HostName
     {
-        get => _hostName ?? (Address is null ? "" : Address.ToString());
-        set => _hostName = value ?? (Address is null ? "" : Address.ToString());
+        get => _hostName ?? Address?.ToString() ?? string.Empty;
+        set => _hostName = value ?? Address?.ToString() ?? string.Empty;
     }
 
     /// IPv4 network address
@@ -176,6 +177,7 @@ internal abstract class Node : ISockErrorHandled
     /// <summary>
     ///  Dispose of all unmanaged resources and handle the given error.
     /// </summary>
+    [DoesNotReturn]
     public virtual void PipeError(Except type,
                                   HostEndPoint target,
                                   Exception? ex = default,
@@ -187,6 +189,7 @@ internal abstract class Node : ISockErrorHandled
     /// <summary>
     ///  Dispose of all unmanaged resources and handle the given error.
     /// </summary>
+    [DoesNotReturn]
     public virtual void PipeError(Except type,
                                   string? arg,
                                   Exception? ex = default,

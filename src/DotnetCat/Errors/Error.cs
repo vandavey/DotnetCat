@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using DotnetCat.IO;
 using DotnetCat.Network;
 using DotnetCat.Utils;
@@ -19,16 +20,18 @@ internal static class Error
     public static bool Debug { get; set; }
 
     /// <summary>
-    ///  Handle user-defined exceptions related to DotnetCat.
+    ///  Handle user-defined exceptions related to DotnetCat and exit.
     /// </summary>
+    [DoesNotReturn]
     public static void Handle(Except exType, string? arg, Exception? ex = default)
     {
         Handle(exType, arg, false, ex);
     }
 
     /// <summary>
-    ///  Handle user-defined exceptions related to DotnetCat.
+    ///  Handle user-defined exceptions related to DotnetCat and exit.
     /// </summary>
+    [DoesNotReturn]
     public static void Handle(Except exType,
                               string? arg,
                               Exception? ex,
@@ -38,8 +41,9 @@ internal static class Error
     }
 
     /// <summary>
-    ///  Handle user-defined exceptions related to DotnetCat.
+    ///  Handle user-defined exceptions related to DotnetCat and exit.
     /// </summary>
+    [DoesNotReturn]
     public static void Handle(Except exType,
                               string? arg,
                               bool showUsage,
