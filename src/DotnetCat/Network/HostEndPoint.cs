@@ -18,7 +18,7 @@ internal class HostEndPoint
     /// </summary>
     public HostEndPoint()
     {
-        _hostName = default;
+        _hostName = null;
         _port = -1;
     }
 

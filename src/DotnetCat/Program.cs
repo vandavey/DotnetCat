@@ -23,9 +23,6 @@ internal class Program
     /// Network socket node
     public static Node? SockNode { get; private set; }
 
-    /// Original command-line arguments list
-    public static List<string>? OrigArgs { get; private set; }
-
     /// <summary>
     ///  Static application entry point.
     /// </summary>
@@ -48,7 +45,6 @@ internal class Program
         {
             _parser.PrintHelp();
         }
-        OrigArgs = args.ToList();
 
         InitializeNode(args);
         ConnectNode();
