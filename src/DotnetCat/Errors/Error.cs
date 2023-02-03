@@ -121,6 +121,7 @@ internal static class Error
             Except.SocketError        => "Unspecified socket error occurred: %",
             Except.StringEol          => "Missing EOL in argument(s): %",
             Except.TimedOut           => "Socket timeout occurred: %",
+            Except.UnknownArgs        => "One or more unknown arguments: %",
             Except.Unhandled or _     => "Unhandled exception occurred: %"
         });
 

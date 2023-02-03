@@ -245,7 +245,7 @@ internal abstract class Node : ISockErrorHandled
                 PipeError(Except.ArgsCombo, "--text, --output/--send");
             }
 
-            if (Parser.IndexOfFlag(Program.OrigArgs, "--zero-io") != -1)
+            if (Args.PipeVariant is PipeType.Status)
             {
                 // Invalid combo: --listen, --zero-io
                 if (Program.SockNode is ServerNode)

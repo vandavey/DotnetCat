@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using DotnetCat.Errors;
 using DotnetCat.IO;
 using DotnetCat.IO.Pipelines;
@@ -12,7 +13,7 @@ namespace DotnetCat.Utils;
 /// <summary>
 ///  Command-line argument parser and validator.
 /// </summary>
-internal class Parser
+internal partial class Parser
 {
     private static readonly string _title;  // Application title
 
@@ -49,49 +50,12 @@ internal class Parser
     /// </summary>
     public static bool NeedsHelp(string[] args)
     {
-        bool needsHelp = (from string arg in args.ToList()
+        bool needsHelp = (from string arg in args
                           where arg == "--help"
-                              || (arg.Length > 1
-                                  && arg[0] == '-'
-                                  && arg[1] != '-'
+                              || (IsAlias(arg)
                                   && (arg.Contains('h') || arg.Contains('?')))
                           select arg).Any();
         return needsHelp;
-    }
-
-    /// <summary>
-    ///  Get the index of the given flag (`--foo`) or flag alias (`-f`)
-    ///  argument in the specified command-line argument list.
-    /// </summary>
-    public static int IndexOfFlag(List<string>? args,
-                                  string flag,
-                                  char? alias = default) {
-        if (flag.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(flag));
-        }
-
-        int flagIndex;
-        List<string> argsList = args?.ToList() ?? new();
-
-        if (flag != "-")
-        {
-            alias ??= flag.FirstOrDefault(char.IsLetter);
-
-            IEnumerable<int> flagIndexes = from string arg in argsList
-                                           where arg == flag
-                                               || (arg.Contains(alias ?? '\0')
-                                                   && arg[0] == '-'
-                                                   && arg[1] != '-')
-                                           select argsList.IndexOf(arg);
-
-            flagIndex = flagIndexes.Any() ? flagIndexes.First() : -1;
-        }
-        else  // Find index where value is `-`
-        {
-            flagIndex = argsList.IndexOf(flag);
-        }
-        return flagIndex;
     }
 
     /// <summary>
@@ -168,90 +132,95 @@ internal class Parser
     }
 
     /// <summary>
+    ///  Determine whether the given argument is a command-line flag alias
+    ///  argument. Flag alias arguments begin with one dash (`-f`).
+    /// </summary>
+    private static bool IsAlias(string arg) => AliasRegex().IsMatch(arg);
+
+    /// <summary>
+    ///  Determine whether the argument in the given tuple is a command-line flag
+    ///  alias argument. Flag alias arguments begin with one dash (`-f`).
+    /// </summary>
+    private static bool IsAlias((int, string arg) tuple) => IsAlias(tuple.arg);
+
+    /// <summary>
+    ///  Determine whether the given argument is a command-line flag
+    ///  argument. Flag arguments begin with two dashes (`--foo`).
+    /// </summary>
+    private static bool IsFlag(string arg) => FlagRegex().IsMatch(arg);
+
+    /// <summary>
+    ///  Determine whether the argument in the given tuple is a command-line
+    ///  flag argument. Flag arguments begin with two dashes (`--foo`).
+    /// </summary>
+    private static bool IsFlag((int, string arg) tuple) => IsFlag(tuple.arg);
+
+    /// <summary>
     ///  Parse the named flag alias arguments in the underlying command-line
     ///  argument list. Flag alias arguments begin with one dash (`-f`).
     /// </summary>
     private void ParseCharArgs()
     {
-        IEnumerable<(int, string)> results = from arg in _argsList.ToList()
-                                             let index = IndexOfFlag(arg)
-                                             where arg.Length >= 2
-                                                 && arg[0] == '-'
-                                                 && arg[1] != '-'
-                                             select (index, arg);
+        List<int> processedIndexes = new();
 
-        foreach ((int index, string arg) in results)
+        foreach ((int index, string arg) in _argsList.Enumerate(IsAlias))
         {
             if (arg.Contains('l'))  // Listen for connection
             {
                 _args.Listen = true;
-                RemoveAlias(index, 'l');
             }
 
             if (arg.Contains('v'))  // Verbose output
             {
                 _args.Verbose = true;
-                RemoveAlias(index, 'v');
             }
 
             if (arg.Contains('z'))  // Zero-IO (test connection)
             {
                 _args.PipeVariant = PipeType.Status;
-                RemoveAlias(index, 'z');
             }
 
             if (arg.Contains('d'))  // Debug output
             {
                 _args.Debug = _args.Verbose = Error.Debug = true;
-                RemoveAlias(index, 'd');
             }
 
             if (arg.Contains('p'))  // Connection port
             {
-                _args.Port = GetPort(index);
-                RemoveAlias(index, 'p', removeValue: true);
+                _args.Port = GetPort(index, arg);
+                processedIndexes.Add(index + 1);
             }
 
             if (arg.Contains('e'))  // Executable path
             {
-                _args.ExePath = GetExecutable(index);
-                RemoveAlias(index, 'e', removeValue: true);
+                _args.ExePath = GetExecutable(index, arg);
+                processedIndexes.Add(index + 1);
             }
 
             if (arg.Contains('o'))  // Receive file data
             {
                 _args.TransOpt = TransferOpt.Collect;
-                _args.FilePath = GetTransferPath(index);
-                RemoveAlias(index, 'o', removeValue: true);
+                _args.FilePath = GetTransferPath(index, arg);
+                processedIndexes.Add(index + 1);
             }
 
             if (arg.Contains('s'))  // Send file data
             {
                 _args.TransOpt = TransferOpt.Transmit;
-                _args.FilePath = GetTransferPath(index);
-                RemoveAlias(index, 's', removeValue: true);
+                _args.FilePath = GetTransferPath(index, arg);
+                processedIndexes.Add(index + 1);
             }
 
             if (arg.Contains('t'))  // Send string data
             {
-                _args.Payload = GetTextPayload(index);
-                RemoveAlias(index, 't', removeValue: true);
+                _args.Payload = GetTextPayload(index, arg);
+                processedIndexes.Add(index + 1);
             }
 
-            if (ArgsValueAt(index) == "-")
-            {
-                _argsList.RemoveAt(IndexOfFlag("-"));
-            }
+            processedIndexes.Add(index);
         }
-    }
 
-    /// <summary>
-    ///  Get the index of the given flag (`--foo`) or flag alias (`-f`)
-    ///  argument in the underlying command-line argument list.
-    /// </summary>
-    private int IndexOfFlag(string flag, char? alias = default)
-    {
-        return IndexOfFlag(_argsList, flag, alias);
+        RemoveProcessedArgs(processedIndexes);
     }
 
     /// <summary>
@@ -260,82 +229,71 @@ internal class Parser
     /// </summary>
     private void ParseFlagArgs()
     {
-        IEnumerable<(int, string)> results = from string arg in _argsList.ToList()
-                                             let index = IndexOfFlag(arg)
-                                             where arg.StartsWith("--")
-                                             select (index, arg);
+        List<int> processedIndexes = new();
 
-        foreach ((int index, string arg) in results)
+        foreach ((int index, string arg) in _argsList.Enumerate(IsFlag))
         {
             switch (arg)
             {
-                case "--listen":   // Listen for connection
-                {
+                case "--listen":
                     _args.Listen = true;
-                    _argsList.RemoveAt(index);
                     break;
-                }
-                case "--verbose":  // Verbose output
-                {
+                case "--verbose":
                     _args.Verbose = true;
-                    _argsList.RemoveAt(index);
                     break;
-                }
-                case "--debug":    // Debug output
-                {
+                case "--debug":
                     _args.Debug = _args.Verbose = Error.Debug = true;
-                    _argsList.RemoveAt(index);
                     break;
-                }
-                case "--zero-io":  // Zero-IO (test connection)
-                {
+                case "--zero-io":
                     _args.PipeVariant = PipeType.Status;
-                    _argsList.RemoveAt(index);
                     break;
-                }
-                case "--port":     // Connection port
-                {
-                    _args.Port = GetPort(index);
-                    RemoveFlag(ArgsValueAt(index));
+                case "--port":
+                    _args.Port = GetPort(index, arg);
+                    processedIndexes.Add(index + 1);
                     break;
-                }
-                case "--exec":     // Executable path
-                {
-                    _args.ExePath = GetExecutable(index);
-                    RemoveFlag(ArgsValueAt(index));
+                case "--exec":
+                    _args.ExePath = GetExecutable(index, arg);
+                    processedIndexes.Add(index + 1);
                     break;
-                }
-                case "--text":     // Send string data
-                {
-                    _args.Payload = GetTextPayload(index);
-                    RemoveFlag(ArgsValueAt(index));
+                case "--text":
+                    _args.Payload = GetTextPayload(index, arg);
+                    processedIndexes.Add(index + 1);
                     break;
-                }
-                case "--output":   // Receive file data
-                {
+                case "--output":
                     _args.TransOpt = TransferOpt.Collect;
-                    _args.FilePath = GetTransferPath(index);
-                    RemoveFlag(ArgsValueAt(index));
+                    _args.FilePath = GetTransferPath(index, arg);
+                    processedIndexes.Add(index + 1);
                     break;
-                }
-                case "--send":     // Send file data
-                {
+                case "--send":
                     _args.TransOpt = TransferOpt.Transmit;
-                    _args.FilePath = GetTransferPath(index);
-                    RemoveFlag(ArgsValueAt(index));
+                    _args.FilePath = GetTransferPath(index, arg);
+                    processedIndexes.Add(index + 1);
                     break;
-                }
                 default:
-                {
                     break;
-                }
             }
+            processedIndexes.Add(index);
+        }
+
+        RemoveProcessedArgs(processedIndexes);
+    }
+
+    /// <summary>
+    ///  Remove processed command-line arguments according to the given indexes.
+    /// </summary>
+    private void RemoveProcessedArgs(IEnumerable<int> indexes)
+    {
+        int delta = 0;
+
+        foreach (int index in indexes.Order())
+        {
+            _argsList.RemoveAt(index - delta++);
         }
     }
 
     /// <summary>
-    ///  Parse the positional (required) arguments in the underlying
-    ///  command-line argument list.
+    ///  Parse the positional arguments in the underlying command-line argument
+    ///  list. Positional arguments do not begin with `-` or `--`.
     /// </summary>
     private void ParsePositionalArgs()
     {
@@ -420,42 +378,10 @@ internal class Parser
     }
 
     /// <summary>
-    ///  Remove the given flag alias (`-f`) character from the argument located
-    ///  at the specified index in the underlying command-line argument list.
-    /// </summary>
-    private void RemoveAlias(int index, char alias, bool removeValue = false)
-    {
-        if (!ValidIndex(index) || (removeValue && !ValidIndex(index + 1)))
-        {
-            throw new IndexOutOfRangeException(nameof(index));
-        }
-        _argsList[index] = _argsList[index].Replace(alias.ToString(), "");
-
-        if (removeValue)
-        {
-            _argsList.RemoveAt(index + 1);
-        }
-    }
-
-    /// <summary>
     ///  Determine whether the given index is a valid index of an argument
     ///  in the underlying command-line argument list.
     /// </summary>
     private bool ValidIndex(int index) => index >= 0 && index < _argsList.Count;
-
-    /// <summary>
-    ///  Remove the given flag (`--foo`) argument from the underlying command-line
-    ///  argument list. Optionally remove the corresponding value argument.
-    /// </summary>
-    private void RemoveFlag(string arg, bool removeValue = true)
-    {
-        int index = IndexOfFlag(arg);
-
-        for (int i = 0; i < (removeValue ? 2 : 1); i++)
-        {
-            _argsList.RemoveAt(index);
-        }
-    }
 
     /// <summary>
     ///  Get the value of the argument located at the given index in
@@ -471,14 +397,14 @@ internal class Parser
     }
 
     /// <summary>
-    ///  Parse and validate the network port number argument located at the
-    ///  given index in the underlying command-line argument list.
+    ///  Parse and validate the network port number argument in the underlying
+    ///  command-line argument list using the given flag or flag alias index.
     /// </summary>
-    private int GetPort(int index)
+    private int GetPort(int index, string flag)
     {
         if (!ValidIndex(index + 1))
         {
-            Error.Handle(Except.NamedArgs, _argsList[index], true);
+            Error.Handle(Except.NamedArgs, flag, true);
         }
         string portStr = ArgsValueAt(index + 1);
 
@@ -491,14 +417,14 @@ internal class Parser
     }
 
     /// <summary>
-    ///  Parse and validate the executable path argument located at the
-    ///  given index in the underlying command-line argument list.
+    ///  Parse and validate the executable path argument in the underlying
+    ///  command-line argument list using the given flag or flag alias index.
     /// </summary>
-    private string? GetExecutable(int index)
+    private string? GetExecutable(int index, string flag)
     {
         if (!ValidIndex(index + 1))
         {
-            Error.Handle(Except.NamedArgs, _argsList[index], true);
+            Error.Handle(Except.NamedArgs, flag, true);
         }
 
         string exec = ArgsValueAt(index + 1);
@@ -514,10 +440,10 @@ internal class Parser
     }
 
     /// <summary>
-    ///  Parse and validate the transfer file path argument located at the
-    ///  given index in the underlying command-line argument list.
+    ///  Parse and validate the transfer file path argument in the underlying
+    ///  command-line argument list using the given flag or flag alias index.
     /// </summary>
-    private string GetTransferPath(int index)
+    private string GetTransferPath(int index, string flag)
     {
         if (_args.TransOpt is TransferOpt.None)
         {
@@ -527,11 +453,9 @@ internal class Parser
         // No corresponding argument value
         if (!ValidIndex(index + 1))
         {
-            Error.Handle(Except.NamedArgs, _argsList[index], true);
+            Error.Handle(Except.NamedArgs, flag, true);
         }
-
-        int pathPos = index + 1;
-        string? path = FileSys.ResolvePath(ArgsValueAt(pathPos));
+        string? path = FileSys.ResolvePath(ArgsValueAt(index + 1));
 
         // File path resolution failure
         if (path.IsNullOrEmpty())
@@ -557,23 +481,35 @@ internal class Parser
     }
 
     /// <summary>
-    ///  Parse and validate the arbitrary payload argument located at the
-    ///  given index in the underlying command-line argument list.
+    ///  Parse and validate the arbitrary payload argument in the underlying
+    ///  command-line argument list using the given flag or flag alias index.
     /// </summary>
-    private string GetTextPayload(int index)
+    private string GetTextPayload(int index, string flag)
     {
         if (!ValidIndex(index + 1))
         {
-            Error.Handle(Except.NamedArgs, _argsList[index], true);
+            Error.Handle(Except.NamedArgs, flag, true);
         }
         string data = ArgsValueAt(index + 1);
 
         if (data.IsNullOrEmpty())
         {
-            Error.Handle(Except.Payload, _argsList[index], true);
+            Error.Handle(Except.Payload, flag, true);
         }
         _args.PipeVariant = PipeType.Text;
 
         return data;
     }
+
+    /// <summary>
+    ///  Command-line flag alias argument regular expression.
+    /// </summary>
+    [GeneratedRegex(@"^-([?]|[A-Z]|[a-z])+$")]
+    private static partial Regex AliasRegex();
+
+    /// <summary>
+    ///  Command-line flag argument regular expression.
+    /// </summary>
+    [GeneratedRegex(@"^--([A-Z]|[a-z])+$")]
+    private static partial Regex FlagRegex();
 }
