@@ -92,19 +92,50 @@ All available DotnetCat arguments are listed in the following table:
 
 ## Download Options
 
-### Standalone Executable
+### Automatic Setup (Recommended)
+To automatically install and setup DotnetCat, use one of installer scripts located in
+the [tools](tools) directory.
 
-To download a prebuilt, standalone executable, select one of the options below:
+#### Linux Installation
 
-* [Windows-x64](https://github.com/vandavey/DotnetCat/raw/master/src/DotnetCat/bin/Zips/DotnetCat_Win-x64.zip)
-* [Windows-x86](https://github.com/vandavey/DotnetCat/raw/master/src/DotnetCat/bin/Zips/DotnetCat_Win-x86.zip)
-* [Linux-x64](https://github.com/vandavey/DotnetCat/raw/master/src/DotnetCat/bin/Zips/DotnetCat_Linux-x64.zip)
-* [Linux-arm64](https://github.com/vandavey/DotnetCat/raw/master/src/DotnetCat/bin/Zips/DotnetCat_Linux-arm64.zip)
+To automatically install and setup DotnetCat on Linux, use the
+[dncat-linux-setup.sh](tools/dncat-linux-setup.sh) Bash installer script.
 
-### Full Repository
+To install DotnetCat without first downloading the repository, execute the following code snippet
+in a Bash console to download and execute the [dncat-linux-setup.sh](tools/dncat-linux-setup.sh)
+installer:
+
+```bash
+URI="https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-linux-setup.sh"
+curl -sLS --ssl $URI | bash
+```
+> `curl` and `unzip` must be installed to use [dncat-linux-setup.sh](tools/dncat-linux-setup.sh).
+
+#### Windows Installation
+
+To automatically install and setup DotnetCat on Windows, use the
+[dncat-win-setup.ps1](tools/dncat-win-setup.ps1) PowerShell installer script.
+
+To install DotnetCat without first downloading the repository, execute the following code snippet
+in a PowerShell console to download and execute the [dncat-win-setup.ps1](tools/dncat-win-setup.ps1)
+installer:
+
+```powershell
+$Uri = "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-win-setup.sh"
+Write-Output (Invoke-WebRequest $Uri -DisableKeepAlive).Content | powershell.exe -
+```
+
+### Manual Setup
 
 The entire DotnetCat source code repository can be downloaded
 [here](https://github.com/vandavey/DotnetCat/archive/master.zip).
+
+To download a precompiled standalone executable, select one of the options below:
+
+* [Windows-x64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_Win-x64.zip)
+* [Windows-x86](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_Win-x86.zip)
+* [Linux-x64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_Linux-x64.zip)
+* [Linux-arm64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_Linux-arm64.zip)
 
 ***
 
