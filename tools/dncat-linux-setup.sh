@@ -75,7 +75,7 @@ ZIP_PATH="${APP_DIR}/dncat.zip"
 status "Downloading temporary zip file to '${ZIP_PATH}'..."
 
 # Download the temporary application zip file
-sudo curl -s $ZIP_URL -o $ZIP_PATH > /dev/null || {
+sudo curl -sLS --ssl $ZIP_URL -o $ZIP_PATH > /dev/null || {
     error "Failed to download zip file from '${ZIP_URL}'"
 }
 
