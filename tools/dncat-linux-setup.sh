@@ -9,8 +9,7 @@ ORIG_DIR=$PWD
 # Write an error message to stderr and exit
 error() {
     echo -e "\033[91m[x]\033[0m ${*}" > /dev/stderr
-    cd "$ORIG_DIR" || exit 1
-    exit 1
+    cd "$ORIG_DIR" && exit 1 || exit 1
 }
 
 # Write a status message to stdout
@@ -20,12 +19,12 @@ status() {
 
 # Check that 'curl' is installed
 if [ -z "$(which curl)" ]; then
-    error "Missing installation dependency 'curl'"
+    error "Missing installer dependency 'curl'"
 fi
 
 # Check that 'unzip' is installed
 if [ -z "$(which unzip)" ]; then
-    error "Missing installation dependency 'unzip'"
+    error "Missing installer dependency 'unzip'"
 fi
 
 ZIP_URL=
@@ -42,22 +41,22 @@ else
     error "Unsupported processor architecture: '${ARCH}'"
 fi
 
-INSTALL_DIR="/opt/dncat"
-BIN_DIR="${INSTALL_DIR}/bin"
-SHARE_DIR="${INSTALL_DIR}/share"
+APP_DIR="/opt/dncat"
+BIN_DIR="${APP_DIR}/bin"
+SHARE_DIR="${APP_DIR}/share"
 
 # Remove the existing installation
-if [ -d $INSTALL_DIR ]; then
-    status "Removing existing installation at '${INSTALL_DIR}'..."
+if [ -d $APP_DIR ]; then
+    status "Removing existing installation from '${APP_DIR}'..."
 
-    sudo rm -r $INSTALL_DIR > /dev/null || {
-        error "Failed to remove existing installation at '${INSTALL_DIR}'"
+    sudo rm -r $APP_DIR > /dev/null || {
+        error "Failed to remove existing installation from '${APP_DIR}'"
     }
 fi
 
 # Create the installation directory
-sudo mkdir $INSTALL_DIR > /dev/null || {
-    error "Failed to create directory '${INSTALL_DIR}'"
+sudo mkdir $APP_DIR > /dev/null || {
+    error "Failed to create directory '${APP_DIR}'"
 }
 
 # Create the bin directory
@@ -71,66 +70,66 @@ sudo mkdir -p $SHARE_DIR > /dev/null || {
 }
 
 EXE_PATH="${BIN_DIR}/dncat"
-ZIP_PATH="${INSTALL_DIR}/dncat.zip"
+ZIP_PATH="${APP_DIR}/dncat.zip"
 
-status "Downloading temporary application zip file to '${ZIP_PATH}'..."
+status "Downloading temporary zip file to '${ZIP_PATH}'..."
 
 # Download the temporary application zip file
 sudo curl -s $ZIP_URL -o $ZIP_PATH > /dev/null || {
     error "Failed to download zip file from '${ZIP_URL}'"
 }
 
-status "Successfully downloaded zip file to '${ZIP_PATH}'"
-
 # Navigate to installation directory before unpacking zip file
-cd "${INSTALL_DIR}" || error "An unexpected error occurred"
+cd "${APP_DIR}" || error "An unexpected error occurred"
 
-status "Unpacking contents of temporary zip file '${ZIP_PATH}'..."
+status "Unpacking '${ZIP_PATH}' contents to '${APP_DIR}'..."
 
 # Unpack the temporary zip file contents
 sudo unzip -j $ZIP_PATH > /dev/null || {
     error "Failed to unpack contents of zip file '${ZIP_PATH}'"
 }
 
-status "Removing temporary zip file '${ZIP_PATH}'..."
+status "Deleting temporary zip file '${ZIP_PATH}'..."
 
 # Remove the temporary zip file
 sudo rm $ZIP_PATH > /dev/null || {
     error "Failed to remove temporary zip file '${ZIP_PATH}'"
 }
 
-status "Installing the application files to '${SHARE_DIR}'..."
+status "Installing application files to '${APP_DIR}'..."
 
 # Move unpacked executable into the bin directory
-sudo mv "${INSTALL_DIR}/dncat" $EXE_PATH > /dev/null || {
-    error "Failed to restructure application files in '${INSTALL_DIR}'"
+sudo mv "${APP_DIR}/dncat" $EXE_PATH > /dev/null || {
+    error "Failed to restructure application files in '${APP_DIR}'"
 }
 
 # Move license into the share directory
-sudo mv "${INSTALL_DIR}/LICENSE.txt" $SHARE_DIR > /dev/null || {
-    error "Failed to restructure application files in '${INSTALL_DIR}'"
+sudo mv "${APP_DIR}/LICENSE.txt" $SHARE_DIR > /dev/null || {
+    error "Failed to restructure application files in '${APP_DIR}'"
 }
 
-# Enable application execute permssion
+# Enable application execute permission
 sudo chmod +x $EXE_PATH > /dev/null || {
     error "Failed to enable execute permission on file '${EXE_PATH}'"
 }
 
 # Add bin directory to the environment path
-if ! grep -q $INSTALL_DIR <<< "$PATH"; then
+if ! grep -q $APP_DIR <<< "$PATH"; then
     LINE="export PATH=\"\${PATH}:${BIN_DIR}\""
 
-    # Avoid duplicate configuration lines
+    # Avoid duplicate bash configuration lines
     if ! grep -q "$LINE" ~/.bashrc; then
         echo -e "\n${LINE}" | sudo tee -a ~/.bashrc > /dev/null
         status "Updated environment path configuration in '${HOME}/.bashrc'"
     fi
 
-    # Avoid duplicate configuration lines
+    # Avoid duplicate zsh configuration lines
     if ! grep -q "$LINE" ~/.zshrc; then
         echo -e "\n${LINE}" | sudo tee -a ~/.zshrc > /dev/null
         status "Updated environment path configuration in '${HOME}/.zshrc'"
     fi
+else
+    status "The local environment path already contains '${APP_DIR}'"
 fi
 
 status "DotnetCat was successfully installed, please restart your shell"
