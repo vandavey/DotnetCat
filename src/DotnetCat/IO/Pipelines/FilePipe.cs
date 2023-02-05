@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -68,6 +69,7 @@ internal class FilePipe : SocketPipe, IErrorHandled
     /// <summary>
     ///  Dispose of all unmanaged resources and handle the given error.
     /// </summary>
+    [DoesNotReturn]
     public virtual void PipeError(Except type,
                                   string? arg,
                                   Exception? ex = default,
@@ -85,11 +87,11 @@ internal class FilePipe : SocketPipe, IErrorHandled
         {
             PipeError(Except.EmptyPath, "-o/--output");
         }
-        DirectoryInfo? info = Directory.GetParent(path);
+        string? parentPath = FileSys.ParentPath(path);
 
-        if (!Directory.Exists(info?.FullName))
+        if (!FileSys.DirectoryExists(parentPath))
         {
-            PipeError(Except.DirectoryPath, info?.FullName);
+            PipeError(Except.DirectoryPath, parentPath);
         }
 
         return new FileStream(path,

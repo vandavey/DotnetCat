@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -237,6 +238,51 @@ public class ExtensionsTests
     }
 
     /// <summary>
+    ///  Assert that a populated input array returns the expected tuple enumerable.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow(0, 1, 2, 3)]
+    [DataRow("test", "data")]
+    [DataRow('t', 'e', 's', 't')]
+    public void Enumerate_PopulatedArray_ReturnsExpected(params object[] array)
+    {
+        IEnumerable<object>? values = array;
+
+        ICollection expected = values.Select((v, i) => (i, v)).ToArray();
+        ICollection actual = values.Enumerate().ToArray();
+
+        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
+    }
+
+    /// <summary>
+    ///  Assert that an empty input array returns an empty tuple enumerable.
+    /// </summary>
+    [TestMethod]
+    public void Enumerate_EmptyArray_ReturnsEmpty()
+    {
+        IEnumerable<string>? values = Array.Empty<string>();
+
+        ICollection expected = Array.Empty<(int, string)>();
+        ICollection actual = values.Enumerate().ToArray();
+
+        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
+    }
+
+    /// <summary>
+    ///  Assert that a null input enumerable returns an empty tuple enumerable.
+    /// </summary>
+    [TestMethod]
+    public void Enumerate_NullEnumerable_ReturnsEmpty()
+    {
+        IEnumerable<string>? values = null;
+
+        ICollection expected = Array.Empty<(int, string)>();
+        ICollection actual = values.Enumerate().ToArray();
+
+        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
+    }
+
+    /// <summary>
     ///  Assert that an <c>ArgumentNullException</c> is thrown
     ///  when the input array is null.
     /// </summary>
@@ -270,7 +316,7 @@ public class ExtensionsTests
     ///  when the input array is null.
     /// </summary>
     [TestMethod]
-    public void JoinLines_ArrayIsNull_ThrowsArgumentNullException()
+    public void JoinLines_NullArray_ThrowsArgumentNullException()
     {
         string[]? array = null;
         Func<string> func = () => array.JoinLines();

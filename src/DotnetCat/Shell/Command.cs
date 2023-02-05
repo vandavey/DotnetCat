@@ -60,7 +60,7 @@ internal static class Command
 
         if (!data.IsNullOrEmpty())
         {
-            data = data.Replace(Environment.NewLine, string.Empty).Trim();
+            data = data.Replace(Environment.NewLine, null).Trim();
             isClear = _clsCommands.Contains(data.ToLower());
         }
         return isClear;

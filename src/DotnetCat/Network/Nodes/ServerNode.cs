@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -18,12 +19,12 @@ internal class ServerNode : Node
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ServerNode() : base(IPAddress.Any) => _listener = default;
+    public ServerNode() : base(IPAddress.Any) => _listener = null;
 
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ServerNode(CmdLineArgs args) : base(args) => _listener = default;
+    public ServerNode(CmdLineArgs args) : base(args) => _listener = null;
 
     /// <summary>
     ///  Release the unmanaged object resources.
@@ -37,7 +38,7 @@ internal class ServerNode : Node
     {
         _ = Address ?? throw new ArgumentNullException(nameof(Address));
 
-        IPEndPoint? remoteEP = default;
+        IPEndPoint? remoteEP = null;
         IPEndPoint localEP = new(Address, Port);
 
         ValidateArgsCombinations();
@@ -83,6 +84,7 @@ internal class ServerNode : Node
     /// <summary>
     ///  Dispose of all unmanaged resources and handle the given error.
     /// </summary>
+    [DoesNotReturn]
     public override void PipeError(Except type,
                                    HostEndPoint target,
                                    Exception? ex = default,
@@ -94,6 +96,7 @@ internal class ServerNode : Node
     /// <summary>
     ///  Dispose of all unmanaged resources and handle the given error.
     /// </summary>
+    [DoesNotReturn]
     public override void PipeError(Except type,
                                    string? arg,
                                    Exception? ex = default,
