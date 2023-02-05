@@ -77,7 +77,7 @@ Show-Status "Downloading temporary zip file to '${ZipPath}'..."
 
 # Download the temporary application zip file
 try {
-    Invoke-WebRequest $ZipUrl -OutFile $ZipPath -DisableKeepAlive *> $null
+    Invoke-WebRequest $ZipUrl -DisableKeepAlive -OutFile $ZipPath 3>&1> $null
 }
 catch {
     Show-Error "Failed to download '${ZipUrl}': $($Error[0].Exception.Message)"

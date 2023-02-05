@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace DotnetCat.Utils;
@@ -12,7 +13,7 @@ internal static class Extensions
     /// <summary>
     ///  Determine whether a string is null or empty.
     /// </summary>
-    public static bool IsNullOrEmpty(this string? str)
+    public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
     {
         return str is null || !str.Trim().Any();
     }
@@ -20,8 +21,9 @@ internal static class Extensions
     /// <summary>
     ///  Determine whether a collection is null or empty.
     /// </summary>
-    public static bool IsNullOrEmpty<T>(this IEnumerable<T>? values)
-    {
+    public static bool IsNullOrEmpty<T>([NotNullWhen(false)]
+                                        this IEnumerable<T>? values) {
+
         return values is null || !values.Any();
     }
 
@@ -70,6 +72,30 @@ internal static class Extensions
     }
 
     /// <summary>
+    ///  Enumerate the elements of a collection as a collection of
+    ///  tuples containing each element's index and value.
+    /// </summary>
+    public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values)
+    {
+        IEnumerable<(int, T)> results = Array.Empty<(int, T)>();
+
+        if (!values.IsNullOrEmpty())
+        {
+            results = values.Select((T v, int i) => (i, v));
+        }
+        return results;
+    }
+
+    /// <summary>
+    ///  Enumerate the elements of a collection as a collection of tuples
+    ///  containing each element's index and value, then filter the results.
+    /// </summary>
+    public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values,
+                                                     Func<(int, T), bool> filter) {
+        return values.Enumerate().Where(filter);
+    }
+
+    /// <summary>
     ///  Join each element of a collection separated by the given delimiter.
     /// </summary>
     public static string Join<T>(this IEnumerable<T>? values,
@@ -79,7 +105,7 @@ internal static class Extensions
         {
             throw new ArgumentNullException(nameof(values));
         }
-        return string.Join(delim, values ?? Array.Empty<T>());
+        return string.Join(delim, values);
     }
 
     /// <summary>

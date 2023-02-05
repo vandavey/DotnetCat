@@ -18,12 +18,12 @@ internal class ClientNode : Node
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ClientNode() : base() => _targetEP = default;
+    public ClientNode() : base() => _targetEP = null;
 
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ClientNode(CmdLineArgs args) : base(args) => _targetEP = default;
+    public ClientNode(CmdLineArgs args) : base(args) => _targetEP = null;
 
     /// <summary>
     ///  Release the unmanaged object resources.

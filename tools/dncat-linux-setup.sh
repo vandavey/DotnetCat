@@ -18,12 +18,12 @@ status() {
 }
 
 # Check that 'curl' is installed
-if [ -z "$(which curl)" ]; then
+if ! command -v curl &> /dev/null; then
     error "Missing installer dependency 'curl'"
 fi
 
 # Check that 'unzip' is installed
-if [ -z "$(which unzip)" ]; then
+if ! command -v unzip &> /dev/null; then
     error "Missing installer dependency 'unzip'"
 fi
 
@@ -80,7 +80,7 @@ sudo curl -sLS --ssl $ZIP_URL -o $ZIP_PATH > /dev/null || {
 }
 
 # Navigate to installation directory before unpacking zip file
-cd "${APP_DIR}" || error "An unexpected error occurred"
+cd "$APP_DIR" || error "An unexpected error occurred"
 
 status "Unpacking '${ZIP_PATH}' contents to '${APP_DIR}'..."
 
