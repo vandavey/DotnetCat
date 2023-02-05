@@ -121,7 +121,7 @@ in a PowerShell console to download and execute the [dncat-win-setup.ps1](tools/
 installer:
 
 ```powershell
-$Uri = "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-win-setup.sh"
+$Uri = "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-win-setup.ps1"
 Write-Output (Invoke-WebRequest $Uri -DisableKeepAlive).Content | powershell.exe -
 ```
 

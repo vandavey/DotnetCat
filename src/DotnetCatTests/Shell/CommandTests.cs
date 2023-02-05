@@ -25,7 +25,7 @@ public class CommandTests
     [DataRow("HOME")]
     [DataRow("USER")]
 #endif // WINDOWS
-    public void GetEnvVariable_ValidEnvVariableName_EqualsExpected(string name)
+    public void GetEnvVariable_ValidEnvVariableName_ReturnsExpected(string name)
     {
         string? expected = Environment.GetEnvironmentVariable(name);
         string? actual = Command.GetEnvVariable(name);

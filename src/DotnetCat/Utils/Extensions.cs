@@ -72,23 +72,23 @@ internal static class Extensions
     }
 
     /// <summary>
-    ///  Enumerate the elements of a collection as a list of
+    ///  Enumerate the elements of a collection as a collection of
     ///  tuples containing each element's index and value.
     /// </summary>
     public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values)
     {
-        List<(int, T)> results = new();
+        IEnumerable<(int, T)> results = Array.Empty<(int, T)>();
 
         if (!values.IsNullOrEmpty())
         {
-            results.AddRange(values.Select((T v, int i) => (i, v)));
+            results = values.Select((T v, int i) => (i, v));
         }
         return results;
     }
 
     /// <summary>
-    ///  Enumerate the elements of a collection as a list of tuples containing
-    ///  each element's index and value, then filter the results.
+    ///  Enumerate the elements of a collection as a collection of tuples
+    ///  containing each element's index and value, then filter the results.
     /// </summary>
     public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values,
                                                      Func<(int, T), bool> filter) {
