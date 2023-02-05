@@ -93,8 +93,8 @@ All available DotnetCat arguments are listed in the following table:
 ## Download Options
 
 ### Automatic Setup (Recommended)
-To automatically install and setup DotnetCat, use one of installer scripts located in
-the [tools](tools) directory.
+To automatically install and setup DotnetCat, use one of the installer scripts located
+in the [tools](tools) directory.
 
 #### Linux Installation
 

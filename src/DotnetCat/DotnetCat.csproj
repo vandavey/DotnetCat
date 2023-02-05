@@ -16,7 +16,7 @@
         <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
         <OutputType>exe</OutputType>
-        <PackageLicenseFile>Resources/LICENSE.md</PackageLicenseFile>
+        <PackageLicenseFile>$(SolutionDir)../LICENSE.md</PackageLicenseFile>
         <Platforms>AnyCPU</Platforms>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <PublishReadyToRun>true</PublishReadyToRun>
@@ -72,7 +72,7 @@
     </ItemGroup>
 
     <!--
-     Include source code and resources
+     Include source code and resource folders
     -->
     <ItemGroup>
         <Folder Include="Contracts/" />
@@ -87,5 +87,52 @@
         <Folder Include="Shell/" />
         <Folder Include="Shell/WinApi/" />
         <Folder Include="Utils/" />
+    </ItemGroup>
+
+    <!--
+     Include supporting files that have no role in the build process
+    -->
+    <ItemGroup>
+        <None Include="$(SolutionDir)../gitattributes.md" />
+        <None Include="$(SolutionDir)../gitignore.md" />
+        <None Include="$(SolutionDir)../LICENSE.md" />
+        <None Include="$(SolutionDir)../README.md" />
+        <None Include="$(SolutionDir)../tools/dncat-linux-setup.sh" />
+        <None Include="$(SolutionDir)../tools/dncat-win-setup.ps1" />
+    </ItemGroup>
+
+    <!--
+     Copy cross-platform supporting files to the build output directory
+    -->
+    <ItemGroup>
+        <ContentWithTargetPath Include="$(SolutionDir)../LICENSE.md">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <TargetPath>LICENSE.md</TargetPath>
+        </ContentWithTargetPath>
+
+        <ContentWithTargetPath Include="$(SolutionDir)../README.md">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <TargetPath>README.md</TargetPath>
+        </ContentWithTargetPath>
+    </ItemGroup>
+
+    <!--
+     Copy Linux-specific supporting files to the build output directory
+    -->
+    <ItemGroup Condition="'$(Configuration)'=='ARM64' OR '$(Configuration)'=='Linux'">
+        <ContentWithTargetPath Include="$(SolutionDir)../tools/dncat-linux-setup.sh">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <TargetPath>dncat-linux-setup.sh</TargetPath>
+        </ContentWithTargetPath>
+    </ItemGroup>
+
+    <!--
+     Copy Windows-specific supporting files to the build output directory
+    -->
+    <ItemGroup Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Release'">
+        <ContentWithTargetPath Include="$(SolutionDir)../tools/dncat-win-setup.ps1">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <TargetPath>dncat-win-setup.ps1</TargetPath>
+        </ContentWithTargetPath>
     </ItemGroup>
 </Project>
