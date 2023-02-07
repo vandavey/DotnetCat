@@ -28,15 +28,15 @@ if ! command -v unzip &> /dev/null; then
 fi
 
 ZIP_URL=
-ARCH=$(uname -m)
+ARCH=$(uname -p)
 
 REPO_ROOT="https://raw.githubusercontent.com/vandavey/DotnetCat/master"
 
 # Assign zip file URL and validate CPU architecture
 if [ "$ARCH" == "aarch64" ]; then
-    ZIP_URL="${REPO_ROOT}/src/DotnetCat/bin/Zips/DotnetCat_Linux-arm64.zip"
+    ZIP_URL="${REPO_ROOT}/src/DotnetCat/bin/Zips/DotnetCat_linux-arm64.zip"
 elif [ "$ARCH" == "x86_64" ]; then
-    ZIP_URL="${REPO_ROOT}/src/DotnetCat/bin/Zips/DotnetCat_Linux-x64.zip"
+    ZIP_URL="${REPO_ROOT}/src/DotnetCat/bin/Zips/DotnetCat_linux-x64.zip"
 else
     error "Unsupported processor architecture: '${ARCH}'"
 fi

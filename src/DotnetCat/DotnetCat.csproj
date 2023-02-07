@@ -78,27 +78,21 @@
         <Folder Include="Contracts/" />
         <Folder Include="Errors/" />
         <Folder Include="IO/" />
-        <Folder Include="IO/Pipelines/" />
         <Folder Include="Network/" />
-        <Folder Include="Network/Nodes/" />
         <Folder Include="Properties/" />
-        <Folder Include="Properties/PublishProfiles/" />
         <Folder Include="Resources/" />
         <Folder Include="Shell/" />
-        <Folder Include="Shell/WinApi/" />
         <Folder Include="Utils/" />
     </ItemGroup>
 
     <!--
-     Include supporting files that have no role in the build process
+     Include solution files that have no role in the build process
     -->
     <ItemGroup>
-        <None Include="$(SolutionDir)../gitattributes.md" />
-        <None Include="$(SolutionDir)../gitignore.md" />
-        <None Include="$(SolutionDir)../LICENSE.md" />
-        <None Include="$(SolutionDir)../README.md" />
-        <None Include="$(SolutionDir)../tools/dncat-linux-setup.sh" />
-        <None Include="$(SolutionDir)../tools/dncat-win-setup.ps1" />
+        <None Include="$(SolutionDir)../LICENSE.md" Visible="false" />
+        <None Include="$(SolutionDir)../README.md" Visible="false" />
+        <None Include="$(SolutionDir)../tools/dncat-linux-setup.sh" Visible="false" />
+        <None Include="$(SolutionDir)../tools/dncat-win-setup.ps1" Visible="false" />
     </ItemGroup>
 
     <!--
@@ -135,4 +129,32 @@
             <TargetPath>dncat-win-setup.ps1</TargetPath>
         </ContentWithTargetPath>
     </ItemGroup>
+
+    <!--
+     Cleanup the existing build output files before publishing
+    -->
+    <Target Name="CleanFiles" BeforeTargets="BeforeBuild" Condition="'$(PublishProtocol)'!=''">
+        <Message Importance="high" Text="-----[ 'CleanFiles' Tasks ]-----" />
+
+        <Delete Files="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip" />
+        <RemoveDir Directories="$(ProjectDir)bin/Debug/net7.0/" />
+        <RemoveDir Directories="$(ProjectDir)bin/Release/net7.0/" />
+        <RemoveDir Directories="$(ProjectDir)bin/Release/Publish/$(RuntimeIdentifier)" />
+
+        <Message Importance="high" Text="--------------------------------" />
+    </Target>
+
+    <!--
+     Create a zip file containing the published application files
+    -->
+    <Target Name="CreateZip" AfterTargets="Publish" Condition="'$(PublishProtocol)'!=''">
+        <Message Importance="high" Text="-----[ 'CreateZip' Tasks ]-----" />
+
+        <ZipDirectory Overwrite="true"
+                      SourceDirectory="$(PublishDir)"
+                      DestinationFile="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip">
+        </ZipDirectory>
+
+        <Message Importance="high" Text="-------------------------------" />
+    </Target>
 </Project>

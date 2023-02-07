@@ -55,11 +55,11 @@ $Architecture = [Environment]::GetEnvironmentVariable($ArchVarName, $EnvVarTarge
 # Validate architecture and assign architecture-specific variables
 if ($Architecture -eq "AMD64") {
     $AppDir = "${env:ProgramFiles}\DotnetCat"
-    $ZipUrl = "${RepoRoot}/src/DotnetCat/bin/Zips/DotnetCat_Win-x64.zip"
+    $ZipUrl = "${RepoRoot}/src/DotnetCat/bin/Zips/DotnetCat_win-x64.zip"
 }
 elseif ($Architecture -eq "x86") {
     $AppDir = "${env:ProgramFiles(x86)}\DotnetCat"
-    $ZipUrl = "${RepoRoot}/src/DotnetCat/bin/Zips/DotnetCat_Win-x86.zip"
+    $ZipUrl = "${RepoRoot}/src/DotnetCat/bin/Zips/DotnetCat_win-x86.zip"
 }
 else {
     Show-Error "Unsupported processor architecture: '${Architecture}'"

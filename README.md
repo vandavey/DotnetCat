@@ -90,40 +90,46 @@ All available DotnetCat arguments are listed in the following table:
 
 ***
 
-## Download Options
+## Installation
 
-### Automatic Setup (Recommended)
-To automatically install and setup DotnetCat, use one of the installer scripts located
-in the [tools](tools) directory.
+### Installers (Recommended)
 
-#### Linux Installation
+The [tools](tools) directory contains installer scripts that can be used
+to automatically download and install DotnetCat.
 
-To automatically install and setup DotnetCat on Linux, use the
-[dncat-linux-setup.sh](tools/dncat-linux-setup.sh) Bash installer script.
+#### Linux Systems
 
-To install DotnetCat without first downloading the repository, execute the following code snippet
-in a Bash console to download and execute the [dncat-linux-setup.sh](tools/dncat-linux-setup.sh)
-installer:
+The [dncat-linux-setup.sh](tools/dncat-linux-setup.sh) installer can be used to
+install DotnetCat on Linux systems.
+
+The following code snippet can be executed in Bash to download and run the 
+[dncat-linux-setup.sh](tools/dncat-linux-setup.sh) DotnetCat installer:
 
 ```bash
-URI="https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-linux-setup.sh"
-curl -sLS --ssl $URI | bash
+curl -sLS --ssl "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-linux-setup.sh" | bash
 ```
-> `curl` and `unzip` must be installed to use [dncat-linux-setup.sh](tools/dncat-linux-setup.sh).
 
-#### Windows Installation
+<blockquote>
+    <a href="tools/dncat-linux-setup.sh">dncat-linux-setup.sh</a> only supports ARM64 and x64
+    Linux systems and requires <code><a href="https://curl.se">curl</a></code> and
+    <code><a href="https://infozip.sourceforge.net/UnZip.html">unzip</a></code> to be installed.
+</blockquote>
 
-To automatically install and setup DotnetCat on Windows, use the
-[dncat-win-setup.ps1](tools/dncat-win-setup.ps1) PowerShell installer script.
+#### Windows Systems
 
-To install DotnetCat without first downloading the repository, execute the following code snippet
-in a PowerShell console to download and execute the [dncat-win-setup.ps1](tools/dncat-win-setup.ps1)
-installer:
+The [dncat-win-setup.ps1](tools/dncat-win-setup.ps1) installer can be used to
+install DotnetCat on Windows systems.
+
+The following code snippet can be executed in PowerShell to download and run the 
+[dncat-win-setup.ps1](tools/dncat-win-setup.ps1) DotnetCat installer:
 
 ```powershell
 $Uri = "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-win-setup.ps1"
 Write-Output (Invoke-WebRequest $Uri -DisableKeepAlive).Content | powershell.exe -
 ```
+
+> [dncat-win-setup.ps1](tools/dncat-win-setup.ps1) only supports x64 and x86 Windows
+  systems and must be executed as an administrator.
 
 ### Manual Setup
 
@@ -132,10 +138,10 @@ The entire DotnetCat source code repository can be downloaded
 
 To download a precompiled standalone executable, select one of the options below:
 
-* [Windows-x64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_Win-x64.zip)
-* [Windows-x86](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_Win-x86.zip)
-* [Linux-x64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_Linux-x64.zip)
-* [Linux-arm64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_Linux-arm64.zip)
+* [Linux-x64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_linux-x64.zip)
+* [Linux-ARM64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_linux-arm64.zip)
+* [Windows-x64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_win-x64.zip)
+* [Windows-x86](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_win-x86.zip)
 
 ***
 
