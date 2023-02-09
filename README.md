@@ -99,36 +99,36 @@ to automatically download and install DotnetCat.
 
 #### Linux Systems
 
-The [dncat-linux-setup.sh](tools/dncat-linux-setup.sh) installer can be used to
+The [dncat-install.sh](tools/dncat-install.sh) installer can be used to
 install DotnetCat on Linux systems.
 
 The following code snippet can be executed in Bash to download and run the 
-[dncat-linux-setup.sh](tools/dncat-linux-setup.sh) DotnetCat installer:
+[dncat-install.sh](tools/dncat-install.sh) DotnetCat installer:
 
 ```bash
-curl -sLS --ssl "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-linux-setup.sh" | bash
+curl -sLS --ssl "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-install.sh" | bash
 ```
 
 <blockquote>
-    <a href="tools/dncat-linux-setup.sh">dncat-linux-setup.sh</a> only supports ARM64 and x64
+    <a href="tools/dncat-install.sh">dncat-install.sh</a> only supports ARM64 and x64
     Linux systems and requires <code><a href="https://curl.se">curl</a></code> and
     <code><a href="https://infozip.sourceforge.net/UnZip.html">unzip</a></code> to be installed.
 </blockquote>
 
 #### Windows Systems
 
-The [dncat-win-setup.ps1](tools/dncat-win-setup.ps1) installer can be used to
+The [dncat-install.ps1](tools/dncat-install.ps1) installer can be used to
 install DotnetCat on Windows systems.
 
 The following code snippet can be executed in PowerShell to download and run the 
-[dncat-win-setup.ps1](tools/dncat-win-setup.ps1) DotnetCat installer:
+[dncat-install.ps1](tools/dncat-install.ps1) DotnetCat installer:
 
 ```powershell
-$Uri = "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-win-setup.ps1"
+$Uri = "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-install.ps1"
 Write-Output (Invoke-WebRequest $Uri -DisableKeepAlive).Content | powershell.exe -
 ```
 
-> [dncat-win-setup.ps1](tools/dncat-win-setup.ps1) only supports x64 and x86 Windows
+> [dncat-install.ps1](tools/dncat-install.ps1) only supports x64 and x86 Windows
   systems and must be executed as an administrator.
 
 ### Manual Setup

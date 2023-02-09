@@ -11,8 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.gitignore = ..\.gitignore
 		..\LICENSE.md = ..\LICENSE.md
 		..\README.md = ..\README.md
-		..\tools\dncat-linux-setup.sh = ..\tools\dncat-linux-setup.sh
-		..\tools\dncat-win-setup.ps1 = ..\tools\dncat-win-setup.ps1
+		..\tools\dncat-install.ps1 = ..\tools\dncat-install.ps1
+		..\tools\dncat-install.sh = ..\tools\dncat-install.sh
+		..\tools\dncat-uninstall.ps1 = ..\tools\dncat-uninstall.ps1
+		..\tools\dncat-uninstall.sh = ..\tools\dncat-uninstall.sh
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetCatTests", "DotnetCatTests\DotnetCatTests.csproj", "{35960C17-17B6-4245-8F20-AF7C70C030E1}"
