@@ -129,3 +129,4 @@ if [ -f ~/.zshrc ] && ! grep -q "$LINE" ~/.zshrc; then
 fi
 
 status "DotnetCat was successfully installed, please restart your shell"
+cd "$ORIG_DIR" || exit 1
