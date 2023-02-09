@@ -57,7 +57,7 @@ fi
 
 # Create the installation directory
 sudo mkdir -p $APP_DIR $BIN_DIR $SHARE_DIR > /dev/null || {
-    error "Failed to one or more directories in '${APP_DIR}'"
+    error "Failed to create one or more directories in '${APP_DIR}'"
 }
 
 HTTP_STATUS=$(curl --ssl -sLSw "%{http_code}" $ZIP_URL -o /dev/null)
