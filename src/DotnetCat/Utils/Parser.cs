@@ -462,7 +462,7 @@ internal partial class Parser
         {
             Error.Handle(Except.FilePath, path, true);
         }
-        string parentPath = FileSys.ParentPath(path) ?? string.Empty;
+        string? parentPath = FileSys.ParentPath(path);
 
         // Parent path must exist for both collection and transmission
         if (parentPath.IsNullOrEmpty() || !FileSys.DirectoryExists(parentPath))
@@ -504,12 +504,12 @@ internal partial class Parser
     /// <summary>
     ///  Command-line flag alias argument regular expression.
     /// </summary>
-    [GeneratedRegex(@"^-([?]|[A-Z]|[a-z])+$")]
+    [GeneratedRegex("^-([?]|[A-Z]|[a-z])+$")]
     private static partial Regex AliasRegex();
 
     /// <summary>
     ///  Command-line flag argument regular expression.
     /// </summary>
-    [GeneratedRegex(@"^--([A-Z]|[a-z])+$")]
+    [GeneratedRegex("^--([A-Z]|[a-z])+$")]
     private static partial Regex FlagRegex();
 }
