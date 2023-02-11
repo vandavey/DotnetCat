@@ -12,6 +12,8 @@ namespace DotnetCat.IO.Pipelines;
 /// </summary>
 internal class StatusPipe : TextPipe
 {
+    private readonly string _statusMsg;  // Completion status message
+
     /// <summary>
     ///  Initialize the object.
     /// </summary>
@@ -24,7 +26,7 @@ internal class StatusPipe : TextPipe
         }
 
         string target = $"{Program.SockNode.HostName}:{Program.SockNode.Port}";
-        StatusMsg = $"Connection accepted by {target}";
+        _statusMsg = $"Connection accepted by {target}";
     }
 
     /// <summary>
@@ -42,7 +44,7 @@ internal class StatusPipe : TextPipe
         StringBuilder data = new(await ReadToEndAsync());
         await WriteAsync(data, token);
 
-        Style.Output(StatusMsg);
+        Style.Output(_statusMsg);
 
         Disconnect();
         Dispose();
