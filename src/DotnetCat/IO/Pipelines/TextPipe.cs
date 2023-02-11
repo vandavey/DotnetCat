@@ -12,6 +12,8 @@ namespace DotnetCat.IO.Pipelines;
 /// </summary>
 internal class TextPipe : SocketPipe
 {
+    private readonly string _statusMsg;  // Completion status message
+
     private MemoryStream _memoryStream;  // Memory stream buffer
 
     /// <summary>
@@ -19,8 +21,8 @@ internal class TextPipe : SocketPipe
     /// </summary>
     public TextPipe(CmdLineArgs args, StreamWriter? dest) : base(args)
     {
+        _statusMsg = "Payload successfully transmitted";
         _memoryStream = new MemoryStream();
-        StatusMsg = "Payload successfully transmitted";
 
         Dest = dest ?? throw new ArgumentNullException(nameof(dest));
         Source = new StreamReader(_memoryStream);
@@ -47,9 +49,6 @@ internal class TextPipe : SocketPipe
         }
     }
 
-    /// Completion status message
-    protected string StatusMsg { get; set; }
-
     /// <summary>
     ///  Release all the underlying unmanaged resources.
     /// </summary>
@@ -74,7 +73,7 @@ internal class TextPipe : SocketPipe
 
         if (Args.Verbose)
         {
-            Style.Output(StatusMsg);
+            Style.Output(_statusMsg);
         }
 
         Disconnect();
