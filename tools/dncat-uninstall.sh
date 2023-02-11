@@ -16,7 +16,7 @@ status() {
     echo -e "\033[96m[*]\033[0m ${*}"
 }
 
-ARCH=$(uname -p)
+ARCH=$(uname -m)
 
 # Validate CPU architecture
 if [ "$ARCH" != "aarch64" ] && [ "$ARCH" != "x86_64" ]; then

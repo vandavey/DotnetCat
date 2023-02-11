@@ -94,8 +94,7 @@ All available DotnetCat arguments are listed in the following table:
 
 ### Installers (Recommended)
 
-The [tools](tools) directory contains installer scripts that can be used
-to automatically download and install DotnetCat.
+The [tools](tools) directory contains Linux and Windows installer and uninstaller scripts.
 
 #### Linux Systems
 
@@ -106,8 +105,10 @@ The following code snippet can be executed in Bash to download and run the
 [dncat-install.sh](tools/dncat-install.sh) DotnetCat installer:
 
 ```bash
-curl -sLS --ssl "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-install.sh" | bash
+curl -sLS "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-install.sh" | bash
 ```
+
+DotnetCat can be uninstalled using the [dncat-uninstall.sh](tools/dncat-uninstall.sh) uninstaller.
 
 <blockquote>
     <a href="tools/dncat-install.sh">dncat-install.sh</a> only supports ARM64 and x64
@@ -130,6 +131,8 @@ Write-Output (Invoke-WebRequest $Uri -DisableKeepAlive).Content | powershell.exe
 
 > [dncat-install.ps1](tools/dncat-install.ps1) only supports x64 and x86 Windows
   systems and must be executed as an administrator.
+
+DotnetCat can be uninstalled using the [dncat-uninstall.ps1](tools/dncat-uninstall.ps1) uninstaller.
 
 ### Manual Setup
 
