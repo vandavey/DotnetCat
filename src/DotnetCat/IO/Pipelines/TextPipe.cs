@@ -19,11 +19,6 @@ internal class TextPipe : SocketPipe
     /// </summary>
     public TextPipe(CmdLineArgs args, StreamWriter? dest) : base(args)
     {
-        if (args.Payload.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(args));
-        }
-
         _memoryStream = new MemoryStream();
         StatusMsg = "Payload successfully transmitted";
 
