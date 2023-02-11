@@ -28,7 +28,7 @@ if ! command -v unzip &> /dev/null; then
 fi
 
 ZIP_URL=
-ARCH=$(uname -p)
+ARCH=$(uname -m)
 
 REPO_ROOT="https://raw.githubusercontent.com/vandavey/DotnetCat/master"
 
@@ -60,7 +60,7 @@ sudo mkdir -p $APP_DIR $BIN_DIR $SHARE_DIR > /dev/null || {
     error "Failed to create one or more directories in '${APP_DIR}'"
 }
 
-HTTP_STATUS=$(curl --ssl -sLSw "%{http_code}" $ZIP_URL -o /dev/null)
+HTTP_STATUS=$(curl -sLSw "%{http_code}" $ZIP_URL -o /dev/null)
 
 # Failed to communicate with the repository server
 if [ "$HTTP_STATUS" -ne 200 ]; then
@@ -70,7 +70,7 @@ fi
 status "Downloading temporary zip file to '${ZIP_PATH}'..."
 
 # Download the temporary application zip file
-sudo curl --ssl -sLS $ZIP_URL -o $ZIP_PATH > /dev/null || {
+sudo curl -sLS $ZIP_URL -o $ZIP_PATH > /dev/null || {
     error "Failed to download zip file from '${ZIP_URL}'"
 }
 
