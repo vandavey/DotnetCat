@@ -38,37 +38,59 @@ internal abstract class SocketPipe : IConnectable
     /// </summary>
     ~SocketPipe() => Dispose();
 
-    /// Underlying streams are connected
+    /// <summary>
+    ///  Underlying streams are connected.
+    /// </summary>
     public bool Connected { get; protected set; }
 
-    /// Operating system
+    /// <summary>
+    ///  Local operating system.
+    /// </summary>
     protected static Platform OS => Program.OS;
 
-    /// TCP socket client
+    /// <summary>
+    ///  TCP socket client.
+    /// </summary>
     protected static TcpClient? Client => Program.SockNode?.Client;
 
-    /// TCP client is connected
+    /// <summary>
+    ///  TCP client is connected.
+    /// </summary>
     protected static bool ClientConnected => Client?.Connected ?? false;
 
-    /// Platform based EOL control sequence
+    /// <summary>
+    ///  Platform based EOL control sequence.
+    /// </summary>
     protected StringBuilder NewLine { get; }
 
-    /// Pipeline cancellation token source
+    /// <summary>
+    ///  Pipeline cancellation token source.
+    /// </summary>
     protected CancellationTokenSource? CTS { get; set; }
 
-    /// Character memory buffer
+    /// <summary>
+    ///  Character memory buffer.
+    /// </summary>
     protected Memory<char> Buffer { get; set; }
 
-    /// Command-line arguments
+    /// <summary>
+    ///  Command-line arguments.
+    /// </summary>
     protected CmdLineArgs Args { get; set; }
 
-    /// Pipeline data source
+    /// <summary>
+    ///  Pipeline data source.
+    /// </summary>
     protected StreamReader? Source { get; set; }
 
-    /// Pipeline data destination
+    /// <summary>
+    ///  Pipeline data destination.
+    /// </summary>
     protected StreamWriter? Dest { get; set; }
 
-    /// Pipeline data transfer task
+    /// <summary>
+    ///  Pipeline data transfer task.
+    /// </summary>
     protected Task? Worker { get; set; }
 
     /// <summary>

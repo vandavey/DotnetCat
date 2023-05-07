@@ -16,10 +16,14 @@ internal class Program
 
     private static Parser? _parser;     // Command-line argument parser
 
-    /// Local operating system
+    /// <summary>
+    ///  Local operating system.
+    /// </summary>
     public static Platform OS { get; private set; }
 
-    /// Network socket node
+    /// <summary>
+    ///  Network socket node.
+    /// </summary>
     public static Node? SockNode { get; private set; }
 
     /// <summary>
