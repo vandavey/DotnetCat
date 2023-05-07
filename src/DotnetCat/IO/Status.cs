@@ -24,15 +24,23 @@ internal class Status
         };
     }
 
-    /// Status symbol color
+    /// <summary>
+    ///  Status symbol color.
+    /// </summary>
     public ConsoleColor Color { get; }
 
-    /// Status output level
+    /// <summary>
+    ///  Status output level.
+    /// </summary>
     public Level Level { get; }
 
-    /// Foreground color sequence
+    /// <summary>
+    ///  Foreground color sequence.
+    /// </summary>
     public string EscSequence { get; }
 
-    /// Status prefix symbol
+    /// <summary>
+    ///  Status prefix symbol.
+    /// </summary>
     public string Symbol { get; }
 }

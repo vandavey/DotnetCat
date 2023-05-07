@@ -38,10 +38,14 @@ internal partial class Parser
         _argsList = new List<string>();
     }
 
-    /// Application repository URL
+    /// <summary>
+    ///  Application repository URL.
+    /// </summary>
     public static string Repo => "https://github.com/vandavey/DotnetCat";
 
-    /// Application usage string
+    /// <summary>
+    ///  Application usage string.
+    /// </summary>
     public static string Usage => $"Usage: {_title} [OPTIONS] TARGET";
 
     /// <summary>
