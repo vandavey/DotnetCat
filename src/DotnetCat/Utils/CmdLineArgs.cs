@@ -13,9 +13,7 @@ internal class CmdLineArgs
     /// </summary>
     public CmdLineArgs()
     {
-        Debug = false;
-        Listen = false;
-        Verbose = false;
+        Debug = Listen = Verbose = false;
 
         PipeVariant = PipeType.Stream;
         TransOpt = TransferOpt.None;
@@ -28,39 +26,63 @@ internal class CmdLineArgs
         Address = IPAddress.Any;
     }
 
-    /// Enable verbose exceptions
+    /// <summary>
+    ///  Enable verbose exceptions.
+    /// </summary>
     public bool Debug { get; set; }
 
-    /// Run server and listen for inbound connection
+    /// <summary>
+    ///  Run server and listen for inbound connection.
+    /// </summary>
     public bool Listen { get; set; }
 
-    /// Using executable pipeline
+    /// <summary>
+    ///  Using executable pipeline.
+    /// </summary>
     public bool UsingExe => !ExePath.IsNullOrEmpty();
 
-    /// Enable verbose console output
+    /// <summary>
+    ///  Enable verbose console output.
+    /// </summary>
     public bool Verbose { get; set; }
 
-    /// Pipeline variant
+    /// <summary>
+    ///  Pipeline variant.
+    /// </summary>
     public PipeType PipeVariant { get; set; }
 
-    /// File transfer option
+    /// <summary>
+    ///  File transfer option.
+    /// </summary>
     public TransferOpt TransOpt { get; set; }
 
-    /// Connection port number
+    /// <summary>
+    ///  Connection port number.
+    /// </summary>
     public int Port { get; set; }
 
-    /// Executable file path
+    /// <summary>
+    ///  Executable file path.
+    /// </summary>
     public string? ExePath { get; set; }
 
-    /// Transfer file path
+    /// <summary>
+    ///  Transfer file path.
+    /// </summary>
     public string? FilePath { get; set; }
 
-    /// Hostname of the connection IPv4 address
+    /// <summary>
+    ///  Hostname of the connection IPv4 address.
+    /// </summary>
     public string? HostName { get; set; }
 
-    /// User-defined string payload
+    /// <summary>
+    ///  User-defined string payload.
+    /// </summary>
     public string? Payload { get; set; }
 
-    /// IPv4 address to use for connection
+    /// <summary>
+    ///  IPv4 address to use for connection.
+    /// </summary>
     public IPAddress Address { get; set; }
 }

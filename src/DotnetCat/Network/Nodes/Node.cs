@@ -73,14 +73,18 @@ internal abstract class Node : ISockErrorHandled
     /// </summary>
     ~Node() => Dispose();
 
-    /// Enable verbose console output
+    /// <summary>
+    ///  Enable verbose console output.
+    /// </summary>
     public bool Verbose
     {
         get => Args.Verbose;
         set => Args.Verbose = value;
     }
 
-    /// Network port number
+    /// <summary>
+    ///  Network port number.
+    /// </summary>
     public int Port
     {
         get => Args.Port;
@@ -94,47 +98,65 @@ internal abstract class Node : ISockErrorHandled
         }
     }
 
-    /// Executable file path
+    /// <summary>
+    ///  Executable file path.
+    /// </summary>
     public string? ExePath
     {
         get => Args.ExePath;
         set => Args.ExePath = value;
     }
 
-    /// Transfer file path
+    /// <summary>
+    ///  Transfer file path.
+    /// </summary>
     public string? FilePath
     {
         get => Args.FilePath;
         set => Args.FilePath = value;
     }
 
-    /// Network hostname
+    /// <summary>
+    ///  Network hostname.
+    /// </summary>
     public string HostName
     {
         get => _hostName ?? Address?.ToString() ?? string.Empty;
         set => _hostName = value ?? Address?.ToString() ?? string.Empty;
     }
 
-    /// IPv4 network address
+    /// <summary>
+    ///  IPv4 network address.
+    /// </summary>
     public IPAddress? Address
     {
         get => Args.Address;
         set => Args.Address = value ?? IPAddress.Any;
     }
 
-    /// TCP socket client
+    /// <summary>
+    ///  TCP socket client.
+    /// </summary>
     public TcpClient Client { get; set; }
 
-    /// File transfer option
+    /// <summary>
+    ///  File transfer option.
+    /// </summary>
     protected bool Transfer => Args.TransOpt is not TransferOpt.None;
 
-    /// Using an executable pipeline
+    /// <summary>
+    ///  Using an executable pipeline.
+    /// </summary>
     protected bool UsingExe => Args.UsingExe;
 
-    /// Command-line arguments
+    /// <summary>
+    ///  Command-line arguments.
+    /// </summary>
     protected CmdLineArgs Args { get; set; }
 
-    /// TCP network stream
+    /// <summary>
+    ///  TCP network stream.
+    /// </summary>
     protected NetworkStream? NetStream { get; set; }
 
     /// <summary>
