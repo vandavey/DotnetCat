@@ -71,7 +71,7 @@ internal static class Sequence
             ConsoleColor.Magenta     => $"{ESC}[1;35m",
             ConsoleColor.Yellow      => $"{ESC}[38;2;250;230;39m",
             ConsoleColor.White       => $"{ESC}[1;37m",
-            _                        => RESET,
+            _                        => RESET
         };
     }
 }

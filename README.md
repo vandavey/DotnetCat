@@ -68,7 +68,7 @@ occurring.
 
 ***
 
-## Available Arguments
+## Command-Line Arguments
 
 All available DotnetCat arguments are listed in the following table:
 

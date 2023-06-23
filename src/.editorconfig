@@ -10,3 +10,14 @@ indent_style = space
 insert_final_newline = true
 tab_width = 4
 trim_trailing_whitespace = true
+
+## VSSPELL: Spell Checker Settings
+vsspell_code_analyzers_enabled = true
+vsspell_detect_doubled_words = true
+vsspell_ignore_format_specifiers = true
+vsspell_spell_check_as_you_type = true
+vsspell_treat_underscore_as_separator = true
+
+## VSSPELL: Spell Checker Ignored Words
+vsspell_section_id = 351afbc38c654ab7b190db1dc718de3c
+vsspell_ignored_keywords_351afbc38c654ab7b190db1dc718de3c = cts|delim|dest|eol|env|esc|exe|repo

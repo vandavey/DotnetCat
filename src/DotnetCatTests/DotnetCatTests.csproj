@@ -60,7 +60,7 @@
      Nuget package information
     -->
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.*" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
         <PackageReference Include="MSTest.TestAdapter" Version="3.*" />
         <PackageReference Include="MSTest.TestFramework" Version="3.*" />
     </ItemGroup>

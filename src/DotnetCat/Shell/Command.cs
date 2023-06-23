@@ -11,12 +11,15 @@ namespace DotnetCat.Shell;
 /// </summary>
 internal static class Command
 {
-    private static readonly string[] _clsCommands;  // Clear commands
+    private static readonly string[] _commands;  // Custom shell commands
 
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Command() => _clsCommands = new string[] { "cls", "clear", "clear-host" };
+    static Command()
+    {
+        _commands = new string[] { "cls", "clear", "clear-host", "drives" };
+    }
 
     /// <summary>
     ///  Get the value of the given environment variable.
@@ -52,17 +55,37 @@ internal static class Command
     }
 
     /// <summary>
+    ///  Determine whether the given command is a custom command.
+    /// </summary>
+    public static bool IsCustomCommand(string command)
+    {
+        return _commands.Contains(ParseCommand(command));
+    }
+
+    /// <summary>
     ///  Determine whether the given data contains a clear command.
     /// </summary>
-    public static bool IsClearCmd(string data)
+    public static bool IsClearCmd(string command)
     {
-        bool isClear = false;
+        bool clearCommand = false;
 
-        if (!data.IsNullOrEmpty())
+        if (!command.IsNullOrEmpty())
         {
-            data = data.Replace(Environment.NewLine, null).Trim();
-            isClear = _clsCommands.Contains(data.ToLower());
+            clearCommand = ParseCommand(command.NormalizeEol().Trim()) switch
+            {
+                "cls" or "clear" or "clear-host" => true,
+                _ => false,
+            };
         }
-        return isClear;
+        return clearCommand;
+    }
+
+    /// <summary>
+    ///  Parse a shell command from the raw command data.
+    /// </summary>
+    private static string ParseCommand(string data)
+    {
+        data = data.NormalizeEol().Replace(Environment.NewLine, null).Trim();
+        return data.ToLower().Split(Environment.NewLine.ToCharArray())[0];
     }
 }
