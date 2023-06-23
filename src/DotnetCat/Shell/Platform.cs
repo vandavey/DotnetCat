@@ -1,4 +1,4 @@
-namespace DotnetCat.Utils;
+namespace DotnetCat.Shell;
 
 /// <summary>
 ///  Operating system platform enumeration type.

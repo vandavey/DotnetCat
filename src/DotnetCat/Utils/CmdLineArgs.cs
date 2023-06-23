@@ -19,10 +19,7 @@ internal class CmdLineArgs
         TransOpt = TransferOpt.None;
         Port = 44444;
 
-        ExePath = null;
-        FilePath = null;
-        Payload = null;
-
+        ExePath = FilePath = Payload = null;
         Address = IPAddress.Any;
     }
 

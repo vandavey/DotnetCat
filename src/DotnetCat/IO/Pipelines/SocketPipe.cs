@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
+using DotnetCat.Shell;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
@@ -46,7 +47,7 @@ internal abstract class SocketPipe : IConnectable
     /// <summary>
     ///  Local operating system.
     /// </summary>
-    protected static Platform OS => Program.OS;
+    protected static Platform OS => SysInfo.OS;
 
     /// <summary>
     ///  TCP socket client.
@@ -134,15 +135,6 @@ internal abstract class SocketPipe : IConnectable
     ///  Asynchronously transfer data between the underlying streams.
     /// </summary>
     protected abstract Task ConnectAsync(CancellationToken token);
-
-    /// <summary>
-    ///  Normalize line-endings based on the local operating system
-    ///  so shell commands are properly interpreted.
-    /// </summary>
-    protected static StringBuilder FixLineEndings(StringBuilder data)
-    {
-        return OS is Platform.Win ? data : data.Replace("\r\n", "\n");
-    }
 
     /// <summary>
     ///  Asynchronously read data from the underlying source stream

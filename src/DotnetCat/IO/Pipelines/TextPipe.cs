@@ -33,7 +33,9 @@ internal class TextPipe : SocketPipe
     /// </summary>
     ~TextPipe() => Dispose();
 
-    /// String network payload
+    /// <summary>
+    ///  String network payload.
+    /// </summary>
     protected string Payload
     {
         get => Args.Payload ?? string.Empty;
