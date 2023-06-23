@@ -7,6 +7,7 @@ using DotnetCat.Errors;
 using DotnetCat.IO;
 using DotnetCat.IO.Pipelines;
 using DotnetCat.Network;
+using DotnetCat.Shell;
 
 namespace DotnetCat.Utils;
 
@@ -26,7 +27,7 @@ internal partial class Parser
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Parser() => _title = Program.OS is Platform.Nix ? "dncat" : "dncat.exe";
+    static Parser() => _title = SysInfo.OS is Platform.Nix ? "dncat" : "dncat.exe";
 
     /// <summary>
     ///  Initialize the object.
