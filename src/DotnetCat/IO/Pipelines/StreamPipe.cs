@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Shell;
+using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
 
@@ -36,6 +37,8 @@ internal class StreamPipe : SocketPipe
         int charsRead;
         Connected = true;
 
+        // TODO: Implement logic to display custom command output
+
         if (Client is not null)
         {
             while (Client.Connected)
@@ -54,7 +57,7 @@ internal class StreamPipe : SocketPipe
                     Disconnect();
                     break;
                 }
-                data = FixLineEndings(data);
+                data = data.NormalizeEol();
 
                 // Clear the console screen buffer
                 if (Command.IsClearCmd(data.ToString()))

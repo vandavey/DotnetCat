@@ -15,7 +15,9 @@ internal class ErrorMessage
     /// </summary>
     public ErrorMessage(string msg) => Message = msg;
 
-    /// Error message string
+    /// <summary>
+    ///  Error message string.
+    /// </summary>
     public string Message
     {
         get => _message ??= string.Empty;

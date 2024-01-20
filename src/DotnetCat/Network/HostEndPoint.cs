@@ -51,7 +51,9 @@ internal class HostEndPoint
         Port = ep.Port;
     }
 
-    /// Network port number
+    /// <summary>
+    ///  Network port number.
+    /// </summary>
     public int Port
     {
         get => _port;
@@ -65,7 +67,9 @@ internal class HostEndPoint
         }
     }
 
-    /// Network hostname
+    /// <summary>
+    ///  Network hostname.
+    /// </summary>
     public string? HostName
     {
         get => _hostName;
