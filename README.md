@@ -68,7 +68,7 @@ occurring.
 
 ***
 
-## Command-Line Arguments
+## Available Arguments
 
 All available DotnetCat arguments are listed in the following table:
 
@@ -111,8 +111,7 @@ curl -sLS "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dnc
 DotnetCat can be uninstalled using the [dncat-uninstall.sh](tools/dncat-uninstall.sh) uninstaller.
 
 <blockquote>
-    <a href="tools/dncat-install.sh">dncat-install.sh</a> and
-    <a href="tools/dncat-uninstall.sh">dncat-uninstall.sh</a> only support ARM64 and x64
+    <a href="tools/dncat-install.sh">dncat-install.sh</a> only supports ARM64 and x64
     Linux systems and requires <code><a href="https://curl.se">curl</a></code> and
     <code><a href="https://infozip.sourceforge.net/UnZip.html">unzip</a></code> to be installed.
 </blockquote>
@@ -130,10 +129,10 @@ $Uri = "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-
 Write-Output (Invoke-WebRequest $Uri -DisableKeepAlive).Content | powershell.exe -
 ```
 
-DotnetCat can be uninstalled using the [dncat-uninstall.ps1](tools/dncat-uninstall.ps1) uninstaller.
+> [dncat-install.ps1](tools/dncat-install.ps1) only supports x64 and x86 Windows
+  systems and must be executed as an administrator.
 
-> [dncat-install.ps1](tools/dncat-install.ps1) and [dncat-uninstall.ps1](tools/dncat-uninstall.ps1)
-  only support x64 and x86 Windows systems and must be executed as an administrator.
+DotnetCat can be uninstalled using the [dncat-uninstall.ps1](tools/dncat-uninstall.ps1) uninstaller.
 
 ### Manual Setup
 

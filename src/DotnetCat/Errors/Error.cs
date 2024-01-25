@@ -16,9 +16,7 @@ internal static class Error
     /// </summary>
     static Error() => Debug = false;
 
-    /// <summary>
-    ///  Enable verbose exceptions.
-    /// </summary>
+    /// Enable verbose exceptions
     public static bool Debug { get; set; }
 
     /// <summary>

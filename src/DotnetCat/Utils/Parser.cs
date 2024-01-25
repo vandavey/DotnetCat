@@ -7,7 +7,6 @@ using DotnetCat.Errors;
 using DotnetCat.IO;
 using DotnetCat.IO.Pipelines;
 using DotnetCat.Network;
-using DotnetCat.Shell;
 
 namespace DotnetCat.Utils;
 
@@ -27,7 +26,7 @@ internal partial class Parser
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Parser() => _title = SysInfo.OS is Platform.Nix ? "dncat" : "dncat.exe";
+    static Parser() => _title = Program.OS is Platform.Nix ? "dncat" : "dncat.exe";
 
     /// <summary>
     ///  Initialize the object.
@@ -39,14 +38,10 @@ internal partial class Parser
         _argsList = new List<string>();
     }
 
-    /// <summary>
-    ///  Application repository URL.
-    /// </summary>
+    /// Application repository URL
     public static string Repo => "https://github.com/vandavey/DotnetCat";
 
-    /// <summary>
-    ///  Application usage string.
-    /// </summary>
+    /// Application usage string
     public static string Usage => $"Usage: {_title} [OPTIONS] TARGET";
 
     /// <summary>
@@ -170,50 +165,56 @@ internal partial class Parser
 
         foreach ((int index, string arg) in _argsList.Enumerate(IsAlias))
         {
-            foreach (char ch in arg)
+            if (arg.Contains('l'))  // Listen for connection
             {
-                switch (ch)
-                {
-                    case '-':
-                        continue;
-                    case 'l':
-                        _args.Listen = true;
-                        break;
-                    case 'v':
-                        _args.Verbose = true;
-                        break;
-                    case 'z':
-                        _args.PipeVariant = PipeType.Status;
-                        break;
-                    case 'd':
-                        _args.Debug = _args.Verbose = Error.Debug = true;
-                        break;
-                    case 'p':
-                        _args.Port = GetPort(index, arg);
-                        processedIndexes.Add(index + 1);
-                        break;
-                    case 'e':
-                        _args.ExePath = GetExecutable(index, arg);
-                        processedIndexes.Add(index + 1);
-                        break;
-                    case 'o':
-                        _args.TransOpt = TransferOpt.Collect;
-                        _args.FilePath = GetTransferPath(index, arg);
-                        processedIndexes.Add(index + 1);
-                        break;
-                    case 's':
-                        _args.TransOpt = TransferOpt.Transmit;
-                        _args.FilePath = GetTransferPath(index, arg);
-                        processedIndexes.Add(index + 1);
-                        break;
-                    case 't':
-                        _args.Payload = GetTextPayload(index, arg);
-                        processedIndexes.Add(index + 1);
-                        break;
-                    default:
-                        Error.Handle(Except.UnknownArgs, $"-{ch}", true);
-                        break;
-                }
+                _args.Listen = true;
+            }
+
+            if (arg.Contains('v'))  // Verbose output
+            {
+                _args.Verbose = true;
+            }
+
+            if (arg.Contains('z'))  // Zero-IO (test connection)
+            {
+                _args.PipeVariant = PipeType.Status;
+            }
+
+            if (arg.Contains('d'))  // Debug output
+            {
+                _args.Debug = _args.Verbose = Error.Debug = true;
+            }
+
+            if (arg.Contains('p'))  // Connection port
+            {
+                _args.Port = GetPort(index, arg);
+                processedIndexes.Add(index + 1);
+            }
+
+            if (arg.Contains('e'))  // Executable path
+            {
+                _args.ExePath = GetExecutable(index, arg);
+                processedIndexes.Add(index + 1);
+            }
+
+            if (arg.Contains('o'))  // Receive file data
+            {
+                _args.TransOpt = TransferOpt.Collect;
+                _args.FilePath = GetTransferPath(index, arg);
+                processedIndexes.Add(index + 1);
+            }
+
+            if (arg.Contains('s'))  // Send file data
+            {
+                _args.TransOpt = TransferOpt.Transmit;
+                _args.FilePath = GetTransferPath(index, arg);
+                processedIndexes.Add(index + 1);
+            }
+
+            if (arg.Contains('t'))  // Send string data
+            {
+                _args.Payload = GetTextPayload(index, arg);
+                processedIndexes.Add(index + 1);
             }
 
             processedIndexes.Add(index);
@@ -269,7 +270,6 @@ internal partial class Parser
                     processedIndexes.Add(index + 1);
                     break;
                 default:
-                    Error.Handle(Except.UnknownArgs, arg, true);
                     break;
             }
             processedIndexes.Add(index);

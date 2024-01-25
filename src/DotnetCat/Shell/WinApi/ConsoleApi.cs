@@ -33,9 +33,7 @@ internal static partial class ConsoleApi
         EnableVirtualTerm();
     }
 
-    /// <summary>
-    ///  Virtual terminal processing is enabled.
-    /// </summary>
+    /// Virtual terminal processing enabled
     public static bool VirtualTermEnabled { get; private set; }
 
     /// <summary>

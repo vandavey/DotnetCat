@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using DotnetCat.Errors;
 using DotnetCat.Network.Nodes;
 using DotnetCat.Utils;
@@ -15,9 +16,10 @@ internal class Program
 
     private static Parser? _parser;     // Command-line argument parser
 
-    /// <summary>
-    ///  Network socket node.
-    /// </summary>
+    /// Local operating system
+    public static Platform OS { get; private set; }
+
+    /// Network socket node
     public static Node? SockNode { get; private set; }
 
     /// <summary>
@@ -27,6 +29,15 @@ internal class Program
     {
         _parser = new Parser();
         Console.Title = $"DotnetCat ({Parser.Repo})";
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            OS = Platform.Win;
+        }
+        else
+        {
+            OS = Platform.Nix;
+        }
 
         // Display help information and exit
         if (args.IsNullOrEmpty() || Parser.NeedsHelp(args))

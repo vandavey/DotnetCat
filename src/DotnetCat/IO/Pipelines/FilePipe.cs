@@ -56,14 +56,10 @@ internal class FilePipe : SocketPipe, IErrorHandled
     /// </summary>
     ~FilePipe() => Dispose();
 
-    /// <summary>
-    ///  Enable verbose console output.
-    /// </summary>
+    /// Enable verbose console output
     public bool Verbose => Args.Verbose;
 
-    /// <summary>
-    ///  Source or destination path.
-    /// </summary>
+    /// Source or destination path
     public string FilePath
     {
         get => Args.FilePath ??= string.Empty;
