@@ -20,4 +20,4 @@ vsspell_treat_underscore_as_separator = true
 
 ## VSSPELL: Spell Checker Ignored Words
 vsspell_section_id = 351afbc38c654ab7b190db1dc718de3c
-vsspell_ignored_keywords_351afbc38c654ab7b190db1dc718de3c = cts|delim|dest|eol|env|esc|exe|repo
+vsspell_ignored_keywords_351afbc38c654ab7b190db1dc718de3c = cts|delim|dest|dncat|eol|env|esc|exe|pwsh|recv|repo|src

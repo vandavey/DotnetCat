@@ -23,16 +23,8 @@ internal static class FileSys
     {
         string envVar = Command.GetEnvVariable("PATH") ?? string.Empty;
 
-        _exeExtensions = new string[]
-        {
-            "",     // Linux binary (ELF)
-            "exe",  // Windows binary (PE)
-            "bat",  // Batch script
-            "ps1",  // PowerShell script
-            "py",   // Python script
-            "sh"    // Bash/shell script
-        };
         _envPaths = envVar.Split(Path.PathSeparator);
+        _exeExtensions = [ "", "exe", "bat", "ps1", "py", "sh" ];
     }
 
     /// <summary>

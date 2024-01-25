@@ -18,7 +18,7 @@ internal static class Command
     /// </summary>
     static Command()
     {
-        _commands = new string[] { "cls", "clear", "clear-host", "drives" };
+        _commands = ["cls", "clear", "clear-host", "drives"];
     }
 
     /// <summary>

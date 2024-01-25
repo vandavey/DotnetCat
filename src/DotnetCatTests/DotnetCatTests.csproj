@@ -20,7 +20,7 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
         <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
         <RootNamespace>DotnetCatTests</RootNamespace>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <WarningLevel>7</WarningLevel>
     </PropertyGroup>
 
