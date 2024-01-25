@@ -36,7 +36,7 @@ internal partial class Parser
     {
         _eol = Environment.NewLine;
         _args = new CmdLineArgs();
-        _argsList = new List<string>();
+        _argsList = [];
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ internal partial class Parser
     /// </summary>
     public CmdLineArgs Parse(string[] args)
     {
-        _argsList = DefragArguments(args.ToList());
+        _argsList = DefragArguments([.. args]);
 
         ParseCharArgs();
         ParseFlagArgs();
@@ -94,7 +94,7 @@ internal partial class Parser
     /// </summary>
     private static List<string> DefragArguments(List<string> args)
     {
-        List<string> defragArgs = new();
+        List<string> defragArgs = [];
 
         // Defragment the given arguments
         for (int i = 0; i < args.Count; i++)
@@ -166,7 +166,7 @@ internal partial class Parser
     /// </summary>
     private void ParseCharArgs()
     {
-        List<int> processedIndexes = new();
+        List<int> processedIndexes = [];
 
         foreach ((int index, string arg) in _argsList.Enumerate(IsAlias))
         {
@@ -228,7 +228,7 @@ internal partial class Parser
     /// </summary>
     private void ParseFlagArgs()
     {
-        List<int> processedIndexes = new();
+        List<int> processedIndexes = [];
 
         foreach ((int index, string arg) in _argsList.Enumerate(IsFlag))
         {

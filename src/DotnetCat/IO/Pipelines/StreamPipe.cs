@@ -37,8 +37,6 @@ internal class StreamPipe : SocketPipe
         int charsRead;
         Connected = true;
 
-        // TODO: Implement logic to display custom command output
-
         if (Client is not null)
         {
             while (Client.Connected)

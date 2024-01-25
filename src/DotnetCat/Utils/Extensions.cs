@@ -16,7 +16,7 @@ internal static class Extensions
     /// </summary>
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
     {
-        return str is null || !str.Trim().Any();
+        return str is null || str.Trim().Length == 0;
     }
 
     /// <summary>
@@ -73,12 +73,21 @@ internal static class Extensions
     }
 
     /// <summary>
+    ///  Determine whether a string in its lowercase form is
+    ///  equal to the given value in its lowercase form.
+    /// </summary>
+    public static bool LowerEquals(this string str, string? value)
+    {
+        return str.Equals(value, StringComparison.CurrentCultureIgnoreCase);
+    }
+
+    /// <summary>
     ///  Enumerate the elements of a collection as a collection of
     ///  tuples containing each element's index and value.
     /// </summary>
     public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values)
     {
-        IEnumerable<(int, T)> results = Array.Empty<(int, T)>();
+        IEnumerable<(int, T)> results = [];
 
         if (!values.IsNullOrEmpty())
         {

@@ -42,7 +42,7 @@ internal abstract class Node : ISockErrorHandled
         _hostName = null;
         _netReader = null;
         _netWriter = null;
-        _pipes = new List<SocketPipe>();
+        _pipes = [];
         _process = null;
         _validArgsCombos = false;
 
@@ -344,7 +344,7 @@ internal abstract class Node : ISockErrorHandled
     /// </summary>
     private List<SocketPipe> MakePipes(PipeType type)
     {
-        List<SocketPipe> pipelines = new();
+        List<SocketPipe> pipelines = [];
 
         switch (type)
         {
