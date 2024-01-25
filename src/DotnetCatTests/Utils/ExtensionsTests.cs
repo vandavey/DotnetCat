@@ -1,11 +1,12 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotnetCat.Utils;
 
 namespace DotnetCatTests.Utils;
+
+#pragma warning disable CA1861 // Avoid constant arrays as arguments
 
 /// <summary>
 ///  Unit tests for utility class <see cref="Extensions"/>.
@@ -69,7 +70,7 @@ public class ExtensionsTests
     [TestMethod]
     public void IsNullOrEmpty_EmptyArray_ReturnsTrue()
     {
-        string[] array = Array.Empty<string>();
+        string[] array = [];
         bool actual = array.IsNullOrEmpty();
 
         Assert.IsTrue(actual, "Expected empty array to be null or empty");
@@ -105,7 +106,7 @@ public class ExtensionsTests
     [TestMethod]
     public void IsNullOrEmpty_EmptyList_ReturnsTrue()
     {
-        List<object> list = new();
+        List<object> list = [];
         bool actual = list.IsNullOrEmpty();
 
         Assert.IsTrue(actual, "Expected empty list to be null or empty");
@@ -119,7 +120,7 @@ public class ExtensionsTests
     [DataRow("test", "data")]
     public void IsNullOrEmpty_PopulatedList_ReturnsFalse(params object[] array)
     {
-        List<object> list = array.ToList();
+        List<object> list = [.. array];
         bool actual = list.IsNullOrEmpty();
 
         Assert.IsFalse(actual, "Expected populated list to not be null or empty");
@@ -248,8 +249,8 @@ public class ExtensionsTests
     {
         IEnumerable<object>? values = array;
 
-        ICollection expected = values.Select((v, i) => (i, v)).ToArray();
-        ICollection actual = values.Enumerate().ToArray();
+        (int, object)[] expected = values.Select((v, i) => (i, v)).ToArray();
+        (int, object)[] actual = values.Enumerate().ToArray();
 
         CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
     }
@@ -260,10 +261,10 @@ public class ExtensionsTests
     [TestMethod]
     public void Enumerate_EmptyArray_ReturnsEmpty()
     {
-        IEnumerable<string>? values = Array.Empty<string>();
+        IEnumerable<string>? values = [];
 
-        ICollection expected = Array.Empty<(int, string)>();
-        ICollection actual = values.Enumerate().ToArray();
+        (int, string)[] expected = [];
+        (int, string)[] actual = values.Enumerate().ToArray();
 
         CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
     }
@@ -276,8 +277,8 @@ public class ExtensionsTests
     {
         IEnumerable<string>? values = null;
 
-        ICollection expected = Array.Empty<(int, string)>();
-        ICollection actual = values.Enumerate().ToArray();
+        (int, string)[] expected = [];
+        (int, string)[] actual = values.Enumerate().ToArray();
 
         CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
     }
@@ -325,3 +326,5 @@ public class ExtensionsTests
     }
 #endregion // MethodTests
 }
+
+#pragma warning restore CA1861 // Avoid constant arrays as arguments
