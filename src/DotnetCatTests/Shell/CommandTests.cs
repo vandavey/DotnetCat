@@ -92,7 +92,7 @@ public class CommandTests
     /// </summary>
     [DataTestMethod]
     [DataRow("clear")]
-    [DataRow("cls\n")]
+    [DataRow("cls")]
     [DataRow("Clear-Host")]
     public void IsClearCmd_ValidCommand_ReturnsTrue(string command)
     {
@@ -105,7 +105,7 @@ public class CommandTests
     /// </summary>
     [DataTestMethod]
     [DataRow("sudo")]
-    [DataRow("cat\n")]
+    [DataRow("cat")]
     [DataRow("Get-Location")]
     public void IsClearCmd_InvalidCommand_ReturnsFalse(string command)
     {

@@ -35,9 +35,7 @@ internal static class FileSys
         _envPaths = envVar.Split(Path.PathSeparator);
     }
 
-    /// <summary>
-    ///  User home directory absolute file path.
-    /// </summary>
+    /// User home directory absolute file path
     public static string UserProfile
     {
         get => Environment.GetFolderPath(SpecialFolder.UserProfile);
@@ -111,7 +109,7 @@ internal static class FileSys
         if (!path.IsNullOrEmpty())
         {
             // Ensure drives are properly interpreted
-            if (SysInfo.OS is Platform.Win && path.EndsWithValue(":"))
+            if (Program.OS is Platform.Win && path.EndsWithValue(":"))
             {
                 path += Path.DirectorySeparatorChar;
             }

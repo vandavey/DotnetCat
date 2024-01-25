@@ -13,73 +13,54 @@ internal class CmdLineArgs
     /// </summary>
     public CmdLineArgs()
     {
-        Debug = Listen = Verbose = false;
+        Debug = false;
+        Listen = false;
+        Verbose = false;
 
         PipeVariant = PipeType.Stream;
         TransOpt = TransferOpt.None;
         Port = 44444;
 
-        ExePath = FilePath = Payload = null;
+        ExePath = null;
+        FilePath = null;
+        Payload = null;
+
         Address = IPAddress.Any;
     }
 
-    /// <summary>
-    ///  Enable verbose exceptions.
-    /// </summary>
+    /// Enable verbose exceptions
     public bool Debug { get; set; }
 
-    /// <summary>
-    ///  Run server and listen for inbound connection.
-    /// </summary>
+    /// Run server and listen for inbound connection
     public bool Listen { get; set; }
 
-    /// <summary>
-    ///  Using executable pipeline.
-    /// </summary>
+    /// Using executable pipeline
     public bool UsingExe => !ExePath.IsNullOrEmpty();
 
-    /// <summary>
-    ///  Enable verbose console output.
-    /// </summary>
+    /// Enable verbose console output
     public bool Verbose { get; set; }
 
-    /// <summary>
-    ///  Pipeline variant.
-    /// </summary>
+    /// Pipeline variant
     public PipeType PipeVariant { get; set; }
 
-    /// <summary>
-    ///  File transfer option.
-    /// </summary>
+    /// File transfer option
     public TransferOpt TransOpt { get; set; }
 
-    /// <summary>
-    ///  Connection port number.
-    /// </summary>
+    /// Connection port number
     public int Port { get; set; }
 
-    /// <summary>
-    ///  Executable file path.
-    /// </summary>
+    /// Executable file path
     public string? ExePath { get; set; }
 
-    /// <summary>
-    ///  Transfer file path.
-    /// </summary>
+    /// Transfer file path
     public string? FilePath { get; set; }
 
-    /// <summary>
-    ///  Hostname of the connection IPv4 address.
-    /// </summary>
+    /// Hostname of the connection IPv4 address
     public string? HostName { get; set; }
 
-    /// <summary>
-    ///  User-defined string payload.
-    /// </summary>
+    /// User-defined string payload
     public string? Payload { get; set; }
 
-    /// <summary>
-    ///  IPv4 address to use for connection.
-    /// </summary>
+    /// IPv4 address to use for connection
     public IPAddress Address { get; set; }
 }

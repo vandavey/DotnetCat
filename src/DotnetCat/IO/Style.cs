@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO;
@@ -9,6 +11,19 @@ namespace DotnetCat.IO;
 /// </summary>
 internal static class Style
 {
+    private static readonly List<Status> _statuses;  // Status list
+
+    /// <summary>
+    ///  Initialize the static class members.
+    /// </summary>
+    static Style() => _statuses = new List<Status>
+    {
+        new Status(ConsoleColor.Cyan, Level.Info),
+        new Status(ConsoleColor.Green, Level.Output),
+        new Status(ConsoleColor.Red, Level.Error),
+        new Status(ConsoleColor.Yellow, Level.Warn)
+    };
+
     /// <summary>
     ///  Write the given error message to the standard error stream.
     /// </summary>
@@ -39,6 +54,7 @@ internal static class Style
         {
             throw new ArgumentNullException(nameof(msg));
         }
+        int index = IndexOfStatus(level);
 
         using TextWriter stream = level switch
         {
@@ -46,20 +62,17 @@ internal static class Style
             Level.Info or Level.Output or _ => Console.Out
         };
 
-        Status status = new(StatusColor(level), level);
+        Status status = _statuses[index];
         string symbol = Sequence.GetColorStr(status.Symbol, status.Color);
 
         stream.WriteLine($"{symbol} {msg}");
     }
 
     /// <summary>
-    ///  Get the console color associated with the given output level.
-    /// </summary>
-    private static ConsoleColor StatusColor(Level level) => level switch
+    ///  Get the index of the given output level in the underlying status list.
+    /// <summary>
+    private static int IndexOfStatus(Level level)
     {
-        Level.Error     => ConsoleColor.Red,
-        Level.Output    => ConsoleColor.Green,
-        Level.Warn      => ConsoleColor.Yellow,
-        Level.Info or _ => ConsoleColor.Cyan
-    };
+        return _statuses.IndexOf(_statuses.First(s => s.Level == level));
+    }
 }

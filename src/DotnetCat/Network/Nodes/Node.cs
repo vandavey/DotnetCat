@@ -73,18 +73,14 @@ internal abstract class Node : ISockErrorHandled
     /// </summary>
     ~Node() => Dispose();
 
-    /// <summary>
-    ///  Enable verbose console output.
-    /// </summary>
+    /// Enable verbose console output
     public bool Verbose
     {
         get => Args.Verbose;
         set => Args.Verbose = value;
     }
 
-    /// <summary>
-    ///  Network port number.
-    /// </summary>
+    /// Network port number
     public int Port
     {
         get => Args.Port;
@@ -98,65 +94,47 @@ internal abstract class Node : ISockErrorHandled
         }
     }
 
-    /// <summary>
-    ///  Executable file path.
-    /// </summary>
+    /// Executable file path
     public string? ExePath
     {
         get => Args.ExePath;
         set => Args.ExePath = value;
     }
 
-    /// <summary>
-    ///  Transfer file path.
-    /// </summary>
+    /// Transfer file path
     public string? FilePath
     {
         get => Args.FilePath;
         set => Args.FilePath = value;
     }
 
-    /// <summary>
-    ///  Network hostname.
-    /// </summary>
+    /// Network hostname
     public string HostName
     {
         get => _hostName ?? Address?.ToString() ?? string.Empty;
         set => _hostName = value ?? Address?.ToString() ?? string.Empty;
     }
 
-    /// <summary>
-    ///  IPv4 network address.
-    /// </summary>
+    /// IPv4 network address
     public IPAddress? Address
     {
         get => Args.Address;
         set => Args.Address = value ?? IPAddress.Any;
     }
 
-    /// <summary>
-    ///  TCP socket client.
-    /// </summary>
+    /// TCP socket client
     public TcpClient Client { get; set; }
 
-    /// <summary>
-    ///  File transfer option.
-    /// </summary>
+    /// File transfer option
     protected bool Transfer => Args.TransOpt is not TransferOpt.None;
 
-    /// <summary>
-    ///  Using an executable pipeline.
-    /// </summary>
+    /// Using an executable pipeline
     protected bool UsingExe => Args.UsingExe;
 
-    /// <summary>
-    ///  Command-line arguments.
-    /// </summary>
+    /// Command-line arguments
     protected CmdLineArgs Args { get; set; }
 
-    /// <summary>
-    ///  TCP network stream.
-    /// </summary>
+    /// TCP network stream
     protected NetworkStream? NetStream { get; set; }
 
     /// <summary>
