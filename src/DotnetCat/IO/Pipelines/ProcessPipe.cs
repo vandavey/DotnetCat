@@ -33,8 +33,6 @@ internal class ProcessPipe : SocketPipe
     /// </summary>
     protected override async Task ConnectAsync(CancellationToken token)
     {
-        // TODO: Implement logic to run custom commands (e.g., drive info)
-
         StringBuilder data = new();
 
         int charsRead;
