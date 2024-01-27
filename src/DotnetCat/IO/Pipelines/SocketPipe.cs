@@ -26,7 +26,7 @@ internal abstract class SocketPipe : IConnectable
         Connected = false;
 
         Args = new CmdLineArgs();
-        NewLine = new StringBuilder(Environment.NewLine);
+        NewLine = new StringBuilder(SysInfo.Eol);
     }
 
     /// <summary>
@@ -43,11 +43,6 @@ internal abstract class SocketPipe : IConnectable
     ///  Underlying streams are connected.
     /// </summary>
     public bool Connected { get; protected set; }
-
-    /// <summary>
-    ///  Local operating system.
-    /// </summary>
-    protected static Platform OS => SysInfo.OS;
 
     /// <summary>
     ///  TCP socket client.

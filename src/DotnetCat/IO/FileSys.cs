@@ -103,7 +103,7 @@ internal static class FileSys
         if (!path.IsNullOrEmpty())
         {
             // Ensure drives are properly interpreted
-            if (SysInfo.OS is Platform.Win && path.EndsWithValue(":"))
+            if (SysInfo.IsWindows() && path.EndsWithValue(":"))
             {
                 path += Path.DirectorySeparatorChar;
             }

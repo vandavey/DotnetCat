@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using DotnetCat.Errors;
+using DotnetCat.Shell;
 using DotnetCat.Utils;
 
 namespace DotnetCat.Network;
@@ -41,7 +42,7 @@ internal static class Net
         }
 
         // Return the first IPv4 address
-        if (!dnsAns.HostName.LowerEquals(Environment.MachineName))
+        if (!dnsAns.HostName.LowerEquals(SysInfo.Hostname))
         {
             foreach (IPAddress addr in dnsAns.AddressList)
             {

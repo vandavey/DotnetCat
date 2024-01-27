@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using DotnetCat.Shell;
 
 namespace DotnetCat.Utils;
 
@@ -123,28 +124,14 @@ internal static class Extensions
     /// </summary>
     public static string JoinLines<T>(this IEnumerable<T>? values)
     {
-        return Join(values, Environment.NewLine);
+        return Join(values, SysInfo.Eol);
     }
 
     /// <summary>
-    ///  Normalize all the EOL sequences in a string.
+    ///  Normalize all the newline substrings in a string builder.
     /// </summary>
-    [return: NotNullIfNotNull(nameof(str))]
-    public static string? NormalizeEol(this string? str)
+    public static StringBuilder ReplaceLineEndings(this StringBuilder sb)
     {
-        if (!str.IsNullOrEmpty())
-        {
-            string newLine = Environment.NewLine;
-            str = str.Replace("\n", newLine).Replace("\r\n", newLine);
-        }
-        return str;
-    }
-
-    /// <summary>
-    ///  Normalize all the EOL sequences in a string builder.
-    /// </summary>
-    public static StringBuilder NormalizeEol(this StringBuilder sb)
-    {
-        return new StringBuilder(NormalizeEol(sb.ToString()));
+        return new StringBuilder(sb.ToString().ReplaceLineEndings());
     }
 }

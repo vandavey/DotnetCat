@@ -11,31 +11,42 @@ namespace DotnetCat.Shell;
 /// </summary>
 internal static class SysInfo
 {
-    /// <summary>
-    ///  Local operating system.
-    /// </summary>
-    public static Platform OS
-    {
-        get
-        {
-            Platform os;
+    private static readonly Platform _os;  // Local operating system
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                os = Platform.Win;
-            }
-            else
-            {
-                os = Platform.Nix;
-            }
-            return os;
+    /// <summary>
+    ///  Initialize the static class members.
+    /// </summary>
+    static SysInfo()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            _os = Platform.Win;
+        }
+        else
+        {
+            _os = Platform.Nix;
         }
     }
+
+    /// <summary>
+    ///  Get the environment-specific newline string.
+    /// </summary>
+    public static string Eol => Environment.NewLine;
 
     /// <summary>
     ///  Local machine hostname.
     /// </summary>
     public static string Hostname => Environment.MachineName;
+
+    /// <summary>
+    ///  Determine whether the local operating system is Linux.
+    /// </summary>
+    public static bool IsLinux() => _os is Platform.Nix;
+
+    /// <summary>
+    ///  Determine whether the local operating system is Windows.
+    /// </summary>
+    public static bool IsWindows() => _os is Platform.Win;
 
     /// <summary>
     ///  Get a string containing information about the local drives.
