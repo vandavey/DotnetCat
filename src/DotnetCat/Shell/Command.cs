@@ -11,12 +11,12 @@ namespace DotnetCat.Shell;
 /// </summary>
 internal static class Command
 {
-    private static readonly string[] _commands;  // Custom shell commands
+    private static readonly string[] _clsCommands;  // Clear screen commands
 
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Command() => _commands = ["cls", "clear", "clear-host"];
+    static Command() => _clsCommands = ["clear", "clear-host", "cls"];
 
     /// <summary>
     ///  Get the value of the given environment variable.
@@ -60,11 +60,7 @@ internal static class Command
 
         if (!command.IsNullOrEmpty())
         {
-            clearCommand = ParseCommand(command) switch
-            {
-                "cls" or "clear" or "clear-host" => true,
-                _ => false,
-            };
+            clearCommand = _clsCommands.Contains(ParseCommand(command));
         }
         return clearCommand;
     }
