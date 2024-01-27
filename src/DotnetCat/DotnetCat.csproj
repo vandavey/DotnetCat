@@ -8,7 +8,7 @@
         <AssemblyName>dncat</AssemblyName>
         <Authors>vandavey</Authors>
         <Configurations>Debug;Release;Linux;ARM64</Configurations>
-        <Copyright>Copyright (c) 2023 vandavey</Copyright>
+        <Copyright>Copyright (c) 2024 vandavey</Copyright>
         <Description>DotnetCat</Description>
         <ErrorReport>none</ErrorReport>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -25,7 +25,7 @@
         <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
         <RootNamespace>DotnetCat</RootNamespace>
         <StartupObject>DotnetCat.Program</StartupObject>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <WarningLevel>7</WarningLevel>
     </PropertyGroup>
 
@@ -138,30 +138,50 @@
     </ItemGroup>
 
     <!--
-     Cleanup the existing build output files before publishing
+     Cleanup amy existing build output files
     -->
-    <Target Name="CleanFiles" BeforeTargets="BeforeBuild" Condition="'$(PublishProtocol)'!=''">
-        <Message Importance="high" Text="-----[ 'CleanFiles' Tasks ]-----" />
+    <Target Name="CleanOutput">
+        <Message Importance="high" Text="-----[ 'CleanOutput' Task ]-----" />
 
-        <Delete Files="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip" />
-        <RemoveDir Directories="$(ProjectDir)bin/Debug/net7.0/" />
-        <RemoveDir Directories="$(ProjectDir)bin/Release/net7.0/" />
-        <RemoveDir Directories="$(ProjectDir)bin/Release/Publish/$(RuntimeIdentifier)" />
+        <RemoveDir Directories="$(ProjectDir)bin/Debug/net8.0/" />
+        <RemoveDir Directories="$(ProjectDir)bin/Release/net8.0/" />
 
         <Message Importance="high" Text="--------------------------------" />
+    </Target>
+
+    <!--
+     Cleanup any existing build output files after cleaning
+    -->
+    <Target Name="CleanBuildOutputPostClean" AfterTargets="Clean">
+        <Message Importance="high" Text="-----[ 'CleanBuildOutputPostClean' Task ]-----" />
+        <CallTarget Targets="CleanOutput" />
+        <Message Importance="high" Text="----------------------------------------------" />
+    </Target>
+
+    <!--
+     Cleanup any existing publish output files before publishing
+    -->
+    <Target Name="CleanPublishOutput" BeforeTargets="BeforeBuild" Condition="'$(PublishProtocol)'!=''">
+        <Message Importance="high" Text="-----[ 'CleanPublishOutput' Task ]-----" />
+
+        <CallTarget Targets="CleanOutput" />
+        <Delete Files="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip" />
+        <RemoveDir Directories="$(ProjectDir)bin/Release/Publish/$(RuntimeIdentifier)" />
+
+        <Message Importance="high" Text="---------------------------------------" />
     </Target>
 
     <!--
      Create a zip file containing the published application files
     -->
     <Target Name="CreateZip" AfterTargets="Publish" Condition="'$(PublishProtocol)'!=''">
-        <Message Importance="high" Text="-----[ 'CreateZip' Tasks ]-----" />
+        <Message Importance="high" Text="-----[ 'CreateZip' Task ]-----" />
 
         <ZipDirectory Overwrite="true"
                       SourceDirectory="$(PublishDir)"
                       DestinationFile="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip">
         </ZipDirectory>
 
-        <Message Importance="high" Text="-------------------------------" />
+        <Message Importance="high" Text="------------------------------" />
     </Target>
 </Project>

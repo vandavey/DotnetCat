@@ -55,7 +55,7 @@ internal class ProcessPipe : SocketPipe
                 break;
             }
 
-            await WriteAsync(FixLineEndings(data), token);
+            await WriteAsync(data.ReplaceLineEndings(), token);
             data.Clear();
         }
 

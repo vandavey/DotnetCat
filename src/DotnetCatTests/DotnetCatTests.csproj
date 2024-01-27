@@ -20,7 +20,7 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
         <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
         <RootNamespace>DotnetCatTests</RootNamespace>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <WarningLevel>7</WarningLevel>
     </PropertyGroup>
 
@@ -60,7 +60,7 @@
      Nuget package information
     -->
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.*" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
         <PackageReference Include="MSTest.TestAdapter" Version="3.*" />
         <PackageReference Include="MSTest.TestFramework" Version="3.*" />
     </ItemGroup>
