@@ -20,16 +20,16 @@ internal static class SysInfo
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            _os = Platform.Win;
+            _os = Platform.Windows;
         }
         else
         {
-            _os = Platform.Nix;
+            _os = Platform.Linux;
         }
     }
 
     /// <summary>
-    ///  Get the environment-specific newline string.
+    ///  Environment-specific newline string.
     /// </summary>
     public static string Eol => Environment.NewLine;
 
@@ -41,12 +41,12 @@ internal static class SysInfo
     /// <summary>
     ///  Determine whether the local operating system is Linux.
     /// </summary>
-    public static bool IsLinux() => _os is Platform.Nix;
+    public static bool IsLinux() => _os is Platform.Linux;
 
     /// <summary>
     ///  Determine whether the local operating system is Windows.
     /// </summary>
-    public static bool IsWindows() => _os is Platform.Win;
+    public static bool IsWindows() => _os is Platform.Windows;
 
     /// <summary>
     ///  Get a string containing information about the local drives.

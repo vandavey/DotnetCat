@@ -5,6 +5,6 @@ namespace DotnetCat.Shell;
 /// </summary>
 internal enum Platform : byte
 {
-    Nix,  // Linux/Unix based operating system
-    Win   // Windows based operating system
+    Linux,    // Linux based operating system
+    Windows   // Windows based operating system
 }
