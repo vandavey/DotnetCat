@@ -39,11 +39,7 @@ internal abstract class Node : ISockErrorHandled
     /// </summary>
     protected Node()
     {
-        _hostName = null;
-        _netReader = null;
-        _netWriter = null;
         _pipes = [];
-        _process = null;
         _validArgsCombos = false;
 
         Args = new CmdLineArgs();

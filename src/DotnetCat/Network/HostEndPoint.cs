@@ -16,11 +16,7 @@ internal class HostEndPoint
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public HostEndPoint()
-    {
-        _hostName = null;
-        _port = -1;
-    }
+    public HostEndPoint() => _port = -1;
 
     /// <summary>
     ///  Initialize the object.

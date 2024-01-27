@@ -55,7 +55,7 @@ internal class StreamPipe : SocketPipe
                     Disconnect();
                     break;
                 }
-                data = data.NormalizeEol();
+                data = data.ReplaceLineEndings();
 
                 // Clear the console screen buffer
                 if (Command.IsClearCmd(data.ToString()))

@@ -16,10 +16,7 @@ internal static class Command
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Command()
-    {
-        _commands = ["cls", "clear", "clear-host", "drives"];
-    }
+    static Command() => _commands = ["cls", "clear", "clear-host"];
 
     /// <summary>
     ///  Get the value of the given environment variable.
@@ -55,14 +52,6 @@ internal static class Command
     }
 
     /// <summary>
-    ///  Determine whether the given command is a custom command.
-    /// </summary>
-    public static bool IsCustomCommand(string command)
-    {
-        return _commands.Contains(ParseCommand(command));
-    }
-
-    /// <summary>
     ///  Determine whether the given data contains a clear command.
     /// </summary>
     public static bool IsClearCmd(string command)
@@ -71,7 +60,7 @@ internal static class Command
 
         if (!command.IsNullOrEmpty())
         {
-            clearCommand = ParseCommand(command.NormalizeEol().Trim()) switch
+            clearCommand = ParseCommand(command) switch
             {
                 "cls" or "clear" or "clear-host" => true,
                 _ => false,
@@ -85,7 +74,7 @@ internal static class Command
     /// </summary>
     private static string ParseCommand(string data)
     {
-        data = data.NormalizeEol().Replace(Environment.NewLine, null).Trim();
-        return data.ToLower().Split(Environment.NewLine.ToCharArray())[0];
+        data = data.ReplaceLineEndings(string.Empty).Trim();
+        return data.ToLower().Split(SysInfo.Eol)[0];
     }
 }

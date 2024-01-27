@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -18,8 +19,6 @@ internal partial class Parser
 {
     private static readonly string _title;  // Application title
 
-    private readonly string _eol;           // Platform EOL string
-
     private readonly CmdLineArgs _args;     // Command-line arguments
 
     private List<string> _argsList;         // Command-line argument list
@@ -27,14 +26,13 @@ internal partial class Parser
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Parser() => _title = SysInfo.OS is Platform.Nix ? "dncat" : "dncat.exe";
+    static Parser() => _title = SysInfo.IsLinux() ? "dncat" : "dncat.exe";
 
     /// <summary>
     ///  Initialize the object.
     /// </summary>
     public Parser()
     {
-        _eol = Environment.NewLine;
         _args = new CmdLineArgs();
         _argsList = [];
     }
@@ -82,6 +80,7 @@ internal partial class Parser
     ///  Write the extended application usage information to the standard
     ///  console output stream and exit the application.
     /// </summary>
+    [DoesNotReturn]
     public void PrintHelp()
     {
         Console.WriteLine(GetHelpMessage());
@@ -146,7 +145,7 @@ internal partial class Parser
     ///  Determine whether the argument in the given tuple is a command-line flag
     ///  alias argument. Flag alias arguments begin with one dash (`-f`).
     /// </summary>
-    private static bool IsAlias((int, string arg) tuple) => IsAlias(tuple.arg);
+    private static bool IsAlias((int index, string arg) tuple) => IsAlias(tuple.arg);
 
     /// <summary>
     ///  Determine whether the given argument is a command-line flag
@@ -158,7 +157,7 @@ internal partial class Parser
     ///  Determine whether the argument in the given tuple is a command-line
     ///  flag argument. Flag arguments begin with two dashes (`--foo`).
     /// </summary>
-    private static bool IsFlag((int, string arg) tuple) => IsFlag(tuple.arg);
+    private static bool IsFlag((int index, string arg) tuple) => IsFlag(tuple.arg);
 
     /// <summary>
     ///  Parse the named flag alias arguments in the underlying command-line
@@ -353,10 +352,10 @@ internal partial class Parser
     {
         string helpMessage = $"""
             DotnetCat ({Repo})
-            {Usage}{_eol}
-            Remote command shell application{_eol}
+            {Usage}{SysInfo.Eol}
+            Remote command shell application{SysInfo.Eol}
             Positional Arguments:
-              TARGET                    Remote or local IPv4 address{_eol}
+              TARGET                    Remote or local IPv4 address{SysInfo.Eol}
             Optional Arguments:
               -h/-?,   --help           Show this help message and exit
               -v,      --verbose        Enable verbose console output
@@ -368,11 +367,11 @@ internal partial class Parser
               -e EXEC, --exec EXEC      Executable process file path
               -o PATH, --output PATH    Receive file from remote host
               -s PATH, --send PATH      Send local file or folder
-              -t DATA, --text DATA      Send string to remote host{_eol}
+              -t DATA, --text DATA      Send string to remote host{SysInfo.Eol}
             Usage Examples:
               {_title} --listen --exec powershell.exe
               {_title} -d -p 44444 localhost
-              {_title} -vo test.txt -p 2009 192.168.1.9{_eol}
+              {_title} -vo test.txt -p 2009 192.168.1.9{SysInfo.Eol}
             """;
         return helpMessage;
     }
