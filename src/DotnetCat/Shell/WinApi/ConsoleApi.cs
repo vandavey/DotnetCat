@@ -45,7 +45,7 @@ internal static partial class ConsoleApi
     /// </summary>
     public static void EnableVirtualTerm()
     {
-#if WINDOWS
+    #if WINDOWS
         if (!VirtualTermEnabled)
         {
             InMode inMode = InMode.ENABLE_VIRTUAL_TERMINAL_INPUT;
@@ -53,7 +53,7 @@ internal static partial class ConsoleApi
 
             EnableVirtualTerm(inMode, outMode);
         }
-#endif // WINDOWS
+    #endif // WINDOWS
     }
 
 #if WINDOWS

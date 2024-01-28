@@ -17,9 +17,9 @@ internal class Status
 
         Symbol = level switch
         {
-            Level.Error => "[x]",
-            Level.Output => "[+]",
-            Level.Warn => "[!]",
+            Level.Error     => "[x]",
+            Level.Output    => "[+]",
+            Level.Warn      => "[!]",
             Level.Info or _ => "[*]"
         };
     }
