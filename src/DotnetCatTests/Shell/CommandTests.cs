@@ -11,7 +11,7 @@ namespace DotnetCatTests.Shell;
 [TestClass]
 public class CommandTests
 {
-    #region MethodTests
+#region MethodTests
     /// <summary>
     ///  Assert that a valid input environment variable name returns the
     ///  value of the corresponding variable in the local system.
@@ -54,9 +54,9 @@ public class CommandTests
     {
         string? name = null;
 
-#nullable disable
+    #nullable disable
         Func<string> func = () => Command.GetEnvVariable(name);
-#nullable enable
+    #nullable enable
 
         Assert.ThrowsException<ArgumentNullException>(func);
     }
@@ -112,5 +112,5 @@ public class CommandTests
         bool actual = Command.IsClearCmd(command);
         Assert.IsFalse(actual, $"'{command}' should not be a clear-screen command");
     }
-    #endregion // MethodTests
+#endregion // MethodTests
 }
