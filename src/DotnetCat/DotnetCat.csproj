@@ -81,7 +81,6 @@
         <Folder Include="Network/" />
         <Folder Include="Properties/" />
         <Folder Include="Resources/" />
-        <Folder Include="Shell/" />
         <Folder Include="Utils/" />
     </ItemGroup>
 
@@ -177,9 +176,7 @@
     <Target Name="CreateZip" AfterTargets="Publish" Condition="'$(PublishProtocol)'!=''">
         <Message Importance="high" Text="-----[ 'CreateZip' Task ]-----" />
 
-        <ZipDirectory Overwrite="true"
-                      SourceDirectory="$(PublishDir)"
-                      DestinationFile="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip">
+        <ZipDirectory Overwrite="true" SourceDirectory="$(PublishDir)" DestinationFile="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip">
         </ZipDirectory>
 
         <Message Importance="high" Text="------------------------------" />

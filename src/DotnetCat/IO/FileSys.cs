@@ -24,7 +24,7 @@ internal static class FileSys
         string envVar = Command.GetEnvVariable("PATH") ?? string.Empty;
 
         _envPaths = envVar.Split(Path.PathSeparator);
-        _exeExtensions = [ "", "exe", "bat", "ps1", "py", "sh" ];
+        _exeExtensions = ["", "exe", "bat", "ps1", "py", "sh"];
     }
 
     /// <summary>
