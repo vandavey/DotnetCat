@@ -16,11 +16,7 @@ internal class HostEndPoint
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public HostEndPoint()
-    {
-        _hostName = null;
-        _port = -1;
-    }
+    public HostEndPoint() => _port = -1;
 
     /// <summary>
     ///  Initialize the object.
@@ -45,13 +41,15 @@ internal class HostEndPoint
     /// </summary>
     public HostEndPoint(IPEndPoint? ep)
     {
-        _  = ep ?? throw new ArgumentNullException(nameof(ep));
+        _ = ep ?? throw new ArgumentNullException(nameof(ep));
 
         HostName = ep.Address.ToString();
         Port = ep.Port;
     }
 
-    /// Network port number
+    /// <summary>
+    ///  Network port number.
+    /// </summary>
     public int Port
     {
         get => _port;
@@ -65,7 +63,9 @@ internal class HostEndPoint
         }
     }
 
-    /// Network hostname
+    /// <summary>
+    ///  Network hostname.
+    /// </summary>
     public string? HostName
     {
         get => _hostName;

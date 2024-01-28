@@ -4,7 +4,7 @@ using System;
 using System.Runtime.InteropServices;
 using BOOL = System.Boolean;
 using DWORD = System.UInt32;
-using HANDLE = System.IntPtr;
+using HANDLE = nint;
 #endif // WINDOWS
 
 namespace DotnetCat.Shell.WinApi;
@@ -22,6 +22,8 @@ internal static partial class ConsoleApi
     private const int STD_OUTPUT_HANDLE = -11;
 
     private const nint INVALID_HANDLE_VALUE = -1;
+
+    private const string KERNEL32_DLL = "kernel32.dll";
 #endif // WINDOWS
 
     /// <summary>
@@ -33,7 +35,9 @@ internal static partial class ConsoleApi
         EnableVirtualTerm();
     }
 
-    /// Virtual terminal processing enabled
+    /// <summary>
+    ///  Virtual terminal processing is enabled.
+    /// </summary>
     public static bool VirtualTermEnabled { get; private set; }
 
     /// <summary>
@@ -41,7 +45,7 @@ internal static partial class ConsoleApi
     /// </summary>
     public static void EnableVirtualTerm()
     {
-    #if WINDOWS
+#if WINDOWS
         if (!VirtualTermEnabled)
         {
             InMode inMode = InMode.ENABLE_VIRTUAL_TERMINAL_INPUT;
@@ -49,7 +53,7 @@ internal static partial class ConsoleApi
 
             EnableVirtualTerm(inMode, outMode);
         }
-    #endif // WINDOWS
+#endif // WINDOWS
     }
 
 #if WINDOWS
@@ -69,8 +73,8 @@ internal static partial class ConsoleApi
                 ExternError(nameof(GetStdHandle));
             }
 
-            DWORD stdInMode = GetMode(stdInHandle, GetDWORD(inMode));
-            DWORD stdOutMode = GetMode(stdOutHandle, GetDWORD(outMode));
+            DWORD stdInMode = GetMode(stdInHandle, GetDWord(inMode));
+            DWORD stdOutMode = GetMode(stdOutHandle, GetDWord(outMode));
 
             SetMode(stdInHandle, stdInMode);
             SetMode(stdOutHandle, stdOutMode);
@@ -128,7 +132,7 @@ internal static partial class ConsoleApi
     ///  Get the current input mode or output mode of the given
     ///  console input buffer or console output buffer.
     /// </summary>
-    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [LibraryImport(KERNEL32_DLL, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial BOOL GetConsoleMode(HANDLE hConsoleHandle,
                                                out DWORD lpMode);
@@ -136,14 +140,14 @@ internal static partial class ConsoleApi
     /// <summary>
     ///  Get the calling thread's most recent Windows error code.
     /// </summary>
-    [LibraryImport("kernel32.dll")]
+    [LibraryImport(KERNEL32_DLL)]
     [return: MarshalAs(UnmanagedType.U4)]
     private static partial DWORD GetLastError();
 
     /// <summary>
     ///  Get a handle to the given standard console buffer.
     /// </summary>
-    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [LibraryImport(KERNEL32_DLL, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.SysInt)]
     private static partial HANDLE GetStdHandle(int nStdHandle);
 
@@ -151,7 +155,7 @@ internal static partial class ConsoleApi
     ///  Set the input mode or output mode of the given console
     ///  input buffer or console output buffer.
     /// </summary>
-    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [LibraryImport(KERNEL32_DLL, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial BOOL SetConsoleMode(HANDLE hConsoleHandle, DWORD dwMode);
 
@@ -166,7 +170,7 @@ internal static partial class ConsoleApi
     /// <summary>
     ///  Convert the given console mode enumeration object to a DWORD.
     /// </summary>
-    private static DWORD GetDWORD<TEnum>(TEnum mode) where TEnum : Enum
+    private static DWORD GetDWord<TEnum>(TEnum mode) where TEnum : Enum
     {
         if (Enum.GetUnderlyingType(typeof(TEnum)) != typeof(uint))
         {

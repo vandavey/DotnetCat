@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Shell;
+using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
 
@@ -54,7 +55,7 @@ internal class StreamPipe : SocketPipe
                     Disconnect();
                     break;
                 }
-                data = FixLineEndings(data);
+                data = data.ReplaceLineEndings();
 
                 // Clear the console screen buffer
                 if (Command.IsClearCmd(data.ToString()))

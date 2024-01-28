@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
+using DotnetCat.Shell;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
@@ -25,7 +26,7 @@ internal abstract class SocketPipe : IConnectable
         Connected = false;
 
         Args = new CmdLineArgs();
-        NewLine = new StringBuilder(Environment.NewLine);
+        NewLine = new StringBuilder(SysInfo.Eol);
     }
 
     /// <summary>
@@ -38,37 +39,54 @@ internal abstract class SocketPipe : IConnectable
     /// </summary>
     ~SocketPipe() => Dispose();
 
-    /// Underlying streams are connected
+    /// <summary>
+    ///  Underlying streams are connected.
+    /// </summary>
     public bool Connected { get; protected set; }
 
-    /// Operating system
-    protected static Platform OS => Program.OS;
-
-    /// TCP socket client
+    /// <summary>
+    ///  TCP socket client.
+    /// </summary>
     protected static TcpClient? Client => Program.SockNode?.Client;
 
-    /// TCP client is connected
+    /// <summary>
+    ///  TCP client is connected.
+    /// </summary>
     protected static bool ClientConnected => Client?.Connected ?? false;
 
-    /// Platform based EOL control sequence
+    /// <summary>
+    ///  Platform based EOL control sequence.
+    /// </summary>
     protected StringBuilder NewLine { get; }
 
-    /// Pipeline cancellation token source
+    /// <summary>
+    ///  Pipeline cancellation token source.
+    /// </summary>
     protected CancellationTokenSource? CTS { get; set; }
 
-    /// Character memory buffer
+    /// <summary>
+    ///  Character memory buffer.
+    /// </summary>
     protected Memory<char> Buffer { get; set; }
 
-    /// Command-line arguments
+    /// <summary>
+    ///  Command-line arguments.
+    /// </summary>
     protected CmdLineArgs Args { get; set; }
 
-    /// Pipeline data source
+    /// <summary>
+    ///  Pipeline data source.
+    /// </summary>
     protected StreamReader? Source { get; set; }
 
-    /// Pipeline data destination
+    /// <summary>
+    ///  Pipeline data destination.
+    /// </summary>
     protected StreamWriter? Dest { get; set; }
 
-    /// Pipeline data transfer task
+    /// <summary>
+    ///  Pipeline data transfer task.
+    /// </summary>
     protected Task? Worker { get; set; }
 
     /// <summary>
@@ -112,15 +130,6 @@ internal abstract class SocketPipe : IConnectable
     ///  Asynchronously transfer data between the underlying streams.
     /// </summary>
     protected abstract Task ConnectAsync(CancellationToken token);
-
-    /// <summary>
-    ///  Normalize line-endings based on the local operating system
-    ///  so shell commands are properly interpreted.
-    /// </summary>
-    protected static StringBuilder FixLineEndings(StringBuilder data)
-    {
-        return OS is Platform.Win ? data : data.Replace("\r\n", "\n");
-    }
 
     /// <summary>
     ///  Asynchronously read data from the underlying source stream

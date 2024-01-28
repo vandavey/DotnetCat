@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
+using DotnetCat.Shell;
 
 namespace DotnetCat.Utils;
 
@@ -15,7 +17,7 @@ internal static class Extensions
     /// </summary>
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
     {
-        return str is null || !str.Trim().Any();
+        return str is null || str.Trim().Length == 0;
     }
 
     /// <summary>
@@ -72,12 +74,21 @@ internal static class Extensions
     }
 
     /// <summary>
+    ///  Determine whether a string in its lowercase form is
+    ///  equal to the given value in its lowercase form.
+    /// </summary>
+    public static bool LowerEquals(this string str, string? value)
+    {
+        return str.Equals(value, StringComparison.CurrentCultureIgnoreCase);
+    }
+
+    /// <summary>
     ///  Enumerate the elements of a collection as a collection of
     ///  tuples containing each element's index and value.
     /// </summary>
     public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values)
     {
-        IEnumerable<(int, T)> results = Array.Empty<(int, T)>();
+        IEnumerable<(int, T)> results = [];
 
         if (!values.IsNullOrEmpty())
         {
@@ -113,6 +124,14 @@ internal static class Extensions
     /// </summary>
     public static string JoinLines<T>(this IEnumerable<T>? values)
     {
-        return Join(values, Environment.NewLine);
+        return Join(values, SysInfo.Eol);
+    }
+
+    /// <summary>
+    ///  Normalize all the newline substrings in a string builder.
+    /// </summary>
+    public static StringBuilder ReplaceLineEndings(this StringBuilder sb)
+    {
+        return new StringBuilder(sb.ToString().ReplaceLineEndings());
     }
 }

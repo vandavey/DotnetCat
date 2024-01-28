@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -7,6 +8,7 @@ using DotnetCat.Errors;
 using DotnetCat.IO;
 using DotnetCat.IO.Pipelines;
 using DotnetCat.Network;
+using DotnetCat.Shell;
 
 namespace DotnetCat.Utils;
 
@@ -17,8 +19,6 @@ internal partial class Parser
 {
     private static readonly string _title;  // Application title
 
-    private readonly string _eol;           // Platform EOL string
-
     private readonly CmdLineArgs _args;     // Command-line arguments
 
     private List<string> _argsList;         // Command-line argument list
@@ -26,22 +26,25 @@ internal partial class Parser
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Parser() => _title = Program.OS is Platform.Nix ? "dncat" : "dncat.exe";
+    static Parser() => _title = SysInfo.IsLinux() ? "dncat" : "dncat.exe";
 
     /// <summary>
     ///  Initialize the object.
     /// </summary>
     public Parser()
     {
-        _eol = Environment.NewLine;
         _args = new CmdLineArgs();
-        _argsList = new List<string>();
+        _argsList = [];
     }
 
-    /// Application repository URL
+    /// <summary>
+    ///  Application repository URL.
+    /// </summary>
     public static string Repo => "https://github.com/vandavey/DotnetCat";
 
-    /// Application usage string
+    /// <summary>
+    ///  Application usage string.
+    /// </summary>
     public static string Usage => $"Usage: {_title} [OPTIONS] TARGET";
 
     /// <summary>
@@ -64,7 +67,7 @@ internal partial class Parser
     /// </summary>
     public CmdLineArgs Parse(string[] args)
     {
-        _argsList = DefragArguments(args.ToList());
+        _argsList = DefragArguments([.. args]);
 
         ParseCharArgs();
         ParseFlagArgs();
@@ -77,6 +80,7 @@ internal partial class Parser
     ///  Write the extended application usage information to the standard
     ///  console output stream and exit the application.
     /// </summary>
+    [DoesNotReturn]
     public void PrintHelp()
     {
         Console.WriteLine(GetHelpMessage());
@@ -89,7 +93,7 @@ internal partial class Parser
     /// </summary>
     private static List<string> DefragArguments(List<string> args)
     {
-        List<string> defragArgs = new();
+        List<string> defragArgs = [];
 
         // Defragment the given arguments
         for (int i = 0; i < args.Count; i++)
@@ -141,7 +145,7 @@ internal partial class Parser
     ///  Determine whether the argument in the given tuple is a command-line flag
     ///  alias argument. Flag alias arguments begin with one dash (`-f`).
     /// </summary>
-    private static bool IsAlias((int, string arg) tuple) => IsAlias(tuple.arg);
+    private static bool IsAlias((int index, string arg) tuple) => IsAlias(tuple.arg);
 
     /// <summary>
     ///  Determine whether the given argument is a command-line flag
@@ -153,7 +157,7 @@ internal partial class Parser
     ///  Determine whether the argument in the given tuple is a command-line
     ///  flag argument. Flag arguments begin with two dashes (`--foo`).
     /// </summary>
-    private static bool IsFlag((int, string arg) tuple) => IsFlag(tuple.arg);
+    private static bool IsFlag((int index, string arg) tuple) => IsFlag(tuple.arg);
 
     /// <summary>
     ///  Parse the named flag alias arguments in the underlying command-line
@@ -161,60 +165,54 @@ internal partial class Parser
     /// </summary>
     private void ParseCharArgs()
     {
-        List<int> processedIndexes = new();
+        List<int> processedIndexes = [];
 
         foreach ((int index, string arg) in _argsList.Enumerate(IsAlias))
         {
-            if (arg.Contains('l'))  // Listen for connection
+            foreach (char ch in arg)
             {
-                _args.Listen = true;
-            }
-
-            if (arg.Contains('v'))  // Verbose output
-            {
-                _args.Verbose = true;
-            }
-
-            if (arg.Contains('z'))  // Zero-IO (test connection)
-            {
-                _args.PipeVariant = PipeType.Status;
-            }
-
-            if (arg.Contains('d'))  // Debug output
-            {
-                _args.Debug = _args.Verbose = Error.Debug = true;
-            }
-
-            if (arg.Contains('p'))  // Connection port
-            {
-                _args.Port = GetPort(index, arg);
-                processedIndexes.Add(index + 1);
-            }
-
-            if (arg.Contains('e'))  // Executable path
-            {
-                _args.ExePath = GetExecutable(index, arg);
-                processedIndexes.Add(index + 1);
-            }
-
-            if (arg.Contains('o'))  // Receive file data
-            {
-                _args.TransOpt = TransferOpt.Collect;
-                _args.FilePath = GetTransferPath(index, arg);
-                processedIndexes.Add(index + 1);
-            }
-
-            if (arg.Contains('s'))  // Send file data
-            {
-                _args.TransOpt = TransferOpt.Transmit;
-                _args.FilePath = GetTransferPath(index, arg);
-                processedIndexes.Add(index + 1);
-            }
-
-            if (arg.Contains('t'))  // Send string data
-            {
-                _args.Payload = GetTextPayload(index, arg);
-                processedIndexes.Add(index + 1);
+                switch (ch)
+                {
+                    case '-':
+                        continue;
+                    case 'l':
+                        _args.Listen = true;
+                        break;
+                    case 'v':
+                        _args.Verbose = true;
+                        break;
+                    case 'z':
+                        _args.PipeVariant = PipeType.Status;
+                        break;
+                    case 'd':
+                        _args.Debug = _args.Verbose = Error.Debug = true;
+                        break;
+                    case 'p':
+                        _args.Port = GetPort(index, arg);
+                        processedIndexes.Add(index + 1);
+                        break;
+                    case 'e':
+                        _args.ExePath = GetExecutable(index, arg);
+                        processedIndexes.Add(index + 1);
+                        break;
+                    case 'o':
+                        _args.TransOpt = TransferOpt.Collect;
+                        _args.FilePath = GetTransferPath(index, arg);
+                        processedIndexes.Add(index + 1);
+                        break;
+                    case 's':
+                        _args.TransOpt = TransferOpt.Transmit;
+                        _args.FilePath = GetTransferPath(index, arg);
+                        processedIndexes.Add(index + 1);
+                        break;
+                    case 't':
+                        _args.Payload = GetTextPayload(index, arg);
+                        processedIndexes.Add(index + 1);
+                        break;
+                    default:
+                        Error.Handle(Except.UnknownArgs, $"-{ch}", true);
+                        break;
+                }
             }
 
             processedIndexes.Add(index);
@@ -229,7 +227,7 @@ internal partial class Parser
     /// </summary>
     private void ParseFlagArgs()
     {
-        List<int> processedIndexes = new();
+        List<int> processedIndexes = [];
 
         foreach ((int index, string arg) in _argsList.Enumerate(IsFlag))
         {
@@ -270,6 +268,7 @@ internal partial class Parser
                     processedIndexes.Add(index + 1);
                     break;
                 default:
+                    Error.Handle(Except.UnknownArgs, arg, true);
                     break;
             }
             processedIndexes.Add(index);
@@ -353,10 +352,10 @@ internal partial class Parser
     {
         string helpMessage = $"""
             DotnetCat ({Repo})
-            {Usage}{_eol}
-            Remote command shell application{_eol}
+            {Usage}{SysInfo.Eol}
+            Remote command shell application{SysInfo.Eol}
             Positional Arguments:
-              TARGET                    Remote or local IPv4 address{_eol}
+              TARGET                    Remote or local IPv4 address{SysInfo.Eol}
             Optional Arguments:
               -h/-?,   --help           Show this help message and exit
               -v,      --verbose        Enable verbose console output
@@ -368,11 +367,11 @@ internal partial class Parser
               -e EXEC, --exec EXEC      Executable process file path
               -o PATH, --output PATH    Receive file from remote host
               -s PATH, --send PATH      Send local file or folder
-              -t DATA, --text DATA      Send string to remote host{_eol}
+              -t DATA, --text DATA      Send string to remote host{SysInfo.Eol}
             Usage Examples:
               {_title} --listen --exec powershell.exe
               {_title} -d -p 44444 localhost
-              {_title} -vo test.txt -p 2009 192.168.1.9{_eol}
+              {_title} -vo test.txt -p 2009 192.168.1.9{SysInfo.Eol}
             """;
         return helpMessage;
     }

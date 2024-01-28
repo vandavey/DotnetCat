@@ -6,27 +6,21 @@
 
 <div>
     <a href="https://learn.microsoft.com/en-us/dotnet/csharp">
-        <img src="https://img.shields.io/badge/c%23-v11-9325ff" alt="csharp-11">
-    </a>
-    <a href="#">
-        <img src="https://img.shields.io/github/stars/vandavey/DotnetCat" alt="repo-stars">
-    </a>
-    <a href="https://github.com/vandavey/DotnetCat/network/members">
-        <img src="https://img.shields.io/github/forks/vandavey/DotnetCat" alt="repo-forks">
-    </a>
-    <a href="https://github.com/vandavey/DotnetCat/pulls">
-        <img src="https://img.shields.io/github/issues-pr/vandavey/DotnetCat" alt="pull-requests">
-    </a>
-    <a href="https://github.com/vandavey/DotnetCat/graphs/contributors">
-        <img src="https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue" alt="contributors">
+        <img src="https://img.shields.io/badge/c%23-v12-9325ff" alt="csharp-12">
     </a>
     <a href="LICENSE.md">
         <img src="https://img.shields.io/github/license/vandavey/DotnetCat" alt="license">
     </a>
+    <a href="https://github.com/vandavey/DotnetCat/graphs/contributors">
+        <img src="https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue" alt="contributors">
+    </a>
+    <a href="https://github.com/vandavey/DotnetCat/pulls">
+        <img src="https://img.shields.io/github/issues-pr/vandavey/DotnetCat" alt="pull-requests">
+    </a>
 </div>
 
 Remote command shell application written in C#,
-targeting the [.NET 7 runtime](https://dotnet.microsoft.com/download/dotnet/7.0).
+targeting the [.NET 8 runtime](https://dotnet.microsoft.com/download/dotnet/8.0).
 
 ***
 
@@ -68,7 +62,7 @@ occurring.
 
 ***
 
-## Available Arguments
+## Command-Line Arguments
 
 All available DotnetCat arguments are listed in the following table:
 
@@ -111,8 +105,9 @@ curl -sLS "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dnc
 DotnetCat can be uninstalled using the [dncat-uninstall.sh](tools/dncat-uninstall.sh) uninstaller.
 
 <blockquote>
-    <a href="tools/dncat-install.sh">dncat-install.sh</a> only supports ARM64 and x64
-    Linux systems and requires <code><a href="https://curl.se">curl</a></code> and
+    <a href="tools/dncat-install.sh">dncat-install.sh</a> and
+    <a href="tools/dncat-uninstall.sh">dncat-uninstall.sh</a> only support ARM64 and x64
+    Linux systems and require <code><a href="https://curl.se">curl</a></code> and
     <code><a href="https://infozip.sourceforge.net/UnZip.html">unzip</a></code> to be installed.
 </blockquote>
 
@@ -129,10 +124,10 @@ $Uri = "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-
 Write-Output (Invoke-WebRequest $Uri -DisableKeepAlive).Content | powershell.exe -
 ```
 
-> [dncat-install.ps1](tools/dncat-install.ps1) only supports x64 and x86 Windows
-  systems and must be executed as an administrator.
-
 DotnetCat can be uninstalled using the [dncat-uninstall.ps1](tools/dncat-uninstall.ps1) uninstaller.
+
+> [dncat-install.ps1](tools/dncat-install.ps1) and [dncat-uninstall.ps1](tools/dncat-uninstall.ps1)
+  only support x64 and x86 Windows systems and must be executed as an administrator.
 
 ### Manual Setup
 

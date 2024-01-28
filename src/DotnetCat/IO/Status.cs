@@ -17,22 +17,30 @@ internal class Status
 
         Symbol = level switch
         {
-            Level.Error     => "[x]",
-            Level.Output    => "[+]",
-            Level.Warn      => "[!]",
+            Level.Error => "[x]",
+            Level.Output => "[+]",
+            Level.Warn => "[!]",
             Level.Info or _ => "[*]"
         };
     }
 
-    /// Status symbol color
+    /// <summary>
+    ///  Status symbol color.
+    /// </summary>
     public ConsoleColor Color { get; }
 
-    /// Status output level
+    /// <summary>
+    ///  Status output level.
+    /// </summary>
     public Level Level { get; }
 
-    /// Foreground color sequence
+    /// <summary>
+    ///  Foreground color sequence.
+    /// </summary>
     public string EscSequence { get; }
 
-    /// Status prefix symbol
+    /// <summary>
+    ///  Status prefix symbol.
+    /// </summary>
     public string Symbol { get; }
 }

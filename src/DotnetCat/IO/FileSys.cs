@@ -23,19 +23,13 @@ internal static class FileSys
     {
         string envVar = Command.GetEnvVariable("PATH") ?? string.Empty;
 
-        _exeExtensions = new string[]
-        {
-            "",     // Linux binary (ELF)
-            "exe",  // Windows binary (PE)
-            "bat",  // Batch script
-            "ps1",  // PowerShell script
-            "py",   // Python script
-            "sh"    // Bash/shell script
-        };
         _envPaths = envVar.Split(Path.PathSeparator);
+        _exeExtensions = ["", "exe", "bat", "ps1", "py", "sh"];
     }
 
-    /// User home directory absolute file path
+    /// <summary>
+    ///  User home directory absolute file path.
+    /// </summary>
     public static string UserProfile
     {
         get => Environment.GetFolderPath(SpecialFolder.UserProfile);
@@ -109,7 +103,7 @@ internal static class FileSys
         if (!path.IsNullOrEmpty())
         {
             // Ensure drives are properly interpreted
-            if (Program.OS is Platform.Win && path.EndsWithValue(":"))
+            if (SysInfo.IsWindows() && path.EndsWithValue(":"))
             {
                 path += Path.DirectorySeparatorChar;
             }
