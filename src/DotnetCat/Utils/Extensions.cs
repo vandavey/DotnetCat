@@ -74,12 +74,12 @@ internal static class Extensions
     }
 
     /// <summary>
-    ///  Determine whether a string in its lowercase form is
-    ///  equal to the given value in its lowercase form.
+    ///  Determine whether a string is equal to another
+    ///  string when all string casing is ignored.
     /// </summary>
-    public static bool LowerEquals(this string str, string? value)
+    public static bool NoCaseEquals(this string? str, string? value)
     {
-        return str.Equals(value, StringComparison.CurrentCultureIgnoreCase);
+        return str?.ToLower() == value?.ToLower();
     }
 
     /// <summary>
