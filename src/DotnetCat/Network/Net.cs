@@ -42,7 +42,7 @@ internal static class Net
         }
 
         // Return the first IPv4 address
-        if (!dnsAns.HostName.LowerEquals(SysInfo.Hostname))
+        if (!dnsAns.HostName.NoCaseEquals(SysInfo.Hostname))
         {
             foreach (IPAddress addr in dnsAns.AddressList)
             {

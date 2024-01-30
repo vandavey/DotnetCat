@@ -239,6 +239,49 @@ public class ExtensionsTests
     }
 
     /// <summary>
+    ///  Assert that an input string whose value is equal to
+    ///  another string when casing is ignored returns true.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow("", "")]
+    [DataRow("  ", "  ")]
+    [DataRow("test", "TEST")]
+    [DataRow("TEST", "test")]
+    [DataRow("tEsT", "TeSt")]
+    public void NoCaseEquals_EqualStrings_ReturnsTrue(string? str, string? value)
+    {
+        bool actual = str.NoCaseEquals(value);
+        Assert.IsTrue(actual);
+    }
+
+    /// <summary>
+    ///  Assert that an input string whose value is not equal to
+    ///  another string when casing is ignored returns false.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow(null, "test")]
+    [DataRow("test", null)]
+    [DataRow("tEsT", "DaTa")]
+    public void NoCaseEquals_NotEqualStrings_ReturnsFalse(string? str, string? value)
+    {
+        bool actual = str.NoCaseEquals(value);
+        Assert.IsFalse(actual);
+    }
+
+    /// <summary>
+    ///  Assert that a null input string compared to
+    ///  another null string returns true.
+    /// </summary>
+    [TestMethod]
+    public void NoCaseEquals_NullStrings_ReturnsTrue()
+    {
+        string? str = null;
+        bool actual = str.NoCaseEquals(null);
+
+        Assert.IsTrue(actual);
+    }
+
+    /// <summary>
     ///  Assert that a populated input array returns the expected tuple enumerable.
     /// </summary>
     [DataTestMethod]
