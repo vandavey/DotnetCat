@@ -42,7 +42,7 @@ internal static class Net
         }
 
         // Return the first IPv4 address
-        if (!dnsAns.HostName.LowerEquals(SysInfo.Hostname))
+        if (!dnsAns.HostName.NoCaseEquals(SysInfo.Hostname))
         {
             foreach (IPAddress addr in dnsAns.AddressList)
             {
@@ -68,10 +68,7 @@ internal static class Net
     /// <summary>
     ///  Get the exception enum member associated to the given aggregate exception.
     /// </summary>
-    public static Except GetExcept(AggregateException ex)
-    {
-        return GetExcept(GetException(ex));
-    }
+    public static Except GetExcept(AggregateException ex) => GetExcept(GetException(ex));
 
     /// <summary>
     ///  Get the exception enum member associated to the given socket exception.

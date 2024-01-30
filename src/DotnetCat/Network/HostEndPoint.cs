@@ -41,7 +41,7 @@ internal class HostEndPoint
     /// </summary>
     public HostEndPoint(IPEndPoint? ep)
     {
-        _  = ep ?? throw new ArgumentNullException(nameof(ep));
+        _ = ep ?? throw new ArgumentNullException(nameof(ep));
 
         HostName = ep.Address.ToString();
         Port = ep.Port;

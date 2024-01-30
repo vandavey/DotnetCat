@@ -141,8 +141,7 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an input string not ending with a
-    ///  specific character returns false.
+    ///  Assert that an input string not ending with a specific character returns false.
     /// </summary>
     [DataTestMethod]
     [DataRow(null, 't')]
@@ -169,8 +168,7 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an input string not ending with a
-    ///  specific substring returns false.
+    ///  Assert that an input string not ending with a specific substring returns false.
     /// </summary>
     [DataTestMethod]
     [DataRow(null, "test data")]
@@ -197,8 +195,7 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an input string not starting with a
-    ///  specific character returns false.
+    ///  Assert that an input string not starting with a specific character returns false.
     /// </summary>
     [DataTestMethod]
     [DataRow(null, 't')]
@@ -225,17 +222,58 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an input string not starting with a
-    ///  specific substring returns false.
+    ///  Assert that an input string not starting with a specific substring returns false.
     /// </summary>
     [DataTestMethod]
     [DataRow(null, "test data")]
     [DataRow("test data", null)]
     [DataRow("test data", " test ")]
-    public void StartsWithValue_StringDoesNot_ReturnsFalse(string? str,
-                                                           string? value) {
+    public void StartsWithValue_StringDoesNot_ReturnsFalse(string? str, string? value)
+    {
         bool actual = str.StartsWithValue(value);
         Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'");
+    }
+
+    /// <summary>
+    ///  Assert that an input string whose value is equal to
+    ///  another string when casing is ignored returns true.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow("", "")]
+    [DataRow("  ", "  ")]
+    [DataRow("test", "TEST")]
+    [DataRow("TEST", "test")]
+    [DataRow("tEsT", "TeSt")]
+    public void NoCaseEquals_EqualStrings_ReturnsTrue(string? str, string? value)
+    {
+        bool actual = str.NoCaseEquals(value);
+        Assert.IsTrue(actual);
+    }
+
+    /// <summary>
+    ///  Assert that an input string whose value is not equal to
+    ///  another string when casing is ignored returns false.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow(null, "test")]
+    [DataRow("test", null)]
+    [DataRow("tEsT", "DaTa")]
+    public void NoCaseEquals_NotEqualStrings_ReturnsFalse(string? str, string? value)
+    {
+        bool actual = str.NoCaseEquals(value);
+        Assert.IsFalse(actual);
+    }
+
+    /// <summary>
+    ///  Assert that a null input string compared to another null string returns true.
+    /// </summary>
+    [TestMethod]
+    public void NoCaseEquals_NullStrings_ReturnsTrue()
+    {
+        string? str = null;
+        bool actual = str.NoCaseEquals(null);
+
+        Assert.IsTrue(actual);
     }
 
     /// <summary>

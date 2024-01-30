@@ -24,7 +24,7 @@ internal static class FileSys
         string envVar = Command.GetEnvVariable("PATH") ?? string.Empty;
 
         _envPaths = envVar.Split(Path.PathSeparator);
-        _exeExtensions = [ "", "exe", "bat", "ps1", "py", "sh" ];
+        _exeExtensions = ["", "exe", "bat", "ps1", "py", "sh"];
     }
 
     /// <summary>
@@ -38,10 +38,7 @@ internal static class FileSys
     /// <summary>
     ///  Determine whether a file system entry exists at the given file path.
     /// </summary>
-    public static bool Exists(string? path)
-    {
-        return FileExists(path) || DirectoryExists(path);
-    }
+    public static bool Exists(string? path) => FileExists(path) || DirectoryExists(path);
 
     /// <summary>
     ///  Determine whether a file entry exists at the given file path.
