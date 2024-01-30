@@ -23,9 +23,8 @@ internal static class Extensions
     /// <summary>
     ///  Determine whether a collection is null or empty.
     /// </summary>
-    public static bool IsNullOrEmpty<T>([NotNullWhen(false)]
-                                        this IEnumerable<T>? values) {
-
+    public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this IEnumerable<T>? values)
+    {
         return values is null || !values.Any();
     }
 

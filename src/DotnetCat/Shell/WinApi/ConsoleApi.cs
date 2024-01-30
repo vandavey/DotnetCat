@@ -134,8 +134,7 @@ internal static partial class ConsoleApi
     /// </summary>
     [LibraryImport(KERNEL32_DLL, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial BOOL GetConsoleMode(HANDLE hConsoleHandle,
-                                               out DWORD lpMode);
+    private static partial BOOL GetConsoleMode(HANDLE hConsoleHandle, out DWORD lpMode);
 
     /// <summary>
     ///  Get the calling thread's most recent Windows error code.
