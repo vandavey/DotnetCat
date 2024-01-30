@@ -162,12 +162,10 @@ internal abstract class SocketPipe : IConnectable
     }
 
     /// <summary>
-    ///  Asynchronously write all the given data to the
-    ///  underlying destination stream.
+    ///  Asynchronously write all the given data to the underlying destination stream.
     /// </summary>
-    protected virtual async Task WriteAsync(StringBuilder data,
-                                            CancellationToken token) {
-
+    protected virtual async Task WriteAsync(StringBuilder data, CancellationToken token)
+    {
         if (Dest is not null && ClientConnected)
         {
             await Dest.WriteAsync(data, token);

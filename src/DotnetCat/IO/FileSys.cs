@@ -38,10 +38,7 @@ internal static class FileSys
     /// <summary>
     ///  Determine whether a file system entry exists at the given file path.
     /// </summary>
-    public static bool Exists(string? path)
-    {
-        return FileExists(path) || DirectoryExists(path);
-    }
+    public static bool Exists(string? path) => FileExists(path) || DirectoryExists(path);
 
     /// <summary>
     ///  Determine whether a file entry exists at the given file path.

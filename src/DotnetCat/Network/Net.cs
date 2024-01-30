@@ -68,10 +68,7 @@ internal static class Net
     /// <summary>
     ///  Get the exception enum member associated to the given aggregate exception.
     /// </summary>
-    public static Except GetExcept(AggregateException ex)
-    {
-        return GetExcept(GetException(ex));
-    }
+    public static Except GetExcept(AggregateException ex) => GetExcept(GetException(ex));
 
     /// <summary>
     ///  Get the exception enum member associated to the given socket exception.

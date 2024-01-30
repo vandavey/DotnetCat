@@ -29,10 +29,7 @@ internal static class Sequence
     ///  Get the ANSI foreground color SGR control sequence that
     ///  corresponds to the given console color.
     /// </summary>
-    public static string GetColorStr(ConsoleColor color)
-    {
-        return GetColorSequence(color);
-    }
+    public static string GetColorStr(ConsoleColor color) => GetColorSequence(color);
 
     /// <summary>
     ///  Style the given message using ANSI SGR control sequences so the

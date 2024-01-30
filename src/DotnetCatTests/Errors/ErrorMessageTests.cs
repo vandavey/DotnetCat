@@ -19,7 +19,7 @@ public class ErrorMessageTests
     [DataRow("test: %")]
     [DataRow("test: {}")]
     [DataRow("test: %, {}")]
-    public void ErrorMessage_ValidMsg_SetsMessage(string expected)
+    public void ErrorMessage_ValidMessage_SetsMessage(string expected)
     {
         ErrorMessage errorMsg = new(expected);
         string actual = errorMsg.Message;
@@ -35,7 +35,7 @@ public class ErrorMessageTests
     [DataRow("test")]
     [DataRow("error")]
     [DataRow("test message")]
-    public void ErrorMessage_BuiltMsg_ThrowsArgumentException(string msg)
+    public void ErrorMessage_BuiltMessage_ThrowsArgumentException(string msg)
     {
         Func<ErrorMessage> func = () => _ = new ErrorMessage(msg);
         Assert.ThrowsException<ArgumentException>(func);
@@ -48,7 +48,7 @@ public class ErrorMessageTests
     [DataTestMethod]
     [DataRow("")]
     [DataRow("  ")]
-    public void ErrorMessage_EmptyMsg_ThrowsArgumentNullException(string msg)
+    public void ErrorMessage_EmptyMessage_ThrowsArgumentNullException(string msg)
     {
         Func<ErrorMessage> func = () => _ = new ErrorMessage(msg);
         Assert.ThrowsException<ArgumentNullException>(func);
@@ -59,7 +59,7 @@ public class ErrorMessageTests
     ///  the object is constructed with a null input message.
     /// </summary>
     [TestMethod]
-    public void ErrorMessage_NullMsg_ThrowsArgumentNullException()
+    public void ErrorMessage_NullMessage_ThrowsArgumentNullException()
     {
         string? msg = null;
 
@@ -81,9 +81,8 @@ public class ErrorMessageTests
     [DataRow("test: '%'", " ", "test: ' '")]
     [DataRow("test: '{}'", null, "test: ''")]
     [DataRow("test: '%', '{}'", "data", "test: 'data', 'data'")]
-    public void Build_ValidArg_BuildsMessage(string msg,
-                                             string? arg,
-                                             string expected) {
+    public void Build_ValidArg_BuildsMessage(string msg, string? arg, string expected)
+    {
         ErrorMessage errorMsg = new(msg);
 
         _ = errorMsg.Build(arg);
@@ -101,9 +100,8 @@ public class ErrorMessageTests
     [DataRow("test: '%'", " ", "test: ' '")]
     [DataRow("test: '{}'", null, "test: ''")]
     [DataRow("test: '%', '{}'", "data", "test: 'data', 'data'")]
-    public void Build_ValidArg_ReturnsExpected(string msg,
-                                               string? arg,
-                                               string expected) {
+    public void Build_ValidArg_ReturnsExpected(string msg, string? arg, string expected)
+    {
         ErrorMessage errorMsg = new(msg);
         string actual = errorMsg.Build(arg);
 
@@ -119,8 +117,8 @@ public class ErrorMessageTests
     [DataRow("test: '%'", " ")]
     [DataRow("test: '{}'", null)]
     [DataRow("test: '%', '{}'", "data")]
-    public void Build_MsgBuilt_ThrowsInvalidOperationException(string msg,
-                                                               string? arg) {
+    public void Build_MsgBuilt_ThrowsInvalidOperationException(string msg, string? arg)
+    {
         ErrorMessage errorMsg = new(msg);
         _ = errorMsg.Build(arg);
 
