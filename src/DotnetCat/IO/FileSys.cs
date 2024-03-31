@@ -24,7 +24,7 @@ internal static class FileSys
         string envVar = Command.GetEnvVariable("PATH") ?? string.Empty;
 
         _envPaths = envVar.Split(Path.PathSeparator);
-        _exeExtensions = ["", "exe", "bat", "ps1", "py", "sh"];
+        _exeExtensions = [string.Empty, "exe", "bat", "ps1", "py", "sh"];
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ internal static class FileSys
         if (!path.IsNullOrEmpty())
         {
             // Ensure drives are properly interpreted
-            if (SysInfo.IsWindows() && path.EndsWithValue(":"))
+            if (SysInfo.IsWindows() && path.EndsWithValue(Path.VolumeSeparatorChar))
             {
                 path += Path.DirectorySeparatorChar;
             }

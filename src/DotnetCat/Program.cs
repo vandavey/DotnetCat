@@ -11,9 +11,12 @@ namespace DotnetCat;
 /// </summary>
 internal class Program
 {
-    private static CmdLineArgs? _args;  // Command-line arguments
+    private static readonly Parser _parser;  // Command-line argument parser
 
-    private static Parser? _parser;     // Command-line argument parser
+    /// <summary>
+    ///  Initialize the static class members.
+    /// </summary>
+    static Program() => _parser = new Parser();
 
     /// <summary>
     ///  Network socket node.
@@ -25,7 +28,6 @@ internal class Program
     /// </summary>
     public static void Main(string[] args)
     {
-        _parser = new Parser();
         Console.Title = $"DotnetCat ({Parser.Repo})";
 
         // Display help information and exit
@@ -62,8 +64,8 @@ internal class Program
             throw new InvalidOperationException("Null argument parser");
         }
 
-        _args = _parser.Parse(args);
-        SockNode = _args.Listen ? new ServerNode(_args) : new ClientNode(_args);
+        CmdLineArgs cmdArgs = _parser.Parse(args);
+        SockNode = cmdArgs.Listen ? new ServerNode(cmdArgs) : new ClientNode(cmdArgs);
     }
 
     /// <summary>
