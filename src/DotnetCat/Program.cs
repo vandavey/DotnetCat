@@ -1,6 +1,4 @@
 using System;
-using System.Linq;
-using DotnetCat.Errors;
 using DotnetCat.Network.Nodes;
 using DotnetCat.Utils;
 
@@ -36,47 +34,10 @@ internal class Program
             _parser.PrintHelp();
         }
 
-        InitializeNode(args);
-        ConnectNode();
+        SockNode = Node.NewNode(_parser.Parse(args));
+        SockNode.Connect();
 
         Console.WriteLine();
         Environment.Exit(0);
-    }
-
-    /// <summary>
-    ///  Parse the given command-line argument array and initialize
-    ///  the primary socket node.
-    /// </summary>
-    private static void InitializeNode(string[] args)
-    {
-        if (args.Contains("-"))
-        {
-            Error.Handle(Except.InvalidArgs, "-", true);
-        }
-
-        if (args.Contains("--"))
-        {
-            Error.Handle(Except.InvalidArgs, "--", true);
-        }
-
-        if (_parser is null)
-        {
-            throw new InvalidOperationException("Null argument parser");
-        }
-
-        CmdLineArgs cmdArgs = _parser.Parse(args);
-        SockNode = cmdArgs.Listen ? new ServerNode(cmdArgs) : new ClientNode(cmdArgs);
-    }
-
-    /// <summary>
-    ///  Connect the primary network client node or server node.
-    /// </summary>
-    private static void ConnectNode()
-    {
-        if (SockNode is null)
-        {
-            throw new InvalidOperationException("Null socket node specified");
-        }
-        SockNode?.Connect();
     }
 }

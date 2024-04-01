@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using DotnetCat.Errors;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO;
@@ -35,10 +36,7 @@ internal static class Style
     /// <summary>
     private static void Status(Level level, string msg)
     {
-        if (msg.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(msg));
-        }
+        ThrowIf.NullOrEmpty(msg);
 
         using TextWriter stream = level switch
         {

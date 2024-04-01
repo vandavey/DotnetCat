@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using DotnetCat.Errors;
 using DotnetCat.Shell;
 using DotnetCat.Utils;
 using SpecialFolder = System.Environment.SpecialFolder;
@@ -117,10 +118,7 @@ internal static class FileSys
     /// </summary>
     public static (string? path, bool exists) ExistsOnPath(string? exe)
     {
-        if (exe.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(exe));
-        }
+        ThrowIf.NullOrEmpty(exe);
 
         string? path = exe;
         bool exists = Exists(exe);
@@ -137,10 +135,7 @@ internal static class FileSys
     /// </summary>
     private static string? FindExecutable(string? exeName)
     {
-        if (exeName.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(exeName));
-        }
+        ThrowIf.NullOrEmpty(exeName);
         string? fullPath = null;
 
         if (!FileExists(exeName))

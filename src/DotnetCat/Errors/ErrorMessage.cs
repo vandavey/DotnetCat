@@ -23,10 +23,7 @@ internal class ErrorMessage
         get => _message ??= string.Empty;
         private set
         {
-            if (value.IsNullOrEmpty())
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ThrowIf.NullOrEmpty(value);
 
             if (MsgBuilt(value))
             {
@@ -52,10 +49,7 @@ internal class ErrorMessage
     ///  Determine whether the given message string contains
     ///  any format specifier substrings (`%`, `{}`).
     /// </summary>
-    private static bool MsgBuilt(string msg)
-    {
-        return !msg.Contains('%') && !msg.Contains("{}");
-    }
+    private static bool MsgBuilt(string msg) => !msg.Contains('%') && !msg.Contains("{}");
 
     /// <summary>
     ///  Determine whether the underlying message string contains

@@ -2,8 +2,9 @@ using System;
 
 #if WINDOWS
 using System.Runtime.InteropServices;
-using BOOL = System.Boolean;
-using DWORD = System.UInt32;
+using DotnetCat.Errors;
+using BOOL = bool;
+using DWORD = uint;
 using HANDLE = nint;
 #endif // WINDOWS
 
@@ -84,20 +85,26 @@ internal static partial class ConsoleApi
     }
 
     /// <summary>
+    ///  Determine whether the given console buffer handle is valid.
+    /// </summary>
+    public static bool ValidHandle(HANDLE handle)
+    {
+        return handle != INVALID_HANDLE_VALUE && handle != HANDLE.Zero;
+    }
+
+    /// <summary>
+    ///  Determine whether the given console mode is valid.
+    /// </summary>
+    public static bool ValidMode(DWORD mode) => mode != NULL;
+
+    /// <summary>
     ///  Get a new mode to set for the console buffer that
     ///  corresponds to the given console buffer handle.
     /// </summary>
     private static DWORD GetMode(HANDLE handle, DWORD mode)
     {
-        if (!ValidHandle(handle))
-        {
-            throw new ArgumentException("Invalid handle", nameof(handle));
-        }
-
-        if (mode == NULL)
-        {
-            throw new ArgumentException("No bit flag set", nameof(mode));
-        }
+        ThrowIf.InvalidHandle(handle);
+        ThrowIf.InvalidMode(mode);
 
         if (!GetConsoleMode(handle, out DWORD streamMode))
         {
@@ -112,15 +119,8 @@ internal static partial class ConsoleApi
     /// </summary>
     private static void SetMode(HANDLE handle, DWORD mode)
     {
-        if (!ValidHandle(handle))
-        {
-            throw new ArgumentException("Invalid handle", nameof(handle));
-        }
-
-        if (mode == NULL)
-        {
-            throw new ArgumentException("No bit flag set", nameof(mode));
-        }
+        ThrowIf.InvalidHandle(handle);
+        ThrowIf.InvalidMode(mode);
 
         if (!SetConsoleMode(handle, mode))
         {
@@ -159,14 +159,6 @@ internal static partial class ConsoleApi
     private static partial BOOL SetConsoleMode(HANDLE hConsoleHandle, DWORD dwMode);
 
     /// <summary>
-    ///  Determine whether the given console buffer handle is valid.
-    /// </summary>
-    private static bool ValidHandle(HANDLE handle)
-    {
-        return handle != INVALID_HANDLE_VALUE && handle != HANDLE.Zero;
-    }
-
-    /// <summary>
     ///  Convert the given console mode enumeration object to a DWORD.
     /// </summary>
     private static DWORD GetDWord<TEnum>(TEnum mode) where TEnum : Enum
@@ -184,8 +176,7 @@ internal static partial class ConsoleApi
     /// </summary>
     private static void ExternError(string externName)
     {
-        DWORD errorCode = GetLastError();
-        throw new ExternalException($"Error in extern {externName}: {errorCode}");
+        throw new ExternalException($"Error in extern {externName}: {GetLastError()}");
     }
 #endif // WINDOWS
 }

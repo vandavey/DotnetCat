@@ -52,7 +52,7 @@ internal static class Error
                               Exception? ex = default,
                               Level level = default) {
 
-        _ = arg ?? throw new ArgumentNullException(nameof(arg));
+        ThrowIf.NullOrEmpty(arg);
 
         // Display program usage
         if (showUsage)
@@ -96,8 +96,8 @@ internal static class Error
     ///  Get a new error message that corresponds to the given
     ///  exception enumeration type.
     /// </summary>
-    private static ErrorMessage MakeErrorMessage(Except exType,
-                                                 string? arg = default) {
+    private static ErrorMessage MakeErrorMessage(Except exType, string? arg = default)
+    {
         ErrorMessage message = new(exType switch
         {
             Except.AddressInUse       => "The endpoint is already in use: %",

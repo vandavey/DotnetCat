@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotnetCat.Errors;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
@@ -19,11 +20,7 @@ internal class StatusPipe : TextPipe
     /// </summary>
     public StatusPipe(CmdLineArgs args, StreamWriter? dest) : base(args, dest)
     {
-        if (Program.SockNode is null)
-        {
-            string msg = $"{nameof(Program.SockNode)} cannot be null";
-            throw new InvalidOperationException(msg);
-        }
+        ThrowIf.Null(Program.SockNode);
 
         string target = $"{Program.SockNode.HostName}:{Program.SockNode.Port}";
         _statusMsg = $"Connection accepted by {target}";

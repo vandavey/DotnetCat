@@ -7,7 +7,7 @@
         <AssemblyName>DotnetCatTests</AssemblyName>
         <Authors>vandavey</Authors>
         <Configurations>Debug;Release;Linux;ARM64</Configurations>
-        <Copyright>Copyright (c) 2022 vandavey</Copyright>
+        <Copyright>Copyright (c) 2024 vandavey</Copyright>
         <Description>DotnetCat unit tests</Description>
         <ErrorReport>none</ErrorReport>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
@@ -60,9 +60,9 @@
      Nuget package information
     -->
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
-        <PackageReference Include="MSTest.TestAdapter" Version="3.*" />
-        <PackageReference Include="MSTest.TestFramework" Version="3.*" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
+        <PackageReference Include="MSTest.TestAdapter" Version="*" />
+        <PackageReference Include="MSTest.TestFramework" Version="*" />
     </ItemGroup>
 
     <!--
@@ -76,11 +76,6 @@
      Include source code and resource directories
     -->
     <ItemGroup>
-        <Folder Include="Errors/" />
-        <Folder Include="IO/" />
-        <Folder Include="Network/" />
         <Folder Include="Properties/" />
-        <Folder Include="Shell/" />
-        <Folder Include="Utils/" />
     </ItemGroup>
 </Project>

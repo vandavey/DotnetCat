@@ -75,14 +75,8 @@
      Include source code and resource folders
     -->
     <ItemGroup>
-        <Folder Include="Contracts/" />
-        <Folder Include="Errors/" />
-        <Folder Include="IO/" />
-        <Folder Include="Network/" />
         <Folder Include="Properties/" />
         <Folder Include="Resources/" />
-        <Folder Include="Shell/" />
-        <Folder Include="Utils/" />
     </ItemGroup>
 
     <!--
@@ -179,8 +173,7 @@
 
         <ZipDirectory Overwrite="true"
                       SourceDirectory="$(PublishDir)"
-                      DestinationFile="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip">
-        </ZipDirectory>
+                      DestinationFile="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip" />
 
         <Message Importance="high" Text="------------------------------" />
     </Target>

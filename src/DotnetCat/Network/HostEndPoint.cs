@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using DotnetCat.Errors;
 using DotnetCat.Utils;
 
 namespace DotnetCat.Network;
@@ -41,7 +42,7 @@ internal class HostEndPoint
     /// </summary>
     public HostEndPoint(IPEndPoint? ep)
     {
-        _ = ep ?? throw new ArgumentNullException(nameof(ep));
+        ThrowIf.Null(ep);
 
         HostName = ep.Address.ToString();
         Port = ep.Port;
@@ -55,10 +56,7 @@ internal class HostEndPoint
         get => _port;
         set
         {
-            if (!Net.IsValidPort(value))
-            {
-                throw new ArgumentException("Invalid port", nameof(value));
-            }
+            ThrowIf.InvalidPort(value);
             _port = value;
         }
     }
@@ -71,10 +69,7 @@ internal class HostEndPoint
         get => _hostName;
         set
         {
-            if (value.IsNullOrEmpty())
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ThrowIf.NullOrEmpty(value);
             _hostName = value;
         }
     }

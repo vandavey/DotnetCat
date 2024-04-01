@@ -5,14 +5,15 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Contracts;
+using DotnetCat.Errors;
 using DotnetCat.Shell;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
 
 /// <summary>
-///  Abstract unidirectional socket pipeline. This is the base class for all
-///  socket pipelines in the <c>DotnetCat.IO.Pipelines</c> namespace.
+///  Abstract unidirectional socket pipeline. This is the base class
+///  for all socket pipelines in the <see cref="Pipelines"/> namespace.
 /// </summary>
 internal abstract class SocketPipe : IConnectable
 {
@@ -94,8 +95,8 @@ internal abstract class SocketPipe : IConnectable
     /// </summary>
     public virtual void Connect()
     {
-        _ = Source ?? throw new InvalidOperationException(nameof(Source));
-        _ = Dest ?? throw new InvalidOperationException(nameof(Dest));
+        ThrowIf.Null(Source);
+        ThrowIf.Null(Dest);
 
         CTS = new CancellationTokenSource();
         Buffer = new Memory<char>(new char[BUFFER_SIZE]);

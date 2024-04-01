@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using DotnetCat.Errors;
 using DotnetCat.IO;
 using DotnetCat.Utils;
 
@@ -31,7 +32,7 @@ internal static class Command
     /// </summary>
     public static ProcessStartInfo GetExeStartInfo(string? shell)
     {
-        _ = shell ?? throw new ArgumentNullException(nameof(shell));
+        ThrowIf.NullOrEmpty(shell);
 
         ProcessStartInfo startInfo = new(shell)
         {
