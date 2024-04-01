@@ -17,8 +17,8 @@ using DotnetCat.Utils;
 namespace DotnetCat.Network.Nodes;
 
 /// <summary>
-///  Abstract TCP network socket node. This is the base class for all
-///  socket nodes in the <c>DotnetCat.Network.Nodes</c> namespace.
+///  Abstract TCP network socket node. This is the base class
+///  for all socket nodes in the <see cref="Nodes"/> namespace.
 /// </summary>
 internal abstract class Node : ISockErrorHandled
 {
@@ -86,10 +86,7 @@ internal abstract class Node : ISockErrorHandled
         get => Args.Port;
         set
         {
-            if (!Net.IsValidPort(value))
-            {
-                throw new ArgumentException("Invalid port", nameof(value));
-            }
+            ThrowIf.InvalidPort(value);
             Args.Port = value;
         }
     }
@@ -156,6 +153,14 @@ internal abstract class Node : ISockErrorHandled
     protected NetworkStream? NetStream { get; set; }
 
     /// <summary>
+    ///  Initialize a new client or server node based on the given command-line arguments.
+    /// </summary>
+    public static Node NewNode(CmdLineArgs args)
+    {
+        return args.Listen ? new ServerNode(args) : new ClientNode(args);
+    }
+
+    /// <summary>
     ///  Initialize and run a new executable process on the local system.
     /// </summary>
     public bool StartProcess(string? exe)
@@ -181,7 +186,7 @@ internal abstract class Node : ISockErrorHandled
     /// </summary>
     public virtual void Connect()
     {
-        _ = NetStream ?? throw new ArgumentNullException(nameof(NetStream));
+        ThrowIf.Null(NetStream);
 
         if (!_validArgsCombos)
         {
@@ -368,24 +373,24 @@ internal abstract class Node : ISockErrorHandled
     /// <summary>
     ///  Initialize a new array of console stream pipelines.
     /// </summary>
-    private StreamPipe[] MakeStreamPipes() => new[]
-    {
+    private StreamPipe[] MakeStreamPipes() =>
+    [
         new StreamPipe(_netReader, new StreamWriter(Console.OpenStandardOutput())
         {
             AutoFlush = true
         }),
         new StreamPipe(new StreamReader(Console.OpenStandardInput()), _netWriter)
-    };
+    ];
 
     /// <summary>
     ///  Initialize a new array of executable process pipelines.
     /// </summary>
-    private ProcessPipe[] MakeProcessPipes() => new[]
-    {
+    private ProcessPipe[] MakeProcessPipes() =>
+    [
         new ProcessPipe(Args, _netReader, _process?.StandardInput),
         new ProcessPipe(Args, _process?.StandardOutput, _netWriter),
         new ProcessPipe(Args, _process?.StandardError, _netWriter)
-    };
+    ];
 
     /// <summary>
     ///  Initialize a new file pipeline.

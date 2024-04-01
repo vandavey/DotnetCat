@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotnetCat.Errors;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
@@ -18,8 +19,11 @@ internal class ProcessPipe : SocketPipe
     public ProcessPipe(CmdLineArgs args, StreamReader? src, StreamWriter? dest)
         : base(args) {
 
-        Source = src ?? throw new InvalidOperationException(nameof(src));
-        Dest = dest ?? throw new InvalidOperationException(nameof(dest));
+        ThrowIf.Null(src);
+        ThrowIf.Null(dest);
+
+        Source = src;
+        Dest = dest;
     }
 
     /// <summary>

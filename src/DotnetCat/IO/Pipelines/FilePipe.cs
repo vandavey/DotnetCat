@@ -22,18 +22,13 @@ internal class FilePipe : SocketPipe, IErrorHandled
     /// </summary>
     public FilePipe(CmdLineArgs args, StreamReader? src) : base(args)
     {
-        if (args.FilePath.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(args));
-        }
+        ThrowIf.NullOrEmpty(args.FilePath);
+        ThrowIf.Null(src);
+
         _transfer = TransferOpt.Collect;
 
-        Source = src ?? throw new ArgumentNullException(nameof(src));
-
-        Dest = new StreamWriter(CreateFile(FilePath))
-        {
-            AutoFlush = true
-        };
+        Source = src;
+        Dest = new StreamWriter(CreateFile(FilePath)) { AutoFlush = true };
     }
 
     /// <summary>
@@ -41,13 +36,12 @@ internal class FilePipe : SocketPipe, IErrorHandled
     /// </summary>
     public FilePipe(CmdLineArgs args, StreamWriter? dest) : base(args)
     {
-        if (args.FilePath.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(args));
-        }
+        ThrowIf.NullOrEmpty(args.FilePath);
+        ThrowIf.Null(dest);
+
         _transfer = TransferOpt.Transmit;
 
-        Dest = dest ?? throw new ArgumentNullException(nameof(dest));
+        Dest = dest;
         Source = new StreamReader(OpenFile(FilePath));
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using DotnetCat.Errors;
 using DotnetCat.Shell;
 
 namespace DotnetCat.Utils;
@@ -31,7 +32,7 @@ internal static class Extensions
     /// <summary>
     ///  Determine whether a string ends with the given character.
     /// </summary>
-    public static bool EndsWithValue(this string? str, char value)
+    public static bool EndsWithValue([NotNullWhen(true)] this string? str, char value)
     {
         return str?.EndsWith(value) ?? false;
     }
@@ -39,7 +40,7 @@ internal static class Extensions
     /// <summary>
     ///  Determine whether a string ends with the given substring.
     /// </summary>
-    public static bool EndsWithValue(this string? str, string? value)
+    public static bool EndsWithValue([NotNullWhen(true)] this string? str, string? value)
     {
         bool endsWith = false;
 
@@ -53,7 +54,7 @@ internal static class Extensions
     /// <summary>
     ///  Determine whether a string starts with the given character.
     /// </summary>
-    public static bool StartsWithValue(this string? str, char value)
+    public static bool StartsWithValue([NotNullWhen(true)] this string? str, char value)
     {
         return str?.StartsWith(value) ?? false;
     }
@@ -61,8 +62,8 @@ internal static class Extensions
     /// <summary>
     ///  Determine whether a string starts with the given substring.
     /// </summary>
-    public static bool StartsWithValue(this string? str, string? value)
-    {
+    public static bool StartsWithValue([NotNullWhen(true)] this string? str,
+                                       string? value) {
         bool startsWith = false;
 
         if (str is not null && value is not null)
@@ -108,13 +109,9 @@ internal static class Extensions
     /// <summary>
     ///  Join each element of a collection separated by the given delimiter.
     /// </summary>
-    public static string Join<T>(this IEnumerable<T>? values,
-                                 string? delim = default) {
-
-        if (values.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(values));
-        }
+    public static string Join<T>(this IEnumerable<T>? values, string? delim = default)
+    {
+        ThrowIf.NullOrEmpty(values);
         return string.Join(delim, values);
     }
 

@@ -69,6 +69,15 @@ internal partial class Parser
     {
         _argsList = DefragArguments([.. args]);
 
+        if (args.Contains("-"))
+        {
+            Error.Handle(Except.InvalidArgs, "-", true);
+        }
+        else if (args.Contains("--"))
+        {
+            Error.Handle(Except.InvalidArgs, "--", true);
+        }
+
         ParseCharArgs();
         ParseFlagArgs();
         ParsePositionalArgs();
@@ -158,6 +167,20 @@ internal partial class Parser
     ///  flag argument. Flag arguments begin with two dashes (`--foo`).
     /// </summary>
     private static bool IsFlag((int index, string arg) tuple) => IsFlag(tuple.arg);
+
+    /// <summary>
+    ///  Command-line flag alias argument regular expression.
+    /// </summary>
+    [GeneratedRegex("^-([?]|[A-Za-z])+$")]
+    private static partial Regex AliasRegex();
+
+    // TODO: Future proof by accepting --foo-bar syntax
+    /// <summary>
+    ///  Command-line flag argument regular expression.
+    /// </summary>
+    //[GeneratedRegex("^--([A-Z]|[a-z])+$")]
+    [GeneratedRegex("^--[A-Za-z]+$")]
+    private static partial Regex FlagRegex();
 
     /// <summary>
     ///  Parse the named flag alias arguments in the underlying command-line
@@ -407,7 +430,7 @@ internal partial class Parser
         }
         string portStr = ArgsValueAt(index + 1);
 
-        if (!int.TryParse(portStr, out int port) || !Net.IsValidPort(port))
+        if (!int.TryParse(portStr, out int port) || !Net.ValidPort(port))
         {
             Console.WriteLine(Usage);
             Error.Handle(Except.InvalidPort, portStr);
@@ -499,16 +522,4 @@ internal partial class Parser
 
         return data;
     }
-
-    /// <summary>
-    ///  Command-line flag alias argument regular expression.
-    /// </summary>
-    [GeneratedRegex("^-([?]|[A-Z]|[a-z])+$")]
-    private static partial Regex AliasRegex();
-
-    /// <summary>
-    ///  Command-line flag argument regular expression.
-    /// </summary>
-    [GeneratedRegex("^--([A-Z]|[a-z])+$")]
-    private static partial Regex FlagRegex();
 }
