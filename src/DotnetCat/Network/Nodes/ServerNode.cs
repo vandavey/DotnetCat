@@ -88,7 +88,8 @@ internal class ServerNode : Node
     public override void PipeError(Except type,
                                    HostEndPoint target,
                                    Exception? ex = default,
-                                   Level level = default) {
+                                   Level level = default)
+    {
         Dispose();
         Error.Handle(type, target.ToString(), ex, level);
     }
@@ -100,7 +101,8 @@ internal class ServerNode : Node
     public override void PipeError(Except type,
                                    string? arg,
                                    Exception? ex = default,
-                                   Level level = default) {
+                                   Level level = default)
+    {
         Dispose();
         Error.Handle(type, arg, ex, level);
     }

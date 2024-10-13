@@ -1,22 +1,14 @@
 <div align="center">
-    <img src="src/DotnetCat/Resources/Icon.ico" width=175px alt="logo">
+    <img src="src/DotnetCat/Resources/Icon.ico" width=175px alt="logo" />
 </div>
 
 # DotnetCat
 
-<div>
-    <a href="https://learn.microsoft.com/en-us/dotnet/csharp">
-        <img src="https://img.shields.io/badge/c%23-v12-9325ff" alt="csharp-12">
-    </a>
-    <a href="LICENSE.md">
-        <img src="https://img.shields.io/github/license/vandavey/DotnetCat" alt="license">
-    </a>
-    <a href="https://github.com/vandavey/DotnetCat/graphs/contributors">
-        <img src="https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue" alt="contributors">
-    </a>
-    <a href="https://github.com/vandavey/DotnetCat/pulls">
-        <img src="https://img.shields.io/github/issues-pr/vandavey/DotnetCat" alt="pull-requests">
-    </a>
+<div align="left">
+    <img src="https://img.shields.io/badge/c%23-v12-9325ff" alt="csharp-12-badge" />
+    <img src="https://img.shields.io/github/license/vandavey/DotnetCat" alt="license-badge" />
+    <img src="https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue" alt="contributors-badge" />
+    <img src="https://img.shields.io/github/issues-pr/vandavey/DotnetCat" alt="pull-requests-badge" />
 </div>
 
 Remote command shell application written in C#,
@@ -121,7 +113,7 @@ The following code snippet can be executed in PowerShell to download and run the
 
 ```powershell
 $Uri = "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-install.ps1"
-Write-Output (Invoke-WebRequest $Uri -DisableKeepAlive).Content | powershell.exe -
+(Invoke-WebRequest $Uri -DisableKeepAlive).Content | powershell.exe -
 ```
 
 DotnetCat can be uninstalled using the [dncat-uninstall.ps1](tools/dncat-uninstall.ps1) uninstaller.

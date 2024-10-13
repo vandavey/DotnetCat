@@ -5,16 +5,14 @@ using DotnetCat.Utils;
 namespace DotnetCat;
 
 /// <summary>
-///  Primary application startup object.
+///  Application startup object.
 /// </summary>
 internal class Program
 {
-    private static readonly Parser _parser;  // Command-line argument parser
-
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Program() => _parser = new Parser();
+    static Program() => Console.Title = $"DotnetCat ({Parser.Repo})";
 
     /// <summary>
     ///  Network socket node.
@@ -22,19 +20,19 @@ internal class Program
     public static Node? SockNode { get; private set; }
 
     /// <summary>
-    ///  Static application entry point.
+    ///  Application entry point.
     /// </summary>
     public static void Main(string[] args)
     {
-        Console.Title = $"DotnetCat ({Parser.Repo})";
+        Parser parser = new(args);
 
         // Display help information and exit
-        if (args.IsNullOrEmpty() || Parser.NeedsHelp(args))
+        if (parser.CmdArgs.Help)
         {
-            _parser.PrintHelp();
+            Parser.PrintHelp();
         }
 
-        SockNode = Node.NewNode(_parser.Parse(args));
+        SockNode = Node.NewNode(parser.CmdArgs);
         SockNode.Connect();
 
         Console.WriteLine();

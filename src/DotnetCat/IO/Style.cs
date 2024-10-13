@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using DotnetCat.Errors;
-using DotnetCat.Utils;
 
 namespace DotnetCat.IO;
 

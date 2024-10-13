@@ -71,7 +71,8 @@ internal class FilePipe : SocketPipe, IErrorHandled
     public virtual void PipeError(Except type,
                                   string? arg,
                                   Exception? ex = default,
-                                  Level level = default) {
+                                  Level level = default)
+    {
         Dispose();
         Error.Handle(type, arg, ex, level);
     }

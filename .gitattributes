@@ -1,4 +1,4 @@
-* text    eol=lf
+* text    encoding=utf-8  eol=lf
 *.aps     binary
 *.assets  binary
 *.cache   binary

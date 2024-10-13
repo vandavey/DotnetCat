@@ -12,7 +12,8 @@ public class ParserTests
 #region MethodTests
     /// <summary>
     ///  Assert that an input command-line argument array containing a
-    ///  help flag or flag alias (`-?`, `-h`, `--help`) returns true.
+    ///  help flag or flag alias (<c>-?</c>, <c>-h</c>, <c>--help</c>)
+    ///  sets the <see cref="CmdLineArgs.Help"/> property to true.
     /// </summary>
     [DataTestMethod]
     [DataRow("-?")]
@@ -24,24 +25,49 @@ public class ParserTests
     [DataRow("-vp", "22", "-?", "localhost")]
     [DataRow("--exec", "pwsh.exe", "-h", "localhost")]
     [DataRow("--listen", "--help", "localhost")]
-    public void NeedsHelp_HelpFlag_ReturnsTrue(params string[] args)
+    public void Parse_HelpFlag_HelpPropertyTrue(params string[] args)
     {
-        bool actual = Parser.NeedsHelp(args);
-        Assert.IsTrue(actual, "Expected a help flag or flag alias");
+        Parser parser = new();
+
+        CmdLineArgs cmdArgs = parser.Parse(args);
+        bool actual = cmdArgs.Help;
+
+        Assert.IsTrue(actual, "Failed to parse help flag or flag alias");
+    }
+
+    /// <summary>
+    ///  Assert that an input command-line argument array not containing any
+    ///  values sets the <see cref="CmdLineArgs.Help"/> property to true.
+    /// </summary>
+    [TestMethod]
+    public void Parse_NoArguments_HelpPropertyTrue()
+    {
+        string[] args = [];
+        Parser parser = new();
+
+        CmdLineArgs cmdArgs = parser.Parse(args);
+        bool actual = cmdArgs.Help;
+
+        Assert.IsTrue(actual, "Help should be true when no arguments are provided");
     }
 
     /// <summary>
     ///  Assert that an input command-line argument array not containing
-    ///  a help flag or flag alias (`-?`, `-h`, `--help`) returns false.
+    ///  a help flag or flag alias (<c>-?</c>, <c>-h</c>, <c>--help</c>)
+    ///  sets the <see cref="CmdLineArgs.Help"/> property to false.
     /// </summary>
     [DataTestMethod]
-    [DataRow("-vp", "22", "-e", "pwsh.exe")]
-    [DataRow("--debug", "--send", "~/data.txt", "localhost")]
-    [DataRow("--listen", "-do", "~/recv_data.txt")]
-    public void NeedsHelp_NoHelpFlag_ReturnsFalse(params string[] args)
+    [DataRow("-vp", "22", "-e", "pwsh.exe", "192.168.1.100")]
+    [DataRow("--debug", "--send", "~/test.txt", "localhost")]
+    [DataRow("--listen", "-do", "~/recv_data.txt", "-p", "31337")]
+    public void Parse_NoHelpFlag_HelpPropertyFalse(params string[] args)
     {
-        bool actual = Parser.NeedsHelp(args);
-        Assert.IsFalse(actual, "Did not expect a help flag or flag alias");
+        Parser parser = new();
+
+        CmdLineArgs cmdArgs = parser.Parse(args);
+        bool actual = cmdArgs.Help;
+
+        Assert.IsFalse(actual, "Unexpectedly parsed help flag or flag alias");
     }
 #endregion // MethodTests
 }

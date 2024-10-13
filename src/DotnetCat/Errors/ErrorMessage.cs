@@ -1,5 +1,4 @@
 using System;
-using DotnetCat.Utils;
 
 namespace DotnetCat.Errors;
 
@@ -47,13 +46,13 @@ internal class ErrorMessage
 
     /// <summary>
     ///  Determine whether the given message string contains
-    ///  any format specifier substrings (`%`, `{}`).
+    ///  any format specifier placeholders (<c>%</c>, <c>{}</c>).
     /// </summary>
     private static bool MsgBuilt(string msg) => !msg.Contains('%') && !msg.Contains("{}");
 
     /// <summary>
     ///  Determine whether the underlying message string contains
-    ///  any format specifier substrings (`%`, `{}`).
+    ///  any format specifier placeholders (<c>%</c>, <c>{}</c>).
     /// </summary>
     private bool MsgBuilt() => MsgBuilt(Message);
 }

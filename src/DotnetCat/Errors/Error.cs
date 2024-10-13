@@ -37,8 +37,8 @@ internal static class Error
     public static void Handle(Except exType,
                               string? arg,
                               Exception? ex,
-                              Level level = default) {
-
+                              Level level = default)
+    {
         Handle(exType, arg, false, ex, level);
     }
 
@@ -50,8 +50,8 @@ internal static class Error
                               string? arg,
                               bool showUsage,
                               Exception? ex = default,
-                              Level level = default) {
-
+                              Level level = default)
+    {
         ThrowIf.NullOrEmpty(arg);
 
         // Display program usage
