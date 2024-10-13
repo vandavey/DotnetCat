@@ -13,7 +13,7 @@ internal class CmdLineArgs
     /// </summary>
     public CmdLineArgs()
     {
-        Debug = Listen = Verbose = false;
+        Debug = Help = Listen = Verbose = false;
 
         PipeVariant = PipeType.Stream;
         TransOpt = TransferOpt.None;
@@ -26,6 +26,11 @@ internal class CmdLineArgs
     ///  Enable verbose exceptions.
     /// </summary>
     public bool Debug { get; set; }
+
+    /// <summary>
+    ///  Display extended usage information and exit.
+    /// </summary>
+    public bool Help { get; set; }
 
     /// <summary>
     ///  Run server and listen for inbound connection.

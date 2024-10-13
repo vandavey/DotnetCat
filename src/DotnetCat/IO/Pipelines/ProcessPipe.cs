@@ -17,8 +17,8 @@ internal class ProcessPipe : SocketPipe
     ///  Initialize the object.
     /// </summary>
     public ProcessPipe(CmdLineArgs args, StreamReader? src, StreamWriter? dest)
-        : base(args) {
-
+        : base(args)
+    {
         ThrowIf.Null(src);
         ThrowIf.Null(dest);
 

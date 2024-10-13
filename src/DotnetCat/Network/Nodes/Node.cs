@@ -204,7 +204,8 @@ internal abstract class Node : ISockErrorHandled
     public virtual void PipeError(Except type,
                                   HostEndPoint target,
                                   Exception? ex = default,
-                                  Level level = default) {
+                                  Level level = default)
+    {
         Dispose();
         Error.Handle(type, target.ToString(), ex, level);
     }
@@ -216,7 +217,8 @@ internal abstract class Node : ISockErrorHandled
     public virtual void PipeError(Except type,
                                   string? arg,
                                   Exception? ex = default,
-                                  Level level = default) {
+                                  Level level = default)
+    {
         Dispose();
         Error.Handle(type, arg, ex, level);
     }
@@ -350,13 +352,13 @@ internal abstract class Node : ISockErrorHandled
         switch (type)
         {
             case PipeType.Stream:
-                pipelines.AddRange(MakeStreamPipes());
+                pipelines.AddRange(MakeStreamPipes);
                 break;
             case PipeType.File:
-                pipelines.Add(MakeFilePipe());
+                pipelines.Add(MakeFilePipe);
                 break;
             case PipeType.Process:
-                pipelines.AddRange(MakeProcessPipes());
+                pipelines.AddRange(MakeProcessPipes);
                 break;
             case PipeType.Status:
                 pipelines.Add(new StatusPipe(Args, _netWriter));

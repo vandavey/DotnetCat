@@ -22,8 +22,8 @@ internal class ThrowIf
     /// </summary>
     public static void InvalidHandle([NotNull] nint arg,
                                      [CallerArgumentExpression(nameof(arg))]
-                                     string? name = null) {
-
+                                     string? name = null)
+    {
         if (!ConsoleApi.ValidHandle(arg))
         {
             throw new ArgumentException($"Invalid handle: {arg}", name);
@@ -35,8 +35,8 @@ internal class ThrowIf
     /// </summary>
     public static void InvalidMode([NotNull] uint arg,
                                    [CallerArgumentExpression(nameof(arg))]
-                                   string? name = null) {
-
+                                   string? name = null)
+    {
         if (!ConsoleApi.ValidMode(arg))
         {
             throw new ArgumentException("No bit flag mode set", name);
@@ -49,7 +49,8 @@ internal class ThrowIf
     /// </summary>
     public static void InvalidPort([NotNull] int arg,
                                    [CallerArgumentExpression(nameof(arg))]
-                                   string? name = null) {
+                                   string? name = null)
+    {
         if (!Net.ValidPort(arg))
         {
             throw new ArgumentException($"Invalid port number: {arg}", name);
@@ -61,8 +62,8 @@ internal class ThrowIf
     /// </summary>
     public static void Null<T>([NotNull] T? arg,
                                [CallerArgumentExpression(nameof(arg))]
-                               string? name = null) {
-
+                               string? name = null)
+    {
         ArgumentNullException.ThrowIfNull(arg, name);
     }
 
@@ -71,8 +72,8 @@ internal class ThrowIf
     /// </summary>
     public static void NullOrEmpty<T>([NotNull] IEnumerable<T>? arg,
                                       [CallerArgumentExpression(nameof(arg))]
-                                      string? name = null) {
-
+                                      string? name = null)
+    {
         if (arg.IsNullOrEmpty())
         {
             throw new ArgumentNullException(name);
@@ -84,7 +85,8 @@ internal class ThrowIf
     /// </summary>
     public static void NullOrEmpty([NotNull] string? arg,
                                    [CallerArgumentExpression(nameof(arg))]
-                                   string? name = null) {
+                                   string? name = null)
+    {
         if (arg.IsNullOrEmpty())
         {
             throw new ArgumentNullException(name);

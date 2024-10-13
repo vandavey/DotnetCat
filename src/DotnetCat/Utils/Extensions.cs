@@ -14,19 +14,38 @@ namespace DotnetCat.Utils;
 internal static class Extensions
 {
     /// <summary>
-    ///  Determine whether a string is null or empty.
+    ///  Add the result of the given functor to a collection.
     /// </summary>
-    public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
+    public static void Add<T>([NotNull] this ICollection<T>? values, Func<T> func)
     {
-        return str is null || str.Trim().Length == 0;
+        ThrowIf.NullOrEmpty(values);
+        values.Add(func());
     }
 
     /// <summary>
-    ///  Determine whether a collection is null or empty.
+    ///  Add the results of the given functor to a collection.
     /// </summary>
-    public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this IEnumerable<T>? values)
+    public static void AddRange<T>([NotNull] this List<T>? values,
+                                   Func<IEnumerable<T>> func)
     {
-        return values is null || !values.Any();
+        ThrowIf.NullOrEmpty(values);
+        values.AddRange(func());
+    }
+
+    /// <summary>
+    ///  Perform an action on each element of a collection.
+    /// </summary>
+    public static void ForEach<T>(this IEnumerable<T>? values, Action<T> action)
+    {
+        values?.ToList().ForEach(action);
+    }
+
+    /// <summary>
+    ///  Determine whether a string ends with a single or double quotation mark character.
+    /// </summary>
+    public static bool EndsWithQuote([NotNullWhen(true)] this string? str)
+    {
+        return str.EndsWithValue('"') || str.EndsWithValue('\'');
     }
 
     /// <summary>
@@ -52,6 +71,31 @@ internal static class Extensions
     }
 
     /// <summary>
+    ///  Determine whether a string is null or empty.
+    /// </summary>
+    public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
+    {
+        return str is null || str.Trim().Length == 0;
+    }
+
+    /// <summary>
+    ///  Determine whether a collection is null or empty.
+    /// </summary>
+    public static bool IsNullOrEmpty<T>([NotNullWhen(false)] this IEnumerable<T>? values)
+    {
+        return values is null || !values.Any();
+    }
+
+    /// <summary>
+    ///  Determine whether a string starts with a
+    ///  single or double quotation mark character.
+    /// </summary>
+    public static bool StartsWithQuote([NotNullWhen(true)] this string? str)
+    {
+        return str.StartsWithValue('"') || str.StartsWithValue('\'');
+    }
+
+    /// <summary>
     ///  Determine whether a string starts with the given character.
     /// </summary>
     public static bool StartsWithValue([NotNullWhen(true)] this string? str, char value)
@@ -63,7 +107,8 @@ internal static class Extensions
     ///  Determine whether a string starts with the given substring.
     /// </summary>
     public static bool StartsWithValue([NotNullWhen(true)] this string? str,
-                                       string? value) {
+                                       string? value)
+    {
         bool startsWith = false;
 
         if (str is not null && value is not null)
@@ -88,13 +133,16 @@ internal static class Extensions
     /// </summary>
     public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values)
     {
-        IEnumerable<(int, T)> results = [];
-
-        if (!values.IsNullOrEmpty())
+        if (values is null)
         {
-            results = values.Select((T v, int i) => (i, v));
+            yield break;
         }
-        return results;
+        int index = 0;
+
+        foreach (T value in values)
+        {
+            yield return (index++, value);
+        }
     }
 
     /// <summary>
@@ -102,8 +150,20 @@ internal static class Extensions
     ///  containing each element's index and value, then filter the results.
     /// </summary>
     public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values,
-                                                     Func<(int, T), bool> filter) {
-        return values.Enumerate().Where(filter);
+                                                     Func<(int, T), bool> filter)
+    {
+        if (values is null)
+        {
+            yield break;
+        }
+
+        foreach ((int, T) idxValue in Enumerate(values))
+        {
+            if (filter(idxValue))
+            {
+                yield return idxValue;
+            }
+        }
     }
 
     /// <summary>

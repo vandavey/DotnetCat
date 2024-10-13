@@ -46,8 +46,8 @@ public class CommandTests
     }
 
     /// <summary>
-    ///  Assert that a null input environment variable name causes an
-    ///  <c>ArgumentNullException</c> to be thrown.
+    ///  Assert that a null input environment variable name causes
+    ///  an <see cref="ArgumentNullException"/> to be thrown.
     /// </summary>
     [TestMethod]
     public void GetEnvVariable_NullEnvVariableName_ThrowsArgumentNullException()
@@ -62,8 +62,8 @@ public class CommandTests
     }
 
     /// <summary>
-    ///  Assert that a non-null input shell name returns a
-    ///  new <c>ProcessStartInfo</c> object.
+    ///  Assert that a non-null input shell name returns
+    ///  a new <see cref="ProcessStartInfo"/> object.
     /// </summary>
     [DataTestMethod]
     [DataRow("test")]
@@ -76,7 +76,7 @@ public class CommandTests
 
     /// <summary>
     ///  Assert that a null input shell name causes an
-    ///  <c>ArgumentNullException</c> to be thrown.
+    ///  <see cref="ArgumentNullException"/> to be thrown.
     /// </summary>
     [TestMethod]
     public void GetExeStartInfo_NullShell_ThrowsArgumentNullException()
