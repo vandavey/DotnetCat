@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using DotnetCat.Errors;
 using DotnetCat.Utils;
@@ -39,7 +40,7 @@ internal class HostEndPoint
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public HostEndPoint(IPEndPoint? ep)
+    public HostEndPoint([NotNull] IPEndPoint? ep)
     {
         ThrowIf.Null(ep);
 

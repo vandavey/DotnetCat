@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -20,7 +21,7 @@ internal class TextPipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public TextPipe(CmdLineArgs args, StreamWriter? dest) : base(args)
+    public TextPipe(CmdLineArgs args, [NotNull] StreamWriter? dest) : base(args)
     {
         ThrowIf.Null(dest);
 

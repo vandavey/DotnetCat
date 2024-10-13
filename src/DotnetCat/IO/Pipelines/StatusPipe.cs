@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -17,7 +18,7 @@ internal class StatusPipe : TextPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public StatusPipe(CmdLineArgs args, StreamWriter? dest) : base(args, dest)
+    public StatusPipe(CmdLineArgs args, [NotNull] StreamWriter? dest) : base(args, dest)
     {
         ThrowIf.Null(Program.SockNode);
 

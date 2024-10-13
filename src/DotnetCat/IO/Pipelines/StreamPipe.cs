@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -16,7 +17,7 @@ internal class StreamPipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public StreamPipe(StreamReader? src, StreamWriter? dest) : base()
+    public StreamPipe([NotNull] StreamReader? src, [NotNull] StreamWriter? dest) : base()
     {
         ThrowIf.Null(src);
         ThrowIf.Null(dest);

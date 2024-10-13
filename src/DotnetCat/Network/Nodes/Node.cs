@@ -163,7 +163,7 @@ internal abstract class Node : ISockErrorHandled
     /// <summary>
     ///  Initialize and run a new executable process on the local system.
     /// </summary>
-    public bool StartProcess(string? exe)
+    public bool StartProcess([NotNull] string? exe)
     {
         (string? path, bool exists) = FileSys.ExistsOnPath(exe);
 

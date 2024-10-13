@@ -20,7 +20,7 @@ internal class FilePipe : SocketPipe, IErrorHandled
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public FilePipe(CmdLineArgs args, StreamReader? src) : base(args)
+    public FilePipe(CmdLineArgs args, [NotNull] StreamReader? src) : base(args)
     {
         ThrowIf.NullOrEmpty(args.FilePath);
         ThrowIf.Null(src);
@@ -34,7 +34,7 @@ internal class FilePipe : SocketPipe, IErrorHandled
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public FilePipe(CmdLineArgs args, StreamWriter? dest) : base(args)
+    public FilePipe(CmdLineArgs args, [NotNull] StreamWriter? dest) : base(args)
     {
         ThrowIf.NullOrEmpty(args.FilePath);
         ThrowIf.Null(dest);

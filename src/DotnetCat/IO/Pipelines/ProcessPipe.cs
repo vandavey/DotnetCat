@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -16,7 +17,9 @@ internal class ProcessPipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ProcessPipe(CmdLineArgs args, StreamReader? src, StreamWriter? dest)
+    public ProcessPipe(CmdLineArgs args,
+                       [NotNull] StreamReader? src,
+                       [NotNull] StreamWriter? dest)
         : base(args)
     {
         ThrowIf.Null(src);

@@ -169,7 +169,8 @@ internal static class Extensions
     /// <summary>
     ///  Join each element of a collection separated by the given delimiter.
     /// </summary>
-    public static string Join<T>(this IEnumerable<T>? values, string? delim = default)
+    public static string Join<T>([NotNull] this IEnumerable<T>? values,
+                                 string? delim = default)
     {
         ThrowIf.NullOrEmpty(values);
         return string.Join(delim, values);
@@ -178,7 +179,7 @@ internal static class Extensions
     /// <summary>
     ///  Join each element of a collection separated by the default system EOL.
     /// </summary>
-    public static string JoinLines<T>(this IEnumerable<T>? values)
+    public static string JoinLines<T>([NotNull] this IEnumerable<T>? values)
     {
         return Join(values, SysInfo.Eol);
     }
