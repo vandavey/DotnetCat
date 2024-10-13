@@ -10,6 +10,11 @@ namespace DotnetCat;
 internal class Program
 {
     /// <summary>
+    ///  Initialize the static class members.
+    /// </summary>
+    static Program() => Console.Title = $"DotnetCat ({Parser.Repo})";
+
+    /// <summary>
     ///  Network socket node.
     /// </summary>
     public static Node? SockNode { get; private set; }
@@ -19,7 +24,6 @@ internal class Program
     /// </summary>
     public static void Main(string[] args)
     {
-        Console.Title = $"DotnetCat ({Parser.Repo})";
         Parser parser = new(args);
 
         // Display help information and exit

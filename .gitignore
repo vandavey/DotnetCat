@@ -26,9 +26,9 @@
 
 **/launchSettings.json
 
-**/*.old*/
-**/*.bak/
 **/*.bak.*/
+**/*.bak/
+**/*.old*/
 **/.atom/
 **/.dist/
 **/.idea/

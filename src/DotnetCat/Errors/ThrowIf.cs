@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using DotnetCat.Network;
 using DotnetCat.Utils;
@@ -54,6 +55,20 @@ internal class ThrowIf
         if (!Net.ValidPort(arg))
         {
             throw new ArgumentException($"Invalid port number: {arg}", name);
+        }
+    }
+
+    /// <summary>
+    ///  Throw an exception if the given number is less than zero.
+    /// </summary>
+    public static void LessThanZero<T>([NotNull] T arg,
+                                       [CallerArgumentExpression(nameof(arg))]
+                                       string? name = null)
+        where T : IBinaryInteger<T>
+    {
+        if (arg < T.Zero)
+        {
+            throw new ArgumentException($"Number must be less than zero: {arg}", name);
         }
     }
 

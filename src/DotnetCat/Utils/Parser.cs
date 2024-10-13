@@ -98,7 +98,7 @@ internal partial class Parser
     /// </summary>
     private static List<string> DefragArguments(List<string> args)
     {
-        List<string> defragArgs = [];
+        List<string> defraggedArgs = [];
 
         // Defragment the given arguments
         for (int i = 0; i < args.Count; i++)
@@ -107,13 +107,13 @@ internal partial class Parser
 
             if (!begQuoted || (begQuoted && args[i].EndsWithQuote()))
             {
-                defragArgs.Add(args[i]);
+                defraggedArgs.Add(args[i]);
                 continue;
             }
 
             if (i == args.Count - 1)
             {
-                defragArgs.Add(args[i]);
+                defraggedArgs.Add(args[i]);
                 break;
             }
 
@@ -129,7 +129,7 @@ internal partial class Parser
                     {
                         argStr = argStr[1..^1];
                     }
-                    defragArgs.Add(argStr);
+                    defraggedArgs.Add(argStr);
 
                     i = j;
                     break;
@@ -137,7 +137,7 @@ internal partial class Parser
             }
         }
 
-        return defragArgs;
+        return defraggedArgs;
     }
 
     /// <summary>
@@ -283,8 +283,7 @@ internal partial class Parser
                         break;
                 }
             }
-
-            _processedIndexes.Add(idxAlias.Index);
+            AddProcessedArg(idxAlias);
         }
 
         RemoveProcessedArgs();
@@ -331,7 +330,7 @@ internal partial class Parser
                     Error.Handle(Except.UnknownArgs, idxFlag.Flag, true);
                     break;
             }
-            _processedIndexes.Add(idxFlag.Index);
+            AddProcessedArg(idxFlag);
         }
 
         RemoveProcessedArgs();
@@ -441,7 +440,7 @@ internal partial class Parser
         }
 
         CmdArgs.Port = port;
-        _processedIndexes.Add(idxFlag.Index + 1);
+        AddProcessedValueArg(idxFlag);
     }
 
     /// <summary>
@@ -466,7 +465,7 @@ internal partial class Parser
         CmdArgs.ExePath = path;
         CmdArgs.PipeVariant = PipeType.Process;
 
-        _processedIndexes.Add(idxFlag.Index + 1);
+        AddProcessedValueArg(idxFlag);
     }
 
     /// <summary>
@@ -501,7 +500,7 @@ internal partial class Parser
         }
 
         // File must exist to be transmitted
-        if (!FileSys.FileExists(path) && CmdArgs.TransOpt is TransferOpt.Transmit)
+        if (!FileSys.FileExists(path) && transfer is TransferOpt.Transmit)
         {
             Error.Handle(Except.FilePath, path, true);
         }
@@ -510,7 +509,7 @@ internal partial class Parser
         CmdArgs.PipeVariant = PipeType.File;
         CmdArgs.TransOpt = transfer;
 
-        _processedIndexes.Add(idxFlag.Index + 1);
+        AddProcessedValueArg(idxFlag);
     }
 
     /// <summary>
@@ -533,6 +532,27 @@ internal partial class Parser
         CmdArgs.Payload = data;
         CmdArgs.PipeVariant = PipeType.Text;
 
-        _processedIndexes.Add(idxFlag.Index + 1);
+        AddProcessedValueArg(idxFlag);
     }
+
+    /// <summary>
+    ///  Mark the command-line argument at the given index as processed.
+    /// </summary>
+    private void AddProcessedArg(IndexedArg idxArg, int indexOffset = 0)
+    {
+        ThrowIf.LessThanZero(idxArg.Index);
+        ThrowIf.LessThanZero(indexOffset);
+
+        _processedIndexes.Add(idxArg.Index + indexOffset);
+    }
+
+    /// <summary>
+    ///  Mark the command-line flag or flag alias value argument
+    ///  immediately after the given index as processed.
+    /// </summary>
+    /// <remarks>
+    ///  The command-line flag or flag alias will not be marked
+    ///  as processed, only its corresponding value argument.
+    /// </remarks>
+    private void AddProcessedValueArg(IndexedFlag idxFlag) => AddProcessedArg(idxFlag, 1);
 }

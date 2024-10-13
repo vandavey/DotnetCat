@@ -42,7 +42,8 @@ public class FileSysTests
 
 #region MethodTests
     /// <summary>
-    ///  Assert that a valid (existing) input path returns true.
+    ///  Assert that a valid (existing) input file or directory
+    ///  path on Linux operating systems returns true.
     /// </summary>
     [DataTestMethod]
     [DataRow("~")]
@@ -60,7 +61,8 @@ public class FileSysTests
     }
 
     /// <summary>
-    ///  Assert that a valid (existing) input path returns true.
+    ///  Assert that a valid (existing) input file or directory
+    ///  path on Windows operating systems returns true.
     /// </summary>
     [DataTestMethod]
     [DataRow("~")]
@@ -78,7 +80,7 @@ public class FileSysTests
     }
 
     /// <summary>
-    ///  Assert that an invalid (nonexistent) input path returns false.
+    ///  Assert that an invalid (nonexistent) input file or directory path returns false.
     /// </summary>
     [DataTestMethod]
     [DataRow("")]
@@ -97,7 +99,7 @@ public class FileSysTests
     }
 
     /// <summary>
-    ///  Assert that a null input path returns false.
+    ///  Assert that a null input file or directory path returns false.
     /// </summary>
     [TestMethod]
     public void Exists_NullPath_ReturnsFalse()
@@ -109,8 +111,8 @@ public class FileSysTests
     }
 
     /// <summary>
-    ///  Assert that a valid (existing) input file path
-    ///  on Linux operating systems returns true.
+    ///  Assert that a valid (existing) input file
+    ///  path on Linux operating systems returns true.
     /// </summary>
     [DataTestMethod]
     [DataRow("/etc/hosts")]
@@ -126,7 +128,8 @@ public class FileSysTests
     }
 
     /// <summary>
-    ///  Assert that a valid (existing) input file path returns true.
+    ///  Assert that a valid (existing) input file path
+    ///  on Windows operating systems returns true.
     /// </summary>
     [DataTestMethod]
     [DataRow("/Windows/explorer.exe")]
@@ -237,8 +240,8 @@ public class FileSysTests
     }
 
     /// <summary>
-    ///  Assert that an invalid (null, empty, blank) input path
-    ///  returns null (with and without the extension).
+    ///  Assert that an invalid (e.g., null, empty, blank) input
+    ///  path returns null (with and without the extension).
     /// </summary>
     [DataTestMethod]
     [DataRow(null, true)]
