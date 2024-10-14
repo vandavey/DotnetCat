@@ -18,7 +18,7 @@ internal static class Extensions
     /// </summary>
     public static void Add<T>([NotNull] this ICollection<T>? values, Func<T> func)
     {
-        ThrowIf.NullOrEmpty(values);
+        ThrowIf.Null(values);
         values.Add(func());
     }
 
@@ -28,7 +28,7 @@ internal static class Extensions
     public static void AddRange<T>([NotNull] this List<T>? values,
                                    Func<IEnumerable<T>> func)
     {
-        ThrowIf.NullOrEmpty(values);
+        ThrowIf.Null(values);
         values.AddRange(func());
     }
 
