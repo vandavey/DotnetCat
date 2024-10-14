@@ -25,7 +25,9 @@ internal static class Error
     ///  Handle user-defined exceptions related to DotnetCat and exit.
     /// </summary>
     [DoesNotReturn]
-    public static void Handle(Except exType, string? arg, Exception? ex = default)
+    public static void Handle(Except exType,
+                              [NotNull] string? arg,
+                              Exception? ex = default)
     {
         Handle(exType, arg, false, ex);
     }
@@ -35,7 +37,7 @@ internal static class Error
     /// </summary>
     [DoesNotReturn]
     public static void Handle(Except exType,
-                              string? arg,
+                              [NotNull] string? arg,
                               Exception? ex,
                               Level level = default)
     {
@@ -47,7 +49,7 @@ internal static class Error
     /// </summary>
     [DoesNotReturn]
     public static void Handle(Except exType,
-                              string? arg,
+                              [NotNull] string? arg,
                               bool showUsage,
                               Exception? ex = default,
                               Level level = default)

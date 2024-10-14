@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using DotnetCat.Network;
-using DotnetCat.Utils;
 
 #if WINDOWS
 using DotnetCat.Shell.WinApi;
@@ -23,11 +23,11 @@ internal class ThrowIf
     /// </summary>
     public static void InvalidHandle([NotNull] nint arg,
                                      [CallerArgumentExpression(nameof(arg))]
-                                     string? name = null)
+                                     string? name = default)
     {
         if (!ConsoleApi.ValidHandle(arg))
         {
-            throw new ArgumentException($"Invalid handle: {arg}", name);
+            throw new ArgumentException($"Invalid handle: {arg}.", name);
         }
     }
 
@@ -36,11 +36,11 @@ internal class ThrowIf
     /// </summary>
     public static void InvalidMode([NotNull] uint arg,
                                    [CallerArgumentExpression(nameof(arg))]
-                                   string? name = null)
+                                   string? name = default)
     {
         if (!ConsoleApi.ValidMode(arg))
         {
-            throw new ArgumentException("No bit flag mode set", name);
+            throw new ArgumentException("Expected one or more flags to be set.", name);
         }
     }
 #endif // WINDOWS
@@ -50,26 +50,23 @@ internal class ThrowIf
     /// </summary>
     public static void InvalidPort([NotNull] int arg,
                                    [CallerArgumentExpression(nameof(arg))]
-                                   string? name = null)
+                                   string? name = default)
     {
         if (!Net.ValidPort(arg))
         {
-            throw new ArgumentException($"Invalid port number: {arg}", name);
+            throw new ArgumentOutOfRangeException($"Invalid port number: {arg}.", name);
         }
     }
 
     /// <summary>
     ///  Throw an exception if the given number is less than zero.
     /// </summary>
-    public static void LessThanZero<T>([NotNull] T arg,
-                                       [CallerArgumentExpression(nameof(arg))]
-                                       string? name = null)
-        where T : IBinaryInteger<T>
+    public static void Negative<T>([NotNull] T arg,
+                                   [CallerArgumentExpression(nameof(arg))]
+                                   string? name = default)
+        where T : INumber<T>
     {
-        if (arg < T.Zero)
-        {
-            throw new ArgumentException($"Number must be less than zero: {arg}", name);
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative(arg, name);
     }
 
     /// <summary>
@@ -77,7 +74,7 @@ internal class ThrowIf
     /// </summary>
     public static void Null<T>([NotNull] T? arg,
                                [CallerArgumentExpression(nameof(arg))]
-                               string? name = null)
+                               string? name = default)
     {
         ArgumentNullException.ThrowIfNull(arg, name);
     }
@@ -87,11 +84,13 @@ internal class ThrowIf
     /// </summary>
     public static void NullOrEmpty<T>([NotNull] IEnumerable<T>? arg,
                                       [CallerArgumentExpression(nameof(arg))]
-                                      string? name = null)
+                                      string? name = default)
     {
-        if (arg.IsNullOrEmpty())
+        Null(arg, name);
+
+        if (!arg.Any())
         {
-            throw new ArgumentNullException(name);
+            throw new ArgumentException("Collection cannot be empty.", name);
         }
     }
 
@@ -100,11 +99,8 @@ internal class ThrowIf
     /// </summary>
     public static void NullOrEmpty([NotNull] string? arg,
                                    [CallerArgumentExpression(nameof(arg))]
-                                   string? name = null)
+                                   string? name = default)
     {
-        if (arg.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(name);
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(arg, name);
     }
 }

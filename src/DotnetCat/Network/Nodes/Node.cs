@@ -312,7 +312,7 @@ internal abstract class Node : ISockErrorHandled
     {
         if (NetStream is null || !NetStream.CanRead || !NetStream.CanWrite)
         {
-            throw new InvalidOperationException(nameof(NetStream));
+            throw new InvalidOperationException("Invalid network stream state.");
         }
 
         _netWriter = new StreamWriter(NetStream)
@@ -401,7 +401,7 @@ internal abstract class Node : ISockErrorHandled
     {
         if (Args.TransOpt is TransferOpt.None)
         {
-            throw new InvalidOperationException(nameof(Args.TransOpt));
+            throw new InvalidOperationException("No file transfer option set.");
         }
         FilePipe filePipe;
 

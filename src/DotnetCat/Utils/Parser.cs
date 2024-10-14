@@ -476,7 +476,7 @@ internal partial class Parser
     {
         if (transfer is TransferOpt.None)
         {
-            throw new InvalidOperationException("File transfer option must be set");
+            throw new ArgumentException("No file transfer option set.", nameof(transfer));
         }
 
         // No corresponding argument value
@@ -540,8 +540,8 @@ internal partial class Parser
     /// </summary>
     private void AddProcessedArg(IndexedArg idxArg, int indexOffset = 0)
     {
-        ThrowIf.LessThanZero(idxArg.Index);
-        ThrowIf.LessThanZero(indexOffset);
+        ThrowIf.Negative(idxArg.Index);
+        ThrowIf.Negative(indexOffset);
 
         _processedIndexes.Add(idxArg.Index + indexOffset);
     }

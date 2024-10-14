@@ -26,7 +26,7 @@ internal class ErrorMessage
 
             if (MsgBuilt(value))
             {
-                throw new ArgumentException("Message already built", nameof(value));
+                throw new ArgumentException("Message already built.", nameof(value));
             }
             _message = value;
         }
@@ -39,7 +39,7 @@ internal class ErrorMessage
     {
         if (MsgBuilt())
         {
-            throw new InvalidOperationException("Underlying message already built");
+            throw new InvalidOperationException("Underlying message already built.");
         }
         return _message = Message.Replace("%", arg).Replace("{}", arg);
     }
