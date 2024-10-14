@@ -14,15 +14,16 @@ public class NetTests
 {
 #region MethodTests
     /// <summary>
-    ///  Assert that an input <c>AggregateException</c> returns the
-    ///  expected <see cref="Except"/> enumeration type member.
+    ///  Assert that an input <see cref="AggregateException"/> returns
+    ///  the expected <see cref="Except"/> enumeration type member.
     /// </summary>
     [DataTestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
     [DataRow(SocketError.ConnectionRefused, (byte)Except.ConnectionRefused)]
     [DataRow(SocketError.SystemNotReady, (byte)Except.SocketError)]
     public void GetExcept_AggregateException_ReturnsExpected(SocketError error,
-                                                             byte expectedByte) {
+                                                             byte expectedByte)
+    {
         SocketException innerEx = new((int)error);
         AggregateException aggregateEx = new(innerEx);
 
@@ -33,15 +34,16 @@ public class NetTests
     }
 
     /// <summary>
-    ///  Assert that an input <c>SocketException</c> returns the
-    ///  expected <see cref="Except"/> enumeration type member.
+    ///  Assert that an input <see cref="SocketException"/> returns
+    ///  the expected <see cref="Except"/> enumeration type member.
     /// </summary>
     [DataTestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
     [DataRow(SocketError.ConnectionRefused, (byte)Except.ConnectionRefused)]
     [DataRow(SocketError.SystemNotReady, (byte)Except.SocketError)]
     public void GetExcept_SocketException_ReturnsExpected(SocketError error,
-                                                          byte expectedByte) {
+                                                          byte expectedByte)
+    {
         SocketException socketEx = new((int)error);
 
         Except expected = (Except)expectedByte;
@@ -51,14 +53,14 @@ public class NetTests
     }
 
     /// <summary>
-    ///  Assert that an input <c>AggregateException</c> with a nested
-    ///  <c>SocketException</c> returns the nested <c>SocketException</c>.
+    ///  Assert that an input <see cref="AggregateException"/> with an inner
+    ///  <see cref="SocketException"/> returns the inner <see cref="SocketException"/>.
     /// </summary>
     [DataTestMethod]
     [DataRow(SocketError.SocketError)]
     [DataRow(SocketError.ConnectionRefused)]
     [DataRow(SocketError.SystemNotReady)]
-    public void GetException_NestedException_ReturnsException(SocketError error)
+    public void GetException_InnerException_ReturnsException(SocketError error)
     {
         SocketException expected = new((int)error);
         AggregateException aggregateEx = new(expected);
@@ -69,11 +71,11 @@ public class NetTests
     }
 
     /// <summary>
-    ///  Assert that an input <c>AggregateException</c> without a nested
-    ///  <c>SocketException</c> returns null.
+    ///  Assert that an input <see cref="AggregateException"/> without
+    ///  an inner <see cref="SocketException"/> returns null.
     /// </summary>
     [TestMethod]
-    public void GetException_NoNestedException_ReturnsNull()
+    public void GetException_NoInnerException_ReturnsNull()
     {
         AggregateException aggregateEx = new();
         SocketException? actual = Net.GetException(aggregateEx);
@@ -88,9 +90,9 @@ public class NetTests
     [DataRow(80)]
     [DataRow(443)]
     [DataRow(8443)]
-    public void IsValidPort_ValidPort_ReturnsTrue(int port)
+    public void ValidPort_ValidPort_ReturnsTrue(int port)
     {
-        bool actual = Net.IsValidPort(port);
+        bool actual = Net.ValidPort(port);
         Assert.IsTrue(actual, $"Port '{port}' should be considered valid");
     }
 
@@ -101,14 +103,14 @@ public class NetTests
     [DataRow(-80)]
     [DataRow(0)]
     [DataRow(65536)]
-    public void IsValidPort_InvalidPort_ReturnsFalse(int port)
+    public void ValidPort_InvalidPort_ReturnsFalse(int port)
     {
-        bool actual = Net.IsValidPort(port);
+        bool actual = Net.ValidPort(port);
         Assert.IsFalse(actual, $"Port '{port}' should be considered invalid");
     }
 
     /// <summary>
-    ///  Assert that an input socket error returns a <c>SocketException</c>
+    ///  Assert that an input socket error returns a <see cref="SocketException"/>
     ///  that was constructed with the correct socket error.
     /// </summary>
     [DataTestMethod]

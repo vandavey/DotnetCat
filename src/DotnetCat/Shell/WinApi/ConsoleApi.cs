@@ -2,8 +2,9 @@ using System;
 
 #if WINDOWS
 using System.Runtime.InteropServices;
-using BOOL = System.Boolean;
-using DWORD = System.UInt32;
+using DotnetCat.Errors;
+using BOOL = bool;
+using DWORD = uint;
 using HANDLE = nint;
 #endif // WINDOWS
 
@@ -58,23 +59,23 @@ internal static partial class ConsoleApi
 
 #if WINDOWS
     /// <summary>
-    ///  Enable console virtual terminal sequence processing using the
-    ///  given console input and console output modes.
+    ///  Enable console virtual terminal sequence processing
+    ///  using the given console input and console output modes.
     /// </summary>
     public static void EnableVirtualTerm(InMode inMode, OutMode outMode)
     {
         if (!VirtualTermEnabled)
         {
-            HANDLE stdInHandle = GetStdHandle(STD_INPUT_HANDLE);
-            HANDLE stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+            nint stdInHandle = GetStdHandle(STD_INPUT_HANDLE);
+            nint stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
             if (!ValidHandle(stdInHandle) || !ValidHandle(stdOutHandle))
             {
                 ExternError(nameof(GetStdHandle));
             }
 
-            DWORD stdInMode = GetMode(stdInHandle, GetDWord(inMode));
-            DWORD stdOutMode = GetMode(stdOutHandle, GetDWord(outMode));
+            uint stdInMode = GetMode(stdInHandle, GetDWord(inMode));
+            uint stdOutMode = GetMode(stdOutHandle, GetDWord(outMode));
 
             SetMode(stdInHandle, stdInMode);
             SetMode(stdOutHandle, stdOutMode);
@@ -84,64 +85,25 @@ internal static partial class ConsoleApi
     }
 
     /// <summary>
-    ///  Get a new mode to set for the console buffer that
-    ///  corresponds to the given console buffer handle.
+    ///  Determine whether the given console buffer handle is valid.
     /// </summary>
-    private static DWORD GetMode(HANDLE handle, DWORD mode)
+    public static bool ValidHandle(nint handle)
     {
-        if (!ValidHandle(handle))
-        {
-            throw new ArgumentException("Invalid handle", nameof(handle));
-        }
-
-        if (mode == NULL)
-        {
-            throw new ArgumentException("No bit flag set", nameof(mode));
-        }
-
-        if (!GetConsoleMode(handle, out DWORD streamMode))
-        {
-            ExternError(nameof(GetConsoleMode));
-        }
-        return streamMode |= mode;
+        return handle is not NULL and not INVALID_HANDLE_VALUE;
     }
 
     /// <summary>
-    ///  Set the mode of the console buffer that corresponds
-    ///  to the given console buffer handle.
+    ///  Determine whether the given console mode is valid.
     /// </summary>
-    private static void SetMode(HANDLE handle, DWORD mode)
-    {
-        if (!ValidHandle(handle))
-        {
-            throw new ArgumentException("Invalid handle", nameof(handle));
-        }
-
-        if (mode == NULL)
-        {
-            throw new ArgumentException("No bit flag set", nameof(mode));
-        }
-
-        if (!SetConsoleMode(handle, mode))
-        {
-            ExternError(nameof(SetConsoleMode));
-        }
-    }
+    public static bool ValidMode(uint mode) => mode is not NULL;
 
     /// <summary>
-    ///  Get the current input mode or output mode of the given
-    ///  console input buffer or console output buffer.
+    ///  Get the current input mode or output mode of the
+    ///  given console input buffer or console output buffer.
     /// </summary>
     [LibraryImport(KERNEL32_DLL, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial BOOL GetConsoleMode(HANDLE hConsoleHandle, out DWORD lpMode);
-
-    /// <summary>
-    ///  Get the calling thread's most recent Windows error code.
-    /// </summary>
-    [LibraryImport(KERNEL32_DLL)]
-    [return: MarshalAs(UnmanagedType.U4)]
-    private static partial DWORD GetLastError();
 
     /// <summary>
     ///  Get a handle to the given standard console buffer.
@@ -151,41 +113,68 @@ internal static partial class ConsoleApi
     private static partial HANDLE GetStdHandle(int nStdHandle);
 
     /// <summary>
-    ///  Set the input mode or output mode of the given console
-    ///  input buffer or console output buffer.
+    ///  Set the input mode or output mode of the given
+    ///  console input buffer or console output buffer.
     /// </summary>
     [LibraryImport(KERNEL32_DLL, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial BOOL SetConsoleMode(HANDLE hConsoleHandle, DWORD dwMode);
 
     /// <summary>
-    ///  Determine whether the given console buffer handle is valid.
-    /// </summary>
-    private static bool ValidHandle(HANDLE handle)
-    {
-        return handle != INVALID_HANDLE_VALUE && handle != HANDLE.Zero;
-    }
-
-    /// <summary>
-    ///  Convert the given console mode enumeration object to a DWORD.
-    /// </summary>
-    private static DWORD GetDWord<TEnum>(TEnum mode) where TEnum : Enum
-    {
-        if (Enum.GetUnderlyingType(typeof(TEnum)) != typeof(uint))
-        {
-            throw new ArgumentException("Invalid enum type", nameof(mode));
-        }
-        return Convert.ToUInt32(mode);
-    }
-
-    /// <summary>
-    ///  Throw an exception for an error that occurred in the external
-    ///  function that corresponds to the given extern name.
+    ///  Throw an exception for an error that occurred in the unmanaged
+    ///  function that corresponds to the given extern function name.
     /// </summary>
     private static void ExternError(string externName)
     {
-        DWORD errorCode = GetLastError();
-        throw new ExternalException($"Error in extern {externName}: {errorCode}");
+        throw new ExternalException($"Error in extern '{externName}'.", GetLastError());
+    }
+
+    /// <summary>
+    ///  Get the error code returned by the last unmanaged function call.
+    /// </summary>
+    private static int GetLastError() => Marshal.GetLastWin32Error();
+
+    /// <summary>
+    ///  Get a new mode to set for the console buffer that
+    ///  corresponds to the given console buffer handle.
+    /// </summary>
+    private static uint GetMode(nint handle, uint mode)
+    {
+        ThrowIf.InvalidHandle(handle);
+        ThrowIf.InvalidMode(mode);
+
+        if (!GetConsoleMode(handle, out uint streamMode))
+        {
+            ExternError(nameof(GetConsoleMode));
+        }
+        return streamMode |= mode;
+    }
+
+    /// <summary>
+    ///  Set the mode of the console buffer that
+    ///  corresponds to the given console buffer handle.
+    /// </summary>
+    private static void SetMode(nint handle, uint mode)
+    {
+        ThrowIf.InvalidHandle(handle);
+        ThrowIf.InvalidMode(mode);
+
+        if (!SetConsoleMode(handle, mode))
+        {
+            ExternError(nameof(SetConsoleMode));
+        }
+    }
+
+    /// <summary>
+    ///  Convert the given console mode enumeration type to a <c>DWORD</c>.
+    /// </summary>
+    private static uint GetDWord<TEnum>(TEnum mode) where TEnum : Enum
+    {
+        if (Enum.GetUnderlyingType(typeof(TEnum)) != typeof(uint))
+        {
+            throw new ArgumentException("Invalid underlying type.", nameof(mode));
+        }
+        return Convert.ToUInt32(mode);
     }
 #endif // WINDOWS
 }

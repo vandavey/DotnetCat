@@ -1,6 +1,6 @@
 # MIT License
 
-Copyright © 2024 vandavey
+Copyright © 2024, Dave Van Dewerker
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

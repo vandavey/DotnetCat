@@ -1,8 +1,9 @@
-using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotnetCat.Errors;
 using DotnetCat.Shell;
 using DotnetCat.Utils;
 
@@ -16,10 +17,13 @@ internal class StreamPipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public StreamPipe(StreamReader? src, StreamWriter? dest) : base()
+    public StreamPipe([NotNull] StreamReader? src, [NotNull] StreamWriter? dest) : base()
     {
-        Source = src ?? throw new ArgumentNullException(nameof(src));
-        Dest = dest ?? throw new ArgumentNullException(nameof(dest));
+        ThrowIf.Null(src);
+        ThrowIf.Null(dest);
+
+        Source = src;
+        Dest = dest;
     }
 
     /// <summary>

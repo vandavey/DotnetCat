@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace DotnetCat.Shell;
@@ -11,23 +10,6 @@ namespace DotnetCat.Shell;
 /// </summary>
 internal static class SysInfo
 {
-    private static readonly Platform _os;  // Local operating system
-
-    /// <summary>
-    ///  Initialize the static class members.
-    /// </summary>
-    static SysInfo()
-    {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            _os = Platform.Windows;
-        }
-        else
-        {
-            _os = Platform.Linux;
-        }
-    }
-
     /// <summary>
     ///  Environment-specific newline string.
     /// </summary>
@@ -41,12 +23,12 @@ internal static class SysInfo
     /// <summary>
     ///  Determine whether the local operating system is Linux.
     /// </summary>
-    public static bool IsLinux() => _os is Platform.Linux;
+    public static bool IsLinux() => OperatingSystem.IsLinux();
 
     /// <summary>
     ///  Determine whether the local operating system is Windows.
     /// </summary>
-    public static bool IsWindows() => _os is Platform.Windows;
+    public static bool IsWindows() => OperatingSystem.IsWindows();
 
     /// <summary>
     ///  Get a string containing information about the local drives.

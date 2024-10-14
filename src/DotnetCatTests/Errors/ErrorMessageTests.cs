@@ -28,8 +28,8 @@ public class ErrorMessageTests
     }
 
     /// <summary>
-    ///  Assert that an <c>ArgumentException</c> is thrown when the
-    ///  object is constructed with a built input message.
+    ///  Assert that an <see cref="ArgumentException"/> is thrown
+    ///  when the object is constructed with a built input message.
     /// </summary>
     [DataTestMethod]
     [DataRow("test")]
@@ -42,21 +42,21 @@ public class ErrorMessageTests
     }
 
     /// <summary>
-    ///  Assert that an <c>ArgumentNullException</c> is thrown when the
-    ///  object is constructed with an empty or blank input message.
+    ///  Assert that an <see cref="ArgumentException"/> is thrown when
+    ///  the object is constructed with an empty or blank input message.
     /// </summary>
     [DataTestMethod]
     [DataRow("")]
     [DataRow("  ")]
-    public void ErrorMessage_EmptyMessage_ThrowsArgumentNullException(string msg)
+    public void ErrorMessage_EmptyMessage_ThrowsArgumentException(string msg)
     {
         Func<ErrorMessage> func = () => _ = new ErrorMessage(msg);
-        Assert.ThrowsException<ArgumentNullException>(func);
+        Assert.ThrowsException<ArgumentException>(func);
     }
 
     /// <summary>
-    ///  Assert that an <c>ArgumentNullException</c> is thrown when
-    ///  the object is constructed with a null input message.
+    ///  Assert that an <see cref="ArgumentNullException"/> is thrown
+    ///  when the object is constructed with a null input message.
     /// </summary>
     [TestMethod]
     public void ErrorMessage_NullMessage_ThrowsArgumentNullException()
@@ -109,8 +109,8 @@ public class ErrorMessageTests
     }
 
     /// <summary>
-    ///  Assert that an <c>InvalidOperationException</c> is thrown when
-    ///  <see cref="ErrorMessage.Message"/> is already built.
+    ///  Assert that an <see cref="InvalidOperationException"/> is thrown
+    ///  when <see cref="ErrorMessage.Message"/> is already built.
     /// </summary>
     [DataTestMethod]
     [DataRow("test: '%'", "")]

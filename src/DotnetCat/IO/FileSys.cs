@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using DotnetCat.Errors;
 using DotnetCat.Shell;
 using DotnetCat.Utils;
 using SpecialFolder = System.Environment.SpecialFolder;
@@ -24,7 +26,7 @@ internal static class FileSys
         string envVar = Command.GetEnvVariable("PATH") ?? string.Empty;
 
         _envPaths = envVar.Split(Path.PathSeparator);
-        _exeExtensions = ["", "exe", "bat", "ps1", "py", "sh"];
+        _exeExtensions = [string.Empty, "exe", "bat", "ps1", "py", "sh"];
     }
 
     /// <summary>
@@ -38,17 +40,23 @@ internal static class FileSys
     /// <summary>
     ///  Determine whether a file system entry exists at the given file path.
     /// </summary>
-    public static bool Exists(string? path) => FileExists(path) || DirectoryExists(path);
+    public static bool Exists([NotNullWhen(true)] string? path)
+    {
+        return FileExists(path) || DirectoryExists(path);
+    }
 
     /// <summary>
     ///  Determine whether a file entry exists at the given file path.
     /// </summary>
-    public static bool FileExists(string? path) => File.Exists(ResolvePath(path));
+    public static bool FileExists([NotNullWhen(true)] string? path)
+    {
+        return File.Exists(ResolvePath(path));
+    }
 
     /// <summary>
     ///  Determine whether a directory entry exists at the given file path.
     /// </summary>
-    public static bool DirectoryExists(string? path)
+    public static bool DirectoryExists([NotNullWhen(true)] string? path)
     {
         return Directory.Exists(ResolvePath(path));
     }
@@ -57,6 +65,7 @@ internal static class FileSys
     ///  Get the file name from the given file path and optionally
     ///  exclude the file extension.
     /// </summary>
+    [return: NotNullIfNotNull(nameof(path))]
     public static string? GetFileName(string? path, bool withExt = true)
     {
         string? fileName = null;
@@ -79,6 +88,7 @@ internal static class FileSys
     /// <summary>
     ///  Get the absolute parent directory path from the given file path.
     /// </summary>
+    [return: NotNullIfNotNull(nameof(path))]
     public static string? ParentPath(string? path)
     {
         string? parent = null;
@@ -93,6 +103,7 @@ internal static class FileSys
     /// <summary>
     ///  Resolve the absolute file path of the given relative file path.
     /// </summary>
+    [return: NotNullIfNotNull(nameof(path))]
     public static string? ResolvePath(string? path)
     {
         string? fullPath = null;
@@ -100,7 +111,7 @@ internal static class FileSys
         if (!path.IsNullOrEmpty())
         {
             // Ensure drives are properly interpreted
-            if (SysInfo.IsWindows() && path.EndsWithValue(":"))
+            if (SysInfo.IsWindows() && path.EndsWithValue(Path.VolumeSeparatorChar))
             {
                 path += Path.DirectorySeparatorChar;
             }
@@ -115,12 +126,10 @@ internal static class FileSys
     ///  Determine whether the given executable file name can be found
     ///  by searching the local environment path.
     /// </summary>
-    public static (string? path, bool exists) ExistsOnPath(string? exe)
+    [return: NotNullIfNotNull(nameof(exe))]
+    public static (string? path, bool exists) ExistsOnPath([NotNull] string? exe)
     {
-        if (exe.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(exe));
-        }
+        ThrowIf.NullOrEmpty(exe);
 
         string? path = exe;
         bool exists = Exists(exe);
@@ -135,12 +144,9 @@ internal static class FileSys
     /// <summary>
     ///  Search the local environment path for the given executable name.
     /// </summary>
-    private static string? FindExecutable(string? exeName)
+    private static string? FindExecutable([NotNull] string? exeName)
     {
-        if (exeName.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(exeName));
-        }
+        ThrowIf.NullOrEmpty(exeName);
         string? fullPath = null;
 
         if (!FileExists(exeName))

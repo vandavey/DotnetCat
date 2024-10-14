@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotnetCat.Errors;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
@@ -15,11 +17,16 @@ internal class ProcessPipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ProcessPipe(CmdLineArgs args, StreamReader? src, StreamWriter? dest)
-        : base(args) {
+    public ProcessPipe(CmdLineArgs args,
+                       [NotNull] StreamReader? src,
+                       [NotNull] StreamWriter? dest)
+        : base(args)
+    {
+        ThrowIf.Null(src);
+        ThrowIf.Null(dest);
 
-        Source = src ?? throw new InvalidOperationException(nameof(src));
-        Dest = dest ?? throw new InvalidOperationException(nameof(dest));
+        Source = src;
+        Dest = dest;
     }
 
     /// <summary>

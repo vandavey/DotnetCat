@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotnetCat.Errors;
 using DotnetCat.Utils;
 
 namespace DotnetCat.IO.Pipelines;
@@ -19,12 +21,14 @@ internal class TextPipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public TextPipe(CmdLineArgs args, StreamWriter? dest) : base(args)
+    public TextPipe(CmdLineArgs args, [NotNull] StreamWriter? dest) : base(args)
     {
+        ThrowIf.Null(dest);
+
         _statusMsg = "Payload successfully transmitted";
         _memoryStream = new MemoryStream();
 
-        Dest = dest ?? throw new ArgumentNullException(nameof(dest));
+        Dest = dest;
         Source = new StreamReader(_memoryStream);
     }
 
@@ -41,11 +45,7 @@ internal class TextPipe : SocketPipe
         get => Args.Payload ?? string.Empty;
         set
         {
-            if (value.IsNullOrEmpty())
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
+            ThrowIf.NullOrEmpty(value);
             _memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(value));
             Args.Payload = value;
         }

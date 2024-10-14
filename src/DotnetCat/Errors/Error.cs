@@ -25,7 +25,9 @@ internal static class Error
     ///  Handle user-defined exceptions related to DotnetCat and exit.
     /// </summary>
     [DoesNotReturn]
-    public static void Handle(Except exType, string? arg, Exception? ex = default)
+    public static void Handle(Except exType,
+                              [NotNull] string? arg,
+                              Exception? ex = default)
     {
         Handle(exType, arg, false, ex);
     }
@@ -35,10 +37,10 @@ internal static class Error
     /// </summary>
     [DoesNotReturn]
     public static void Handle(Except exType,
-                              string? arg,
+                              [NotNull] string? arg,
                               Exception? ex,
-                              Level level = default) {
-
+                              Level level = default)
+    {
         Handle(exType, arg, false, ex, level);
     }
 
@@ -47,12 +49,12 @@ internal static class Error
     /// </summary>
     [DoesNotReturn]
     public static void Handle(Except exType,
-                              string? arg,
+                              [NotNull] string? arg,
                               bool showUsage,
                               Exception? ex = default,
-                              Level level = default) {
-
-        _ = arg ?? throw new ArgumentNullException(nameof(arg));
+                              Level level = default)
+    {
+        ThrowIf.NullOrEmpty(arg);
 
         // Display program usage
         if (showUsage)
@@ -96,8 +98,8 @@ internal static class Error
     ///  Get a new error message that corresponds to the given
     ///  exception enumeration type.
     /// </summary>
-    private static ErrorMessage MakeErrorMessage(Except exType,
-                                                 string? arg = default) {
+    private static ErrorMessage MakeErrorMessage(Except exType, string? arg = default)
+    {
         ErrorMessage message = new(exType switch
         {
             Except.AddressInUse       => "The endpoint is already in use: %",
