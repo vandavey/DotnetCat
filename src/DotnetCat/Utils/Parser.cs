@@ -63,8 +63,8 @@ internal partial class Parser
     public CmdLineArgs CmdArgs { get; }
 
     /// <summary>
-    ///  Write the extended application usage information to the standard
-    ///  console output stream and exit the application.
+    ///  Write the extended application usage information to the
+    ///  standard console output stream and exit the application.
     /// </summary>
     [DoesNotReturn]
     public static void PrintHelp()
@@ -403,14 +403,14 @@ internal partial class Parser
     }
 
     /// <summary>
-    ///  Determine whether the given index is a valid index of an argument
-    ///  in the underlying command-line argument list.
+    ///  Determine whether the given index is a valid index of an
+    ///  argument in the underlying command-line argument list.
     /// </summary>
     private bool ValidIndex(int index) => index >= 0 && index < _argsList.Count;
 
     /// <summary>
-    ///  Get the value of the argument located at the given index in
-    ///  the underlying command-line argument list.
+    ///  Get the value of the argument located at the given
+    ///  index in the underlying command-line argument list.
     /// </summary>
     private string ArgsValueAt(int index)
     {
