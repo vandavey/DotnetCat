@@ -35,7 +35,7 @@ internal class ClientNode : Node
     /// </summary>
     public override void Connect()
     {
-        _ = Address ?? throw new ArgumentNullException(nameof(Address));
+        ThrowIf.Null(Address);
         _targetEP = new HostEndPoint(HostName, Port);
 
         ValidateArgsCombinations();

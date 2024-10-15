@@ -1,6 +1,6 @@
 #if WINDOWS
 using System;
-using DWORD = System.UInt32;
+using DWORD = uint;
 
 namespace DotnetCat.Shell.WinApi;
 

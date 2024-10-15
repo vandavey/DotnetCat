@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using DotnetCat.Errors;
 using DotnetCat.IO;
 using DotnetCat.Utils;
 
@@ -29,9 +31,9 @@ internal static class Command
     /// <summary>
     ///  Get process startup information to initialize the given command shell.
     /// </summary>
-    public static ProcessStartInfo GetExeStartInfo(string? shell)
+    public static ProcessStartInfo GetExeStartInfo([NotNull] string? shell)
     {
-        _ = shell ?? throw new ArgumentNullException(nameof(shell));
+        ThrowIf.NullOrEmpty(shell);
 
         ProcessStartInfo startInfo = new(shell)
         {

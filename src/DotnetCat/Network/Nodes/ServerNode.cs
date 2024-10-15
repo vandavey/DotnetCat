@@ -36,7 +36,7 @@ internal class ServerNode : Node
     /// </summary>
     public override void Connect()
     {
-        _ = Address ?? throw new ArgumentNullException(nameof(Address));
+        ThrowIf.Null(Address);
 
         IPEndPoint? remoteEP = null;
         IPEndPoint localEP = new(Address, Port);
@@ -88,7 +88,8 @@ internal class ServerNode : Node
     public override void PipeError(Except type,
                                    HostEndPoint target,
                                    Exception? ex = default,
-                                   Level level = default) {
+                                   Level level = default)
+    {
         Dispose();
         Error.Handle(type, target.ToString(), ex, level);
     }
@@ -100,7 +101,8 @@ internal class ServerNode : Node
     public override void PipeError(Except type,
                                    string? arg,
                                    Exception? ex = default,
-                                   Level level = default) {
+                                   Level level = default)
+    {
         Dispose();
         Error.Handle(type, arg, ex, level);
     }
@@ -121,7 +123,7 @@ internal class ServerNode : Node
     /// </summary>
     private void BindListener(IPEndPoint ep)
     {
-        _ = ep ?? throw new ArgumentNullException(nameof(ep));
+        ThrowIf.Null(ep);
 
         _listener = new Socket(AddressFamily.InterNetwork,
                                SocketType.Stream,

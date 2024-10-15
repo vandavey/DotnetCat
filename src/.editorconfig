@@ -1,6 +1,6 @@
 root = true
 
-# All files
+# All text files
 [*]
 
 #### Core EditorConfig Options ####

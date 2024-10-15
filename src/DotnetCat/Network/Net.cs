@@ -17,7 +17,7 @@ internal static class Net
     /// <summary>
     ///  Determine whether the given port is a valid network port number.
     /// </summary>
-    public static bool IsValidPort(int port) => port is > 0 and <= 65535;
+    public static bool ValidPort(int port) => port is > 0 and <= 65535;
 
     /// <summary>
     ///  Resolve the IPv4 address associated with the given hostname.
@@ -68,10 +68,7 @@ internal static class Net
     /// <summary>
     ///  Get the exception enum member associated to the given aggregate exception.
     /// </summary>
-    public static Except GetExcept(AggregateException ex)
-    {
-        return GetExcept(GetException(ex));
-    }
+    public static Except GetExcept(AggregateException ex) => GetExcept(GetException(ex));
 
     /// <summary>
     ///  Get the exception enum member associated to the given socket exception.

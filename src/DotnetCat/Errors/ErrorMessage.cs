@@ -1,5 +1,4 @@
 using System;
-using DotnetCat.Utils;
 
 namespace DotnetCat.Errors;
 
@@ -23,14 +22,11 @@ internal class ErrorMessage
         get => _message ??= string.Empty;
         private set
         {
-            if (value.IsNullOrEmpty())
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
+            ThrowIf.NullOrEmpty(value);
 
             if (MsgBuilt(value))
             {
-                throw new ArgumentException("Message already built", nameof(value));
+                throw new ArgumentException("Message already built.", nameof(value));
             }
             _message = value;
         }
@@ -43,23 +39,20 @@ internal class ErrorMessage
     {
         if (MsgBuilt())
         {
-            throw new InvalidOperationException("Underlying message already built");
+            throw new InvalidOperationException("Underlying message already built.");
         }
         return _message = Message.Replace("%", arg).Replace("{}", arg);
     }
 
     /// <summary>
     ///  Determine whether the given message string contains
-    ///  any format specifier substrings (`%`, `{}`).
+    ///  any format specifier placeholders (<c>%</c>, <c>{}</c>).
     /// </summary>
-    private static bool MsgBuilt(string msg)
-    {
-        return !msg.Contains('%') && !msg.Contains("{}");
-    }
+    private static bool MsgBuilt(string msg) => !msg.Contains('%') && !msg.Contains("{}");
 
     /// <summary>
     ///  Determine whether the underlying message string contains
-    ///  any format specifier substrings (`%`, `{}`).
+    ///  any format specifier placeholders (<c>%</c>, <c>{}</c>).
     /// </summary>
     private bool MsgBuilt() => MsgBuilt(Message);
 }

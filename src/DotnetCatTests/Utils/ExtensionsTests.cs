@@ -141,8 +141,7 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an input string not ending with a
-    ///  specific character returns false.
+    ///  Assert that an input string not ending with a specific character returns false.
     /// </summary>
     [DataTestMethod]
     [DataRow(null, 't')]
@@ -169,8 +168,7 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an input string not ending with a
-    ///  specific substring returns false.
+    ///  Assert that an input string not ending with a specific substring returns false.
     /// </summary>
     [DataTestMethod]
     [DataRow(null, "test data")]
@@ -197,8 +195,7 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an input string not starting with a
-    ///  specific character returns false.
+    ///  Assert that an input string not starting with a specific character returns false.
     /// </summary>
     [DataTestMethod]
     [DataRow(null, 't')]
@@ -225,15 +222,14 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an input string not starting with a
-    ///  specific substring returns false.
+    ///  Assert that an input string not starting with a specific substring returns false.
     /// </summary>
     [DataTestMethod]
     [DataRow(null, "test data")]
     [DataRow("test data", null)]
     [DataRow("test data", " test ")]
-    public void StartsWithValue_StringDoesNot_ReturnsFalse(string? str,
-                                                           string? value) {
+    public void StartsWithValue_StringDoesNot_ReturnsFalse(string? str, string? value)
+    {
         bool actual = str.StartsWithValue(value);
         Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'");
     }
@@ -269,8 +265,7 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that a null input string compared to
-    ///  another null string returns true.
+    ///  Assert that a null input string compared to another null string returns true.
     /// </summary>
     [TestMethod]
     public void NoCaseEquals_NullStrings_ReturnsTrue()
@@ -292,8 +287,8 @@ public class ExtensionsTests
     {
         IEnumerable<object>? values = array;
 
-        (int, object)[] expected = values.Select((v, i) => (i, v)).ToArray();
-        (int, object)[] actual = values.Enumerate().ToArray();
+        (int, object)[] expected = [.. values.Select((v, i) => (i, v))];
+        (int, object)[] actual = [.. values.Enumerate()];
 
         CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
     }
@@ -301,13 +296,19 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an empty input array returns an empty tuple enumerable.
     /// </summary>
+    /// <remarks>
+    ///  Array of type <see cref="ValueTuple{T1, T2}"/> is used in place of
+    ///  <see cref="IEnumerable{T}"/> for compatibility with
+    ///  <see cref="CollectionAssert.AreEquivalent"/> assertions.
+    /// </remarks>
     [TestMethod]
     public void Enumerate_EmptyArray_ReturnsEmpty()
     {
         IEnumerable<string>? values = [];
-
         (int, string)[] expected = [];
-        (int, string)[] actual = values.Enumerate().ToArray();
+
+        IEnumerable<(int, string)> actualEnumerable = values.Enumerate();
+        (int, string)[] actual = [.. actualEnumerable];
 
         CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
     }
@@ -315,20 +316,25 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a null input enumerable returns an empty tuple enumerable.
     /// </summary>
+    /// <remarks>
+    ///  Array of type <see cref="ValueTuple{T1, T2}"/> is used in place of
+    ///  <see cref="IEnumerable{T}"/> for compatibility with
+    ///  <see cref="CollectionAssert.AreEquivalent"/> assertions.
+    /// </remarks>
     [TestMethod]
     public void Enumerate_NullEnumerable_ReturnsEmpty()
     {
         IEnumerable<string>? values = null;
 
         (int, string)[] expected = [];
-        (int, string)[] actual = values.Enumerate().ToArray();
+        (int, string)[] actual = [.. values.Enumerate()];
 
         CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
     }
 
     /// <summary>
-    ///  Assert that an <c>ArgumentNullException</c> is thrown
-    ///  when the input array is null.
+    ///  Assert that an <see cref="ArgumentNullException"/>
+    ///  is thrown when the input array is null.
     /// </summary>
     [DataTestMethod]
     [DataRow("")]
@@ -347,7 +353,7 @@ public class ExtensionsTests
     [DataTestMethod]
     [DataRow(new object[] { 1, 2, 3 }, "|")]
     [DataRow(new string[] { "test", "data" }, null)]
-    public void Join_NonNullArray_EqualsExpected(object[] array, string delim)
+    public void Join_NonNullArray_EqualsExpected(object[] array, string? delim)
     {
         string expected = string.Join(delim, array);
         string actual = array.Join(delim);
@@ -356,8 +362,8 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an <c>ArgumentNullException</c> is thrown
-    ///  when the input array is null.
+    ///  Assert that an <see cref="ArgumentNullException"/>
+    ///  is thrown when the input array is null.
     /// </summary>
     [TestMethod]
     public void JoinLines_NullArray_ThrowsArgumentNullException()

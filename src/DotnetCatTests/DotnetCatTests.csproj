@@ -3,21 +3,27 @@
      DotnetCatTests project properties
     -->
     <PropertyGroup>
-        <ApplicationIcon>../DotnetCat/Resources/Icon.ico</ApplicationIcon>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
         <AssemblyName>DotnetCatTests</AssemblyName>
         <Authors>vandavey</Authors>
         <Configurations>Debug;Release;Linux;ARM64</Configurations>
-        <Copyright>Copyright (c) 2022 vandavey</Copyright>
+        <Copyright>Copyright (c) 2024 vandavey</Copyright>
+        <DebugSymbols>false</DebugSymbols>
+        <DebugType>None</DebugType>
         <Description>DotnetCat unit tests</Description>
-        <ErrorReport>none</ErrorReport>
+        <ErrorReport>None</ErrorReport>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
-        <ImplicitUsings>disable</ImplicitUsings>
+        <ImplicitUsings>Disable</ImplicitUsings>
+        <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
+        <IntermediateOutputPath>obj/$(Configuration)</IntermediateOutputPath>
         <IsPackable>false</IsPackable>
-        <Nullable>enable</Nullable>
-        <OutputType>library</OutputType>
+        <Nullable>Enable</Nullable>
+        <Optimize>false</Optimize>
+        <OutputPath>bin/$(Configuration)</OutputPath>
+        <OutputType>Library</OutputType>
         <PackageLicenseFile>../DotnetCat/Resources/LICENSE.md</PackageLicenseFile>
-        <Platforms>AnyCPU</Platforms>
         <PlatformTarget>AnyCPU</PlatformTarget>
+        <Platforms>AnyCPU</Platforms>
         <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
         <RootNamespace>DotnetCatTests</RootNamespace>
         <TargetFramework>net8.0</TargetFramework>
@@ -25,62 +31,44 @@
     </PropertyGroup>
 
     <!--
-     Configure debug specific properties
+     Debug configuration properties.
     -->
     <PropertyGroup Condition="'$(Configuration)'=='Debug'">
         <DebugSymbols>true</DebugSymbols>
-        <DebugType>portable</DebugType>
-        <OutputPath>bin/Debug</OutputPath>
+        <DebugType>Portable</DebugType>
     </PropertyGroup>
 
     <!--
-     Configure release specific properties
+     Helper and utility properties.
     -->
-    <PropertyGroup Condition="'$(Configuration)'!='Debug'">
-        <DebugSymbols>false</DebugSymbols>
-        <DebugType>none</DebugType>
-        <OutputPath>bin/Release</OutputPath>
+    <PropertyGroup>
+        <IsLinuxConfig Condition="'$(Configuration)'=='ARM64' OR '$(Configuration)'=='Linux'">true</IsLinuxConfig>
+        <IsLinuxRid Condition="$(RuntimeIdentifier.StartsWith('linux-'))">true</IsLinuxRid>
+        <IsWindowsConfig Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Release'">true</IsWindowsConfig>
+        <IsWindowsRid Condition="$(RuntimeIdentifier.StartsWith('win-'))">true</IsWindowsRid>
     </PropertyGroup>
 
     <!--
-     Define Linux compiler constants
+     Compiler constants.
     -->
-    <PropertyGroup Condition="'$(Configuration)'=='ARM64' OR '$(Configuration)'=='Linux'">
-        <DefineConstants>LINUX</DefineConstants>
+    <PropertyGroup>
+        <DefineConstants Condition="'$(IsLinuxConfig)'=='true'">LINUX</DefineConstants>
+        <DefineConstants Condition="'$(IsWindowsConfig)'=='true'">WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <!--
-     Define Windows compiler constants
-    -->
-    <PropertyGroup Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Release'">
-        <DefineConstants>WINDOWS</DefineConstants>
-    </PropertyGroup>
-
-    <!--
-     Nuget package information
+     Nuget package references.
     -->
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
-        <PackageReference Include="MSTest.TestAdapter" Version="3.*" />
-        <PackageReference Include="MSTest.TestFramework" Version="3.*" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
+        <PackageReference Include="MSTest.TestAdapter" Version="*" />
+        <PackageReference Include="MSTest.TestFramework" Version="*" />
     </ItemGroup>
 
     <!--
-     Project reference to DotnetCat
+     Project references.
     -->
     <ItemGroup>
         <ProjectReference Include="../DotnetCat/DotnetCat.csproj" />
-    </ItemGroup>
-
-    <!--
-     Include source code and resource directories
-    -->
-    <ItemGroup>
-        <Folder Include="Errors/" />
-        <Folder Include="IO/" />
-        <Folder Include="Network/" />
-        <Folder Include="Properties/" />
-        <Folder Include="Shell/" />
-        <Folder Include="Utils/" />
     </ItemGroup>
 </Project>

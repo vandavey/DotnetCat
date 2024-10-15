@@ -1,6 +1,6 @@
 using System;
+using DotnetCat.Errors;
 using DotnetCat.Shell.WinApi;
-using DotnetCat.Utils;
 
 namespace DotnetCat.IO;
 
@@ -29,10 +29,7 @@ internal static class Sequence
     ///  Get the ANSI foreground color SGR control sequence that
     ///  corresponds to the given console color.
     /// </summary>
-    public static string GetColorStr(ConsoleColor color)
-    {
-        return GetColorSequence(color);
-    }
+    public static string GetColorStr(ConsoleColor color) => GetColorSequence(color);
 
     /// <summary>
     ///  Style the given message using ANSI SGR control sequences so the
@@ -40,10 +37,7 @@ internal static class Sequence
     /// </summary>
     public static string GetColorStr(string msg, ConsoleColor color)
     {
-        if (msg.IsNullOrEmpty())
-        {
-            throw new ArgumentNullException(nameof(msg));
-        }
+        ThrowIf.NullOrEmpty(msg);
         return $"{GetColorSequence(color)}{msg}{RESET}";
     }
 
