@@ -33,14 +33,6 @@ internal static class Output
     }
 
     /// <summary>
-    ///  Get the standard console stream corresponding to the given logging level.
-    /// </summary>
-    private static TextWriter ConsoleStream(LogLevel level)
-    {
-        return level is LogLevel.Error or LogLevel.Warn ? Console.Error : Console.Out;
-    }
-
-    /// <summary>
     ///  Get the log message prefix symbol corresponding to the given logging level.
     /// </summary>
     private static string LogPrefix(LogLevel level) => level switch
@@ -64,4 +56,12 @@ internal static class Output
         LogLevel.Error  => ConsoleColor.Red,
         _ => throw new ArgumentException("Invalid logging level", nameof(level))
     };
+
+    /// <summary>
+    ///  Get the standard console stream corresponding to the given logging level.
+    /// </summary>
+    private static TextWriter ConsoleStream(LogLevel level)
+    {
+        return level is LogLevel.Error or LogLevel.Warn ? Console.Error : Console.Out;
+    }
 }
