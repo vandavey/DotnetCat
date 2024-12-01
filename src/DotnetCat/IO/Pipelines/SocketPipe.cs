@@ -1,11 +1,12 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DotnetCat.Contracts;
 using DotnetCat.Errors;
+using DotnetCat.Network;
 using DotnetCat.Shell;
 using DotnetCat.Utils;
 
@@ -17,7 +18,8 @@ namespace DotnetCat.IO.Pipelines;
 /// </summary>
 internal abstract class SocketPipe : IConnectable
 {
-    protected const int BUFFER_SIZE = 1024;  // Memory buffer size
+    protected const int READ_BUFFER_SIZE = 1024;
+    protected const int WRITE_BUFFER_SIZE = READ_BUFFER_SIZE * 4;
 
     /// <summary>
     ///  Initialize the object.
@@ -93,24 +95,15 @@ internal abstract class SocketPipe : IConnectable
     /// <summary>
     ///  Activate communication between the underlying streams.
     /// </summary>
-    public virtual void Connect()
+    public void Connect()
     {
         ThrowIf.Null(Source);
         ThrowIf.Null(Dest);
 
         CTS = new CancellationTokenSource();
-        Buffer = new Memory<char>(new char[BUFFER_SIZE]);
+        Buffer = new Memory<char>(new char[READ_BUFFER_SIZE]);
 
         Worker = ConnectAsync(CTS.Token);
-    }
-
-    /// <summary>
-    ///  Cancel communication between the underlying streams.
-    /// </summary>
-    public virtual void Disconnect()
-    {
-        Connected = false;
-        CTS?.Cancel();
     }
 
     /// <summary>
@@ -125,6 +118,34 @@ internal abstract class SocketPipe : IConnectable
         Client?.Dispose();
 
         GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///  Dispose of all unmanaged resources and handle the given error.
+    /// </summary>
+    [DoesNotReturn]
+    public void PipeError(Except type, [NotNull] string? arg, Exception? ex = default)
+    {
+        Dispose();
+        Error.Handle(type, arg, ex);
+    }
+
+    /// <summary>
+    ///  Dispose of all unmanaged resources and handle the given error.
+    /// </summary>
+    [DoesNotReturn]
+    public void PipeError(Except type, HostEndPoint target, Exception? ex = default)
+    {
+        PipeError(type, target.ToString(), ex);
+    }
+
+    /// <summary>
+    ///  Cancel communication between the underlying streams.
+    /// </summary>
+    protected void Disconnect()
+    {
+        Connected = false;
+        CTS?.Cancel();
     }
 
     /// <summary>

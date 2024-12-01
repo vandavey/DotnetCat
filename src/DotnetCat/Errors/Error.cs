@@ -38,54 +38,35 @@ internal static class Error
     [DoesNotReturn]
     public static void Handle(Except exType,
                               [NotNull] string? arg,
-                              Exception? ex,
-                              Level level = default)
-    {
-        Handle(exType, arg, false, ex, level);
-    }
-
-    /// <summary>
-    ///  Handle user-defined exceptions related to DotnetCat and exit.
-    /// </summary>
-    [DoesNotReturn]
-    public static void Handle(Except exType,
-                              [NotNull] string? arg,
                               bool showUsage,
-                              Exception? ex = default,
-                              Level level = default)
+                              Exception? ex = default)
     {
         ThrowIf.NullOrEmpty(arg);
 
-        // Display program usage
+        // Print application usage
         if (showUsage)
         {
             Console.WriteLine(Parser.Usage);
         }
-        ErrorMessage errorMsg = MakeErrorMessage(exType, arg);
 
-        // Print warning/error message
-        if (level is Level.Warn)
-        {
-            Style.Warn(errorMsg.Message);
-        }
-        else
-        {
-            Style.Error(errorMsg.Message);
-        }
+        ErrorMessage errorMsg = MakeErrorMessage(exType, arg);
+        Output.Error(errorMsg.Message);
 
         // Print debug information
         if (Debug && ex is not null)
         {
             if (ex is AggregateException aggregateEx)
             {
-                ex = Net.GetException(aggregateEx) ?? ex;
+                ex = Net.SocketException(aggregateEx) ?? ex;
             }
-            string header = $"----[ {ex?.GetType().FullName} ]----";
+
+            string errorName = Sequence.Colorize(ex.GetType().FullName, ConsoleColor.Red);
+            string header = $"----[ {errorName} ]----";
 
             Console.WriteLine($"""
                 {header}
                 {ex?.ToString()}
-                {new string('-', header.Length)}
+                {new string('-', Sequence.Length(header))}
                 """
             );
         }

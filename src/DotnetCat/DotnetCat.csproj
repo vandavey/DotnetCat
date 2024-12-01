@@ -7,7 +7,7 @@
         <ApplicationIcon>Resources/Icon.ico</ApplicationIcon>
         <AssemblyName>dncat</AssemblyName>
         <Authors>vandavey</Authors>
-        <Configurations>Debug;Release;Linux;ARM64</Configurations>
+        <Configurations>Debug; Release; Linux; ARM64</Configurations>
         <Copyright>Copyright (c) 2024 vandavey</Copyright>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
@@ -34,7 +34,7 @@
         <RootNamespace>DotnetCat</RootNamespace>
         <SelfContained>true</SelfContained>
         <StartupObject>DotnetCat.Program</StartupObject>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <WarningLevel>7</WarningLevel>
     </PropertyGroup>
 
@@ -83,7 +83,7 @@
     </ItemGroup>
 
     <!--
-     Include Markdown files and scripts.
+     Include Markdown files and shell scripts.
     -->
     <ItemGroup>
         <None Include="$(SolutionDir)../*.md" Visible="false" />
@@ -96,7 +96,7 @@
     -->
     <ItemGroup Condition="'$(Publishing)'=='true'">
         <!-- Copy license file. -->
-        <ContentWithTargetPath Include="$(SolutionDir)../LICENSE.md">
+        <ContentWithTargetPath Include="$(SolutionDir)../*.md">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <TargetPath>%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>

@@ -56,21 +56,21 @@ internal class ClientNode : Node
 
             if (Args.PipeVariant is not PipeType.Status)
             {
-                Style.Info($"Connected to {_targetEP}");
+                Output.Log($"Connected to {_targetEP}");
             }
 
             base.Connect();
             WaitForExit();
 
-            Style.Info($"Connection to {_targetEP} closed");
+            Output.Log($"Connection to {_targetEP} closed");
         }
         catch (AggregateException ex)  // Asynchronous socket error occurred
         {
-            PipeError(Net.GetExcept(ex), _targetEP, ex, Level.Error);
+            PipeError(Net.GetExcept(ex), _targetEP, ex);
         }
         catch (SocketException ex)     // Socket error occurred
         {
-            PipeError(Net.GetExcept(ex), _targetEP, ex, Level.Error);
+            PipeError(Net.GetExcept(ex), _targetEP, ex);
         }
         catch (IOException ex)         // Connection was reset
         {

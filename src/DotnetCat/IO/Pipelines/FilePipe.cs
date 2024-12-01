@@ -1,10 +1,8 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using DotnetCat.Contracts;
 using DotnetCat.Errors;
 using DotnetCat.Utils;
 
@@ -13,7 +11,7 @@ namespace DotnetCat.IO.Pipelines;
 /// <summary>
 ///  Unidirectional socket pipeline used to transfer file data.
 /// </summary>
-internal class FilePipe : SocketPipe, IErrorHandled
+internal class FilePipe : SocketPipe
 {
     private readonly TransferOpt _transfer;  // File transfer option
 
@@ -65,19 +63,6 @@ internal class FilePipe : SocketPipe, IErrorHandled
     }
 
     /// <summary>
-    ///  Dispose of all unmanaged resources and handle the given error.
-    /// </summary>
-    [DoesNotReturn]
-    public virtual void PipeError(Except type,
-                                  string? arg,
-                                  Exception? ex = default,
-                                  Level level = default)
-    {
-        Dispose();
-        Error.Handle(type, arg, ex, level);
-    }
-
-    /// <summary>
     ///  Create or overwrite a file at the given file path for writing.
     /// </summary>
     protected FileStream CreateFile(string path)
@@ -97,7 +82,7 @@ internal class FilePipe : SocketPipe, IErrorHandled
                               FileMode.Create,
                               FileAccess.Write,
                               FileShare.Write,
-                              bufferSize: BUFFER_SIZE,
+                              READ_BUFFER_SIZE,
                               useAsync: true);
     }
 
@@ -121,7 +106,7 @@ internal class FilePipe : SocketPipe, IErrorHandled
                               FileMode.Open,
                               FileAccess.Read,
                               FileShare.Read,
-                              bufferSize: 4096,
+                              WRITE_BUFFER_SIZE,
                               useAsync: true);
     }
 
@@ -135,11 +120,11 @@ internal class FilePipe : SocketPipe, IErrorHandled
 
         if (Verbose && _transfer is TransferOpt.Collect)
         {
-            Style.Info($"Downloading socket data to '{FilePath}'...");
+            Output.Log($"Downloading socket data to '{FilePath}'...");
         }
         else if (Verbose && _transfer is TransferOpt.Transmit)
         {
-            Style.Info($"Transmitting '{FilePath}' data...");
+            Output.Log($"Transmitting '{FilePath}' data...");
         }
 
         data.Append(await ReadToEndAsync());
@@ -147,11 +132,11 @@ internal class FilePipe : SocketPipe, IErrorHandled
 
         if (Verbose && _transfer is TransferOpt.Collect)
         {
-            Style.Output($"File successfully downloaded to '{FilePath}'");
+            Output.Status($"File successfully downloaded to '{FilePath}'");
         }
         else if (Verbose && _transfer is TransferOpt.Transmit)
         {
-            Style.Output("File successfully transmitted");
+            Output.Status("File successfully transmitted");
         }
 
         Disconnect();

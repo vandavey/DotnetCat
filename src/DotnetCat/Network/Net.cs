@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -68,7 +67,10 @@ internal static class Net
     /// <summary>
     ///  Get the exception enum member associated to the given aggregate exception.
     /// </summary>
-    public static Except GetExcept(AggregateException ex) => GetExcept(GetException(ex));
+    public static Except GetExcept(AggregateException ex)
+    {
+        return GetExcept(SocketException(ex));
+    }
 
     /// <summary>
     ///  Get the exception enum member associated to the given socket exception.
@@ -94,12 +96,9 @@ internal static class Net
     /// <summary>
     ///  Get the first socket exception nested within the given aggregate exception.
     /// </summary>
-    public static SocketException? GetException(AggregateException ex)
+    public static SocketException? SocketException(AggregateException ex)
     {
-        IEnumerable<SocketException> results = from innerEx in ex.InnerExceptions
-                                               where innerEx is SocketException
-                                               select innerEx as SocketException;
-        return results.FirstOrDefault();
+        return ex.InnerExceptions.FirstOrDefaultOfType<SocketException>();
     }
 
     /// <summary>

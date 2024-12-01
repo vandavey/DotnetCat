@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -47,7 +46,7 @@ internal class ServerNode : Node
         try  // Listen for an inbound connection
         {
             _listener?.Listen(1);
-            Style.Info($"Listening for incoming connections on {localEP}...");
+            Output.Log($"Listening for incoming connections on {localEP}...");
 
             if (_listener is not null)
             {
@@ -61,13 +60,13 @@ internal class ServerNode : Node
             }
 
             remoteEP = Client.Client.RemoteEndPoint as IPEndPoint;
-            Style.Info($"Connected to {remoteEP}");
+            Output.Log($"Connected to {remoteEP}");
 
             base.Connect();
             WaitForExit();
 
             Console.WriteLine();
-            Style.Info($"Connection to {remoteEP} closed");
+            Output.Log($"Connection to {remoteEP} closed");
         }
         catch (SocketException ex)  // Socket error occurred
         {
@@ -79,32 +78,6 @@ internal class ServerNode : Node
         }
 
         Dispose();
-    }
-
-    /// <summary>
-    ///  Dispose of all unmanaged resources and handle the given error.
-    /// </summary>
-    [DoesNotReturn]
-    public override void PipeError(Except type,
-                                   HostEndPoint target,
-                                   Exception? ex = default,
-                                   Level level = default)
-    {
-        Dispose();
-        Error.Handle(type, target.ToString(), ex, level);
-    }
-
-    /// <summary>
-    ///  Dispose of all unmanaged resources and handle the given error.
-    /// </summary>
-    [DoesNotReturn]
-    public override void PipeError(Except type,
-                                   string? arg,
-                                   Exception? ex = default,
-                                   Level level = default)
-    {
-        Dispose();
-        Error.Handle(type, arg, ex, level);
     }
 
     /// <summary>
