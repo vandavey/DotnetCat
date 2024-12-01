@@ -41,7 +41,7 @@ internal class StatusPipe : TextPipe
         StringBuilder data = new(await ReadToEndAsync());
         await WriteAsync(data, token);
 
-        Style.Output(_statusMsg);
+        Output.Status(_statusMsg);
 
         Disconnect();
         Dispose();

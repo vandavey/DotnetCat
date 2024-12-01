@@ -5,14 +5,14 @@
 # DotnetCat
 
 <div align="left">
-    <img src="https://img.shields.io/badge/c%23-v12-9325ff" alt="csharp-12-badge" />
+    <img src="https://img.shields.io/badge/c%23-v13-9325ff" alt="csharp-12-badge" />
     <img src="https://img.shields.io/github/license/vandavey/DotnetCat" alt="license-badge" />
     <img src="https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue" alt="contributors-badge" />
     <img src="https://img.shields.io/github/issues-pr/vandavey/DotnetCat" alt="pull-requests-badge" />
 </div>
 
-Remote command shell application written in C#,
-targeting the [.NET 8 runtime](https://dotnet.microsoft.com/download/dotnet/8.0).
+Remote command shell application written in C# targeting the
+[.NET 9.0 runtime](https://dotnet.microsoft.com/download/dotnet/9.0).
 
 ***
 
@@ -40,23 +40,23 @@ occurring.
 
 ## Basic Usage
 
-* Linux Systems
+### Linux Systems
 
-    ```bash
-    dncat [OPTIONS] TARGET
-    ```
+```bash
+dncat [OPTIONS] TARGET
+```
 
-* Windows Systems
+### Windows Systems
 
-    ```powershell
-    dncat.exe [OPTIONS] TARGET
-    ```
+```powershell
+dncat.exe [OPTIONS] TARGET
+```
 
 ***
 
-## Command-Line Arguments
+## Command-Line Options
 
-All available DotnetCat arguments are listed in the following table:
+All available DotnetCat command-line arguments are listed below:
 
 | Argument           | Type       | Description                        | Default |
 |:------------------:|:----------:|:----------------------------------:|:-------:|
@@ -78,60 +78,76 @@ All available DotnetCat arguments are listed in the following table:
 
 ## Installation
 
-### Installers (Recommended)
+DotnetCat can be installed and configured automatically
+using the installers in the [tools](tools) directory.
 
-The [tools](tools) directory contains Linux and Windows installer and uninstaller scripts.
+It can be installed manually by building from source or using the precompiled
+standalone executables in the [Zips](src/DotnetCat/bin/Zips) directory.
 
-#### Linux Systems
+### Linux Systems
 
-The [dncat-install.sh](tools/dncat-install.sh) installer can be used to
-install DotnetCat on Linux systems.
-
-The following code snippet can be executed in Bash to download and run the 
-[dncat-install.sh](tools/dncat-install.sh) DotnetCat installer:
+Download and execute the [dncat-install.sh](tools/dncat-install.sh) installer script using Bash:
 
 ```bash
 curl -sLS "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-install.sh" | bash
 ```
 
-DotnetCat can be uninstalled using the [dncat-uninstall.sh](tools/dncat-uninstall.sh) uninstaller.
-
 <blockquote>
-    <a href="tools/dncat-install.sh">dncat-install.sh</a> and
-    <a href="tools/dncat-uninstall.sh">dncat-uninstall.sh</a> only support ARM64 and x64
-    Linux systems and require <code><a href="https://curl.se">curl</a></code> and
-    <code><a href="https://infozip.sourceforge.net/UnZip.html">unzip</a></code> to be installed.
+    <a href="tools/dncat-install.sh">dncat-install.sh</a> only supports <em>ARM64</em> and
+    <em>x64</em> architectures and is dependent on <code><a href="https://curl.se">curl</a></code>
+    and <code><a href="https://infozip.sourceforge.net/UnZip.html">unzip</a></code>.
 </blockquote>
 
-#### Windows Systems
+### Windows Systems
 
-The [dncat-install.ps1](tools/dncat-install.ps1) installer can be used to
-install DotnetCat on Windows systems.
-
-The following code snippet can be executed in PowerShell to download and run the 
-[dncat-install.ps1](tools/dncat-install.ps1) DotnetCat installer:
+Download and execute the [dncat-install.ps1](tools/dncat-install.ps1) installer script using PowerShell:
 
 ```powershell
-$Uri = "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-install.ps1"
-(Invoke-WebRequest $Uri -DisableKeepAlive).Content | powershell.exe -
+irm -d "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-install.ps1" | powershell.exe -
 ```
 
-DotnetCat can be uninstalled using the [dncat-uninstall.ps1](tools/dncat-uninstall.ps1) uninstaller.
-
-> [dncat-install.ps1](tools/dncat-install.ps1) and [dncat-uninstall.ps1](tools/dncat-uninstall.ps1)
-  only support x64 and x86 Windows systems and must be executed as an administrator.
+> [dncat-install.ps1](tools/dncat-install.ps1) only supports *x64*
+  and *x86* architectures and must be executed as an administrator.
 
 ### Manual Setup
 
-The entire DotnetCat source code repository can be downloaded
-[here](https://github.com/vandavey/DotnetCat/archive/master.zip).
-
-To download a precompiled standalone executable, select one of the options below:
+DotnetCat can be manually installed using the following precompiled standalone executables:
 
 * [Linux-x64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_linux-x64.zip)
 * [Linux-ARM64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_linux-arm64.zip)
 * [Windows-x64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_win-x64.zip)
 * [Windows-x86](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_win-x86.zip)
+
+DotnetCat can be built from source by publishing
+[DotnetCat.csproj](src/DotnetCat/DotnetCat.csproj) using the publish profiles
+in the [PublishProfiles](src/DotnetCat/Properties/PublishProfiles) directory.
+
+***
+
+## Uninstallation
+
+DotnetCat can be uninstalled automatically using the uninstallers in the [tools](tools) directory.
+
+### Linux Systems
+
+Execute the [dncat-uninstall.sh](tools/dncat-uninstall.sh) uninstaller script using Bash:
+
+```bash
+source /opt/dncat/bin/dncat-uninstall.sh
+```
+
+> [dncat-uninstall.sh](tools/dncat-uninstall.sh) only supports *ARM64* and *x64* architectures.
+
+### Windows Systems
+
+Execute the [dncat-uninstall.ps1](tools/dncat-uninstall.ps1) uninstaller script using PowerShell:
+
+```powershell
+Get-Content "${env:ProgramFiles}\DotnetCat\dncat-uninstall.ps1" | powershell.exe -
+```
+
+> [dncat-uninstall.ps1](tools/dncat-uninstall.ps1) only supports *x64*
+  and *x86* architectures and must be executed as an administrator.
 
 ***
 
@@ -139,87 +155,77 @@ To download a precompiled standalone executable, select one of the options below
 
 ### Basic Operations
 
-* Display the application help menu, then exit:
+Print the application help menu, then exit:
 
-    ```powershell
-    dncat --help
-    ```
+```powershell
+dncat --help
+```
 
-* Connect to remote endpoint `192.168.1.1:1524`:
+Connect to remote endpoint `192.168.1.1:1524`:
 
-    ```powershell
-    dncat "192.168.1.1" --port 1524
-    ```
+```powershell
+dncat "192.168.1.1" --port 1524
+```
 
-* Listen for an inbound connection on any local Wi-Fi interface:
+Listen for an inbound connection on any local Wi-Fi interface:
 
-    ```powershell
-    dncat --listen
-    ```
+```powershell
+dncat --listen
+```
 
-    > When the `-l` or `--listen` flag is specified, `TARGET` defaults to `0.0.0.0`.
+> `TARGET` defaults to `0.0.0.0` when the `-l` or `--listen` flag is specified.
 
-* Determine if `localhost` is accepting connections on port `22`:
+Determine whether `localhost` is accepting connections on port `22`:
 
-    ```powershell
-    dncat -z localhost -p 22
-    ```
+```powershell
+dncat -z localhost -p 22
+```
 
 ### Command Shells
 
-* Connect to remote endpoint `127.0.0.1:4444` to establish a bind shell:
+Connect to remote endpoint `127.0.0.1:4444` to establish a bind shell:
 
-    ```powershell
-    dncat "127.0.0.1" -p 4444
-    ```
+```powershell
+dncat "127.0.0.1" -p 4444
+```
 
-* Listen for an inbound connection to establish a reverse `bash` shell:
+Listen for an inbound connection to establish a reverse `bash` shell:
 
-    ```powershell
-    dncat -lv --exec bash
-    ```
+```powershell
+dncat -lv --exec bash
+```
 
 ### Data Transfer
 
-* Transmit string payload *Hello world!* to remote endpoint `fake.addr.com:80`:
+Transmit string payload *Hello world!* to remote endpoint `fake.addr.com:80`:
 
-    ```powershell
-    dncat -dt "Hello world!" fake.addr.com -p 80
-    ```
+```powershell
+dncat -dt "Hello world!" fake.addr.com -p 80
+```
 
-#### File Transfer
+### File Transfer
 
-* Listen for inbound file data and write the contents to path `C:\TestFile.txt`:
+Listen for inbound file data and write the contents to path `C:\TestFile.txt`:
 
-    ```powershell
-    dncat -lvo C:\TestFile.txt
-    ```
+```powershell
+dncat -lvo C:\TestFile.txt
+```
 
-* Transmit the contents of file `/home/user/profit.json` to remote target `Joe-Mama`:
+Transmit the contents of file `/home/user/profit.json` to remote target `Joe-Mama`:
 
-    ```powershell
-    dncat --send /home/user/profit.json Joe-Mama
-    ```
+```powershell
+dncat --send /home/user/profit.json Joe-Mama
+```
 
 ***
 
 ## Remarks
 
-* This application is designed to be used as a multi-functional command-line
-  networking tool, and should only be used on your own systems.
-
-* Please use discretion, as this application is still in development.
-
-* In no event shall the authors or copyright holders of this software be liable for
-  any claim, damages or other liability arising from, out of or in connection with
-  the software or the use or other dealings in the software.
-
-    > For more information, click [here](LICENSE.md) to view the
-      software's [MIT license](LICENSE.md).
+* Please use discretion as this application is still in development.
 
 ***
 
 ## Copyright & Licensing
 
-The DotnetCat application source code is available [here](https://github.com/vandavey/DotnetCat)
-and licensed under the [MIT license](LICENSE.md).
+DotnetCat is licensed under the [MIT license](LICENSE.md) and officially
+hosted in [this](https://github.com/vandavey/DotnetCat) repository.

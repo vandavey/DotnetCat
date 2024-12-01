@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using DotnetCat.Errors;
 using DotnetCat.Shell;
 
@@ -87,6 +89,15 @@ internal static class Extensions
     }
 
     /// <summary>
+    ///  Determine whether a string is equal to another
+    ///  string when all string casing is ignored.
+    /// </summary>
+    public static bool NoCaseEquals(this string? str, string? value)
+    {
+        return str?.ToLower() == value?.ToLower();
+    }
+
+    /// <summary>
     ///  Determine whether a string starts with a
     ///  single or double quotation mark character.
     /// </summary>
@@ -119,51 +130,12 @@ internal static class Extensions
     }
 
     /// <summary>
-    ///  Determine whether a string is equal to another
-    ///  string when all string casing is ignored.
+    ///  Erase all substrings matching a regular expression from the given data.
     /// </summary>
-    public static bool NoCaseEquals(this string? str, string? value)
+    public static string Erase(this Regex regex, [NotNull] string? data)
     {
-        return str?.ToLower() == value?.ToLower();
-    }
-
-    /// <summary>
-    ///  Enumerate the elements of a collection as a collection of
-    ///  tuples containing each element's index and value.
-    /// </summary>
-    public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values)
-    {
-        if (values is null)
-        {
-            yield break;
-        }
-        int index = 0;
-
-        foreach (T value in values)
-        {
-            yield return (index++, value);
-        }
-    }
-
-    /// <summary>
-    ///  Enumerate the elements of a collection as a collection of tuples
-    ///  containing each element's index and value, then filter the results.
-    /// </summary>
-    public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values,
-                                                     Func<(int, T), bool> filter)
-    {
-        if (values is null)
-        {
-            yield break;
-        }
-
-        foreach ((int, T) idxValue in Enumerate(values))
-        {
-            if (filter(idxValue))
-            {
-                yield return idxValue;
-            }
-        }
+        ThrowIf.NullOrEmpty(data);
+        return regex.Replace(data, string.Empty);
     }
 
     /// <summary>
@@ -190,5 +162,33 @@ internal static class Extensions
     public static StringBuilder ReplaceLineEndings(this StringBuilder sb)
     {
         return new StringBuilder(sb.ToString().ReplaceLineEndings());
+    }
+
+    /// <summary>
+    ///  Get the first value of the given type in a collection, or the
+    ///  default value of the type if no matching values are found.
+    /// </summary>
+    public static T? FirstOrDefaultOfType<T>(this IEnumerable? values)
+    {
+        return values is null ? default : values.OfType<T>().FirstOrDefault();
+    }
+
+    /// <summary>
+    ///  Enumerate the values of a collection as a collection of
+    ///  tuples containing the index and value of each element.
+    /// </summary>
+    public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values)
+    {
+        return values?.Select((v, i) => (i, v)) ?? [];
+    }
+
+    /// <summary>
+    ///  Enumerate the values of a collection as a collection of tuples
+    ///  containing the index and value of each element, then filter the results.
+    /// </summary>
+    public static IEnumerable<(int, T)> Enumerate<T>(this IEnumerable<T>? values,
+                                                     Func<(int, T), bool> filter)
+    {
+        return Enumerate(values).Where(filter);
     }
 }

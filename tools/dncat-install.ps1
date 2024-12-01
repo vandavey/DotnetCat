@@ -13,9 +13,18 @@ using namespace System.Security.Principal
 [CmdletBinding()]
 param ()
 
-# Write an error message to stderr and exit
+$OrigProgressPreference = $ProgressPreference
+$ProgressPreference = "SilentlyContinue"
+
+# Reset the global progress preference variable.
+function Reset-ProgressPreference {
+    $ProgressPreference = $OrigProgressPreference
+}
+
+# Write an error message to stderr and exit.
 function Show-Error {
     $Symbol = "[x]"
+    Reset-ProgressPreference
 
     if ($PSVersionTable.PSVersion.Major -ge 7) {
         $Symbol = "`e[91m${Symbol}`e[0m"
@@ -24,7 +33,7 @@ function Show-Error {
     exit 1
 }
 
-# Write a status message to stdout
+# Write a status message to stdout.
 function Show-Status {
     $Symbol = "[*]"
 
@@ -112,3 +121,4 @@ else {
 }
 
 Show-Status "DotnetCat was successfully installed, please restart your shell"
+Reset-ProgressPreference
