@@ -106,7 +106,7 @@ internal enum Except : byte
     Payload,
 
     /// <summary>
-    ///  One or more invalid required arguments.
+    ///  One or more invalid required arguments specified.
     /// </summary>
     RequiredArgs,
 
@@ -126,7 +126,7 @@ internal enum Except : byte
     TimedOut,
 
     /// <summary>
-    ///  One or more unknown or unexpected arguments.
+    ///  One or more unknown or unexpected arguments specified.
     /// </summary>
     UnknownArgs
 }

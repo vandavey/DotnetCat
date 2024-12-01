@@ -203,7 +203,7 @@ Transmit string payload *Hello world!* to remote endpoint `fake.addr.com:80`:
 dncat -dt "Hello world!" fake.addr.com -p 80
 ```
 
-#### File Transfer
+### File Transfer
 
 Listen for inbound file data and write the contents to path `C:\TestFile.txt`:
 
