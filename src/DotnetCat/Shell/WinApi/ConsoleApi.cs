@@ -17,14 +17,12 @@ internal static partial class ConsoleApi
 {
 #if WINDOWS
     private const int NULL = 0;
-
     private const int STD_INPUT_HANDLE = -10;
-
     private const int STD_OUTPUT_HANDLE = -11;
 
     private const nint INVALID_HANDLE_VALUE = -1;
 
-    private const string KERNEL32_DLL = "kernel32.dll";
+    private const string KERNEL32 = "kernel32.dll";
 #endif // WINDOWS
 
     /// <summary>
@@ -101,14 +99,14 @@ internal static partial class ConsoleApi
     ///  Get the current input mode or output mode of the
     ///  given console input buffer or console output buffer.
     /// </summary>
-    [LibraryImport(KERNEL32_DLL, SetLastError = true)]
+    [LibraryImport(KERNEL32, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial BOOL GetConsoleMode(HANDLE hConsoleHandle, out DWORD lpMode);
 
     /// <summary>
     ///  Get a handle to the given standard console buffer.
     /// </summary>
-    [LibraryImport(KERNEL32_DLL, SetLastError = true)]
+    [LibraryImport(KERNEL32, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.SysInt)]
     private static partial HANDLE GetStdHandle(int nStdHandle);
 
@@ -116,7 +114,7 @@ internal static partial class ConsoleApi
     ///  Set the input mode or output mode of the given
     ///  console input buffer or console output buffer.
     /// </summary>
-    [LibraryImport(KERNEL32_DLL, SetLastError = true)]
+    [LibraryImport(KERNEL32, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial BOOL SetConsoleMode(HANDLE hConsoleHandle, DWORD dwMode);
 

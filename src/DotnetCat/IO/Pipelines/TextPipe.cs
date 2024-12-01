@@ -63,8 +63,8 @@ internal class TextPipe : SocketPipe
     }
 
     /// <summary>
-    ///  Asynchronously transfer the user-defined string payload
-    ///  between the underlying streams.
+    ///  Asynchronously transfer the user-defined
+    ///  string payload between the underlying streams.
     /// </summary>
     protected override async Task ConnectAsync(CancellationToken token)
     {
@@ -75,7 +75,7 @@ internal class TextPipe : SocketPipe
 
         if (Args.Verbose)
         {
-            Style.Output(_statusMsg);
+            Output.Status(_statusMsg);
         }
 
         Disconnect();

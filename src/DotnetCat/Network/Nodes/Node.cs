@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using DotnetCat.Contracts;
 using DotnetCat.Errors;
 using DotnetCat.IO;
 using DotnetCat.IO.Pipelines;
@@ -20,7 +19,7 @@ namespace DotnetCat.Network.Nodes;
 ///  Abstract TCP network socket node. This is the base class
 ///  for all socket nodes in the <see cref="Nodes"/> namespace.
 /// </summary>
-internal abstract class Node : ISockErrorHandled
+internal abstract class Node : IConnectable
 {
     private readonly List<SocketPipe> _pipes;  // TCP socket pipelines
 
@@ -133,7 +132,7 @@ internal abstract class Node : ISockErrorHandled
     public TcpClient Client { get; set; }
 
     /// <summary>
-    ///  File transfer option.
+    ///  File transfer option is set.
     /// </summary>
     protected bool Transfer => Args.TransOpt is not TransferOpt.None;
 
@@ -161,26 +160,6 @@ internal abstract class Node : ISockErrorHandled
     }
 
     /// <summary>
-    ///  Initialize and run a new executable process on the local system.
-    /// </summary>
-    public bool StartProcess([NotNull] string? exe)
-    {
-        (string? path, bool exists) = FileSys.ExistsOnPath(exe);
-
-        if (!exists)
-        {
-            Dispose();
-            Error.Handle(Except.ExePath, exe, true);
-        }
-
-        _process = new Process
-        {
-            StartInfo = Command.GetExeStartInfo(ExePath = path)
-        };
-        return _process.Start();
-    }
-
-    /// <summary>
     ///  Activate asynchronous communication between the source and
     ///  destination streams in each of the underlying pipelines.
     /// </summary>
@@ -198,32 +177,6 @@ internal abstract class Node : ISockErrorHandled
     }
 
     /// <summary>
-    ///  Dispose of all unmanaged resources and handle the given error.
-    /// </summary>
-    [DoesNotReturn]
-    public virtual void PipeError(Except type,
-                                  HostEndPoint target,
-                                  Exception? ex = default,
-                                  Level level = default)
-    {
-        Dispose();
-        Error.Handle(type, target.ToString(), ex, level);
-    }
-
-    /// <summary>
-    ///  Dispose of all unmanaged resources and handle the given error.
-    /// </summary>
-    [DoesNotReturn]
-    public virtual void PipeError(Except type,
-                                  string? arg,
-                                  Exception? ex = default,
-                                  Level level = default)
-    {
-        Dispose();
-        Error.Handle(type, arg, ex, level);
-    }
-
-    /// <summary>
     ///  Release all the underlying unmanaged resources.
     /// </summary>
     public virtual void Dispose()
@@ -238,6 +191,45 @@ internal abstract class Node : ISockErrorHandled
         NetStream?.Dispose();
 
         GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///  Dispose of all unmanaged resources and handle the given error.
+    /// </summary>
+    [DoesNotReturn]
+    public void PipeError(Except type, [NotNull] string? arg, Exception? ex = default)
+    {
+        Dispose();
+        Error.Handle(type, arg, ex);
+    }
+
+    /// <summary>
+    ///  Dispose of all unmanaged resources and handle the given error.
+    /// </summary>
+    [DoesNotReturn]
+    public void PipeError(Except type, HostEndPoint target, Exception? ex = default)
+    {
+        PipeError(type, target.ToString(), ex);
+    }
+
+    /// <summary>
+    ///  Initialize and run a new executable process on the local system.
+    /// </summary>
+    public bool StartProcess([NotNull] string? exe)
+    {
+        (string? path, bool exists) = FileSys.ExistsOnPath(exe);
+
+        if (!exists)
+        {
+            Dispose();
+            Error.Handle(Except.ExePath, exe, true);
+        }
+
+        _process = new Process
+        {
+            StartInfo = Command.GetExeStartInfo(ExePath = path)
+        };
+        return _process.Start();
     }
 
     /// <summary>
@@ -272,7 +264,7 @@ internal abstract class Node : ISockErrorHandled
 
             if (Args.PipeVariant is PipeType.Status)
             {
-                // Invalid combo: --listen, --zero-io
+                // Combination: --listen, --zero-io
                 if (Program.SockNode is ServerNode)
                 {
                     Console.WriteLine(Parser.Usage);

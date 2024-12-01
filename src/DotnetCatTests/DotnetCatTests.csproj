@@ -6,7 +6,7 @@
         <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
         <AssemblyName>DotnetCatTests</AssemblyName>
         <Authors>vandavey</Authors>
-        <Configurations>Debug;Release;Linux;ARM64</Configurations>
+        <Configurations>Debug; Release; Linux; ARM64</Configurations>
         <Copyright>Copyright (c) 2024 vandavey</Copyright>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
@@ -26,7 +26,7 @@
         <Platforms>AnyCPU</Platforms>
         <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
         <RootNamespace>DotnetCatTests</RootNamespace>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <WarningLevel>7</WarningLevel>
     </PropertyGroup>
 
@@ -57,7 +57,7 @@
     </PropertyGroup>
 
     <!--
-     Nuget package references.
+     NuGet package references.
     -->
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />

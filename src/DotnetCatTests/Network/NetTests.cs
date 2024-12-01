@@ -60,12 +60,12 @@ public class NetTests
     [DataRow(SocketError.SocketError)]
     [DataRow(SocketError.ConnectionRefused)]
     [DataRow(SocketError.SystemNotReady)]
-    public void GetException_InnerException_ReturnsException(SocketError error)
+    public void SocketException_InnerException_ReturnsException(SocketError error)
     {
         SocketException expected = new((int)error);
         AggregateException aggregateEx = new(expected);
 
-        SocketException? actual = Net.GetException(aggregateEx);
+        SocketException? actual = Net.SocketException(aggregateEx);
 
         Assert.AreEqual(actual, expected, "Failure extracting socket exception");
     }
@@ -75,10 +75,10 @@ public class NetTests
     ///  an inner <see cref="SocketException"/> returns null.
     /// </summary>
     [TestMethod]
-    public void GetException_NoInnerException_ReturnsNull()
+    public void SocketException_NoInnerException_ReturnsNull()
     {
         AggregateException aggregateEx = new();
-        SocketException? actual = Net.GetException(aggregateEx);
+        SocketException? actual = Net.SocketException(aggregateEx);
 
         Assert.IsNull(actual, "Resulting socket exception should be null");
     }

@@ -6,8 +6,6 @@ using DotnetCat.Utils;
 
 namespace DotnetCatTests.Utils;
 
-#pragma warning disable CA1861 // Avoid constant arrays as arguments
-
 /// <summary>
 ///  Unit tests for utility class <see cref="Extensions"/>.
 /// </summary>
@@ -15,6 +13,60 @@ namespace DotnetCatTests.Utils;
 public class ExtensionsTests
 {
 #region MethodTests
+    /// <summary>
+    ///  Assert that an input string ending with a specific character returns true.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow("test data", 'a')]
+    [DataRow(" test data ", ' ')]
+    [DataRow("test data 1", '1')]
+    [DataRow("test data\0", '\0')]
+    public void EndsWithValue_CharDoes_ReturnsTrue(string? str, char value)
+    {
+        bool actual = str.EndsWithValue(value);
+        Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'");
+    }
+
+    /// <summary>
+    ///  Assert that an input string not ending with a specific character returns false.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow(null, 't')]
+    [DataRow(" test data", ' ')]
+    [DataRow("test data", 't')]
+    [DataRow("\0test data", '\0')]
+    public void EndsWithValue_CharDoesNot_ReturnsFalse(string? str, char value)
+    {
+        bool actual = str.EndsWithValue(value);
+        Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'");
+    }
+
+    /// <summary>
+    ///  Assert that an input string ending with a specific substring returns true.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow("test data", " data")]
+    [DataRow("test data ", "data ")]
+    [DataRow("test data", "test data")]
+    public void EndsWithValue_StringDoes_ReturnsTrue(string? str, string? value)
+    {
+        bool actual = str.EndsWithValue(value);
+        Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'");
+    }
+
+    /// <summary>
+    ///  Assert that an input string not ending with a specific substring returns false.
+    /// </summary>
+    [DataTestMethod]
+    [DataRow(null, "test data")]
+    [DataRow("test data", null)]
+    [DataRow("test data", " data ")]
+    public void EndsWithValue_StringDoesNot_ReturnsFalse(string? str, string? value)
+    {
+        bool actual = str.EndsWithValue(value);
+        Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'");
+    }
+
     /// <summary>
     ///  Assert that a null input string returns true.
     /// </summary>
@@ -127,57 +179,45 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an input string ending with a specific character returns true.
+    ///  Assert that an input string whose value is equal to
+    ///  another string when casing is ignored returns true.
     /// </summary>
     [DataTestMethod]
-    [DataRow("test data", 'a')]
-    [DataRow(" test data ", ' ')]
-    [DataRow("test data 1", '1')]
-    [DataRow("test data\0", '\0')]
-    public void EndsWithValue_CharDoes_ReturnsTrue(string? str, char value)
+    [DataRow("", "")]
+    [DataRow("  ", "  ")]
+    [DataRow("test", "TEST")]
+    [DataRow("TEST", "test")]
+    [DataRow("tEsT", "TeSt")]
+    public void NoCaseEquals_EqualStrings_ReturnsTrue(string? str, string? value)
     {
-        bool actual = str.EndsWithValue(value);
-        Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'");
+        bool actual = str.NoCaseEquals(value);
+        Assert.IsTrue(actual);
     }
 
     /// <summary>
-    ///  Assert that an input string not ending with a specific character returns false.
+    ///  Assert that an input string whose value is not equal to
+    ///  another string when casing is ignored returns false.
     /// </summary>
     [DataTestMethod]
-    [DataRow(null, 't')]
-    [DataRow(" test data", ' ')]
-    [DataRow("test data", 't')]
-    [DataRow("\0test data", '\0')]
-    public void EndsWithValue_CharDoesNot_ReturnsFalse(string? str, char value)
+    [DataRow(null, "test")]
+    [DataRow("test", null)]
+    [DataRow("tEsT", "DaTa")]
+    public void NoCaseEquals_NotEqualStrings_ReturnsFalse(string? str, string? value)
     {
-        bool actual = str.EndsWithValue(value);
-        Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'");
+        bool actual = str.NoCaseEquals(value);
+        Assert.IsFalse(actual);
     }
 
     /// <summary>
-    ///  Assert that an input string ending with a specific substring returns true.
+    ///  Assert that a null input string compared to another null string returns true.
     /// </summary>
-    [DataTestMethod]
-    [DataRow("test data", " data")]
-    [DataRow("test data ", "data ")]
-    [DataRow("test data", "test data")]
-    public void EndsWithValue_StringDoes_ReturnsTrue(string? str, string? value)
+    [TestMethod]
+    public void NoCaseEquals_NullStrings_ReturnsTrue()
     {
-        bool actual = str.EndsWithValue(value);
-        Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'");
-    }
+        string? str = null;
+        bool actual = str.NoCaseEquals(null);
 
-    /// <summary>
-    ///  Assert that an input string not ending with a specific substring returns false.
-    /// </summary>
-    [DataTestMethod]
-    [DataRow(null, "test data")]
-    [DataRow("test data", null)]
-    [DataRow("test data", " data ")]
-    public void EndsWithValue_StringDoesNot_ReturnsFalse(string? str, string? value)
-    {
-        bool actual = str.EndsWithValue(value);
-        Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'");
+        Assert.IsTrue(actual);
     }
 
     /// <summary>
@@ -235,45 +275,43 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an input string whose value is equal to
-    ///  another string when casing is ignored returns true.
+    ///  Assert that an <see cref="ArgumentNullException"/>
+    ///  is thrown when the input array is null.
     /// </summary>
     [DataTestMethod]
-    [DataRow("", "")]
-    [DataRow("  ", "  ")]
-    [DataRow("test", "TEST")]
-    [DataRow("TEST", "test")]
-    [DataRow("tEsT", "TeSt")]
-    public void NoCaseEquals_EqualStrings_ReturnsTrue(string? str, string? value)
+    [DataRow("")]
+    [DataRow("|")]
+    public void Join_NullArray_ThrowsArgumentNullException(string delim)
     {
-        bool actual = str.NoCaseEquals(value);
-        Assert.IsTrue(actual);
+        string[]? array = null;
+        Func<string> func = () => array.Join(delim);
+
+        Assert.ThrowsException<ArgumentNullException>(func);
     }
 
     /// <summary>
-    ///  Assert that an input string whose value is not equal to
-    ///  another string when casing is ignored returns false.
+    ///  Assert that the joined output string is equal to the expected result.
     /// </summary>
     [DataTestMethod]
-    [DataRow(null, "test")]
-    [DataRow("test", null)]
-    [DataRow("tEsT", "DaTa")]
-    public void NoCaseEquals_NotEqualStrings_ReturnsFalse(string? str, string? value)
+    [DataRow(new object[] { 1, 2, 3 }, "|")]
+    [DataRow(new string[] { "test", "data" }, null)]
+    public void Join_NonNullArray_EqualsExpected(object[] array, string? delim)
     {
-        bool actual = str.NoCaseEquals(value);
-        Assert.IsFalse(actual);
+        string expected = string.Join(delim, array);
+        string actual = array.Join(delim);
+
+        Assert.AreEqual(actual, expected, $"Expected result string: '{expected}'");
     }
 
     /// <summary>
-    ///  Assert that a null input string compared to another null string returns true.
+    ///  Assert that an <see cref="ArgumentNullException"/>
+    ///  is thrown when the input array is null.
     /// </summary>
     [TestMethod]
-    public void NoCaseEquals_NullStrings_ReturnsTrue()
+    public void JoinLines_NullArray_ThrowsArgumentNullException()
     {
-        string? str = null;
-        bool actual = str.NoCaseEquals(null);
-
-        Assert.IsTrue(actual);
+        string[]? array = null;
+        Assert.ThrowsException<ArgumentNullException>(array.JoinLines);
     }
 
     /// <summary>
@@ -331,49 +369,5 @@ public class ExtensionsTests
 
         CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
     }
-
-    /// <summary>
-    ///  Assert that an <see cref="ArgumentNullException"/>
-    ///  is thrown when the input array is null.
-    /// </summary>
-    [DataTestMethod]
-    [DataRow("")]
-    [DataRow("|")]
-    public void Join_NullArray_ThrowsArgumentNullException(string delim)
-    {
-        string[]? array = null;
-        Func<string> func = () => array.Join(delim);
-
-        Assert.ThrowsException<ArgumentNullException>(func);
-    }
-
-    /// <summary>
-    ///  Assert that the joined output string is equal to the expected result.
-    /// </summary>
-    [DataTestMethod]
-    [DataRow(new object[] { 1, 2, 3 }, "|")]
-    [DataRow(new string[] { "test", "data" }, null)]
-    public void Join_NonNullArray_EqualsExpected(object[] array, string? delim)
-    {
-        string expected = string.Join(delim, array);
-        string actual = array.Join(delim);
-
-        Assert.AreEqual(actual, expected, $"Expected result string: '{expected}'");
-    }
-
-    /// <summary>
-    ///  Assert that an <see cref="ArgumentNullException"/>
-    ///  is thrown when the input array is null.
-    /// </summary>
-    [TestMethod]
-    public void JoinLines_NullArray_ThrowsArgumentNullException()
-    {
-        string[]? array = null;
-        Func<string> func = () => array.JoinLines();
-
-        Assert.ThrowsException<ArgumentNullException>(func);
-    }
 #endregion // MethodTests
 }
-
-#pragma warning restore CA1861 // Avoid constant arrays as arguments

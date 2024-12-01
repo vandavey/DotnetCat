@@ -5,7 +5,18 @@ namespace DotnetCat.IO.Pipelines;
 /// </summary>
 internal enum TransferOpt : byte
 {
-    None,      // No redirection
-    Collect,   // Redirect source stream data to a file stream.
-    Transmit   // Redirect file stream data to a destination stream.
+    /// <summary>
+    ///  No stream redirection.
+    /// </summary>
+    None,
+
+    /// <summary>
+    ///  Redirect source stream data to file stream.
+    /// </summary>
+    Collect,
+
+    /// <summary>
+    ///  Redirect file stream data to destination stream.
+    /// </summary>
+    Transmit
 }

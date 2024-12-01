@@ -13,7 +13,7 @@ using namespace System.Security.Principal
 [CmdletBinding()]
 param ()
 
-# Write an error message to stderr and exit
+# Write an error message to stderr and exit.
 function Show-Error {
     $Symbol = "[x]"
 
@@ -24,7 +24,7 @@ function Show-Error {
     exit 1
 }
 
-# Write a status message to stdout
+# Write a status message to stdout.
 function Show-Status {
     $Symbol = "[*]"
 

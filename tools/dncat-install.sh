@@ -6,13 +6,13 @@
 #
 ORIG_DIR=$PWD
 
-# Write an error message to stderr and exit
+# Write an error message to stderr and exit.
 error() {
     echo -e "\033[91m[x]\033[0m ${*}" > /dev/stderr
     cd "$ORIG_DIR" && exit 1 || exit 1
 }
 
-# Write a status message to stdout
+# Write a status message to stdout.
 status() {
     echo -e "\033[96m[*]\033[0m ${*}"
 }
