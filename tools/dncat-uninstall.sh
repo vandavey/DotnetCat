@@ -2,12 +2,14 @@
 #
 #  dncat-uninstall.sh
 #  ------------------
-#  DotnetCat uninstaller script for ARM64 and x64 Linux systems
-#
+#  DotnetCat uninstaller script for ARM64 and x64 Linux systems.
+
+APP_DIR="/opt/dncat"
+BIN_DIR="${APP_DIR}/bin"
 
 # Write an error message to stderr and exit.
 error() {
-    echo -e "\033[91m[x]\033[0m ${*}" > /dev/stderr
+    echo -e "\033[91m[x]\033[0m ${*}" >&2
     exit 1
 }
 
@@ -16,52 +18,51 @@ status() {
     echo -e "\033[96m[*]\033[0m ${*}"
 }
 
+# Remove the bin directory environment path export from a file.
+remove_bin_export() {
+    local line_num
+    local line="export PATH=\"\${PATH}:${BIN_DIR}\""
+
+    if [[ -f $1 ]] && grep -q "${line}" "${1}"; then
+        line_num=$(cat -n "${1}" | grep "${line}" | awk '{print $1}')
+
+        if [[ -n $line_num ]]; then
+            if ! sed -i "${line_num}d" "${1}"; then
+                error "Failed to remove path export at '${1}':${line_num}"
+            fi
+            status "Removed environment path export at '${1}':${line_num}"
+        fi
+    fi
+}
+
 ARCH=$(uname -m)
 
 # Validate CPU architecture
-if [ "$ARCH" != "aarch64" ] && [ "$ARCH" != "x86_64" ]; then
+if [[ ! $ARCH =~ ^(aarch64|x86_64)$ ]]; then
     error "Unsupported processor architecture: '${ARCH}'"
 fi
 
-APP_DIR="/opt/dncat"
+# Require elevated shell privileges
+if ! sudo -n true 2> /dev/null; then
+    status "Elevated shell privileges required..."
 
-# The application is not currently installed
-if [ ! -d "$APP_DIR" ]; then
-    status "DotnetCat is not currently installed on this system"
-    exit 0
-fi
-
-status "Removing the application files from '${APP_DIR}'..."
-
-# Delete the application files and installation directory
-sudo rm -r $APP_DIR > /dev/null || {
-    error "Failed to remove application files from '${APP_DIR}'"
-}
-
-LINE="export PATH=\"\${PATH}:${APP_DIR}/bin\""
-
-# Delete the bash environment path configuration
-if [ -f ~/.bashrc ] && grep -q "$LINE" ~/.bashrc; then
-    LINE_NUM=$(cat -n ~/.bashrc | grep "$LINE" | awk '{print $1}')
-
-    if [ -n "$LINE_NUM" ]; then
-        sed -i "${LINE_NUM}d" ~/.bashrc || {
-            error "Failed to delete line ${LINE_NUM} from '${HOME}/.bashrc'"
-        }
-        status "Deleted path configuration on line ${LINE_NUM} of '${HOME}/.bashrc'"
+    if ! sudo -v; then
+        error "Failed to elevate shell privileges"
     fi
 fi
 
-# Delete the zsh environment path configuration
-if [ -f ~/.zshrc ] && grep -q "$LINE" ~/.zshrc; then
-    LINE_NUM=$(cat -n ~/.zshrc | grep "$LINE" | awk '{print $1}')
+# Delete the application files
+if [[ -d $APP_DIR ]]; then
+    status "Removing application files from '${APP_DIR}'..."
 
-    if [ -n "$LINE_NUM" ]; then
-        sed -i "${LINE_NUM}d" ~/.zshrc || {
-            error "Failed to delete line ${LINE_NUM} from '${HOME}/.zshrc'"
-        }
-        status "Deleted path configuration on line ${LINE_NUM} of '${HOME}/.zshrc'"
+    if ! sudo rm -rv $APP_DIR; then
+        error "Failed to remove application files from '${APP_DIR}'"
     fi
+else
+    status "No application files to remove from '${APP_DIR}'"
 fi
+
+remove_bin_export ~/.bashrc
+remove_bin_export ~/.zshrc
 
 status "DotnetCat was successfully uninstalled"

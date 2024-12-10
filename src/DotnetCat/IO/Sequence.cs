@@ -84,6 +84,6 @@ internal static partial class Sequence
     /// <summary>
     ///  ANSI SGR control sequence regular expression.
     /// </summary>
-    [GeneratedRegex(@"\e\[[0-9]+[0-9;]*m")]
+    [GeneratedRegex(@"\e\[[0-9]+(;[0-9]+)*m")]
     private static partial Regex SgrRegex();
 }
