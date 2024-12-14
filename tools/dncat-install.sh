@@ -51,11 +51,10 @@ validate_dependency() {
     fi
 }
 
-ZIP_URL=
 ARCH=$(uname -m)
 REPO_ROOT="https://raw.githubusercontent.com/vandavey/DotnetCat/master"
 
-# Set download URL and validate CPU architecture
+# Validate CPU architecture and set variables
 if [[ $ARCH == "aarch64" ]]; then
     ZIP_URL="${REPO_ROOT}/src/DotnetCat/bin/Zips/DotnetCat_linux-arm64.zip"
 elif [[ $ARCH == "x86_64" ]]; then
@@ -102,7 +101,7 @@ fi
 
 status "Downloading temporary zip file to '${ZIP_PATH}'..."
 
-# Download temporary zip file
+# Download application zip file
 if ! sudo curl -sLS $ZIP_URL -o $ZIP_PATH; then
     error "Failed to download zip file from '${ZIP_URL}'"
 fi
@@ -112,14 +111,14 @@ cd "${APP_DIR}" || error "An unexpected error occurred"
 
 status "Unpacking zip file to '${APP_DIR}'..."
 
-# Unpack temporary zip file
+# Unpack application zip file
 if ! sudo unzip -j $ZIP_PATH; then
     error "Failed to unpack zip file '${ZIP_PATH}'"
 fi
 
 status "Deleting temporary zip file..."
 
-# Remove temporary zip file
+# Remove application zip file
 if ! sudo rm -v $ZIP_PATH; then
     error "Failed to remove zip file '${ZIP_PATH}'"
 fi

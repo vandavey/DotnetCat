@@ -51,7 +51,7 @@ if ! sudo -n true 2> /dev/null; then
     fi
 fi
 
-# Delete the application files
+# Remove all application files
 if [[ -d $APP_DIR ]]; then
     status "Removing application files from '${APP_DIR}'..."
 
