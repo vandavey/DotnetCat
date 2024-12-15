@@ -17,7 +17,7 @@ param ()
 function Show-Error {
     $Symbol = "[x]"
 
-    if ($PSVersionTable.PSVersion.Major -ge 7) {
+    if ($PSVersionTable.PSVersion.Major -ge 6) {
         $Symbol = "`e[91m${Symbol}`e[0m"
     }
     [Console]::Error.WriteLine("${Symbol} ${args}`n")
@@ -28,7 +28,7 @@ function Show-Error {
 function Show-Status {
     $Symbol = "[*]"
 
-    if ($PSVersionTable.PSVersion.Major -ge 7) {
+    if ($PSVersionTable.PSVersion.Major -ge 6) {
         $Symbol = "`e[96m${Symbol}`e[0m"
     }
     Write-Output "${Symbol} ${args}"

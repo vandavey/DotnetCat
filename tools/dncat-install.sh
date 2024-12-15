@@ -4,8 +4,6 @@
 #  ----------------
 #  DotnetCat installer script for ARM64 and x64 Linux systems.
 
-ORIG_DIR="${PWD}"
-
 APP_DIR="/opt/dncat"
 BIN_DIR="${APP_DIR}/bin"
 SHARE_DIR="${APP_DIR}/share"
@@ -13,7 +11,6 @@ SHARE_DIR="${APP_DIR}/share"
 # Write an error message to stderr and exit.
 error() {
     echo -e "\033[91m[x]\033[0m ${*}" >&2
-    cd "${ORIG_DIR}" || exit 1
     exit 1
 }
 
@@ -45,7 +42,7 @@ move_app_files() {
 }
 
 # Validate that an installer dependency is satisfied.
-validate_dependency() {
+validate_dep() {
     if ! command -v "${1}" &> /dev/null; then
         error "Unsatisfied installer dependency: '${1}'"
     fi
@@ -63,8 +60,8 @@ else
     error "Unsupported processor architecture: '${ARCH}'"
 fi
 
-validate_dependency curl
-validate_dependency unzip
+validate_dep 7z
+validate_dep curl
 
 # Require elevated shell privileges
 if ! sudo -n true 2> /dev/null; then
@@ -87,7 +84,7 @@ fi
 status "Creating install directories..."
 
 # Create install directories
-if ! sudo mkdir -pv $APP_DIR $BIN_DIR $SHARE_DIR; then
+if ! sudo mkdir -pv $BIN_DIR $SHARE_DIR; then
     error "Failed to create one or more directories in '${APP_DIR}'"
 fi
 
@@ -106,13 +103,10 @@ if ! sudo curl -sLS $ZIP_URL -o $ZIP_PATH; then
     error "Failed to download zip file from '${ZIP_URL}'"
 fi
 
-# Navigate to install directory before unpacking
-cd "${APP_DIR}" || error "An unexpected error occurred"
-
 status "Unpacking zip file to '${APP_DIR}'..."
 
 # Unpack application zip file
-if ! sudo unzip -j $ZIP_PATH; then
+if ! sudo 7z x "${ZIP_PATH}" -bb0 -bd -o"${APP_DIR}" > /dev/null; then
     error "Failed to unpack zip file '${ZIP_PATH}'"
 fi
 
@@ -136,7 +130,7 @@ if ! sudo chmod +x $BIN_DIR/{dncat,*.sh}; then
 fi
 
 # Create bash configuration file
-if [[ ! -f ~/.bashrc ]] && [[ ! -f ~/.zshrc ]]; then
+if [[ ! -f ~/.bashrc && ! -f ~/.zshrc ]]; then
     status "Creating bash configuration file '${HOME}/.bashrc'..."
     : >> ~/.bashrc
 fi
@@ -145,4 +139,3 @@ add_bin_export ~/.bashrc
 add_bin_export ~/.zshrc
 
 status "DotnetCat was successfully installed, please restart your shell"
-cd "${ORIG_DIR}" || exit 1
