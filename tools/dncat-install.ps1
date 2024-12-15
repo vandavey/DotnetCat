@@ -26,7 +26,7 @@ function Show-Error {
     $Symbol = "[x]"
     Reset-ProgressPreference
 
-    if ($PSVersionTable.PSVersion.Major -ge 7) {
+    if ($PSVersionTable.PSVersion.Major -ge 6) {
         $Symbol = "`e[91m${Symbol}`e[0m"
     }
     [Console]::Error.WriteLine("${Symbol} ${args}`n")
@@ -37,88 +37,84 @@ function Show-Error {
 function Show-Status {
     $Symbol = "[*]"
 
-    if ($PSVersionTable.PSVersion.Major -ge 7) {
+    if ($PSVersionTable.PSVersion.Major -ge 6) {
         $Symbol = "`e[96m${Symbol}`e[0m"
     }
     Write-Output "${Symbol} ${args}"
 }
 
-# Installer only supports Windows operating systems
+# Require Windows operating system
 if (-not [RuntimeInformation]::IsOSPlatform([OSPlatform]::Windows)) {
-    Show-Error "This installer can only be used on Windows operating systems"
-}
-$User = [WindowsPrincipal]::new([WindowsIdentity]::GetCurrent())
-
-# Installer requires admin privileges
-if (-not $User.IsInRole([WindowsBuiltInRole]::Administrator)) {
-    Show-Error "The installer must be run as an administrator"
+    Show-Error "Windows operating system required"
 }
 
-$AppDir = $ZipUrl = $null
 $RepoRoot = "https://raw.githubusercontent.com/vandavey/DotnetCat/master"
+$UserPrincipal = [WindowsPrincipal]::new([WindowsIdentity]::GetCurrent())
 
-$ArchVarName = "PROCESSOR_ARCHITECTURE"
-$EnvVarTarget = [EnvironmentVariableTarget]::Machine
-$Architecture = [Environment]::GetEnvironmentVariable($ArchVarName, $EnvVarTarget)
+# Require elevated shell privileges
+if (-not $UserPrincipal.IsInRole([WindowsBuiltInRole]::Administrator)) {
+    Show-Error "Administrator shell privileges required"
+}
 
-# Validate architecture and assign architecture-specific variables
-if ($Architecture -eq "AMD64") {
+# Validate CPU architecture and set variables
+if ($env:PROCESSOR_ARCHITECTURE -eq "AMD64") {
     $AppDir = "${env:ProgramFiles}\DotnetCat"
     $ZipUrl = "${RepoRoot}/src/DotnetCat/bin/Zips/DotnetCat_win-x64.zip"
 }
-elseif ($Architecture -eq "x86") {
+elseif ($env:PROCESSOR_ARCHITECTURE -eq "x86") {
     $AppDir = "${env:ProgramFiles(x86)}\DotnetCat"
     $ZipUrl = "${RepoRoot}/src/DotnetCat/bin/Zips/DotnetCat_win-x86.zip"
 }
 else {
-    Show-Error "Unsupported processor architecture: '${Architecture}'"
+    Show-Error "Unsupported processor architecture: '${env:PROCESSOR_ARCHITECTURE}'"
 }
 
-# Remove the existing installation
+# Remove existing installation
 if (Test-Path $AppDir) {
     Show-Status "Removing existing installation from '${AppDir}'..."
-    Remove-Item $AppDir -Force -Recurse 3>&1> $null
+    Remove-Item $AppDir -Force -Recurse
 }
-$ZipPath = "${AppDir}\dncat.zip"
 
-New-Item $AppDir -Force -ItemType Directory 3>&1> $null
+Show-Status "Creating install directory '${AppDir}'..."
+New-Item $AppDir -Force -ItemType Directory > $null
+
+$ZipPath = "${AppDir}\dncat.zip"
 Show-Status "Downloading temporary zip file to '${ZipPath}'..."
 
-# Download the temporary application zip file
+# Download application zip file
 try {
-    Invoke-WebRequest $ZipUrl -DisableKeepAlive -OutFile $ZipPath 3>&1> $null
+    Invoke-WebRequest $ZipUrl -DisableKeepAlive -OutFile $ZipPath
 }
 catch {
-    Show-Error "Failed to download '${ZipUrl}'. $($Error[0].Exception.Message)"
+    $ErrorMsg = $Error[0].ErrorDetails.Message
+    Show-Error "Failed to download '$(Split-Path $ZipUrl -Leaf)' (${ErrorMsg})"
 }
 
-Show-Status "Installing '${ZipPath}' contents to '${AppDir}'..."
-Expand-Archive $ZipPath $AppDir -Force 3>&1> $null
+Show-Status "Installing application files to '${AppDir}'..."
+Expand-Archive $ZipPath $AppDir -Force > $null
 
 Show-Status "Deleting temporary zip file '${ZipPath}'..."
-Remove-Item $ZipPath -Force 3>&1> $null
+Remove-Item $ZipPath -Force
 
-$EnvPath = [Environment]::GetEnvironmentVariable("PATH", $EnvVarTarget)
+$EnvTarget = [EnvironmentVariableTarget]::Machine
+$EnvPath = [Environment]::GetEnvironmentVariable("Path", $EnvTarget)
 
-# Add the application directory to the environment path
+# Add application directory to environment path
 if (-not $EnvPath.Contains($AppDir)) {
-    if (-not $EnvPath.EndsWith(";")) {
+    if ($EnvPath -and -not $EnvPath.EndsWith(";")) {
         $EnvPath += ";"
     }
 
-    $EnvPath += $AppDir
-    [Environment]::SetEnvironmentVariable("PATH", $EnvPath, $EnvVarTarget)
+    $EnvPath += "${AppDir};"
+    [Environment]::SetEnvironmentVariable("Path", $EnvPath, $EnvTarget)
 
     if ($?) {
-        Show-Status "Successfully added '${AppDir}' to the environment path"
+        Show-Status "Added '${AppDir}' to environment path"
     }
     else {
-        Show-Error "Failed to add '${AppDir}' to the environment path"
+        Show-Error "Failed to add '${AppDir}' to environment path"
     }
 }
-else {
-    Show-Status "The environment path already contains '${AppDir}'"
-}
 
-Show-Status "DotnetCat was successfully installed, please restart your shell"
 Reset-ProgressPreference
+Show-Status "DotnetCat was successfully installed, please restart your shell"

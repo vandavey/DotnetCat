@@ -2,14 +2,16 @@
 #
 #  dncat-install.sh
 #  ----------------
-#  DotnetCat installer script for ARM64 and x64 Linux systems
-#
-ORIG_DIR=$PWD
+#  DotnetCat installer script for ARM64 and x64 Linux systems.
+
+APP_DIR="/opt/dncat"
+BIN_DIR="${APP_DIR}/bin"
+SHARE_DIR="${APP_DIR}/share"
 
 # Write an error message to stderr and exit.
 error() {
-    echo -e "\033[91m[x]\033[0m ${*}" > /dev/stderr
-    cd "$ORIG_DIR" && exit 1 || exit 1
+    echo -e "\033[91m[x]\033[0m ${*}" >&2
+    exit 1
 }
 
 # Write a status message to stdout.
@@ -17,116 +19,123 @@ status() {
     echo -e "\033[96m[*]\033[0m ${*}"
 }
 
-# Check that 'curl' is installed
-if ! command -v curl &> /dev/null; then
-    error "Missing installer dependency 'curl'"
-fi
+# Add the bin directory environment path export to a file.
+add_bin_export() {
+    local line_num
+    local line="export PATH=\"\${PATH}:${BIN_DIR}\""
 
-# Check that 'unzip' is installed
-if ! command -v unzip &> /dev/null; then
-    error "Missing installer dependency 'unzip'"
-fi
+    if [[ -f $1 ]] && ! grep -q "${line}" "${1}"; then
+        echo "${line}" >> "${1}"
+        line_num=$(wc -l "${1}" | cut -d " " -f 1)
 
-ZIP_URL=
+        status "Added environment path export at '${1}':${line_num}"
+    fi
+}
+
+# Move application files to a new directory.
+move_app_files() {
+   local files=("${@:1:$#-1}")
+
+    if ! sudo mv -v "${files[@]}" "${!#}"; then
+        error "Failed to move application files to '${!#}'"
+    fi
+}
+
+# Validate that an installer dependency is satisfied.
+validate_dep() {
+    if ! command -v "${1}" &> /dev/null; then
+        error "Unsatisfied installer dependency: '${1}'"
+    fi
+}
+
 ARCH=$(uname -m)
-
 REPO_ROOT="https://raw.githubusercontent.com/vandavey/DotnetCat/master"
 
-# Assign zip file URL and validate CPU architecture
-if [ "$ARCH" == "aarch64" ]; then
+# Validate CPU architecture and set variables
+if [[ $ARCH == "aarch64" ]]; then
     ZIP_URL="${REPO_ROOT}/src/DotnetCat/bin/Zips/DotnetCat_linux-arm64.zip"
-elif [ "$ARCH" == "x86_64" ]; then
+elif [[ $ARCH == "x86_64" ]]; then
     ZIP_URL="${REPO_ROOT}/src/DotnetCat/bin/Zips/DotnetCat_linux-x64.zip"
 else
     error "Unsupported processor architecture: '${ARCH}'"
 fi
 
-APP_DIR="/opt/dncat"
-BIN_DIR="${APP_DIR}/bin"
-SHARE_DIR="${APP_DIR}/share"
-ZIP_PATH="${APP_DIR}/dncat.zip"
+validate_dep 7z
+validate_dep curl
 
-# Remove the existing installation
-if [ -d $APP_DIR ]; then
-    status "Removing existing installation from '${APP_DIR}'..."
+# Require elevated shell privileges
+if ! sudo -n true 2> /dev/null; then
+    status "Elevated shell privileges required..."
 
-    sudo rm -r $APP_DIR > /dev/null || {
-        error "Failed to remove existing installation from '${APP_DIR}'"
-    }
+    if ! sudo -v; then
+        error "Failed to elevate shell privileges"
+    fi
 fi
 
-# Create the installation directory
-sudo mkdir -p $APP_DIR $BIN_DIR $SHARE_DIR > /dev/null || {
+# Remove existing installation
+if [[ -d $APP_DIR ]]; then
+    status "Removing existing installation..."
+
+    if ! sudo rm -rv $APP_DIR; then
+        error "Failed to remove existing installation from '${APP_DIR}'"
+    fi
+fi
+
+status "Creating install directories..."
+
+# Create install directories
+if ! sudo mkdir -pv $BIN_DIR $SHARE_DIR; then
     error "Failed to create one or more directories in '${APP_DIR}'"
-}
+fi
 
-HTTP_STATUS=$(curl -sLSw "%{http_code}" $ZIP_URL -o /dev/null)
+ZIP_PATH="${APP_DIR}/dncat.zip"
+HTTP_STATUS=$(curl -sILSw "%{http_code}" $ZIP_URL -o /dev/null)
 
-# Failed to communicate with the repository server
-if [ "$HTTP_STATUS" -ne 200 ]; then
+# Failed to access download URL
+if [[ $HTTP_STATUS -ne 200 ]]; then
     error "Unable to download zip file: HTTP ${HTTP_STATUS}"
 fi
 
 status "Downloading temporary zip file to '${ZIP_PATH}'..."
 
-# Download the temporary application zip file
-sudo curl -sLS $ZIP_URL -o $ZIP_PATH > /dev/null || {
+# Download application zip file
+if ! sudo curl -sLS $ZIP_URL -o $ZIP_PATH; then
     error "Failed to download zip file from '${ZIP_URL}'"
-}
+fi
 
-# Navigate to installation directory before unpacking zip file
-cd "$APP_DIR" || error "An unexpected error occurred"
+status "Unpacking zip file to '${APP_DIR}'..."
 
-status "Unpacking '${ZIP_PATH}' contents to '${APP_DIR}'..."
+# Unpack application zip file
+if ! sudo 7z x "${ZIP_PATH}" -bb0 -bd -o"${APP_DIR}" > /dev/null; then
+    error "Failed to unpack zip file '${ZIP_PATH}'"
+fi
 
-# Unpack the temporary zip file contents
-sudo unzip -j $ZIP_PATH > /dev/null || {
-    error "Failed to unpack contents of zip file '${ZIP_PATH}'"
-}
+status "Deleting temporary zip file..."
 
-status "Deleting temporary zip file '${ZIP_PATH}'..."
+# Remove application zip file
+if ! sudo rm -v $ZIP_PATH; then
+    error "Failed to remove zip file '${ZIP_PATH}'"
+fi
 
-# Remove the temporary zip file
-sudo rm $ZIP_PATH > /dev/null || {
-    error "Failed to remove temporary zip file '${ZIP_PATH}'"
-}
+status "Installing application files to '${APP_DIR}'..."
 
-status "Installing the application files to '${APP_DIR}'..."
+move_app_files $APP_DIR/*.md $SHARE_DIR
+move_app_files $APP_DIR/{dncat,*.sh} $BIN_DIR
 
-# Move markdown files into the share directory
-sudo mv $APP_DIR/*.md $SHARE_DIR > /dev/null || {
-    error "Failed to restructure application files in '${APP_DIR}'"
-}
+status "Enabling execution of files in '${BIN_DIR}'..."
 
-# Move executables into the bin directory
-sudo mv $APP_DIR/dncat $APP_DIR/*.sh $BIN_DIR > /dev/null || {
-    error "Failed to restructure application files in '${APP_DIR}'"
-}
+# Enable execute permissions
+if ! sudo chmod +x $BIN_DIR/{dncat,*.sh}; then
+    error "Failed to enable execution of files in '${BIN_DIR}'"
+fi
 
-# Enable execute permissions on all executable files
-sudo chmod +x $BIN_DIR/* > /dev/null || {
-    error "Failed to enable execute permissions"
-}
-
-LINE="export PATH=\"\${PATH}:${BIN_DIR}\""
-
-# Create a bash configuration file
-if [ ! -f ~/.bashrc ] && [ ! -f ~/.zshrc ]; then
+# Create bash configuration file
+if [[ ! -f ~/.bashrc && ! -f ~/.zshrc ]]; then
     status "Creating bash configuration file '${HOME}/.bashrc'..."
-    touch ~/.bashrc
+    : >> ~/.bashrc
 fi
 
-# Add a bash environment path configuration
-if [ -f ~/.bashrc ] && ! grep -q "$LINE" ~/.bashrc; then
-    echo -e "\n${LINE}" | sudo tee -a ~/.bashrc > /dev/null
-    status "Updated environment path configuration in '${HOME}/.bashrc'"
-fi
-
-# Add a zsh environment path configuration
-if [ -f ~/.zshrc ] && ! grep -q "$LINE" ~/.zshrc; then
-    echo -e "\n${LINE}" | sudo tee -a ~/.zshrc > /dev/null
-    status "Updated environment path configuration in '${HOME}/.zshrc'"
-fi
+add_bin_export ~/.bashrc
+add_bin_export ~/.zshrc
 
 status "DotnetCat was successfully installed, please restart your shell"
-cd "$ORIG_DIR" || exit 1
