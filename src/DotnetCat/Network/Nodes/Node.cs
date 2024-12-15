@@ -23,6 +23,7 @@ internal abstract class Node : IConnectable
 {
     private readonly List<SocketPipe> _pipes;  // TCP socket pipelines
 
+    private bool _disposed;                    // Object disposed
     private bool _validArgsCombos;             // Valid command-line arguments
 
     private string? _hostName;                 // Target hostname
@@ -39,7 +40,7 @@ internal abstract class Node : IConnectable
     protected Node()
     {
         _pipes = [];
-        _validArgsCombos = false;
+        _disposed = _validArgsCombos = false;
 
         Args = new CmdLineArgs();
         Client = new TcpClient();
@@ -64,9 +65,9 @@ internal abstract class Node : IConnectable
     protected Node(CmdLineArgs args) : this() => Args = args;
 
     /// <summary>
-    ///  Release the unmanaged object resources.
+    ///  Finalize the object.
     /// </summary>
-    ~Node() => Dispose();
+    ~Node() => Dispose(false);
 
     /// <summary>
     ///  Enable verbose console output.
@@ -154,7 +155,7 @@ internal abstract class Node : IConnectable
     /// <summary>
     ///  Initialize a new client or server node based on the given command-line arguments.
     /// </summary>
-    public static Node NewNode(CmdLineArgs args)
+    public static Node New(CmdLineArgs args)
     {
         return args.Listen ? new ServerNode(args) : new ClientNode(args);
     }
@@ -177,19 +178,11 @@ internal abstract class Node : IConnectable
     }
 
     /// <summary>
-    ///  Release all the underlying unmanaged resources.
+    ///  Free the underlying resources.
     /// </summary>
-    public virtual void Dispose()
+    public void Dispose()
     {
-        _pipes?.ForEach(p => p?.Dispose());
-
-        _process?.Dispose();
-        _netReader?.Dispose();
-        _netWriter?.Dispose();
-
-        Client?.Close();
-        NetStream?.Dispose();
-
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
@@ -230,6 +223,29 @@ internal abstract class Node : IConnectable
             StartInfo = Command.GetExeStartInfo(ExePath = path)
         };
         return _process.Start();
+    }
+
+    /// <summary>
+    ///  Free the underlying resources.
+    /// </summary>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _pipes?.ForEach(p => p?.Dispose());
+
+                _process?.Dispose();
+                _netReader?.Dispose();
+                _netWriter?.Dispose();
+
+                Client?.Close();
+                NetStream?.Dispose();
+            }
+
+            _disposed = true;
+        }
     }
 
     /// <summary>

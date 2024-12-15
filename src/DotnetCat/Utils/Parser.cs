@@ -384,7 +384,7 @@ internal partial class Parser
 
                 if (CmdArgs.Address == IPAddress.Any)
                 {
-                    Error.Handle(Except.HostNotFound, _argsList[0], true, ex: ex);
+                    Error.Handle(Except.HostNotFound, _argsList[0], true, ex);
                 }
                 break;
             }

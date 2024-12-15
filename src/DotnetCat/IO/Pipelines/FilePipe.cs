@@ -44,9 +44,9 @@ internal class FilePipe : SocketPipe
     }
 
     /// <summary>
-    ///  Release the unmanaged object resources.
+    ///  Finalize the object.
     /// </summary>
-    ~FilePipe() => Dispose();
+    ~FilePipe() => Dispose(false);
 
     /// <summary>
     ///  Enable verbose console output.

@@ -26,9 +26,9 @@ internal class ClientNode : Node
     public ClientNode(CmdLineArgs args) : base(args) => _targetEP = null;
 
     /// <summary>
-    ///  Release the unmanaged object resources.
+    ///  Finalize the object.
     /// </summary>
-    ~ClientNode() => Dispose();
+    ~ClientNode() => Dispose(false);
 
     /// <summary>
     ///  Establish a socket connection to the underlying IPv4 endpoint.

@@ -27,9 +27,9 @@ internal class StatusPipe : TextPipe
     }
 
     /// <summary>
-    ///  Release the unmanaged object resources.
+    ///  Finalize the object.
     /// </summary>
-    ~StatusPipe() => Dispose();
+    ~StatusPipe() => Dispose(false);
 
     /// <summary>
     ///  Asynchronously transfer an empty string between the underlying streams.

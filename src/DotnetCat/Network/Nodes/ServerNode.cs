@@ -13,22 +13,24 @@ namespace DotnetCat.Network.Nodes;
 /// </summary>
 internal class ServerNode : Node
 {
+    private bool _disposed;     // Object disposed
+
     private Socket? _listener;  // Listener socket
 
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ServerNode() : base(IPAddress.Any) => _listener = null;
+    public ServerNode() : base(IPAddress.Any) => _disposed = false;
 
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ServerNode(CmdLineArgs args) : base(args) => _listener = null;
+    public ServerNode(CmdLineArgs args) : base(args) => _disposed = false;
 
     /// <summary>
-    ///  Release the unmanaged object resources.
+    ///  Finalize the object.
     /// </summary>
-    ~ServerNode() => Dispose();
+    ~ServerNode() => Dispose(false);
 
     /// <summary>
     ///  Listen for an inbound TCP connection on the underlying listener socket.
@@ -81,14 +83,20 @@ internal class ServerNode : Node
     }
 
     /// <summary>
-    ///  Release all the underlying unmanaged resources.
+    ///  Free the underlying resources.
     /// </summary>
-    public override void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        _listener?.Close();
-        base.Dispose();
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _listener?.Close();
+            }
+            _disposed = true;
+        }
 
-        GC.SuppressFinalize(this);
+        base.Dispose(disposing);
     }
 
     /// <summary>
