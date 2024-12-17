@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 using DotnetCat.Network;
 
 #if WINDOWS
-using DotnetCat.Shell.WinApi;
+using System.Runtime.InteropServices;
 #endif // WINDOWS
 
 namespace DotnetCat.Errors;
@@ -19,28 +19,15 @@ internal class ThrowIf
 {
 #if WINDOWS
     /// <summary>
-    ///  Throw an exception if the given handle is invalid.
+    ///  Throw an exception if the given safe handle is invalid.
     /// </summary>
-    public static void InvalidHandle([NotNull] nint arg,
+    public static void InvalidHandle([NotNull] SafeHandle arg,
                                      [CallerArgumentExpression(nameof(arg))]
                                      string? name = default)
     {
-        if (!ConsoleApi.ValidHandle(arg))
+        if (arg.IsInvalid)
         {
             throw new ArgumentException($"Invalid handle: {arg}.", name);
-        }
-    }
-
-    /// <summary>
-    ///  Throw an exception if the given console mode is invalid.
-    /// </summary>
-    public static void InvalidMode([NotNull] uint arg,
-                                   [CallerArgumentExpression(nameof(arg))]
-                                   string? name = default)
-    {
-        if (!ConsoleApi.ValidMode(arg))
-        {
-            throw new ArgumentException("Expected one or more flags to be set.", name);
         }
     }
 #endif // WINDOWS
@@ -102,5 +89,16 @@ internal class ThrowIf
                                    string? name = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(arg, name);
+    }
+
+    /// <summary>
+    ///  Throw an exception if the given number is zero.
+    /// </summary>
+    public static void Zero<T>([NotNull] T arg,
+                               [CallerArgumentExpression(nameof(arg))]
+                               string? name = default)
+        where T : INumberBase<T>
+    {
+        ArgumentOutOfRangeException.ThrowIfZero(arg, name);
     }
 }
