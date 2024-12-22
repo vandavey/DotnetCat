@@ -49,7 +49,7 @@ internal static class ConsoleApi
 #if WINDOWS
     /// <summary>
     ///  Enable console virtual terminal sequence processing
-    ///  using the given console input and console output modes.
+    ///  using the given console input and output modes.
     /// </summary>
     public static void EnableVirtualTerm(InputMode inputMode, OutputMode outputMode)
     {

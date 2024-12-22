@@ -104,7 +104,7 @@ internal static class Net
     /// <summary>
     ///  Get all the IPv4 addresses from the given addresses.
     /// </summary>
-    private static IEnumerable<IPAddress> IPv4Addresses(IPAddress[] addresses)
+    private static IEnumerable<IPAddress> IPv4Addresses(IEnumerable<IPAddress> addresses)
     {
         return addresses.Where(a => a.AddressFamily is AddressFamily.InterNetwork);
     }

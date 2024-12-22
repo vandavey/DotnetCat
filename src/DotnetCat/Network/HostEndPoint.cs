@@ -32,8 +32,8 @@ internal class HostEndPoint
         ThrowIf.NullOrEmpty(hostName);
         ThrowIf.Null(address);
 
-        HostName = hostName;
         Port = port;
+        HostName = hostName;
         Address = address;
     }
 
