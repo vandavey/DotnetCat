@@ -30,9 +30,9 @@ internal class ProcessPipe : SocketPipe
     }
 
     /// <summary>
-    ///  Release the unmanaged object resources.
+    ///  Finalize the object.
     /// </summary>
-    ~ProcessPipe() => Dispose();
+    ~ProcessPipe() => Dispose(false);
 
     /// <summary>
     ///  Asynchronously transfer the executable process data

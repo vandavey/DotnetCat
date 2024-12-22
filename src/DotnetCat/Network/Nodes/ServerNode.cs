@@ -13,40 +13,34 @@ namespace DotnetCat.Network.Nodes;
 /// </summary>
 internal class ServerNode : Node
 {
+    private bool _disposed;     // Object disposed
+
     private Socket? _listener;  // Listener socket
 
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ServerNode() : base(IPAddress.Any) => _listener = null;
+    public ServerNode(CmdLineArgs args) : base(args) => _disposed = false;
 
     /// <summary>
-    ///  Initialize the object.
+    ///  Finalize the object.
     /// </summary>
-    public ServerNode(CmdLineArgs args) : base(args) => _listener = null;
-
-    /// <summary>
-    ///  Release the unmanaged object resources.
-    /// </summary>
-    ~ServerNode() => Dispose();
+    ~ServerNode() => Dispose(false);
 
     /// <summary>
     ///  Listen for an inbound TCP connection on the underlying listener socket.
     /// </summary>
     public override void Connect()
     {
-        ThrowIf.Null(Address);
-
-        IPEndPoint? remoteEP = null;
-        IPEndPoint localEP = new(Address, Port);
-
         ValidateArgsCombinations();
-        BindListener(localEP);
+
+        HostEndPoint remoteEndpoint = new();
+        BindListener(Endpoint.IPv4Endpoint());
 
         try  // Listen for an inbound connection
         {
             _listener?.Listen(1);
-            Output.Log($"Listening for incoming connections on {localEP}...");
+            Output.Log($"Listening for incoming connections on {Endpoint}...");
 
             if (_listener is not null)
             {
@@ -59,36 +53,46 @@ internal class ServerNode : Node
                 PipeError(Except.ExeProcess, ExePath);
             }
 
-            remoteEP = Client.Client.RemoteEndPoint as IPEndPoint;
-            Output.Log($"Connected to {remoteEP}");
+            remoteEndpoint.ParseEndpoint(Client.Client.RemoteEndPoint as IPEndPoint);
+            Output.Log($"Connected to {remoteEndpoint}");
 
             base.Connect();
             WaitForExit();
 
             Console.WriteLine();
-            Output.Log($"Connection to {remoteEP} closed");
+            Output.Log($"Connection to {remoteEndpoint} closed");
         }
-        catch (SocketException ex)  // Socket error occurred
+        catch (AggregateException ex)
         {
-            PipeError(Net.GetExcept(ex), new HostEndPoint(remoteEP), ex);
+            PipeError(Net.GetExcept(ex), remoteEndpoint, ex);
         }
-        catch (IOException ex)      // Connection was reset
+        catch (SocketException ex)
         {
-            PipeError(Except.ConnectionReset, new HostEndPoint(remoteEP), ex);
+            PipeError(Net.GetExcept(ex), remoteEndpoint, ex);
+        }
+        catch (IOException ex)
+        {
+            PipeError(Except.ConnectionReset, remoteEndpoint, ex);
         }
 
         Dispose();
     }
 
     /// <summary>
-    ///  Release all the underlying unmanaged resources.
+    ///  Free the underlying resources.
     /// </summary>
-    public override void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        _listener?.Close();
-        base.Dispose();
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _listener?.Close();
+            }
+            _disposed = true;
+        }
 
-        GC.SuppressFinalize(this);
+        base.Dispose(disposing);
     }
 
     /// <summary>

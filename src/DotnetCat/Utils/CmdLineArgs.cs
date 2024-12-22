@@ -8,6 +8,8 @@ namespace DotnetCat.Utils;
 /// </summary>
 internal class CmdLineArgs
 {
+    private string? _hostName;  // Network hostname
+
     /// <summary>
     ///  Initialize the object.
     /// </summary>
@@ -75,7 +77,11 @@ internal class CmdLineArgs
     /// <summary>
     ///  Hostname of the connection IPv4 address.
     /// </summary>
-    public string? HostName { get; set; }
+    public string HostName
+    {
+        get => _hostName ?? Address.ToString();
+        set => _hostName = value;
+    }
 
     /// <summary>
     ///  User-defined string payload.

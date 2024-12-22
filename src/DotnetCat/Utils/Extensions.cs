@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotnetCat.Errors;
@@ -70,6 +71,15 @@ internal static class Extensions
             endsWith = str.EndsWith(value);
         }
         return endsWith;
+    }
+
+    /// <summary>
+    ///  Determine whether an object is equal to one or more values in a collection.
+    /// </summary>
+    public static bool EqualsAny<T>([NotNullWhen(true)] this T? obj,
+                                    params IEnumerable<T> values)
+    {
+        return values.Any(v => RuntimeHelpers.Equals(v, obj));
     }
 
     /// <summary>

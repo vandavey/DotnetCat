@@ -27,9 +27,9 @@ internal class StreamPipe : SocketPipe
     }
 
     /// <summary>
-    ///  Release the unmanaged object resources.
+    ///  Finalize the object.
     /// </summary>
-    ~StreamPipe() => Dispose();
+    ~StreamPipe() => Dispose(false);
 
     /// <summary>
     ///  Asynchronously transfer console stream data between the underlying streams.
