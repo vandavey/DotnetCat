@@ -24,7 +24,7 @@ public class FileSysTests
         string expected = Environment.GetFolderPath(folder);
         string actual = FileSys.UserProfile;
 
-        Assert.AreEqual(actual, expected, $"Expected home path: '{expected}'");
+        Assert.AreEqual(expected, actual, $"Expected home path: '{expected}'");
     }
 
     /// <summary>

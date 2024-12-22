@@ -24,7 +24,7 @@ public class ErrorMessageTests
         ErrorMessage errorMsg = new(expected);
         string actual = errorMsg.Message;
 
-        Assert.AreEqual(actual, expected, $"Expected property value: '{expected}'");
+        Assert.AreEqual(expected, actual, $"Expected property value: '{expected}'");
     }
 
     /// <summary>
@@ -88,7 +88,7 @@ public class ErrorMessageTests
         _ = errorMsg.Build(arg);
         string actual = errorMsg.Message;
 
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(expected, actual);
     }
 
     /// <summary>
@@ -105,7 +105,7 @@ public class ErrorMessageTests
         ErrorMessage errorMsg = new(msg);
         string actual = errorMsg.Build(arg);
 
-        Assert.AreEqual(actual, expected);
+        Assert.AreEqual(expected, actual);
     }
 
     /// <summary>
