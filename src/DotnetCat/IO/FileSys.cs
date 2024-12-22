@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -23,10 +24,8 @@ internal static class FileSys
     /// </summary>
     static FileSys()
     {
-        string envVar = Command.GetEnvVariable("PATH") ?? string.Empty;
-
-        _envPaths = envVar.Split(Path.PathSeparator);
-        _exeExtensions = [string.Empty, "exe", "bat", "ps1", "py", "sh"];
+        _envPaths = Command.GetEnvVariable("Path")?.Split(Path.PathSeparator) ?? [];
+        _exeExtensions = [string.Empty, ".exe", ".ps1", ".sh", ".py", ".bat"];
     }
 
     /// <summary>
@@ -62,30 +61,6 @@ internal static class FileSys
     }
 
     /// <summary>
-    ///  Get the file name from the given file path and optionally
-    ///  exclude the file extension.
-    /// </summary>
-    [return: NotNullIfNotNull(nameof(path))]
-    public static string? GetFileName(string? path, bool withExt = true)
-    {
-        string? fileName = null;
-
-        if (!path.IsNullOrEmpty())
-        {
-            // Include file extension
-            if (withExt)
-            {
-                fileName = Path.GetFileName(path);
-            }
-            else  // Exclude extension
-            {
-                fileName = Path.GetFileNameWithoutExtension(path);
-            }
-        }
-        return fileName;
-    }
-
-    /// <summary>
     ///  Get the absolute parent directory path from the given file path.
     /// </summary>
     [return: NotNullIfNotNull(nameof(path))]
@@ -108,98 +83,48 @@ internal static class FileSys
     {
         string? fullPath = null;
 
+        // Ensure home and drive paths are properly interpreted
         if (!path.IsNullOrEmpty())
         {
-            // Ensure drives are properly interpreted
             if (SysInfo.IsWindows() && path.EndsWithValue(Path.VolumeSeparatorChar))
             {
                 path += Path.DirectorySeparatorChar;
             }
-
-            // Ensure home path is properly interpreted
             fullPath = Path.GetFullPath(path.Replace("~", UserProfile));
         }
         return fullPath;
     }
 
     /// <summary>
-    ///  Determine whether the given executable file name can be found
-    ///  by searching the local environment path.
+    ///  Determine whether the given executable can
+    ///  be located using the local environment path.
     /// </summary>
-    [return: NotNullIfNotNull(nameof(exe))]
-    public static (string? path, bool exists) ExistsOnPath([NotNull] string? exe)
+    public static bool ExistsOnPath([NotNull] string? exe,
+                                    [NotNullWhen(true)] out string? path)
     {
         ThrowIf.NullOrEmpty(exe);
-
-        string? path = exe;
-        bool exists = Exists(exe);
-
-        if (!exists)
-        {
-            exists = Exists(path = FindExecutable(path));
-        }
-        return (path, exists);
+        path = FileExists(exe) ? exe : FindExecutable(exe);
+        return path is not null;
     }
 
     /// <summary>
-    ///  Search the local environment path for the given executable name.
+    ///  Search the local environment path for the given executable.
     /// </summary>
-    private static string? FindExecutable([NotNull] string? exeName)
+    private static string? FindExecutable([NotNull] string? exe)
     {
-        ThrowIf.NullOrEmpty(exeName);
-        string? fullPath = null;
+        ThrowIf.NullOrEmpty(exe);
+        string exeName = Path.GetFileName(exe);
 
-        if (!FileExists(exeName))
-        {
-            foreach (string path in _envPaths)
-            {
-                if (!DirectoryExists(path))
-                {
-                    continue;
-                }
+        IEnumerable<string> executables =
+            from dir in _envPaths
+            where DirectoryExists(dir)
+            from file in Directory.GetFiles(dir)
+            where file.EndsWith(exeName)
+                || (!Path.HasExtension(exeName)
+                    && _exeExtensions.Contains(Path.GetExtension(file))
+                    && Path.GetFileNameWithoutExtension(file) == exeName)
+            select file;
 
-                if ((fullPath = GetFullExePath(path, exeName)) is not null)
-                {
-                    break;
-                }
-            }
-        }
-        return fullPath;
-    }
-
-    /// <summary>
-    ///  Search files in the given directory for a file whose name
-    ///  matches the specified executable name.
-    /// </summary>
-    private static string? GetFullExePath(string dirPath, string? exeName)
-    {
-        string? fullPath = null;
-
-        string? fileName = (from string file in Directory.GetFiles(dirPath)
-                            let name = GetFileName(file, false)
-                            where name == GetFileName(exeName, false)
-                            select name).FirstOrDefault();
-
-        // Try to match executable extension
-        if (fileName is not null)
-        {
-            foreach (string ext in _exeExtensions)
-            {
-                string newExeName = fileName;
-
-                if (ext != string.Empty)
-                {
-                    newExeName = Path.ChangeExtension(newExeName, ext);
-                }
-                string testPath = Path.Combine(dirPath, newExeName);
-
-                if (FileExists(testPath))
-                {
-                    fullPath = testPath;
-                    break;
-                }
-            }
-        }
-        return fullPath;
+        return executables.FirstOrDefault();
     }
 }

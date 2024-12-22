@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using DotnetCat.Errors;
@@ -26,8 +25,6 @@ internal abstract class Node : IConnectable
     private bool _disposed;                    // Object disposed
     private bool _validArgsCombos;             // Valid command-line arguments
 
-    private string? _hostName;                 // Target hostname
-
     private Process? _process;                 // Executable process
 
     private StreamReader? _netReader;          // TCP stream reader
@@ -37,32 +34,16 @@ internal abstract class Node : IConnectable
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    protected Node()
+    protected Node(CmdLineArgs args)
     {
         _pipes = [];
         _disposed = _validArgsCombos = false;
 
-        Args = new CmdLineArgs();
+        Args = args;
+
         Client = new TcpClient();
-
-        Port = 44444;
-        Verbose = false;
+        Endpoint = new HostEndPoint(Args.HostName, Args.Address, Args.Port);
     }
-
-    /// <summary>
-    ///  Initialize the object.
-    /// </summary>
-    protected Node(IPAddress addr, int port = 44444) : this()
-    {
-        Address = addr;
-        HostName = addr.ToString();
-        Port = port;
-    }
-
-    /// <summary>
-    ///  Initialize the object.
-    /// </summary>
-    protected Node(CmdLineArgs args) : this() => Args = args;
 
     /// <summary>
     ///  Finalize the object.
@@ -70,67 +51,23 @@ internal abstract class Node : IConnectable
     ~Node() => Dispose(false);
 
     /// <summary>
-    ///  Enable verbose console output.
-    /// </summary>
-    public bool Verbose
-    {
-        get => Args.Verbose;
-        set => Args.Verbose = value;
-    }
-
-    /// <summary>
-    ///  Network port number.
-    /// </summary>
-    public int Port
-    {
-        get => Args.Port;
-        set
-        {
-            ThrowIf.InvalidPort(value);
-            Args.Port = value;
-        }
-    }
-
-    /// <summary>
     ///  Executable file path.
     /// </summary>
     public string? ExePath
     {
         get => Args.ExePath;
-        set => Args.ExePath = value;
+        private set => Args.ExePath = value;
     }
 
     /// <summary>
-    ///  Transfer file path.
+    ///  Host endpoint to use for connection.
     /// </summary>
-    public string? FilePath
-    {
-        get => Args.FilePath;
-        set => Args.FilePath = value;
-    }
-
-    /// <summary>
-    ///  Network hostname.
-    /// </summary>
-    public string HostName
-    {
-        get => _hostName ?? Address?.ToString() ?? string.Empty;
-        set => _hostName = value ?? Address?.ToString() ?? string.Empty;
-    }
-
-    /// <summary>
-    ///  IPv4 network address.
-    /// </summary>
-    public IPAddress? Address
-    {
-        get => Args.Address;
-        set => Args.Address = value ?? IPAddress.Any;
-    }
+    public HostEndPoint Endpoint { get; }
 
     /// <summary>
     ///  TCP socket client.
     /// </summary>
-    public TcpClient Client { get; set; }
+    public TcpClient Client { get; }
 
     /// <summary>
     ///  File transfer option is set.
@@ -145,7 +82,7 @@ internal abstract class Node : IConnectable
     /// <summary>
     ///  Command-line arguments.
     /// </summary>
-    protected CmdLineArgs Args { get; set; }
+    protected CmdLineArgs Args { get; private set; }
 
     /// <summary>
     ///  TCP network stream.
@@ -167,11 +104,7 @@ internal abstract class Node : IConnectable
     public virtual void Connect()
     {
         ThrowIf.Null(NetStream);
-
-        if (!_validArgsCombos)
-        {
-            ValidateArgsCombinations();
-        }
+        ValidateArgsCombinations();
 
         AddPipes(Args.PipeVariant);
         _pipes?.ForEach(p => p?.Connect());
@@ -210,17 +143,16 @@ internal abstract class Node : IConnectable
     /// </summary>
     public bool StartProcess([NotNull] string? exe)
     {
-        (string? path, bool exists) = FileSys.ExistsOnPath(exe);
-
-        if (!exists)
+        if (!FileSys.ExistsOnPath(exe, out string? path))
         {
             Dispose();
             Error.Handle(Except.ExePath, exe, true);
         }
+        ExePath = path;
 
         _process = new Process
         {
-            StartInfo = Command.GetExeStartInfo(ExePath = path)
+            StartInfo = Command.GetExeStartInfo(ExePath)
         };
         return _process.Start();
     }

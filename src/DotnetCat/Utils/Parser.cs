@@ -378,11 +378,11 @@ internal partial class Parser
                 }
                 else  // Resolve the hostname
                 {
-                    (CmdArgs.Address, ex) = Net.ResolveName(_argsList[0]);
+                    CmdArgs.Address = Net.ResolveName(_argsList[0], out ex);
                 }
                 CmdArgs.HostName = _argsList[0];
 
-                if (CmdArgs.Address == IPAddress.Any)
+                if (CmdArgs.Address.Equals(IPAddress.None))
                 {
                     Error.Handle(Except.HostNotFound, _argsList[0], true, ex);
                 }
@@ -453,13 +453,11 @@ internal partial class Parser
         {
             Error.Handle(Except.NamedArgs, idxFlag.Flag, true);
         }
+        string exe = ArgsValueAt(idxFlag.Index + 1);
 
-        string exec = ArgsValueAt(idxFlag.Index + 1);
-        (string? path, bool exists) = FileSys.ExistsOnPath(exec);
-
-        if (!exists)
+        if (!FileSys.ExistsOnPath(exe, out string? path))
         {
-            Error.Handle(Except.ExePath, exec, true);
+            Error.Handle(Except.ExePath, exe, true);
         }
 
         CmdArgs.ExePath = path;

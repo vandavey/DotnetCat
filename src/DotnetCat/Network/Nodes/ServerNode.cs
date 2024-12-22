@@ -20,11 +20,6 @@ internal class ServerNode : Node
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ServerNode() : base(IPAddress.Any) => _disposed = false;
-
-    /// <summary>
-    ///  Initialize the object.
-    /// </summary>
     public ServerNode(CmdLineArgs args) : base(args) => _disposed = false;
 
     /// <summary>
@@ -37,18 +32,15 @@ internal class ServerNode : Node
     /// </summary>
     public override void Connect()
     {
-        ThrowIf.Null(Address);
-
-        IPEndPoint? remoteEP = null;
-        IPEndPoint localEP = new(Address, Port);
-
         ValidateArgsCombinations();
-        BindListener(localEP);
+
+        HostEndPoint remoteEndpoint = new();
+        BindListener(Endpoint.IPv4Endpoint());
 
         try  // Listen for an inbound connection
         {
             _listener?.Listen(1);
-            Output.Log($"Listening for incoming connections on {localEP}...");
+            Output.Log($"Listening for incoming connections on {Endpoint}...");
 
             if (_listener is not null)
             {
@@ -61,22 +53,26 @@ internal class ServerNode : Node
                 PipeError(Except.ExeProcess, ExePath);
             }
 
-            remoteEP = Client.Client.RemoteEndPoint as IPEndPoint;
-            Output.Log($"Connected to {remoteEP}");
+            remoteEndpoint.ParseEndpoint(Client.Client.RemoteEndPoint as IPEndPoint);
+            Output.Log($"Connected to {remoteEndpoint}");
 
             base.Connect();
             WaitForExit();
 
             Console.WriteLine();
-            Output.Log($"Connection to {remoteEP} closed");
+            Output.Log($"Connection to {remoteEndpoint} closed");
         }
-        catch (SocketException ex)  // Socket error occurred
+        catch (AggregateException ex)
         {
-            PipeError(Net.GetExcept(ex), new HostEndPoint(remoteEP), ex);
+            PipeError(Net.GetExcept(ex), remoteEndpoint, ex);
         }
-        catch (IOException ex)      // Connection was reset
+        catch (SocketException ex)
         {
-            PipeError(Except.ConnectionReset, new HostEndPoint(remoteEP), ex);
+            PipeError(Net.GetExcept(ex), remoteEndpoint, ex);
+        }
+        catch (IOException ex)
+        {
+            PipeError(Except.ConnectionReset, remoteEndpoint, ex);
         }
 
         Dispose();

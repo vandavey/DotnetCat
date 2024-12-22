@@ -1,6 +1,5 @@
 #if WINDOWS
 using System;
-using DWORD = uint;
 
 namespace DotnetCat.Shell.WinApi;
 
@@ -8,7 +7,7 @@ namespace DotnetCat.Shell.WinApi;
 ///  Windows API console input mode enumeration type flags.
 /// </summary>
 [Flags]
-internal enum InMode : DWORD
+internal enum InputMode : uint
 {
     UNKNOWN_INPUT_MODE            = 0x0000,
     ENABLE_PROCESSED_INPUT        = 0x0001,

@@ -1,6 +1,5 @@
 #if WINDOWS
 using System;
-using DWORD = uint;
 
 namespace DotnetCat.Shell.WinApi;
 
@@ -8,7 +7,7 @@ namespace DotnetCat.Shell.WinApi;
 ///  Windows API console output mode enumeration type flags.
 /// </summary>
 [Flags]
-internal enum OutMode : DWORD
+internal enum OutputMode : uint
 {
     UNKNOWN_OUTPUT_MODE                = 0x0000,
     ENABLE_PROCESSED_OUTPUT            = 0x0001,

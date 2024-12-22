@@ -13,17 +13,12 @@ namespace DotnetCat.Network.Nodes;
 /// </summary>
 internal class ClientNode : Node
 {
-    private HostEndPoint? _targetEP;  // Remote target
-
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ClientNode() : base() => _targetEP = null;
-
-    /// <summary>
-    ///  Initialize the object.
-    /// </summary>
-    public ClientNode(CmdLineArgs args) : base(args) => _targetEP = null;
+    public ClientNode(CmdLineArgs args) : base(args)
+    {
+    }
 
     /// <summary>
     ///  Finalize the object.
@@ -35,14 +30,11 @@ internal class ClientNode : Node
     /// </summary>
     public override void Connect()
     {
-        ThrowIf.Null(Address);
-        _targetEP = new HostEndPoint(HostName, Port);
-
         ValidateArgsCombinations();
 
-        try  // Connect with 3.5-second timeout
+        try  // Connect to the remote endpoint
         {
-            if (!Client.ConnectAsync(Address, Port).Wait(3500))
+            if (!Client.ConnectAsync(Endpoint.IPv4Endpoint()).Wait(3500))
             {
                 throw Net.MakeException(SocketError.TimedOut);
             }
@@ -56,25 +48,25 @@ internal class ClientNode : Node
 
             if (Args.PipeVariant is not PipeType.Status)
             {
-                Output.Log($"Connected to {_targetEP}");
+                Output.Log($"Connected to {Endpoint}");
             }
 
             base.Connect();
             WaitForExit();
 
-            Output.Log($"Connection to {_targetEP} closed");
+            Output.Log($"Connection to {Endpoint} closed");
         }
-        catch (AggregateException ex)  // Asynchronous socket error occurred
+        catch (AggregateException ex)
         {
-            PipeError(Net.GetExcept(ex), _targetEP, ex);
+            PipeError(Net.GetExcept(ex), Endpoint, ex);
         }
-        catch (SocketException ex)     // Socket error occurred
+        catch (SocketException ex)
         {
-            PipeError(Net.GetExcept(ex), _targetEP, ex);
+            PipeError(Net.GetExcept(ex), Endpoint, ex);
         }
-        catch (IOException ex)         // Connection was reset
+        catch (IOException ex)
         {
-            PipeError(Except.ConnectionReset, Address.ToString(), ex);
+            PipeError(Except.ConnectionReset, Endpoint, ex);
         }
 
         Dispose();

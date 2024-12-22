@@ -4,6 +4,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Net;
+using System.Net.Sockets;
 using DotnetCat.Network;
 
 #if WINDOWS
@@ -54,6 +56,19 @@ internal class ThrowIf
         where T : INumber<T>
     {
         ArgumentOutOfRangeException.ThrowIfNegative(arg, name);
+    }
+
+    /// <summary>
+    ///  Throw an exception if the given IP address is not an IPv4 address.
+    /// </summary>
+    public static void NotIPv4Address([NotNull] IPAddress? arg,
+                                      [CallerArgumentExpression(nameof(arg))]
+                                      string? name = default)
+    {
+        if (arg?.AddressFamily is not AddressFamily.InterNetwork)
+        {
+            throw new ArgumentException("IP address family is not IPv4.", name);
+        }
     }
 
     /// <summary>

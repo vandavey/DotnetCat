@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using DotnetCat.Errors;
-using DotnetCat.Utils;
 
 namespace DotnetCat.Network;
 
@@ -10,42 +9,32 @@ namespace DotnetCat.Network;
 /// </summary>
 internal class HostEndPoint
 {
-    private int _port;          // Network port number
+    private int _port;           // Network port number
 
-    private string? _hostName;  // Network hostname
+    private string? _hostName;   // Network hostname
 
-    /// <summary>
-    ///  Initialize the object.
-    /// </summary>
-    public HostEndPoint() => _port = -1;
+    private IPAddress _address;  // IPv4 address
 
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public HostEndPoint(string? hostName, int port)
+    public HostEndPoint()
     {
+        _port = 44444;
+        _address = IPAddress.Any;
+    }
+
+    /// <summary>
+    ///  Initialize the object.
+    /// </summary>
+    public HostEndPoint([NotNull] string? hostName, IPAddress? address, int port) : this()
+    {
+        ThrowIf.NullOrEmpty(hostName);
+        ThrowIf.Null(address);
+
         HostName = hostName;
         Port = port;
-    }
-
-    /// <summary>
-    ///  Initialize the object.
-    /// </summary>
-    public HostEndPoint(IPAddress address, int port)
-    {
-        HostName = address.ToString();
-        Port = port;
-    }
-
-    /// <summary>
-    ///  Initialize the object.
-    /// </summary>
-    public HostEndPoint([NotNull] IPEndPoint? ep)
-    {
-        ThrowIf.Null(ep);
-
-        HostName = ep.Address.ToString();
-        Port = ep.Port;
+        Address = address;
     }
 
     /// <summary>
@@ -64,31 +53,42 @@ internal class HostEndPoint
     /// <summary>
     ///  Network hostname.
     /// </summary>
-    public string? HostName
+    public string HostName
     {
-        get => _hostName;
+        get => _hostName ?? Address.ToString();
+        set => _hostName = value;
+    }
+
+    /// <summary>
+    ///  IPv4 address.
+    /// </summary>
+    public IPAddress Address
+    {
+        get => _address;
         set
         {
-            ThrowIf.NullOrEmpty(value);
-            _hostName = value;
+            ThrowIf.NotIPv4Address(value);
+            _address = value;
         }
     }
 
     /// <summary>
     ///  Get the string representation of the underlying endpoint information.
     /// </summary>
-    public override string? ToString()
-    {
-        string? endPointStr;
+    public override string? ToString() => $"{HostName}:{Port}";
 
-        if (Port <= -1 || HostName.IsNullOrEmpty())
-        {
-            endPointStr = base.ToString();
-        }
-        else
-        {
-            endPointStr = $"{HostName}:{Port}";
-        }
-        return endPointStr;
+    /// <summary>
+    ///  Parse the given IPv4 endpoint.
+    /// </summary>
+    public void ParseEndpoint([NotNull] IPEndPoint? ipEndpoint)
+    {
+        ThrowIf.Null(ipEndpoint);
+        Address = ipEndpoint.Address;
+        Port = ipEndpoint.Port;
     }
+
+    /// <summary>
+    ///  Get an IPv4 endpoint using the underlying IPv4 address and port.
+    /// </summary>
+    public IPEndPoint IPv4Endpoint() => new(Address, Port);
 }

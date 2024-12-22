@@ -40,10 +40,8 @@ internal static class ConsoleApi
     #if WINDOWS
         if (!VirtualTermEnabled)
         {
-            InMode inMode = InMode.ENABLE_VIRTUAL_TERMINAL_INPUT;
-            OutMode outMode = OutMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-            EnableVirtualTerm(inMode, outMode);
+            EnableVirtualTerm(InputMode.ENABLE_VIRTUAL_TERMINAL_INPUT,
+                              OutputMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
         }
     #endif // WINDOWS
     }
@@ -53,7 +51,7 @@ internal static class ConsoleApi
     ///  Enable console virtual terminal sequence processing
     ///  using the given console input and console output modes.
     /// </summary>
-    public static void EnableVirtualTerm(InMode inMode, OutMode outMode)
+    public static void EnableVirtualTerm(InputMode inputMode, OutputMode outputMode)
     {
         if (!VirtualTermEnabled)
         {
@@ -61,9 +59,9 @@ internal static class ConsoleApi
             using WinSafeHandle stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
             using WinSafeHandle stdErrHandle = GetStdHandle(STD_ERROR_HANDLE);
 
-            SetConsoleMode(stdInHandle, GetConsoleMode(stdInHandle, (uint)inMode));
-            SetConsoleMode(stdOutHandle, GetConsoleMode(stdOutHandle, (uint)outMode));
-            SetConsoleMode(stdErrHandle, GetConsoleMode(stdErrHandle, (uint)outMode));
+            SetConsoleMode(stdInHandle, GetConsoleMode(stdInHandle, (uint)inputMode));
+            SetConsoleMode(stdOutHandle, GetConsoleMode(stdOutHandle, (uint)outputMode));
+            SetConsoleMode(stdErrHandle, GetConsoleMode(stdErrHandle, (uint)outputMode));
 
             VirtualTermEnabled = true;
         }
