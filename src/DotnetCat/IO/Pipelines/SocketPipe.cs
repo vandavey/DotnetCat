@@ -151,7 +151,6 @@ internal abstract class SocketPipe : IConnectable
                 TokenSource?.Dispose();
                 Client?.Dispose();
             }
-
             _disposed = true;
         }
     }

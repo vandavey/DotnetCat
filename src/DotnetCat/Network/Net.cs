@@ -57,7 +57,7 @@ internal static class Net
     }
 
     /// <summary>
-    ///  Initialize a new socket exception from the given socket error.
+    ///  Initialize a socket exception from the given socket error.
     /// </summary>
     public static SocketException MakeException(SocketError error)
     {
@@ -102,7 +102,7 @@ internal static class Net
     }
 
     /// <summary>
-    ///  Get all the IPv4 addresses from the given addresses.
+    ///  Get all the IPv4 addresses from the given address collection.
     /// </summary>
     private static IEnumerable<IPAddress> IPv4Addresses(IEnumerable<IPAddress> addresses)
     {

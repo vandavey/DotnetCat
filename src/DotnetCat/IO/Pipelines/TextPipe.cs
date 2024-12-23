@@ -59,11 +59,10 @@ internal class TextPipe : SocketPipe
         {
             if (disposing)
             {
-                _memoryStream.Dispose();
+                _memoryStream?.Dispose();
             }
             _disposed = true;
         }
-
         base.Dispose(disposing);
     }
 

@@ -88,7 +88,7 @@ internal class HostEndPoint
     }
 
     /// <summary>
-    ///  Get an IPv4 endpoint using the underlying IPv4 address and port.
+    ///  Initialize an IPv4 endpoint from the underlying IP address and port number.
     /// </summary>
     public IPEndPoint IPv4Endpoint() => new(Address, Port);
 }

@@ -1,8 +1,9 @@
 #!/bin/bash
 #
-#  dncat-uninstall.sh
-#  ------------------
-#  DotnetCat uninstaller script for ARM64 and x64 Linux systems.
+# DESCRIPTION
+#     DotnetCat uninstaller script for ARM64 and x64 Linux systems.
+# REPOSITORY
+#     https://github.com/vandavey/DotnetCat
 
 APP_DIR="/opt/dncat"
 BIN_DIR="${APP_DIR}/bin"

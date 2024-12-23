@@ -1,8 +1,9 @@
 #!/bin/bash
 #
-#  dncat-install.sh
-#  ----------------
-#  DotnetCat installer script for ARM64 and x64 Linux systems.
+# DESCRIPTION
+#     DotnetCat installer script for ARM64 and x64 Linux systems.
+# REPOSITORY
+#     https://github.com/vandavey/DotnetCat
 
 APP_DIR="/opt/dncat"
 BIN_DIR="${APP_DIR}/bin"

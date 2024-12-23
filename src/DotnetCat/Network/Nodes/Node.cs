@@ -90,7 +90,7 @@ internal abstract class Node : IConnectable
     protected NetworkStream? NetStream { get; set; }
 
     /// <summary>
-    ///  Initialize a new client or server node based on the given command-line arguments.
+    ///  Initialize a client or server node from the given command-line arguments.
     /// </summary>
     public static Node New(CmdLineArgs args)
     {
@@ -139,7 +139,7 @@ internal abstract class Node : IConnectable
     }
 
     /// <summary>
-    ///  Initialize and run a new executable process on the local system.
+    ///  Initialize and execute the given executable on the local system.
     /// </summary>
     public bool StartProcess([NotNull] string? exe)
     {
@@ -175,7 +175,6 @@ internal abstract class Node : IConnectable
                 Client?.Close();
                 NetStream?.Dispose();
             }
-
             _disposed = true;
         }
     }
@@ -283,7 +282,7 @@ internal abstract class Node : IConnectable
     }
 
     /// <summary>
-    ///  Initialize a new list of pipelines from the given pipeline type.
+    ///  Initialize a list of pipelines from the given pipeline type.
     /// </summary>
     private List<SocketPipe> MakePipes(PipeType type)
     {
@@ -313,7 +312,7 @@ internal abstract class Node : IConnectable
     }
 
     /// <summary>
-    ///  Initialize a new array of console stream pipelines.
+    ///  Initialize an array of console stream pipelines.
     /// </summary>
     private StreamPipe[] MakeStreamPipes() =>
     [
@@ -325,7 +324,7 @@ internal abstract class Node : IConnectable
     ];
 
     /// <summary>
-    ///  Initialize a new array of executable process pipelines.
+    ///  Initialize an array of executable process pipelines.
     /// </summary>
     private ProcessPipe[] MakeProcessPipes() =>
     [
@@ -335,7 +334,7 @@ internal abstract class Node : IConnectable
     ];
 
     /// <summary>
-    ///  Initialize a new file pipeline.
+    ///  Initialize a file pipeline.
     /// </summary>
     private FilePipe MakeFilePipe()
     {

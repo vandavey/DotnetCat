@@ -46,7 +46,6 @@ internal class WinSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
             }
             _disposed = true;
         }
-
         base.Dispose(disposing);
     }
 

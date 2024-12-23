@@ -91,7 +91,6 @@ internal class ServerNode : Node
             }
             _disposed = true;
         }
-
         base.Dispose(disposing);
     }
 

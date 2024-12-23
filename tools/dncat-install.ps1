@@ -2,8 +2,8 @@
 .SYNOPSIS
     DotnetCat installer script for x64 and x86 Windows systems.
 .DESCRIPTION
-    DotnetCat remote command-shell application installer script
-    for x64 and x86 Windows systems.
+    DotnetCat remote command shell application
+    installer script for x64 and x86 Windows systems.
 .LINK
     Application repository: https://github.com/vandavey/DotnetCat
 #>

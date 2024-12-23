@@ -24,8 +24,8 @@ internal static class FileSys
     /// </summary>
     static FileSys()
     {
-        _envPaths = Command.GetEnvVariable("Path")?.Split(Path.PathSeparator) ?? [];
-        _exeExtensions = [string.Empty, ".exe", ".ps1", ".sh", ".py", ".bat"];
+        _envPaths = Command.GetEnvVariable("PATH")?.Split(Path.PathSeparator) ?? [];
+        _exeExtensions = [".exe", ".ps1", ".sh", ".py", ".bat"];
     }
 
     /// <summary>
@@ -83,7 +83,6 @@ internal static class FileSys
     {
         string? fullPath = null;
 
-        // Ensure home and drive paths are properly interpreted
         if (!path.IsNullOrEmpty())
         {
             if (SysInfo.IsWindows() && path.EndsWithValue(Path.VolumeSeparatorChar))
@@ -103,7 +102,16 @@ internal static class FileSys
                                     [NotNullWhen(true)] out string? path)
     {
         ThrowIf.NullOrEmpty(exe);
-        path = FileExists(exe) ? exe : FindExecutable(exe);
+        path = null;
+
+        if (FileExists(exe))
+        {
+            path = ResolvePath(exe);
+        }
+        else if (!Path.IsPathRooted(exe))
+        {
+            path = FindExecutable(exe);
+        }
         return path is not null;
     }
 
@@ -119,10 +127,10 @@ internal static class FileSys
             from dir in _envPaths
             where DirectoryExists(dir)
             from file in Directory.GetFiles(dir)
-            where file.EndsWith(exeName)
+            where file.EndsWith(Path.DirectorySeparatorChar + exeName)
                 || (!Path.HasExtension(exeName)
-                    && _exeExtensions.Contains(Path.GetExtension(file))
-                    && Path.GetFileNameWithoutExtension(file) == exeName)
+                    && Path.GetFileNameWithoutExtension(file) == exeName
+                    && _exeExtensions.Contains(Path.GetExtension(file)))
             select file;
 
         return executables.FirstOrDefault();
