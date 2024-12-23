@@ -1,4 +1,5 @@
-* text    encoding=utf-8  eol=lf
+* text  encoding=utf-8  eol=lf
+
 *.aps     binary
 *.assets  binary
 *.cache   binary
@@ -17,3 +18,7 @@
 *.png     binary
 *.suo     binary
 *.zip     binary
+
+*.cs   linguist-detectable
+*.ps1  linguist-detectable
+*.sh   linguist-detectable
