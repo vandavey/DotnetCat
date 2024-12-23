@@ -30,7 +30,7 @@ public class CommandTests
         string? expected = Environment.GetEnvironmentVariable(name);
         string? actual = Command.GetEnvVariable(name);
 
-        Assert.AreEqual(actual, expected, $"Incorrect value for variable '{name}'");
+        Assert.AreEqual(expected, actual, $"Incorrect value for variable '{name}'");
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ public class CommandTests
     [DataRow("data.exe")]
     public void GetExeStartInfo_NonNullShell_ReturnsNewStartInfo(string shell)
     {
-        ProcessStartInfo actual = Command.GetExeStartInfo(shell);
+        ProcessStartInfo? actual = Command.GetExeStartInfo(shell);
         Assert.IsNotNull(actual, "Resulting startup information should not be null");
     }
 

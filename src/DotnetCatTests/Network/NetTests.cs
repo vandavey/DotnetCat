@@ -30,7 +30,7 @@ public class NetTests
         Except expected = (Except)expectedByte;
         Except actual = Net.GetExcept(aggregateEx);
 
-        Assert.AreEqual(actual, expected, $"Enum result should be '{expected}'");
+        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'");
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ public class NetTests
         Except expected = (Except)expectedByte;
         Except actual = Net.GetExcept(socketEx);
 
-        Assert.AreEqual(actual, expected, $"Enum result should be '{expected}'");
+        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'");
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public class NetTests
 
         SocketException? actual = Net.SocketException(aggregateEx);
 
-        Assert.AreEqual(actual, expected, "Failure extracting socket exception");
+        Assert.AreEqual(expected, actual, "Failure extracting socket exception");
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ public class NetTests
         SocketException socketEx = Net.MakeException(expected);
         SocketError actual = socketEx.SocketErrorCode;
 
-        Assert.AreEqual(actual, expected, $"Expected error code: '{expected}'");
+        Assert.AreEqual(expected, actual, $"Expected error code: '{expected}'");
     }
 #endregion // MethodTests
 }

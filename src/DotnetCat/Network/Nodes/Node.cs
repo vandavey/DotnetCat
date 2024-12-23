@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using DotnetCat.Errors;
@@ -23,9 +22,8 @@ internal abstract class Node : IConnectable
 {
     private readonly List<SocketPipe> _pipes;  // TCP socket pipelines
 
+    private bool _disposed;                    // Object disposed
     private bool _validArgsCombos;             // Valid command-line arguments
-
-    private string? _hostName;                 // Target hostname
 
     private Process? _process;                 // Executable process
 
@@ -36,59 +34,21 @@ internal abstract class Node : IConnectable
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    protected Node()
+    protected Node(CmdLineArgs args)
     {
         _pipes = [];
-        _validArgsCombos = false;
+        _disposed = _validArgsCombos = false;
 
-        Args = new CmdLineArgs();
+        Args = args;
+
         Client = new TcpClient();
-
-        Port = 44444;
-        Verbose = false;
+        Endpoint = new HostEndPoint(Args.HostName, Args.Address, Args.Port);
     }
 
     /// <summary>
-    ///  Initialize the object.
+    ///  Finalize the object.
     /// </summary>
-    protected Node(IPAddress addr, int port = 44444) : this()
-    {
-        Address = addr;
-        HostName = addr.ToString();
-        Port = port;
-    }
-
-    /// <summary>
-    ///  Initialize the object.
-    /// </summary>
-    protected Node(CmdLineArgs args) : this() => Args = args;
-
-    /// <summary>
-    ///  Release the unmanaged object resources.
-    /// </summary>
-    ~Node() => Dispose();
-
-    /// <summary>
-    ///  Enable verbose console output.
-    /// </summary>
-    public bool Verbose
-    {
-        get => Args.Verbose;
-        set => Args.Verbose = value;
-    }
-
-    /// <summary>
-    ///  Network port number.
-    /// </summary>
-    public int Port
-    {
-        get => Args.Port;
-        set
-        {
-            ThrowIf.InvalidPort(value);
-            Args.Port = value;
-        }
-    }
+    ~Node() => Dispose(false);
 
     /// <summary>
     ///  Executable file path.
@@ -96,40 +56,18 @@ internal abstract class Node : IConnectable
     public string? ExePath
     {
         get => Args.ExePath;
-        set => Args.ExePath = value;
+        private set => Args.ExePath = value;
     }
 
     /// <summary>
-    ///  Transfer file path.
+    ///  Host endpoint to use for connection.
     /// </summary>
-    public string? FilePath
-    {
-        get => Args.FilePath;
-        set => Args.FilePath = value;
-    }
-
-    /// <summary>
-    ///  Network hostname.
-    /// </summary>
-    public string HostName
-    {
-        get => _hostName ?? Address?.ToString() ?? string.Empty;
-        set => _hostName = value ?? Address?.ToString() ?? string.Empty;
-    }
-
-    /// <summary>
-    ///  IPv4 network address.
-    /// </summary>
-    public IPAddress? Address
-    {
-        get => Args.Address;
-        set => Args.Address = value ?? IPAddress.Any;
-    }
+    public HostEndPoint Endpoint { get; }
 
     /// <summary>
     ///  TCP socket client.
     /// </summary>
-    public TcpClient Client { get; set; }
+    public TcpClient Client { get; }
 
     /// <summary>
     ///  File transfer option is set.
@@ -144,7 +82,7 @@ internal abstract class Node : IConnectable
     /// <summary>
     ///  Command-line arguments.
     /// </summary>
-    protected CmdLineArgs Args { get; set; }
+    protected CmdLineArgs Args { get; private set; }
 
     /// <summary>
     ///  TCP network stream.
@@ -152,9 +90,9 @@ internal abstract class Node : IConnectable
     protected NetworkStream? NetStream { get; set; }
 
     /// <summary>
-    ///  Initialize a new client or server node based on the given command-line arguments.
+    ///  Initialize a client or server node from the given command-line arguments.
     /// </summary>
-    public static Node NewNode(CmdLineArgs args)
+    public static Node New(CmdLineArgs args)
     {
         return args.Listen ? new ServerNode(args) : new ClientNode(args);
     }
@@ -166,30 +104,18 @@ internal abstract class Node : IConnectable
     public virtual void Connect()
     {
         ThrowIf.Null(NetStream);
-
-        if (!_validArgsCombos)
-        {
-            ValidateArgsCombinations();
-        }
+        ValidateArgsCombinations();
 
         AddPipes(Args.PipeVariant);
         _pipes?.ForEach(p => p?.Connect());
     }
 
     /// <summary>
-    ///  Release all the underlying unmanaged resources.
+    ///  Free the underlying resources.
     /// </summary>
-    public virtual void Dispose()
+    public void Dispose()
     {
-        _pipes?.ForEach(p => p?.Dispose());
-
-        _process?.Dispose();
-        _netReader?.Dispose();
-        _netWriter?.Dispose();
-
-        Client?.Close();
-        NetStream?.Dispose();
-
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
@@ -213,23 +139,44 @@ internal abstract class Node : IConnectable
     }
 
     /// <summary>
-    ///  Initialize and run a new executable process on the local system.
+    ///  Initialize and execute the given executable on the local system.
     /// </summary>
     public bool StartProcess([NotNull] string? exe)
     {
-        (string? path, bool exists) = FileSys.ExistsOnPath(exe);
-
-        if (!exists)
+        if (!FileSys.ExistsOnPath(exe, out string? path))
         {
             Dispose();
             Error.Handle(Except.ExePath, exe, true);
         }
+        ExePath = path;
 
         _process = new Process
         {
-            StartInfo = Command.GetExeStartInfo(ExePath = path)
+            StartInfo = Command.GetExeStartInfo(ExePath)
         };
         return _process.Start();
+    }
+
+    /// <summary>
+    ///  Free the underlying resources.
+    /// </summary>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _pipes?.ForEach(p => p?.Dispose());
+
+                _process?.Dispose();
+                _netReader?.Dispose();
+                _netWriter?.Dispose();
+
+                Client?.Close();
+                NetStream?.Dispose();
+            }
+            _disposed = true;
+        }
     }
 
     /// <summary>
@@ -335,7 +282,7 @@ internal abstract class Node : IConnectable
     }
 
     /// <summary>
-    ///  Initialize a new list of pipelines from the given pipeline type.
+    ///  Initialize a list of pipelines from the given pipeline type.
     /// </summary>
     private List<SocketPipe> MakePipes(PipeType type)
     {
@@ -365,7 +312,7 @@ internal abstract class Node : IConnectable
     }
 
     /// <summary>
-    ///  Initialize a new array of console stream pipelines.
+    ///  Initialize an array of console stream pipelines.
     /// </summary>
     private StreamPipe[] MakeStreamPipes() =>
     [
@@ -377,7 +324,7 @@ internal abstract class Node : IConnectable
     ];
 
     /// <summary>
-    ///  Initialize a new array of executable process pipelines.
+    ///  Initialize an array of executable process pipelines.
     /// </summary>
     private ProcessPipe[] MakeProcessPipes() =>
     [
@@ -387,7 +334,7 @@ internal abstract class Node : IConnectable
     ];
 
     /// <summary>
-    ///  Initialize a new file pipeline.
+    ///  Initialize a file pipeline.
     /// </summary>
     private FilePipe MakeFilePipe()
     {

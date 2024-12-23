@@ -24,7 +24,7 @@ public class FileSysTests
         string expected = Environment.GetFolderPath(folder);
         string actual = FileSys.UserProfile;
 
-        Assert.AreEqual(actual, expected, $"Expected home path: '{expected}'");
+        Assert.AreEqual(expected, actual, $"Expected home path: '{expected}'");
     }
 
     /// <summary>
@@ -220,40 +220,6 @@ public class FileSysTests
         bool actual = FileSys.DirectoryExists(path);
 
         Assert.IsFalse(actual, "Expected null directory path to not exist");
-    }
-
-    /// <summary>
-    ///  Assert that a valid (populated) input path returns the
-    ///  correct file name (with and without the extension).
-    /// </summary>
-    [DataTestMethod]
-    [DataRow("~/.ssh/id_rsa.pub", true, "id_rsa.pub")]
-    [DataRow(@"\home\test\.bash_aliases", false, "")]
-    [DataRow("~/Documents/data.txt", true, "data.txt")]
-    [DataRow(@"C:\Windows\explorer.exe", false, "explorer")]
-    public void GetFileName_ValidPath_ReturnsExpected(string? path,
-                                                      bool withExt,
-                                                      string expected)
-    {
-        string? actual = FileSys.GetFileName(path, withExt);
-        Assert.AreEqual(actual, expected, $"Expected file name: '{expected}'");
-    }
-
-    /// <summary>
-    ///  Assert that an invalid (e.g., null, empty, blank) input
-    ///  path returns null (with and without the extension).
-    /// </summary>
-    [DataTestMethod]
-    [DataRow(null, true)]
-    [DataRow(null, false)]
-    [DataRow("", true)]
-    [DataRow("  ", false)]
-    [DataRow("", true)]
-    [DataRow("  ", false)]
-    public void GetFileName_InvalidPath_ReturnsNull(string? path, bool withExt)
-    {
-        string? actual = FileSys.GetFileName(path, withExt);
-        Assert.IsNull(actual, "Expected resulting file name to be null");
     }
 #endregion // MethodTests
 }

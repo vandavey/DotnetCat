@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -21,43 +22,42 @@ internal static class Net
     /// <summary>
     ///  Resolve the IPv4 address associated with the given hostname.
     /// </summary>
-    public static (IPAddress ip, Exception? ex) ResolveName(string hostName)
+    public static IPAddress ResolveName(string hostName, out Exception? ex)
     {
-        IPHostEntry dnsAns;
-        IPAddress address = IPAddress.Any;
+        ex = null;
+        IPHostEntry? dnsAns = null;
 
         try  // Resolve IPv4 from hostname
         {
             dnsAns = Dns.GetHostEntry(hostName);
+        }
+        catch (SocketException sockEx)
+        {
+            ex = sockEx;
+        }
 
-            if (dnsAns.AddressList.Contains(IPAddress.Loopback))
+        IPAddress address = IPAddress.None;
+
+        // Extract first resulting IPv4 address
+        if (dnsAns is not null && !hostName.NoCaseEquals(SysInfo.Hostname))
+        {
+            IPAddress? addr = IPv4Addresses(dnsAns.AddressList).FirstOrDefault();
+
+            if (addr is not null)
             {
-                return (IPAddress.Loopback, null);
+                address = addr;
+            }
+            else  // Name resolution failure
+            {
+                ex = MakeException(SocketError.HostNotFound);
             }
         }
-        catch (SocketException ex)  // No DNS entries found
-        {
-            return (address, ex);
-        }
 
-        // Return the first IPv4 address
-        if (!dnsAns.HostName.NoCaseEquals(SysInfo.Hostname))
-        {
-            foreach (IPAddress addr in dnsAns.AddressList)
-            {
-                if (addr.AddressFamily is AddressFamily.InterNetwork)
-                {
-                    return (addr, null);
-                }
-            }
-            return (address, MakeException(SocketError.HostNotFound));
-        }
-
-        return (ActiveLocalAddress(), null);
+        return ex is null && address.Equals(IPAddress.None) ? ActiveAddress() : address;
     }
 
     /// <summary>
-    ///  Initialize a new socket exception from the given socket error.
+    ///  Initialize a socket exception from the given socket error.
     /// </summary>
     public static SocketException MakeException(SocketError error)
     {
@@ -102,9 +102,17 @@ internal static class Net
     }
 
     /// <summary>
+    ///  Get all the IPv4 addresses from the given address collection.
+    /// </summary>
+    private static IEnumerable<IPAddress> IPv4Addresses(IEnumerable<IPAddress> addresses)
+    {
+        return addresses.Where(a => a.AddressFamily is AddressFamily.InterNetwork);
+    }
+
+    /// <summary>
     ///  Get the currently active local IPv4 address.
     /// </summary>
-    private static IPAddress ActiveLocalAddress()
+    private static IPAddress ActiveAddress()
     {
         using Socket socket = new(AddressFamily.InterNetwork,
                                   SocketType.Dgram,

@@ -21,11 +21,14 @@ internal abstract class SocketPipe : IConnectable
     protected const int READ_BUFFER_SIZE = 1024;
     protected const int WRITE_BUFFER_SIZE = READ_BUFFER_SIZE * 4;
 
+    private bool _disposed;  // Object disposed
+
     /// <summary>
     ///  Initialize the object.
     /// </summary>
     protected SocketPipe()
     {
+        _disposed = false;
         Connected = false;
 
         Args = new CmdLineArgs();
@@ -38,9 +41,9 @@ internal abstract class SocketPipe : IConnectable
     protected SocketPipe(CmdLineArgs args) : this() => Args = args;
 
     /// <summary>
-    ///  Release the unmanaged object resources.
+    ///  Finalize the object.
     /// </summary>
-    ~SocketPipe() => Dispose();
+    ~SocketPipe() => Dispose(false);
 
     /// <summary>
     ///  Underlying streams are connected.
@@ -63,14 +66,14 @@ internal abstract class SocketPipe : IConnectable
     protected StringBuilder NewLine { get; }
 
     /// <summary>
-    ///  Pipeline cancellation token source.
-    /// </summary>
-    protected CancellationTokenSource? CTS { get; set; }
-
-    /// <summary>
     ///  Character memory buffer.
     /// </summary>
     protected Memory<char> Buffer { get; set; }
+
+    /// <summary>
+    ///  Pipeline cancellation token source.
+    /// </summary>
+    protected CancellationTokenSource? TokenSource { get; set; }
 
     /// <summary>
     ///  Command-line arguments.
@@ -100,23 +103,18 @@ internal abstract class SocketPipe : IConnectable
         ThrowIf.Null(Source);
         ThrowIf.Null(Dest);
 
-        CTS = new CancellationTokenSource();
         Buffer = new Memory<char>(new char[READ_BUFFER_SIZE]);
+        TokenSource = new CancellationTokenSource();
 
-        Worker = ConnectAsync(CTS.Token);
+        Worker = ConnectAsync(TokenSource.Token);
     }
 
     /// <summary>
-    ///  Release all the underlying unmanaged resources.
-    /// <summary>
-    public virtual void Dispose()
+    ///  Free the underlying resources.
+    /// </summary>
+    public void Dispose()
     {
-        Source?.Dispose();
-        Dest?.Dispose();
-
-        CTS?.Dispose();
-        Client?.Dispose();
-
+        Dispose(true);
         GC.SuppressFinalize(this);
     }
 
@@ -140,12 +138,30 @@ internal abstract class SocketPipe : IConnectable
     }
 
     /// <summary>
+    ///  Free the underlying resources.
+    /// </summary>
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                Source?.Dispose();
+                Dest?.Dispose();
+                TokenSource?.Dispose();
+                Client?.Dispose();
+            }
+            _disposed = true;
+        }
+    }
+
+    /// <summary>
     ///  Cancel communication between the underlying streams.
     /// </summary>
     protected void Disconnect()
     {
         Connected = false;
-        CTS?.Cancel();
+        TokenSource?.Cancel();
     }
 
     /// <summary>

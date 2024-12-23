@@ -41,7 +41,7 @@ internal static class Output
         LogLevel.Status => "[+]",
         LogLevel.Warn   => "[!]",
         LogLevel.Error  => "[x]",
-        _ => throw new ArgumentException("Invalid logging level", nameof(level))
+        _ => throw new ArgumentException("Invalid logging level.", nameof(level))
     };
 
     /// <summary>
@@ -54,7 +54,7 @@ internal static class Output
         LogLevel.Status => ConsoleColor.Green,
         LogLevel.Warn   => ConsoleColor.Yellow,
         LogLevel.Error  => ConsoleColor.Red,
-        _ => throw new ArgumentException("Invalid logging level", nameof(level))
+        _ => throw new ArgumentException("Invalid logging level.", nameof(level))
     };
 
     /// <summary>

@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
@@ -14,7 +13,7 @@ namespace DotnetCat.IO.Pipelines;
 /// </summary>
 internal class TextPipe : SocketPipe
 {
-    private readonly string _statusMsg;  // Completion status message
+    private bool _disposed;              // Object disposed
 
     private MemoryStream _memoryStream;  // Memory stream buffer
 
@@ -25,7 +24,7 @@ internal class TextPipe : SocketPipe
     {
         ThrowIf.Null(dest);
 
-        _statusMsg = "Payload successfully transmitted";
+        _disposed = false;
         _memoryStream = new MemoryStream();
 
         Dest = dest;
@@ -33,9 +32,9 @@ internal class TextPipe : SocketPipe
     }
 
     /// <summary>
-    ///  Release the unmanaged object resources.
+    ///  Finalize the object.
     /// </summary>
-    ~TextPipe() => Dispose();
+    ~TextPipe() => Dispose(false);
 
     /// <summary>
     ///  String network payload.
@@ -52,14 +51,19 @@ internal class TextPipe : SocketPipe
     }
 
     /// <summary>
-    ///  Release all the underlying unmanaged resources.
+    ///  Free the underlying resources.
     /// </summary>
-    public override void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        _memoryStream?.Dispose();
-        base.Dispose();
-
-        GC.SuppressFinalize(this);
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _memoryStream?.Dispose();
+            }
+            _disposed = true;
+        }
+        base.Dispose(disposing);
     }
 
     /// <summary>
@@ -75,7 +79,7 @@ internal class TextPipe : SocketPipe
 
         if (Args.Verbose)
         {
-            Output.Status(_statusMsg);
+            Output.Status("Payload successfully transmitted");
         }
 
         Disconnect();

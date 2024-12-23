@@ -92,7 +92,7 @@ internal static class Error
             Except.EmptyPath          => "A value is required for option(s): %",
             Except.ExePath            => "Unable to locate executable file: '%'",
             Except.ExeProcess         => "Unable to launch executable process: %",
-            Except.FilePath           => "Unable to locate file path: '%'",
+            Except.FilePath           => "Unable to locate file: '%'",
             Except.HostNotFound       => "Unable to resolve hostname: '%'",
             Except.HostUnreachable    => "Unable to reach host %",
             Except.InvalidArgs        => "Unable to validate argument(s): %",

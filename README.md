@@ -94,8 +94,8 @@ curl -sLS "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dnc
 
 <blockquote>
     <a href="tools/dncat-install.sh">dncat-install.sh</a> only supports <em>ARM64</em> and
-    <em>x64</em> architectures and is dependent on <code><a href="https://curl.se">curl</a></code>
-    and <code><a href="https://infozip.sourceforge.net/UnZip.html">unzip</a></code>.
+    <em>x64</em> architectures and is dependent on <code><a href="https://www.7-zip.org">7-Zip</a></code>
+    and <code><a href="https://curl.se">curl</a></code>.
 </blockquote>
 
 ### Windows Systems
@@ -103,7 +103,7 @@ curl -sLS "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dnc
 Download and execute the [dncat-install.ps1](tools/dncat-install.ps1) installer script using PowerShell:
 
 ```powershell
-irm -d "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-install.ps1" | powershell.exe -
+irm -d "https://raw.githubusercontent.com/vandavey/DotnetCat/master/tools/dncat-install.ps1" | powershell -
 ```
 
 > [dncat-install.ps1](tools/dncat-install.ps1) only supports *x64*
@@ -143,7 +143,7 @@ source /opt/dncat/bin/dncat-uninstall.sh
 Execute the [dncat-uninstall.ps1](tools/dncat-uninstall.ps1) uninstaller script using PowerShell:
 
 ```powershell
-Get-Content "${env:ProgramFiles}\DotnetCat\dncat-uninstall.ps1" | powershell.exe -
+gc "${env:ProgramFiles}\DotnetCat\dncat-uninstall.ps1" | powershell -
 ```
 
 > [dncat-uninstall.ps1](tools/dncat-uninstall.ps1) only supports *x64*
