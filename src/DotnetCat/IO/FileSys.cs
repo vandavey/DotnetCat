@@ -137,7 +137,7 @@ internal static class FileSys
         {
             if (Command.TryEnvVariable("PATHEXT", out string? pathExt))
             {
-                extensions = [.. pathExt.Split(Path.PathSeparator)];
+                extensions = pathExt.Split(Path.PathSeparator);
             }
             else  // Use common Windows extensions
             {
