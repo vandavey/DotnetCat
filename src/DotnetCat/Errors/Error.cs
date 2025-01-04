@@ -14,12 +14,12 @@ internal static class Error
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Error() => Debug = false;
+    static Error() => Verbose = false;
 
     /// <summary>
     ///  Enable verbose exceptions.
     /// </summary>
-    public static bool Debug { get; set; }
+    public static bool Verbose { get; set; }
 
     /// <summary>
     ///  Handle user-defined exceptions related to DotnetCat and exit.
@@ -52,8 +52,8 @@ internal static class Error
         ErrorMessage errorMsg = MakeErrorMessage(exType, arg);
         Output.Error(errorMsg.Message);
 
-        // Print debug information
-        if (Debug && ex is not null)
+        // Print verbose error details
+        if (Verbose && ex is not null)
         {
             if (ex is AggregateException aggregateEx)
             {

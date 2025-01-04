@@ -5,7 +5,7 @@
 # DotnetCat
 
 <div align="left">
-    <img src="https://img.shields.io/badge/c%23-v13-9325ff" alt="csharp-12-badge" />
+    <img src="https://img.shields.io/badge/c%23-v13-9325ff" alt="csharp-13-badge" />
     <img src="https://img.shields.io/github/license/vandavey/DotnetCat" alt="license-badge" />
     <img src="https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue" alt="contributors-badge" />
     <img src="https://img.shields.io/github/issues-pr/vandavey/DotnetCat" alt="pull-requests-badge" />
@@ -69,7 +69,6 @@ All available DotnetCat command-line arguments are listed below:
 | `-l, --listen`     | *Optional* | Listen for an inbound connection   | *False* |
 | `-z, --zero-io`    | *Optional* | Determine if an endpoint is open   | *False* |
 | `-v, --verbose`    | *Optional* | Enable verbose console output      | *False* |
-| `-d, --debug`      | *Optional* | Enable verbose error output        | *False* |
 | `-h/-?, --help`    | *Optional* | Display the app help menu and exit | *False* |
 
 > See the [usage examples](#usage-examples) section for more information.
@@ -200,7 +199,7 @@ dncat -lv --exec bash
 Transmit string payload *Hello world!* to remote endpoint `fake.addr.com:80`:
 
 ```powershell
-dncat -dt "Hello world!" fake.addr.com -p 80
+dncat -vt "Hello world!" fake.addr.com -p 80
 ```
 
 ### File Transfer

@@ -83,15 +83,6 @@
     </ItemGroup>
 
     <!--
-     Include Markdown files and shell scripts.
-    -->
-    <ItemGroup>
-        <None Include="$(SolutionDir)../*.md" Visible="false" />
-        <None Include="$(SolutionDir)../tools/**/*.ps1" Visible="false" />
-        <None Include="$(SolutionDir)../tools/**/*.sh" Visible="false" />
-    </ItemGroup>
-
-    <!--
      Copy utility files to output directory.
     -->
     <ItemGroup Condition="'$(Publishing)'=='true'">

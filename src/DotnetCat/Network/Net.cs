@@ -75,23 +75,20 @@ internal static class Net
     /// <summary>
     ///  Get the exception enum member associated to the given socket exception.
     /// </summary>
-    public static Except GetExcept(SocketException? ex)
+    public static Except GetExcept(SocketException? ex) => ex?.SocketErrorCode switch
     {
-        return ex?.SocketErrorCode switch
-        {
-            SocketError.AddressAlreadyInUse => Except.AddressInUse,
-            SocketError.NetworkDown         => Except.NetworkDown,
-            SocketError.NetworkUnreachable  => Except.NetworkUnreachable,
-            SocketError.NetworkReset        => Except.NetworkReset,
-            SocketError.ConnectionAborted   => Except.ConnectionAborted,
-            SocketError.ConnectionReset     => Except.ConnectionReset,
-            SocketError.TimedOut            => Except.TimedOut,
-            SocketError.ConnectionRefused   => Except.ConnectionRefused,
-            SocketError.HostUnreachable     => Except.HostUnreachable,
-            SocketError.HostNotFound        => Except.HostNotFound,
-            SocketError.SocketError or _    => Except.SocketError
-        };
-    }
+        SocketError.AddressAlreadyInUse => Except.AddressInUse,
+        SocketError.NetworkDown         => Except.NetworkDown,
+        SocketError.NetworkUnreachable  => Except.NetworkUnreachable,
+        SocketError.NetworkReset        => Except.NetworkReset,
+        SocketError.ConnectionAborted   => Except.ConnectionAborted,
+        SocketError.ConnectionReset     => Except.ConnectionReset,
+        SocketError.TimedOut            => Except.TimedOut,
+        SocketError.ConnectionRefused   => Except.ConnectionRefused,
+        SocketError.HostUnreachable     => Except.HostUnreachable,
+        SocketError.HostNotFound        => Except.HostNotFound,
+        SocketError.SocketError or _    => Except.SocketError
+    };
 
     /// <summary>
     ///  Get the first socket exception nested within the given aggregate exception.
