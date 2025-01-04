@@ -25,10 +25,10 @@ public class CommandTests
     [DataRow("HOME")]
     [DataRow("USER")]
 #endif // WINDOWS
-    public void GetEnvVariable_ValidEnvVariableName_ReturnsExpected(string name)
+    public void EnvVariable_ValidEnvVariableName_ReturnsExpected(string name)
     {
         string? expected = Environment.GetEnvironmentVariable(name);
-        string? actual = Command.GetEnvVariable(name);
+        string? actual = Command.EnvVariable(name);
 
         Assert.AreEqual(expected, actual, $"Incorrect value for variable '{name}'");
     }
@@ -39,9 +39,9 @@ public class CommandTests
     [DataTestMethod]
     [DataRow("DotnetCatTest_Test")]
     [DataRow("DotnetCatTest_Data")]
-    public void GetEnvVariable_InvalidEnvVariableName_ReturnsNull(string name)
+    public void EnvVariable_InvalidEnvVariableName_ReturnsNull(string name)
     {
-        string? actual = Command.GetEnvVariable(name);
+        string? actual = Command.EnvVariable(name);
         Assert.IsNull(actual, $"Value for variable '{name}' should be null");
     }
 
@@ -50,12 +50,12 @@ public class CommandTests
     ///  an <see cref="ArgumentNullException"/> to be thrown.
     /// </summary>
     [TestMethod]
-    public void GetEnvVariable_NullEnvVariableName_ThrowsArgumentNullException()
+    public void EnvVariable_NullEnvVariableName_ThrowsArgumentNullException()
     {
         string? name = null;
 
     #nullable disable
-        Func<string> func = () => Command.GetEnvVariable(name);
+        Func<string> func = () => Command.EnvVariable(name);
     #nullable enable
 
         Assert.ThrowsException<ArgumentNullException>(func);
@@ -68,9 +68,9 @@ public class CommandTests
     [DataTestMethod]
     [DataRow("test")]
     [DataRow("data.exe")]
-    public void GetExeStartInfo_NonNullShell_ReturnsNewStartInfo(string shell)
+    public void ExeStartInfo_NonNullShell_ReturnsNewStartInfo(string shell)
     {
-        ProcessStartInfo? actual = Command.GetExeStartInfo(shell);
+        ProcessStartInfo? actual = Command.ExeStartInfo(shell);
         Assert.IsNotNull(actual, "Resulting startup information should not be null");
     }
 
@@ -79,10 +79,10 @@ public class CommandTests
     ///  <see cref="ArgumentNullException"/> to be thrown.
     /// </summary>
     [TestMethod]
-    public void GetExeStartInfo_NullShell_ThrowsArgumentNullException()
+    public void ExeStartInfo_NullShell_ThrowsArgumentNullException()
     {
         string? shell = null;
-        Func<ProcessStartInfo> func = () => Command.GetExeStartInfo(shell);
+        Func<ProcessStartInfo> func = () => Command.ExeStartInfo(shell);
 
         Assert.ThrowsException<ArgumentNullException>(func);
     }

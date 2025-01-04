@@ -8,7 +8,7 @@
         <AssemblyName>dncat</AssemblyName>
         <Authors>vandavey</Authors>
         <Configurations>Debug; Release; Linux; ARM64</Configurations>
-        <Copyright>Copyright (c) 2024 vandavey</Copyright>
+        <Copyright>Copyright (c) 2025 vandavey</Copyright>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
         <Description>DotnetCat</Description>

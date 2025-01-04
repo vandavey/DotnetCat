@@ -15,17 +15,16 @@ namespace DotnetCat.IO;
 /// </summary>
 internal static class FileSys
 {
-    private static readonly string[] _envPaths;       // Local environment paths
-
-    private static readonly string[] _exeExtensions;  // Executable file extensions
+    private static readonly string[] _envPaths;        // Environment path directories
+    private static readonly string[] _pathExtensions;  // Environment path file extensions
 
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
     static FileSys()
     {
-        _envPaths = Command.GetEnvVariable("PATH")?.Split(Path.PathSeparator) ?? [];
-        _exeExtensions = [".exe", ".ps1", ".sh", ".py", ".bat"];
+        _envPaths = EnvironmentPaths();
+        _pathExtensions = PathExtensions();
     }
 
     /// <summary>
@@ -116,6 +115,44 @@ internal static class FileSys
     }
 
     /// <summary>
+    ///  Get the directory paths defined by the local environment path variable.
+    /// </summary>
+    private static string[] EnvironmentPaths()
+    {
+        if (!Command.TryEnvVariable("PATH", out string? envPath))
+        {
+            throw new InvalidOperationException("Failed to get local environment paths.");
+        }
+        return envPath.Split(Path.PathSeparator);
+    }
+
+    /// <summary>
+    ///  Get the locally supported environment path executable file extensions.
+    /// </summary>
+    private static string[] PathExtensions()
+    {
+        string[] extensions;
+
+        if (SysInfo.IsWindows())
+        {
+            if (Command.TryEnvVariable("PATHEXT", out string? pathExt))
+            {
+                extensions = [.. pathExt.Split(Path.PathSeparator)];
+            }
+            else  // Use common Windows extensions
+            {
+                extensions = [".exe", ".bat", ".cmd", ".ps1", ".py"];
+            }
+        }
+        else  // Use Linux extensions
+        {
+            extensions = [".sh", ".py", ".bin", ".run", ".elf"];
+        }
+
+        return [.. extensions.Select(e => e.ToLower())];
+    }
+
+    /// <summary>
     ///  Search the local environment path for the given executable.
     /// </summary>
     private static string? FindExecutable([NotNull] string? exe)
@@ -130,7 +167,7 @@ internal static class FileSys
             where file.EndsWith(Path.DirectorySeparatorChar + exeName)
                 || (!Path.HasExtension(exeName)
                     && Path.GetFileNameWithoutExtension(file) == exeName
-                    && _exeExtensions.Contains(Path.GetExtension(file)))
+                    && _pathExtensions.Contains(Path.GetExtension(file)))
             select file;
 
         return executables.FirstOrDefault();
