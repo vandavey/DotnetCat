@@ -8,7 +8,7 @@
         <AssemblyName>dncat</AssemblyName>
         <Authors>vandavey</Authors>
         <Configurations>Debug; Release; Linux; ARM64</Configurations>
-        <Copyright>Copyright (c) 2024 vandavey</Copyright>
+        <Copyright>Copyright (c) 2025 vandavey</Copyright>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
         <Description>DotnetCat</Description>
@@ -80,15 +80,6 @@
     <ItemGroup>
         <Folder Include="Properties/" />
         <Folder Include="Resources/" />
-    </ItemGroup>
-
-    <!--
-     Include Markdown files and shell scripts.
-    -->
-    <ItemGroup>
-        <None Include="$(SolutionDir)../*.md" Visible="false" />
-        <None Include="$(SolutionDir)../tools/**/*.ps1" Visible="false" />
-        <None Include="$(SolutionDir)../tools/**/*.sh" Visible="false" />
     </ItemGroup>
 
     <!--

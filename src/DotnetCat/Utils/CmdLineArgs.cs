@@ -15,7 +15,7 @@ internal class CmdLineArgs
     /// </summary>
     public CmdLineArgs()
     {
-        Debug = Help = Listen = Verbose = false;
+        Help = Listen = Verbose = false;
 
         PipeVariant = PipeType.Stream;
         TransOpt = TransferOpt.None;
@@ -23,11 +23,6 @@ internal class CmdLineArgs
 
         Address = IPAddress.Any;
     }
-
-    /// <summary>
-    ///  Enable verbose exceptions.
-    /// </summary>
-    public bool Debug { get; set; }
 
     /// <summary>
     ///  Display extended usage information and exit.

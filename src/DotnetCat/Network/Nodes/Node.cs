@@ -152,7 +152,7 @@ internal abstract class Node : IConnectable
 
         _process = new Process
         {
-            StartInfo = Command.GetExeStartInfo(ExePath)
+            StartInfo = Command.ExeStartInfo(ExePath)
         };
         return _process.Start();
     }

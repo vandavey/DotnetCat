@@ -18,19 +18,16 @@ internal static class ConsoleApi
     private const int STD_OUTPUT_HANDLE = -11;
 #endif // WINDOWS
 
+    private static bool _virtualTermEnabled;  // Virtual terminal processing enabled
+
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
     static ConsoleApi()
     {
-        VirtualTermEnabled = !OperatingSystem.IsWindows();
+        _virtualTermEnabled = !OperatingSystem.IsWindows();
         EnableVirtualTerm();
     }
-
-    /// <summary>
-    ///  Virtual terminal processing is enabled.
-    /// </summary>
-    public static bool VirtualTermEnabled { get; private set; }
 
     /// <summary>
     ///  Enable console virtual terminal sequence processing.
@@ -38,7 +35,7 @@ internal static class ConsoleApi
     public static void EnableVirtualTerm()
     {
     #if WINDOWS
-        if (!VirtualTermEnabled)
+        if (!_virtualTermEnabled)
         {
             EnableVirtualTerm(InputMode.ENABLE_VIRTUAL_TERMINAL_INPUT,
                               OutputMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
@@ -51,9 +48,9 @@ internal static class ConsoleApi
     ///  Enable console virtual terminal sequence processing
     ///  using the given console input and output modes.
     /// </summary>
-    public static void EnableVirtualTerm(InputMode inputMode, OutputMode outputMode)
+    private static void EnableVirtualTerm(InputMode inputMode, OutputMode outputMode)
     {
-        if (!VirtualTermEnabled)
+        if (!_virtualTermEnabled)
         {
             using WinSafeHandle stdInHandle = GetStdHandle(STD_INPUT_HANDLE);
             using WinSafeHandle stdOutHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -63,7 +60,7 @@ internal static class ConsoleApi
             SetConsoleMode(stdOutHandle, GetConsoleMode(stdOutHandle, (uint)outputMode));
             SetConsoleMode(stdErrHandle, GetConsoleMode(stdErrHandle, (uint)outputMode));
 
-            VirtualTermEnabled = true;
+            _virtualTermEnabled = true;
         }
     }
 

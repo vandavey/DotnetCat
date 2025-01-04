@@ -13,9 +13,19 @@ using namespace System.Security.Principal
 [CmdletBinding()]
 param ()
 
+$DefaultErrorPreference = $ErrorActionPreference
+$DefaultProgressPreference = $ProgressPreference
+
+# Reset the global preference variables.
+function Reset-Preferences {
+    $ErrorActionPreference = $DefaultErrorPreference
+    $ProgressPreference = $DefaultProgressPreference
+}
+
 # Write an error message to stderr and exit.
 function Show-Error {
     $Symbol = "[x]"
+    Reset-Preferences
 
     if ($PSVersionTable.PSVersion.Major -ge 6) {
         $Symbol = "`e[91m${Symbol}`e[0m"
@@ -33,6 +43,9 @@ function Show-Status {
     }
     Write-Output "${Symbol} ${args}"
 }
+
+$ErrorActionPreference = "Stop"
+$ProgressPreference = "SilentlyContinue"
 
 # Require Windows operating system
 if (-not [RuntimeInformation]::IsOSPlatform([OSPlatform]::Windows)) {
@@ -60,7 +73,7 @@ else {
 # Remove all application files
 if (Test-Path $AppDir) {
     Show-Status "Removing application files from '${AppDir}'..."
-    Remove-Item $AppDir -Force -Recurse
+    Remove-Item $AppDir -Recurse -Force
 }
 else {
     Show-Status "No application files to remove from '${AppDir}'"
@@ -91,4 +104,5 @@ if ($EnvPath.Contains($AppDir)) {
     }
 }
 
-Show-Status "DotnetCat was successfully uninstalled"
+Reset-Preferences
+Show-Status "DotnetCat was successfully uninstalled`n"

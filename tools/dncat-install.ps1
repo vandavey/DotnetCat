@@ -13,18 +13,19 @@ using namespace System.Security.Principal
 [CmdletBinding()]
 param ()
 
-$OrigProgressPreference = $ProgressPreference
-$ProgressPreference = "SilentlyContinue"
+$DefaultErrorPreference = $ErrorActionPreference
+$DefaultProgressPreference = $ProgressPreference
 
-# Reset the global progress preference variable.
-function Reset-ProgressPreference {
-    $ProgressPreference = $OrigProgressPreference
+# Reset the global preference variables.
+function Reset-Preferences {
+    $ErrorActionPreference = $DefaultErrorPreference
+    $ProgressPreference = $DefaultProgressPreference
 }
 
 # Write an error message to stderr and exit.
 function Show-Error {
     $Symbol = "[x]"
-    Reset-ProgressPreference
+    Reset-Preferences
 
     if ($PSVersionTable.PSVersion.Major -ge 6) {
         $Symbol = "`e[91m${Symbol}`e[0m"
@@ -42,6 +43,9 @@ function Show-Status {
     }
     Write-Output "${Symbol} ${args}"
 }
+
+$ErrorActionPreference = "Stop"
+$ProgressPreference = "SilentlyContinue"
 
 # Require Windows operating system
 if (-not [RuntimeInformation]::IsOSPlatform([OSPlatform]::Windows)) {
@@ -72,11 +76,11 @@ else {
 # Remove existing installation
 if (Test-Path $AppDir) {
     Show-Status "Removing existing installation from '${AppDir}'..."
-    Remove-Item $AppDir -Force -Recurse
+    Remove-Item $AppDir -Recurse -Force
 }
 
 Show-Status "Creating install directory '${AppDir}'..."
-New-Item $AppDir -Force -ItemType Directory > $null
+New-Item $AppDir -ItemType Directory -Force > $null
 
 $ZipPath = "${AppDir}\dncat.zip"
 Show-Status "Downloading temporary zip file to '${ZipPath}'..."
@@ -116,5 +120,5 @@ if (-not $EnvPath.Contains($AppDir)) {
     }
 }
 
-Reset-ProgressPreference
-Show-Status "DotnetCat was successfully installed, please restart your shell"
+Reset-Preferences
+Show-Status "DotnetCat was successfully installed, please restart your shell`n"
