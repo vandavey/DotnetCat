@@ -57,29 +57,26 @@ internal static partial class Sequence
     ///  Get the ANSI foreground color SGR control sequence that
     ///  corresponds to the given console color.
     /// </summary>
-    private static string ColorSequence(ConsoleColor color)
+    private static string ColorSequence(ConsoleColor color) => color switch
     {
-        return color switch
-        {
-            ConsoleColor.Black       => $"{CSI}0;30m",
-            ConsoleColor.DarkBlue    => $"{CSI}0;34m",
-            ConsoleColor.DarkGreen   => $"{CSI}0;32m",
-            ConsoleColor.DarkCyan    => $"{CSI}0;36m",
-            ConsoleColor.DarkRed     => $"{CSI}0;31m",
-            ConsoleColor.DarkMagenta => $"{CSI}0;35m",
-            ConsoleColor.DarkYellow  => $"{CSI}0;33m",
-            ConsoleColor.Gray        => $"{CSI}0;37m",
-            ConsoleColor.DarkGray    => $"{CSI}1;30m",
-            ConsoleColor.Blue        => $"{CSI}1;34m",
-            ConsoleColor.Green       => $"{CSI}38;2;166;226;46m",
-            ConsoleColor.Cyan        => $"{CSI}38;2;0;255;255m",
-            ConsoleColor.Red         => $"{CSI}38;2;246;0;0m",
-            ConsoleColor.Magenta     => $"{CSI}1;35m",
-            ConsoleColor.Yellow      => $"{CSI}38;2;250;230;39m",
-            ConsoleColor.White       => $"{CSI}1;37m",
-            _                        => RESET
-        };
-    }
+        ConsoleColor.Black       => $"{CSI}0;30m",
+        ConsoleColor.DarkBlue    => $"{CSI}0;34m",
+        ConsoleColor.DarkGreen   => $"{CSI}0;32m",
+        ConsoleColor.DarkCyan    => $"{CSI}0;36m",
+        ConsoleColor.DarkRed     => $"{CSI}0;31m",
+        ConsoleColor.DarkMagenta => $"{CSI}0;35m",
+        ConsoleColor.DarkYellow  => $"{CSI}0;33m",
+        ConsoleColor.Gray        => $"{CSI}0;37m",
+        ConsoleColor.DarkGray    => $"{CSI}1;30m",
+        ConsoleColor.Blue        => $"{CSI}1;34m",
+        ConsoleColor.Green       => $"{CSI}38;2;166;226;46m",
+        ConsoleColor.Cyan        => $"{CSI}38;2;0;255;255m",
+        ConsoleColor.Red         => $"{CSI}38;2;246;0;0m",
+        ConsoleColor.Magenta     => $"{CSI}1;35m",
+        ConsoleColor.Yellow      => $"{CSI}38;2;250;230;39m",
+        ConsoleColor.White       => $"{CSI}1;37m",
+        _                        => RESET
+    };
 
     /// <summary>
     ///  ANSI SGR control sequence regular expression.

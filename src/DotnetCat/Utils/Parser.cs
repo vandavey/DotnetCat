@@ -169,6 +169,8 @@ internal partial class Parser
     /// </summary>
     private static string GetHelpMessage()
     {
+        string exampleShell = SysInfo.IsLinux() ? "bash" : "powershell.exe";
+
         string helpMessage = $"""
             DotnetCat ({Repo})
             {Usage}{SysInfo.Eol}
@@ -178,7 +180,6 @@ internal partial class Parser
             Optional Arguments:
               -h/-?,   --help           Show this help message and exit
               -v,      --verbose        Enable verbose console output
-              -d,      --debug          Output verbose error information
               -l,      --listen         Listen for incoming connections
               -z,      --zero-io        Report connection status only
               -p PORT, --port PORT      Specify port to use for endpoint.
@@ -188,9 +189,9 @@ internal partial class Parser
               -s PATH, --send PATH      Send local file or folder
               -t DATA, --text DATA      Send string to remote host{SysInfo.Eol}
             Usage Examples:
-              {_title} --listen --exec powershell.exe
-              {_title} -d -p 44444 localhost
-              {_title} -vo test.txt -p 2009 192.168.1.9{SysInfo.Eol}
+              {_title} --listen --exec {exampleShell}
+              {_title} -v localhost -p 44444
+              {_title} -vs test.txt -p 2009 192.168.1.9{SysInfo.Eol}
             """;
         return helpMessage;
     }
@@ -255,10 +256,7 @@ internal partial class Parser
                         CmdArgs.Listen = true;
                         break;
                     case 'v':
-                        CmdArgs.Verbose = true;
-                        break;
-                    case 'd':
-                        CmdArgs.Debug = CmdArgs.Verbose = Error.Debug = true;
+                        CmdArgs.Verbose = Error.Verbose = true;
                         break;
                     case 'z':
                         CmdArgs.PipeVariant = PipeType.Status;
@@ -303,10 +301,7 @@ internal partial class Parser
                     CmdArgs.Listen = true;
                     break;
                 case "--verbose":
-                    CmdArgs.Verbose = true;
-                    break;
-                case "--debug":
-                    CmdArgs.Debug = CmdArgs.Verbose = Error.Debug = true;
+                    CmdArgs.Verbose = Error.Verbose = true;
                     break;
                 case "--zero-io":
                     CmdArgs.PipeVariant = PipeType.Status;

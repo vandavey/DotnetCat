@@ -58,8 +58,8 @@ public class ParserTests
     /// </summary>
     [DataTestMethod]
     [DataRow("-vp", "22", "-e", "pwsh.exe", "192.168.1.100")]
-    [DataRow("--debug", "--send", "~/test.txt", "localhost")]
-    [DataRow("--listen", "-do", "~/recv_data.txt", "-p", "31337")]
+    [DataRow("--verbose", "--send", "~/test.txt", "localhost")]
+    [DataRow("--listen", "-vo", "~/recv_data.txt", "-p", "31337")]
     public void Parse_NoHelpFlag_HelpPropertyFalse(params string[] args)
     {
         Parser parser = new();

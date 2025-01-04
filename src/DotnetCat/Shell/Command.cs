@@ -23,15 +23,24 @@ internal static class Command
     /// <summary>
     ///  Get the value of the given environment variable.
     /// </summary>
-    public static string? GetEnvVariable(string varName)
+    public static string? EnvVariable(string varName)
     {
         return Environment.GetEnvironmentVariable(varName);
     }
 
     /// <summary>
+    ///  Try to get the value of the given environment variable.
+    /// </summary>
+    public static bool TryEnvVariable(string varName,
+                                      [NotNullWhen(true)] out string? value)
+    {
+        return (value = EnvVariable(varName)) is not null;
+    }
+
+    /// <summary>
     ///  Get process startup information to initialize the given command shell.
     /// </summary>
-    public static ProcessStartInfo GetExeStartInfo([NotNull] string? shell)
+    public static ProcessStartInfo ExeStartInfo([NotNull] string? shell)
     {
         ThrowIf.NullOrEmpty(shell);
 

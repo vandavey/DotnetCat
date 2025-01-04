@@ -49,11 +49,6 @@ internal class FilePipe : SocketPipe
     ~FilePipe() => Dispose(false);
 
     /// <summary>
-    ///  Enable verbose console output.
-    /// </summary>
-    public bool Verbose => Args.Verbose;
-
-    /// <summary>
     ///  Source or destination path.
     /// </summary>
     public string FilePath
@@ -118,11 +113,11 @@ internal class FilePipe : SocketPipe
         Connected = true;
         StringBuilder data = new();
 
-        if (Verbose && _transfer is TransferOpt.Collect)
+        if (_transfer is TransferOpt.Collect)
         {
             Output.Log($"Downloading socket data to '{FilePath}'...");
         }
-        else if (Verbose && _transfer is TransferOpt.Transmit)
+        else if (_transfer is TransferOpt.Transmit)
         {
             Output.Log($"Transmitting '{FilePath}' data...");
         }
@@ -130,11 +125,11 @@ internal class FilePipe : SocketPipe
         data.Append(await ReadToEndAsync());
         await WriteAsync(data, token);
 
-        if (Verbose && _transfer is TransferOpt.Collect)
+        if (_transfer is TransferOpt.Collect)
         {
             Output.Status($"File successfully downloaded to '{FilePath}'");
         }
-        else if (Verbose && _transfer is TransferOpt.Transmit)
+        else if (_transfer is TransferOpt.Transmit)
         {
             Output.Status("File successfully transmitted");
         }

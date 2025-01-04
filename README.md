@@ -5,7 +5,7 @@
 # DotnetCat
 
 <div align="left">
-    <img src="https://img.shields.io/badge/c%23-v13-9325ff" alt="csharp-12-badge" />
+    <img src="https://img.shields.io/badge/c%23-v13-9325ff" alt="csharp-13-badge" />
     <img src="https://img.shields.io/github/license/vandavey/DotnetCat" alt="license-badge" />
     <img src="https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue" alt="contributors-badge" />
     <img src="https://img.shields.io/github/issues-pr/vandavey/DotnetCat" alt="pull-requests-badge" />
@@ -25,7 +25,7 @@ network sockets to perform network communications.
 
 At its core, DotnetCat is built of unidirectional TCP [socket pipelines](src/DotnetCat/IO/Pipelines),
 each responsible for asynchronously reading from or writing to a connected socket. This allows a
-single socket stream to be used by multiple pipelines simultaneously without thread lock issues
+single socket stream to be used by multiple pipelines simultaneously without deadlock issues
 occurring.
 
 ### Features
@@ -58,28 +58,27 @@ dncat.exe [OPTIONS] TARGET
 
 All available DotnetCat command-line arguments are listed below:
 
-| Argument           | Type       | Description                        | Default |
-|:------------------:|:----------:|:----------------------------------:|:-------:|
-| `TARGET`           | *Required* | Host to use for the connection     | *N/A*   |
-| `-p/--port PORT`   | *Optional* | Port to use for the connection     | *44444* |
-| `-e/--exec EXEC`   | *Optional* | Pipe executable I/O data (shell)   | *N/A*   |
-| `-o/--output PATH` | *Optional* | Download a file from a remote host | *N/A*   |
-| `-s/--send PATH`   | *Optional* | Send a local file to a remote host | *N/A*   |
-| `-t, --text`       | *Optional* | Send a string to a remote host     | *False* |
-| `-l, --listen`     | *Optional* | Listen for an inbound connection   | *False* |
-| `-z, --zero-io`    | *Optional* | Determine if an endpoint is open   | *False* |
-| `-v, --verbose`    | *Optional* | Enable verbose console output      | *False* |
-| `-d, --debug`      | *Optional* | Enable verbose error output        | *False* |
-| `-h/-?, --help`    | *Optional* | Display the app help menu and exit | *False* |
+| Argument           | Type       | Description                        | Default          |
+|:------------------:|:----------:|:----------------------------------:|:----------------:|
+| `TARGET`           | *Required* | Host to use for the connection     | *N/A or 0.0.0.0* |
+| `-p/--port PORT`   | *Optional* | Port to use for the connection     | *44444*          |
+| `-e/--exec EXEC`   | *Optional* | Pipe executable I/O data (shell)   | *N/A*            |
+| `-o/--output PATH` | *Optional* | Download a file from a remote host | *N/A*            |
+| `-s/--send PATH`   | *Optional* | Send a local file to a remote host | *N/A*            |
+| `-t, --text`       | *Optional* | Send a string to a remote host     | *False*          |
+| `-l, --listen`     | *Optional* | Listen for an inbound connection   | *False*          |
+| `-z, --zero-io`    | *Optional* | Determine if an endpoint is open   | *False*          |
+| `-v, --verbose`    | *Optional* | Enable verbose console output      | *False*          |
+| `-h/-?, --help`    | *Optional* | Display the app help menu and exit | *False*          |
 
-> See the [usage examples](#usage-examples) section for more information.
+> See the [Usage Examples](#usage-examples) section for more information.
 
 ***
 
 ## Installation
 
-DotnetCat can be installed and configured automatically
-using the installers in the [tools](tools) directory.
+DotnetCat can be automatically configured and installed or
+updated using the installers in the [tools](tools) directory.
 
 It can be installed manually by building from source or using the precompiled
 standalone executables in the [Zips](src/DotnetCat/bin/Zips) directory.
@@ -118,15 +117,17 @@ DotnetCat can be manually installed using the following precompiled standalone e
 * [Windows-x64](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_win-x64.zip)
 * [Windows-x86](https://raw.githubusercontent.com/vandavey/DotnetCat/master/src/DotnetCat/bin/Zips/DotnetCat_win-x86.zip)
 
-DotnetCat can be built from source by publishing
-[DotnetCat.csproj](src/DotnetCat/DotnetCat.csproj) using the publish profiles
-in the [PublishProfiles](src/DotnetCat/Properties/PublishProfiles) directory.
+It can be built from source by publishing [DotnetCat.csproj](src/DotnetCat/DotnetCat.csproj) using
+the publish profiles in the [PublishProfiles](src/DotnetCat/Properties/PublishProfiles) directory.
 
 ***
 
 ## Uninstallation
 
 DotnetCat can be uninstalled automatically using the uninstallers in the [tools](tools) directory.
+
+It can be uninstalled manually by deleting the install
+directory and removing it from the local environment path.
 
 ### Linux Systems
 
@@ -200,7 +201,7 @@ dncat -lv --exec bash
 Transmit string payload *Hello world!* to remote endpoint `fake.addr.com:80`:
 
 ```powershell
-dncat -dt "Hello world!" fake.addr.com -p 80
+dncat -vt "Hello world!" fake.addr.com -p 80
 ```
 
 ### File Transfer
@@ -221,6 +222,7 @@ dncat --send /home/user/profit.json Joe-Mama
 
 ## Remarks
 
+* This application only supports Linux and Windows operating systems.
 * Please use discretion as this application is still in development.
 
 ***
