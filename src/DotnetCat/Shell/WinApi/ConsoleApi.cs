@@ -8,7 +8,7 @@ using DotnetCat.Utils;
 namespace DotnetCat.Shell.WinApi;
 
 /// <summary>
-///  Windows console API interoperability utility class.
+///  Windows console API utility class.
 /// </summary>
 internal static class ConsoleApi
 {
