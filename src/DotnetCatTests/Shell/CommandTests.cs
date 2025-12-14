@@ -16,7 +16,7 @@ public class CommandTests
     ///  Assert that a valid input environment variable name returns the
     ///  value of the corresponding variable in the local system.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("PATH")]
 #if WINDOWS
     [DataRow("USERNAME")]
@@ -36,7 +36,7 @@ public class CommandTests
     /// <summary>
     ///  Assert that an invalid input environment variable name returns null.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("DotnetCatTest_Test")]
     [DataRow("DotnetCatTest_Data")]
     public void EnvVariable_InvalidEnvVariableName_ReturnsNull(string name)
@@ -58,14 +58,14 @@ public class CommandTests
         Func<string> func = () => Command.EnvVariable(name);
     #nullable enable
 
-        Assert.ThrowsException<ArgumentNullException>(func);
+        Assert.Throws<ArgumentNullException>(func);
     }
 
     /// <summary>
     ///  Assert that a non-null input shell name returns
     ///  a new <see cref="ProcessStartInfo"/> object.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test")]
     [DataRow("data.exe")]
     public void ExeStartInfo_NonNullShell_ReturnsNewStartInfo(string shell)
@@ -84,13 +84,13 @@ public class CommandTests
         string? shell = null;
         Func<ProcessStartInfo> func = () => Command.ExeStartInfo(shell);
 
-        Assert.ThrowsException<ArgumentNullException>(func);
+        Assert.Throws<ArgumentNullException>(func);
     }
 
     /// <summary>
     ///  Assert that a valid input clear-screen command name returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("clear")]
     [DataRow("cls\n")]
     [DataRow("Clear-Host")]
@@ -103,7 +103,7 @@ public class CommandTests
     /// <summary>
     ///  Assert that an invalid input clear-screen command name returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("sudo")]
     [DataRow("cat\n")]
     [DataRow("Get-Location")]
