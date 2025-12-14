@@ -1,0 +1,21 @@
+<Solution>
+    <Configurations>
+        <BuildType Name="ARM64" />
+        <BuildType Name="Debug" />
+        <BuildType Name="Linux" />
+        <BuildType Name="Release" />
+    </Configurations>
+    <Folder Name="/Solution Items/">
+        <File Path="../.gitattributes" />
+        <File Path="../.gitignore" />
+        <File Path="../LICENSE.md" />
+        <File Path="../README.md" />
+        <File Path="../tools/dncat-install.ps1" />
+        <File Path="../tools/dncat-install.sh" />
+        <File Path="../tools/dncat-uninstall.ps1" />
+        <File Path="../tools/dncat-uninstall.sh" />
+        <File Path=".editorconfig" />
+    </Folder>
+    <Project Path="DotNetCat/DotnetCat.csproj" />
+    <Project Path="DotnetCatTests/DotnetCatTests.csproj" />
+</Solution>
