@@ -9,19 +9,13 @@ namespace DotnetCat.Network;
 /// </summary>
 internal class HostEndPoint
 {
-    private int _port;           // Network port number
-
-    private string? _hostName;   // Network hostname
-
-    private IPAddress _address;  // IPv4 address
-
     /// <summary>
     ///  Initialize the object.
     /// </summary>
     public HostEndPoint()
     {
-        _port = 44444;
-        _address = IPAddress.Any;
+        Port = 44444;
+        Address = IPAddress.Any;
     }
 
     /// <summary>
@@ -42,11 +36,11 @@ internal class HostEndPoint
     /// </summary>
     public int Port
     {
-        get => _port;
+        get => field;
         set
         {
             ThrowIf.InvalidPort(value);
-            _port = value;
+            field = value;
         }
     }
 
@@ -55,8 +49,8 @@ internal class HostEndPoint
     /// </summary>
     public string HostName
     {
-        get => _hostName ?? Address.ToString();
-        set => _hostName = value;
+        get => field ?? Address.ToString();
+        set;
     }
 
     /// <summary>
@@ -64,11 +58,11 @@ internal class HostEndPoint
     /// </summary>
     public IPAddress Address
     {
-        get => _address;
+        get => field;
         set
         {
             ThrowIf.NotIPv4Address(value);
-            _address = value;
+            field = value;
         }
     }
 
