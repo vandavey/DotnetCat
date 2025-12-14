@@ -13,17 +13,17 @@ internal interface IConnectable : IDisposable
     /// <summary>
     ///  Connect the unmanaged resource(s).
     /// </summary>
-    void Connect();
+    public void Connect();
 
     /// <summary>
     ///  Dispose of all unmanaged resources and handle the given error.
     /// </summary>
     [DoesNotReturn]
-    void PipeError(Except type, [NotNull] string? arg, Exception? ex = default);
+    public void PipeError(Except type, [NotNull] string? arg, Exception? ex = default);
 
     /// <summary>
     ///  Dispose of all unmanaged resources and handle the given error.
     /// </summary>
     [DoesNotReturn]
-    void PipeError(Except type, HostEndPoint target, Exception? ex = default);
+    public void PipeError(Except type, HostEndPoint target, Exception? ex = default);
 }

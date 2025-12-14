@@ -12,7 +12,7 @@
 </div>
 
 Remote command shell application written in C# targeting the
-[.NET 9.0 runtime](https://dotnet.microsoft.com/download/dotnet/9.0).
+[.NET 10.0 runtime](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ***
 

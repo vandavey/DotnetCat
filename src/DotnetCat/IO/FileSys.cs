@@ -161,9 +161,9 @@ internal static class FileSys
         string exeName = Path.GetFileName(exe);
 
         IEnumerable<string> executables =
-            from dir in _envPaths
+            from string dir in _envPaths
             where DirectoryExists(dir)
-            from file in Directory.GetFiles(dir)
+            from string file in Directory.GetFiles(dir)
             where file.EndsWith(Path.DirectorySeparatorChar + exeName)
                 || (!Path.HasExtension(exeName)
                     && Path.GetFileNameWithoutExtension(file) == exeName

@@ -8,8 +8,6 @@ namespace DotnetCat.Utils;
 /// </summary>
 internal class CmdLineArgs
 {
-    private string? _hostName;  // Network hostname
-
     /// <summary>
     ///  Initialize the object.
     /// </summary>
@@ -74,8 +72,8 @@ internal class CmdLineArgs
     /// </summary>
     public string HostName
     {
-        get => _hostName ?? Address.ToString();
-        set => _hostName = value;
+        get => field ?? Address.ToString();
+        set;
     }
 
     /// <summary>

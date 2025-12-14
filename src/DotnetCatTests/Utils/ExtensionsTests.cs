@@ -16,7 +16,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string ending with a specific character returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test data", 'a')]
     [DataRow(" test data ", ' ')]
     [DataRow("test data 1", '1')]
@@ -30,7 +30,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string not ending with a specific character returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(null, 't')]
     [DataRow(" test data", ' ')]
     [DataRow("test data", 't')]
@@ -44,7 +44,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string ending with a specific substring returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test data", " data")]
     [DataRow("test data ", "data ")]
     [DataRow("test data", "test data")]
@@ -57,7 +57,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string not ending with a specific substring returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(null, "test data")]
     [DataRow("test data", null)]
     [DataRow("test data", " data ")]
@@ -82,7 +82,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an empty or blank input string returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("    ")]
     public void IsNullOrEmpty_EmptyOrBlankString_ReturnsTrue(string? str)
@@ -94,7 +94,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a populated input string returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("testing")]
     [DataRow("  testing")]
     [DataRow("testing  ")]
@@ -131,7 +131,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a populated input array returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(1, 2, 3)]
     [DataRow("test", "data")]
     public void IsNullOrEmpty_PopulatedArray_ReturnsFalse(params object[] array)
@@ -167,7 +167,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a populated generic input list returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(1, 2, 3)]
     [DataRow("test", "data")]
     public void IsNullOrEmpty_PopulatedList_ReturnsFalse(params object[] array)
@@ -182,7 +182,7 @@ public class ExtensionsTests
     ///  Assert that an input string whose value is equal to
     ///  another string when casing is ignored returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("", "")]
     [DataRow("  ", "  ")]
     [DataRow("test", "TEST")]
@@ -198,7 +198,7 @@ public class ExtensionsTests
     ///  Assert that an input string whose value is not equal to
     ///  another string when casing is ignored returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(null, "test")]
     [DataRow("test", null)]
     [DataRow("tEsT", "DaTa")]
@@ -223,7 +223,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string starting with a specific character returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test data", 't')]
     [DataRow(" test data ", ' ')]
     [DataRow("1 test data", '1')]
@@ -237,7 +237,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string not starting with a specific character returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(null, 't')]
     [DataRow(" test data ", 't')]
     [DataRow("test data ", ' ')]
@@ -251,7 +251,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string starting with a specific substring returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test data", "test ")]
     [DataRow(" test data ", " test d")]
     [DataRow("test data", "test data")]
@@ -264,7 +264,7 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string not starting with a specific substring returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(null, "test data")]
     [DataRow("test data", null)]
     [DataRow("test data", " test ")]
@@ -278,7 +278,7 @@ public class ExtensionsTests
     ///  Assert that an <see cref="ArgumentNullException"/>
     ///  is thrown when the input array is null.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("|")]
     public void Join_NullArray_ThrowsArgumentNullException(string delim)
@@ -286,13 +286,13 @@ public class ExtensionsTests
         string[]? array = null;
         Func<string> func = () => array.Join(delim);
 
-        Assert.ThrowsException<ArgumentNullException>(func);
+        Assert.Throws<ArgumentNullException>(func);
     }
 
     /// <summary>
     ///  Assert that the joined output string is equal to the expected result.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(new object[] { 1, 2, 3 }, "|")]
     [DataRow(new string[] { "test", "data" }, null)]
     public void Join_NonNullArray_EqualsExpected(object[] array, string? delim)
@@ -311,13 +311,13 @@ public class ExtensionsTests
     public void JoinLines_NullArray_ThrowsArgumentNullException()
     {
         string[]? array = null;
-        Assert.ThrowsException<ArgumentNullException>(array.JoinLines);
+        Assert.Throws<ArgumentNullException>(array.JoinLines);
     }
 
     /// <summary>
     ///  Assert that a populated input array returns the expected tuple enumerable.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(0, 1, 2, 3)]
     [DataRow("test", "data")]
     [DataRow('t', 'e', 's', 't')]

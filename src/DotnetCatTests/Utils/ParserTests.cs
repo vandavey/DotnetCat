@@ -15,7 +15,7 @@ public class ParserTests
     ///  help flag or flag alias (<c>-?</c>, <c>-h</c>, <c>--help</c>)
     ///  sets the <see cref="CmdLineArgs.Help"/> property to true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("-?")]
     [DataRow("-h")]
     [DataRow("--help")]
@@ -56,7 +56,7 @@ public class ParserTests
     ///  a help flag or flag alias (<c>-?</c>, <c>-h</c>, <c>--help</c>)
     ///  sets the <see cref="CmdLineArgs.Help"/> property to false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("-vp", "22", "-e", "pwsh.exe", "192.168.1.100")]
     [DataRow("--verbose", "--send", "~/test.txt", "localhost")]
     [DataRow("--listen", "-vo", "~/recv_data.txt", "-p", "31337")]

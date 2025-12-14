@@ -45,7 +45,7 @@ public class FileSysTests
     ///  Assert that a valid (existing) input file or directory
     ///  path on Linux operating systems returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("~")]
     [DataRow(@".\..")]
     [DataRow("/etc")]
@@ -64,7 +64,7 @@ public class FileSysTests
     ///  Assert that a valid (existing) input file or directory
     ///  path on Windows operating systems returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("~")]
     [DataRow(@".\..")]
     [DataRow(@"C:\Users")]
@@ -82,7 +82,7 @@ public class FileSysTests
     /// <summary>
     ///  Assert that an invalid (nonexistent) input file or directory path returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
 #if WINDOWS
@@ -114,7 +114,7 @@ public class FileSysTests
     ///  Assert that a valid (existing) input file
     ///  path on Linux operating systems returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("/etc/hosts")]
     [DataRow(@"/bin\sh")]
     [DataRow(@"\dev\stdout")]
@@ -131,7 +131,7 @@ public class FileSysTests
     ///  Assert that a valid (existing) input file path
     ///  on Windows operating systems returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("/Windows/explorer.exe")]
     [DataRow(@"C:\Windows/System32\sfc.exe")]
     [DataRow(@"\Windows\System32\dism.exe")]
@@ -147,7 +147,7 @@ public class FileSysTests
     /// <summary>
     ///  Assert that an invalid (nonexistent) input file path returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
     [DataRow("~")]
@@ -179,7 +179,7 @@ public class FileSysTests
     /// <summary>
     ///  Assert that a valid (existing) input directory path returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("~")]
     [DataRow("/")]
     [DataRow(".")]
@@ -194,7 +194,7 @@ public class FileSysTests
     /// <summary>
     ///  Assert that an invalid (nonexistent) input directory path returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
 #if WINDOWS

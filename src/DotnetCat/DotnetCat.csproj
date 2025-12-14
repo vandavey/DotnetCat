@@ -8,7 +8,7 @@
         <AssemblyName>dncat</AssemblyName>
         <Authors>vandavey</Authors>
         <Configurations>Debug; Release; Linux; ARM64</Configurations>
-        <Copyright>Copyright (c) 2025 vandavey</Copyright>
+        <Copyright>Copyright (c) 2026 vandavey</Copyright>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
         <Description>DotnetCat</Description>
@@ -34,7 +34,7 @@
         <RootNamespace>DotnetCat</RootNamespace>
         <SelfContained>true</SelfContained>
         <StartupObject>DotnetCat.Program</StartupObject>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <WarningLevel>7</WarningLevel>
     </PropertyGroup>
 
@@ -112,7 +112,7 @@
         <Message Importance="high" Text="Executing 'CleanPublishOutput':" />
         <CallTarget Targets="Clean" />
         <Delete Files="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip" />
-        <RemoveDir Directories="$(ProjectDir)bin/Release/Publish/$(RuntimeIdentifier)" />
+        <RemoveDir Directories="$(ProjectDir)$(PublishDir)" />
     </Target>
 
     <!--
@@ -121,7 +121,7 @@
     <Target Name="CreateZip" AfterTargets="Publish" Condition="'$(Publishing)'=='true'">
         <Message Importance="high" Text="Executing 'CreateZip':" />
         <ZipDirectory Overwrite="true"
-                      SourceDirectory="$(PublishDir)"
+                      SourceDirectory="$(ProjectDir)$(PublishDir)"
                       DestinationFile="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip" />
     </Target>
 </Project>

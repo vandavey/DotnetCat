@@ -15,7 +15,7 @@ public class ErrorMessageTests
     ///  Assert that <see cref="ErrorMessage.Message"/> is updated
     ///  when the object is constructed with a valid input message.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test: %")]
     [DataRow("test: {}")]
     [DataRow("test: %, {}")]
@@ -31,27 +31,27 @@ public class ErrorMessageTests
     ///  Assert that an <see cref="ArgumentException"/> is thrown
     ///  when the object is constructed with a built input message.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test")]
     [DataRow("error")]
     [DataRow("test message")]
     public void ErrorMessage_BuiltMessage_ThrowsArgumentException(string msg)
     {
         Func<ErrorMessage> func = () => _ = new ErrorMessage(msg);
-        Assert.ThrowsException<ArgumentException>(func);
+        Assert.Throws<ArgumentException>(func);
     }
 
     /// <summary>
     ///  Assert that an <see cref="ArgumentException"/> is thrown when
     ///  the object is constructed with an empty or blank input message.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
     public void ErrorMessage_EmptyMessage_ThrowsArgumentException(string msg)
     {
         Func<ErrorMessage> func = () => _ = new ErrorMessage(msg);
-        Assert.ThrowsException<ArgumentException>(func);
+        Assert.Throws<ArgumentException>(func);
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public class ErrorMessageTests
         Func<ErrorMessage> func = () => _ = new ErrorMessage(msg);
     #nullable enable
 
-        Assert.ThrowsException<ArgumentNullException>(func);
+        Assert.Throws<ArgumentNullException>(func);
     }
 #endregion // ConstructorTests
 
@@ -76,7 +76,7 @@ public class ErrorMessageTests
     ///  Assert that <see cref="ErrorMessage.Message"/> is correctly
     ///  updated when the input argument is valid.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test: '%'", "", "test: ''")]
     [DataRow("test: '%'", " ", "test: ' '")]
     [DataRow("test: '{}'", null, "test: ''")]
@@ -95,7 +95,7 @@ public class ErrorMessageTests
     ///  Assert that the correctly built error message value is
     ///  returned when the input argument is valid.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test: '%'", "", "test: ''")]
     [DataRow("test: '%'", " ", "test: ' '")]
     [DataRow("test: '{}'", null, "test: ''")]
@@ -112,7 +112,7 @@ public class ErrorMessageTests
     ///  Assert that an <see cref="InvalidOperationException"/> is thrown
     ///  when <see cref="ErrorMessage.Message"/> is already built.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test: '%'", "")]
     [DataRow("test: '%'", " ")]
     [DataRow("test: '{}'", null)]
@@ -124,7 +124,7 @@ public class ErrorMessageTests
 
         Func<string> func = () => _ = errorMsg.Build(arg);
 
-        Assert.ThrowsException<InvalidOperationException>(func);
+        Assert.Throws<InvalidOperationException>(func);
     }
 #endregion // MethodTests
 }

@@ -17,7 +17,7 @@ public class NetTests
     ///  Assert that an input <see cref="AggregateException"/> returns
     ///  the expected <see cref="Except"/> enumeration type member.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
     [DataRow(SocketError.ConnectionRefused, (byte)Except.ConnectionRefused)]
     [DataRow(SocketError.SystemNotReady, (byte)Except.SocketError)]
@@ -37,7 +37,7 @@ public class NetTests
     ///  Assert that an input <see cref="SocketException"/> returns
     ///  the expected <see cref="Except"/> enumeration type member.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
     [DataRow(SocketError.ConnectionRefused, (byte)Except.ConnectionRefused)]
     [DataRow(SocketError.SystemNotReady, (byte)Except.SocketError)]
@@ -56,7 +56,7 @@ public class NetTests
     ///  Assert that an input <see cref="AggregateException"/> with an inner
     ///  <see cref="SocketException"/> returns the inner <see cref="SocketException"/>.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(SocketError.SocketError)]
     [DataRow(SocketError.ConnectionRefused)]
     [DataRow(SocketError.SystemNotReady)]
@@ -86,7 +86,7 @@ public class NetTests
     /// <summary>
     ///  Assert that a valid input network port number returns true.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(80)]
     [DataRow(443)]
     [DataRow(8443)]
@@ -99,7 +99,7 @@ public class NetTests
     /// <summary>
     ///  Assert that an invalid input network port number returns false.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(-80)]
     [DataRow(0)]
     [DataRow(65536)]
@@ -113,7 +113,7 @@ public class NetTests
     ///  Assert that an input socket error returns a <see cref="SocketException"/>
     ///  that was constructed with the correct socket error.
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(SocketError.HostDown)]
     [DataRow(SocketError.NetworkUnreachable)]
     [DataRow(SocketError.TimedOut)]
