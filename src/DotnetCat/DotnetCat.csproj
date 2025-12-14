@@ -34,7 +34,7 @@
         <RootNamespace>DotnetCat</RootNamespace>
         <SelfContained>true</SelfContained>
         <StartupObject>DotnetCat.Program</StartupObject>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <WarningLevel>7</WarningLevel>
     </PropertyGroup>
 
