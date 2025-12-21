@@ -99,8 +99,6 @@ internal class ServerNode : Node
     /// </summary>
     private void BindListener(IPEndPoint ep)
     {
-        ThrowIf.Null(ep);
-
         _listener = new Socket(AddressFamily.InterNetwork,
                                SocketType.Stream,
                                ProtocolType.Tcp);

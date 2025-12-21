@@ -19,11 +19,8 @@ internal class StreamPipe : SocketPipe
     /// </summary>
     public StreamPipe([NotNull] StreamReader? src, [NotNull] StreamWriter? dest) : base()
     {
-        ThrowIf.Null(src);
-        ThrowIf.Null(dest);
-
-        Source = src;
-        Dest = dest;
+        Source = ThrowIf.Null(src);
+        Dest = ThrowIf.Null(dest);
     }
 
     /// <summary>

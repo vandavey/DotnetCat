@@ -21,8 +21,7 @@ internal static class Extensions
     /// </summary>
     public static void Add<T>([NotNull] this ICollection<T>? values, Func<T> func)
     {
-        ThrowIf.Null(values);
-        values.Add(func());
+        ThrowIf.Null(values).Add(func());
     }
 
     /// <summary>
@@ -31,8 +30,7 @@ internal static class Extensions
     public static void AddRange<T>([NotNull] this List<T>? values,
                                    Func<IEnumerable<T>> func)
     {
-        ThrowIf.Null(values);
-        values.AddRange(func());
+        ThrowIf.Null(values).AddRange(func());
     }
 
     /// <summary>
@@ -144,8 +142,7 @@ internal static class Extensions
     /// </summary>
     public static string Erase(this Regex regex, [NotNull] string? data)
     {
-        ThrowIf.NullOrEmpty(data);
-        return regex.Replace(data, string.Empty);
+        return regex.Replace(ThrowIf.NullOrEmpty(data), string.Empty);
     }
 
     /// <summary>
@@ -154,8 +151,7 @@ internal static class Extensions
     public static string Join<T>([NotNull] this IEnumerable<T>? values,
                                  string? delim = default)
     {
-        ThrowIf.NullOrEmpty(values);
-        return string.Join(delim, values);
+        return string.Join(delim, ThrowIf.NullOrEmpty(values));
     }
 
     /// <summary>

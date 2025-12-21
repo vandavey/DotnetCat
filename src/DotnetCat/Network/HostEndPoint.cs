@@ -21,14 +21,14 @@ internal class HostEndPoint
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public HostEndPoint([NotNull] string? hostName, IPAddress? address, int port) : this()
+    public HostEndPoint([NotNull] string? hostName,
+                        [NotNull] IPAddress? address,
+                        int port)
+        : this()
     {
-        ThrowIf.NullOrEmpty(hostName);
-        ThrowIf.Null(address);
-
         Port = port;
-        HostName = hostName;
-        Address = address;
+        HostName = ThrowIf.NullOrEmpty(hostName);
+        Address = ThrowIf.Null(address);
     }
 
     /// <summary>
@@ -36,12 +36,8 @@ internal class HostEndPoint
     /// </summary>
     public int Port
     {
-        get => field;
-        set
-        {
-            ThrowIf.InvalidPort(value);
-            field = value;
-        }
+        get;
+        set => field = ThrowIf.InvalidPort(value);
     }
 
     /// <summary>
@@ -58,12 +54,8 @@ internal class HostEndPoint
     /// </summary>
     public IPAddress Address
     {
-        get => field;
-        set
-        {
-            ThrowIf.NotIPv4Address(value);
-            field = value;
-        }
+        get;
+        set => field = ThrowIf.NotIPv4Address(value);
     }
 
     /// <summary>
@@ -76,8 +68,7 @@ internal class HostEndPoint
     /// </summary>
     public void ParseEndpoint([NotNull] IPEndPoint? ipEndpoint)
     {
-        ThrowIf.Null(ipEndpoint);
-        Address = ipEndpoint.Address;
+        Address = ThrowIf.Null(ipEndpoint).Address;
         Port = ipEndpoint.Port;
     }
 

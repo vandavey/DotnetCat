@@ -22,11 +22,8 @@ internal class ProcessPipe : SocketPipe
                        [NotNull] StreamWriter? dest)
         : base(args)
     {
-        ThrowIf.Null(src);
-        ThrowIf.Null(dest);
-
-        Source = src;
-        Dest = dest;
+        Source = ThrowIf.Null(src);
+        Dest = ThrowIf.Null(dest);
     }
 
     /// <summary>

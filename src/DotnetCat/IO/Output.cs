@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using DotnetCat.Errors;
+using static DotnetCat.IO.Constants;
 
 namespace DotnetCat.IO;
 
@@ -26,10 +27,8 @@ internal static class Output
     /// <summary>
     public static void Log([NotNull] string? msg, LogLevel level = default)
     {
-        ThrowIf.NullOrEmpty(msg);
         string msgPrefix = Sequence.Colorize(LogPrefix(level), PrefixColor(level));
-
-        ConsoleStream(level).WriteLine($"{msgPrefix} {msg}");
+        ConsoleStream(level).WriteLine($"{msgPrefix} {ThrowIf.NullOrEmpty(msg)}");
     }
 
     /// <summary>
@@ -37,10 +36,10 @@ internal static class Output
     /// </summary>
     private static string LogPrefix(LogLevel level) => level switch
     {
-        LogLevel.Info   => "[*]",
-        LogLevel.Status => "[+]",
-        LogLevel.Warn   => "[!]",
-        LogLevel.Error  => "[x]",
+        LogLevel.Info   => INFO_LOG_PREFIX,
+        LogLevel.Status => STATUS_LOG_PREFIX,
+        LogLevel.Warn   => WARNING_LOG_PREFIX,
+        LogLevel.Error  => ERROR_LOG_PREFIX,
         _ => throw new ArgumentException("Invalid logging level.", nameof(level))
     };
 

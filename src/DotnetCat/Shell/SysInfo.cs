@@ -35,24 +35,23 @@ internal static class SysInfo
     /// </summary>
     public static string AllDriveInfo()
     {
-        string title = "Drive Information";
-        string underline = new('-', title.Length);
+        StringBuilder info = new($"""
+            Drive Information
+            -----------------{Eol}
+            """);
 
-        StringBuilder infoBuilder = new($"{title}\n{underline}\n");
-        DriveInfo[] allDriveInfo = DriveInfo.GetDrives();
+        DriveInfo[] drives = DriveInfo.GetDrives();
 
-        for (int i = 0; i < allDriveInfo.Length; i++)
+        for (int i = 0; i < drives.Length; i++)
         {
-            if (i == allDriveInfo.Length - 1)
+            if (i != drives.Length - 1)
             {
-                infoBuilder.Append(SizeInfo(allDriveInfo[i]));
+                info.AppendLine(SizeInfo(drives[i]) + Eol);
+                continue;
             }
-            else
-            {
-                infoBuilder.AppendLine($"{SizeInfo(allDriveInfo[i])}\n");
-            }
+            info.Append(SizeInfo(drives[i]));
         }
-        return infoBuilder.ToString();
+        return info.ToString();
     }
 
     /// <summary>
@@ -63,9 +62,9 @@ internal static class SysInfo
         string infoString = $"""
             Drive Name : {info.Name}
             Drive Type : {info.DriveType}
-            Total Size : {ToGigabytes(info.TotalSize):n3} GB
-            Used Space : {ToGigabytes(info.TotalSize - info.TotalFreeSpace):n3} GB
-            Free Space : {ToGigabytes(info.TotalFreeSpace):n3} GB
+            Total Size : {ToGigabytes(info.TotalSize):n2} GB
+            Used Space : {ToGigabytes(info.TotalSize - info.TotalFreeSpace):n2} GB
+            Free Space : {ToGigabytes(info.TotalFreeSpace):n2} GB
             """;
         return infoString;
     }
@@ -75,6 +74,6 @@ internal static class SysInfo
     /// </summary>
     private static double ToGigabytes<T>(T bytes) where T : INumber<T>
     {
-        return Convert.ToDouble(bytes) / 1024 / 1024 / 1024;
+        return Convert.ToDouble(bytes) / 1024.0 / 1024.0 / 1024.0;
     }
 }

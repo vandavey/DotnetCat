@@ -21,11 +21,9 @@ internal class FilePipe : SocketPipe
     public FilePipe(CmdLineArgs args, [NotNull] StreamReader? src) : base(args)
     {
         ThrowIf.NullOrEmpty(args.FilePath);
-        ThrowIf.Null(src);
-
         _transfer = TransferOpt.Collect;
 
-        Source = src;
+        Source = ThrowIf.Null(src);
         Dest = new StreamWriter(CreateFile(FilePath)) { AutoFlush = true };
     }
 
@@ -35,11 +33,9 @@ internal class FilePipe : SocketPipe
     public FilePipe(CmdLineArgs args, [NotNull] StreamWriter? dest) : base(args)
     {
         ThrowIf.NullOrEmpty(args.FilePath);
-        ThrowIf.Null(dest);
-
         _transfer = TransferOpt.Transmit;
 
-        Dest = dest;
+        Dest = ThrowIf.Null(dest);
         Source = new StreamReader(OpenFile(FilePath));
     }
 
