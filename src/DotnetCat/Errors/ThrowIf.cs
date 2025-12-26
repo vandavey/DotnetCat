@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Net;
 using System.Net.Sockets;
 using DotnetCat.Network;
+using DotnetCat.Utils;
 
 #if WINDOWS
 using System.Runtime.InteropServices;
@@ -29,6 +30,20 @@ internal class ThrowIf
         if (!Net.ValidPort(arg))
         {
             throw new ArgumentOutOfRangeException($"Invalid port number: {arg}.", name);
+        }
+        return arg;
+    }
+
+    /// <summary>
+    ///  Throw an exception if the given socket protocol is invalid.
+    /// </summary>
+    public static ProtocolType InvalidProtocol(ProtocolType arg,
+                                               [CallerArgumentExpression(nameof(arg))]
+                                               string? name = default)
+    {
+        if (arg is not ProtocolType.Tcp and not ProtocolType.Udp)
+        {
+            throw new ArgumentException($"Invalid socket protocol: {arg}.", name);
         }
         return arg;
     }
@@ -119,6 +134,31 @@ internal class ThrowIf
                             string? name = default)
     {
         ArgumentNullException.ThrowIfNull(arg, name);
+        return arg;
+    }
+
+    /// <summary>
+    ///  Throw an exception if the given type parameters are different.
+    ///  If the comparison type parameter is a tuple, throws an exception
+    ///  if none of the tuple member types match.
+    /// </summary>
+    public static T TypeMismatch<T, TTypes>(T arg,
+                                            [CallerArgumentExpression(nameof(arg))]
+                                            string? name = default)
+        where T : notnull
+    {
+        if (arg.GetType() != typeof(TTypes))
+        {
+            if (!typeof(TTypes).IsValueTuple())
+            {
+                throw new ArgumentException($"Type not equal to {typeof(TTypes)}.", name);
+            }
+
+            if (!typeof(TTypes).GetGenericArguments().Any(t => t == arg.GetType()))
+            {
+                throw new ArgumentException($"Type not found in {typeof(TTypes)}.", name);
+            }
+        }
         return arg;
     }
 

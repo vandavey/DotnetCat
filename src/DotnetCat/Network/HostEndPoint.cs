@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using DotnetCat.Errors;
+using static DotnetCat.Network.Constants;
 
 namespace DotnetCat.Network;
 
@@ -14,7 +15,7 @@ internal class HostEndPoint
     /// </summary>
     public HostEndPoint()
     {
-        Port = 44444;
+        Port = DEFAULT_PORT;
         Address = IPAddress.Any;
     }
 

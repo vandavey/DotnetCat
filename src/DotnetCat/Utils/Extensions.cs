@@ -6,8 +6,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DotnetCat.Errors;
 using DotnetCat.Shell;
+using static DotnetCat.Utils.Constants;
 
 namespace DotnetCat.Utils;
 
@@ -34,11 +36,30 @@ internal static class Extensions
     }
 
     /// <summary>
+    ///  Wait for an asynchronous task to complete execution.
+    /// </summary>
+    public static void AwaitResult(this Task task) => task.GetAwaiter().GetResult();
+
+    /// <summary>
+    ///  Free the underlying resources owned by each value in a collection.
+    /// </summary>
+    public static void Dispose(this IEnumerable<IDisposable> values)
+    {
+        values.ForEach(v => v?.Dispose());
+    }
+
+    /// <summary>
     ///  Perform an action on each element of a collection.
     /// </summary>
     public static void ForEach<T>(this IEnumerable<T>? values, Action<T> action)
     {
-        values?.ToList().ForEach(action);
+        if (values is not null)
+        {
+            foreach (T value in values)
+            {
+                action(value);
+            }
+        }
     }
 
     /// <summary>
@@ -81,6 +102,15 @@ internal static class Extensions
     }
 
     /// <summary>
+    ///  Determine whether a string is equal to another
+    ///  string when all string casing is ignored.
+    /// </summary>
+    public static bool IgnCaseEquals(this string? str, string? value)
+    {
+        return string.Equals(str, value, IGNORE_CASE_CMP);
+    }
+
+    /// <summary>
     ///  Determine whether a string is null or empty.
     /// </summary>
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
@@ -97,12 +127,12 @@ internal static class Extensions
     }
 
     /// <summary>
-    ///  Determine whether a string is equal to another
-    ///  string when all string casing is ignored.
+    ///  Determine whether a type is a value tuple.
     /// </summary>
-    public static bool NoCaseEquals(this string? str, string? value)
+    public static bool IsValueTuple(this Type type)
     {
-        return str?.ToLower() == value?.ToLower();
+        string tupleTypePrefix = $"{typeof(ValueTuple).FullName}`";
+        return type.IsValueType && type.FullName!.StartsWith(tupleTypePrefix);
     }
 
     /// <summary>

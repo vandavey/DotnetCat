@@ -33,7 +33,7 @@ internal class Program
             Parser.PrintHelp();
         }
 
-        SockNode = Node.New(parser.CmdArgs);
+        SockNode = Node.Make(parser.CmdArgs);
         SockNode.Connect();
 
         Console.WriteLine();

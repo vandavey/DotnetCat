@@ -42,7 +42,7 @@ internal class ProcessPipe : SocketPipe
         int charsRead;
         Connected = true;
 
-        while (Client is not null && Client.Connected)
+        while (Socket?.Connected ?? false)
         {
             if (token.IsCancellationRequested)
             {
@@ -53,7 +53,7 @@ internal class ProcessPipe : SocketPipe
             charsRead = await ReadAsync(token);
             data.Append(Buffer.ToArray(), 0, charsRead);
 
-            if (!Client.Connected || charsRead <= 0)
+            if (!Socket.Connected || charsRead <= 0)
             {
                 Disconnect();
                 break;

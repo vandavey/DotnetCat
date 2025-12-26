@@ -1,3 +1,5 @@
+using System;
+
 namespace DotnetCat.Utils;
 
 /// <summary>
@@ -7,6 +9,8 @@ internal static class Constants
 {
     public const int ERROR_EXIT_CODE = 1;
     public const int NO_ERROR_EXIT_CODE = 0;
+
+    public const StringComparison IGNORE_CASE_CMP = StringComparison.OrdinalIgnoreCase;
 
     public const string LINUX_EXE = "dncat";
     public const string REPO_URL = "https://github.com/vandavey/DotnetCat";
