@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using DotnetCat.Errors;
 using DotnetCat.Shell.WinApi;
 using DotnetCat.Utils;
+using static DotnetCat.IO.Constants;
 
 namespace DotnetCat.IO;
 
@@ -12,11 +13,6 @@ namespace DotnetCat.IO;
 /// </summary>
 internal static partial class Sequence
 {
-    private const string ESC = "\e";
-    private const string CLEAR = $"{CSI}H{CSI}2J{CSI}3J";
-    private const string CSI = $"{ESC}[";
-    private const string RESET = $"{CSI}0m";
-
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
@@ -44,8 +40,7 @@ internal static partial class Sequence
     /// </summary>
     public static string Colorize([NotNull] string? msg, ConsoleColor color)
     {
-        ThrowIf.NullOrEmpty(msg);
-        return ColorSequence(color) + msg + RESET;
+        return ColorSequence(color) + ThrowIf.NullOrEmpty(msg) + RESET;
     }
 
     /// <summary>

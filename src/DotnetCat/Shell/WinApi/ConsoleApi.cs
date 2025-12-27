@@ -3,6 +3,7 @@ using System;
 #if WINDOWS
 using DotnetCat.Errors;
 using DotnetCat.Utils;
+using static DotnetCat.Shell.WinApi.Constants;
 #endif // WINDOWS
 
 namespace DotnetCat.Shell.WinApi;
@@ -12,12 +13,6 @@ namespace DotnetCat.Shell.WinApi;
 /// </summary>
 internal static class ConsoleApi
 {
-#if WINDOWS
-    private const int STD_ERROR_HANDLE = -12;
-    private const int STD_INPUT_HANDLE = -10;
-    private const int STD_OUTPUT_HANDLE = -11;
-#endif // WINDOWS
-
     private static bool _virtualTermEnabled;  // Virtual terminal processing enabled
 
     /// <summary>
@@ -90,13 +85,12 @@ internal static class ConsoleApi
     private static uint GetConsoleMode(WinSafeHandle safeHandle, uint mode)
     {
         ThrowIf.InvalidHandle(safeHandle);
-        ThrowIf.Zero(mode);
 
         if (!WinInterop.GetConsoleMode(safeHandle.Handle, out uint outputMode))
         {
             throw new ExternException(nameof(WinInterop.GetConsoleMode));
         }
-        return outputMode | mode;
+        return outputMode | ThrowIf.Zero(mode);
     }
 
     /// <summary>
@@ -106,9 +100,8 @@ internal static class ConsoleApi
     private static void SetConsoleMode(WinSafeHandle safeHandle, uint mode)
     {
         ThrowIf.InvalidHandle(safeHandle);
-        ThrowIf.Zero(mode);
 
-        if (!WinInterop.SetConsoleMode(safeHandle.Handle, mode))
+        if (!WinInterop.SetConsoleMode(safeHandle.Handle, ThrowIf.Zero(mode)))
         {
             throw new ExternException(nameof(WinInterop.SetConsoleMode));
         }

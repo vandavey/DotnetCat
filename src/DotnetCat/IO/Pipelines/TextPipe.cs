@@ -22,12 +22,10 @@ internal class TextPipe : SocketPipe
     /// </summary>
     public TextPipe(CmdLineArgs args, [NotNull] StreamWriter? dest) : base(args)
     {
-        ThrowIf.Null(dest);
-
         _disposed = false;
         _memoryStream = new MemoryStream();
 
-        Dest = dest;
+        Dest = ThrowIf.Null(dest);
         Source = new StreamReader(_memoryStream);
     }
 

@@ -11,6 +11,7 @@ using DotnetCat.IO;
 using DotnetCat.IO.Pipelines;
 using DotnetCat.Shell;
 using DotnetCat.Utils;
+using static DotnetCat.Network.Constants;
 
 namespace DotnetCat.Network.Nodes;
 
@@ -40,8 +41,6 @@ internal abstract class Node : IConnectable
         _disposed = _validArgsCombos = false;
 
         Args = args;
-
-        Client = new TcpClient();
         Endpoint = new HostEndPoint(Args.HostName, Args.Address, Args.Port);
     }
 
@@ -67,7 +66,7 @@ internal abstract class Node : IConnectable
     /// <summary>
     ///  TCP socket client.
     /// </summary>
-    public TcpClient Client { get; }
+    public Socket? Socket { get; protected set; }
 
     /// <summary>
     ///  File transfer option is set.
@@ -92,7 +91,7 @@ internal abstract class Node : IConnectable
     /// <summary>
     ///  Initialize a client or server node from the given command-line arguments.
     /// </summary>
-    public static Node New(CmdLineArgs args)
+    public static Node Make(CmdLineArgs args)
     {
         return args.Listen ? new ServerNode(args) : new ClientNode(args);
     }
@@ -107,7 +106,7 @@ internal abstract class Node : IConnectable
         ValidateArgsCombinations();
 
         AddPipes(Args.PipeVariant);
-        _pipes?.ForEach(p => p?.Connect());
+        _pipes.ForEach(p => p?.Connect());
     }
 
     /// <summary>
@@ -166,13 +165,12 @@ internal abstract class Node : IConnectable
         {
             if (disposing)
             {
-                _pipes?.ForEach(p => p?.Dispose());
-
+                _pipes?.Dispose();
                 _process?.Dispose();
                 _netReader?.Dispose();
                 _netWriter?.Dispose();
 
-                Client?.Close();
+                Socket?.Dispose();
                 NetStream?.Dispose();
             }
             _disposed = true;
@@ -254,31 +252,38 @@ internal abstract class Node : IConnectable
             throw new InvalidOperationException("Invalid network stream state.");
         }
 
-        _netWriter = new StreamWriter(NetStream)
-        {
-            AutoFlush = true
-        };
         _netReader = new StreamReader(NetStream);
+        _netWriter = new StreamWriter(NetStream) { AutoFlush = true };
 
         _pipes.AddRange(MakePipes(pipeType));
     }
 
     /// <summary>
-    ///  Wait for the underlying pipeline(s) to be disconnected or
-    ///  the system command shell process to exit.
+    ///  Wait for the underlying pipeline(s) to be disconnected
+    ///  or the system command shell process to exit.
     /// </summary>
-    protected void WaitForExit(int msPollDelay = 100)
+    protected void WaitForExit(int pollInterval = POLL_INTERVAL)
     {
-        do
+        WaitForExitAsync(pollInterval).AwaitResult();
+    }
+
+    /// <summary>
+    ///  Asynchronously wait for the underlying pipeline(s) to be
+    ///  disconnected or the system command shell process to exit.
+    /// </summary>
+    protected async Task WaitForExitAsync(int pollInterval = POLL_INTERVAL)
+    {
+        ThrowIf.Null(Socket);
+
+        while (Socket.Connected)
         {
-            Task.Delay(msPollDelay).Wait();
+            await Task.Delay(pollInterval);
 
             if (ProcessExited() || !PipelinesConnected())
             {
                 break;
             }
         }
-        while (Client.Connected);
     }
 
     /// <summary>

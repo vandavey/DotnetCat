@@ -21,12 +21,10 @@ internal class FilePipe : SocketPipe
     public FilePipe(CmdLineArgs args, [NotNull] StreamReader? src) : base(args)
     {
         ThrowIf.NullOrEmpty(args.FilePath);
-        ThrowIf.Null(src);
-
         _transfer = TransferOpt.Collect;
 
-        Source = src;
-        Dest = new StreamWriter(CreateFile(FilePath)) { AutoFlush = true };
+        Source = ThrowIf.Null(src);
+        Dest = new StreamWriter(MakeFile(FilePath)) { AutoFlush = true };
     }
 
     /// <summary>
@@ -35,11 +33,9 @@ internal class FilePipe : SocketPipe
     public FilePipe(CmdLineArgs args, [NotNull] StreamWriter? dest) : base(args)
     {
         ThrowIf.NullOrEmpty(args.FilePath);
-        ThrowIf.Null(dest);
-
         _transfer = TransferOpt.Transmit;
 
-        Dest = dest;
+        Dest = ThrowIf.Null(dest);
         Source = new StreamReader(OpenFile(FilePath));
     }
 
@@ -60,7 +56,7 @@ internal class FilePipe : SocketPipe
     /// <summary>
     ///  Create or overwrite a file at the given file path for writing.
     /// </summary>
-    protected FileStream CreateFile(string path)
+    protected FileStream MakeFile(string path)
     {
         if (path.IsNullOrEmpty())
         {
