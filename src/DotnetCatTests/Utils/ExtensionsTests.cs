@@ -68,6 +68,48 @@ public class ExtensionsTests
     }
 
     /// <summary>
+    ///  Assert that an input string whose value is equal to
+    ///  another string when casing is ignored returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow("", "")]
+    [DataRow("  ", "  ")]
+    [DataRow("test", "TEST")]
+    [DataRow("TEST", "test")]
+    [DataRow("tEsT", "TeSt")]
+    public void IgnCaseEquals_EqualStrings_ReturnsTrue(string? str, string? value)
+    {
+        bool actual = str.IgnCaseEquals(value);
+        Assert.IsTrue(actual);
+    }
+
+    /// <summary>
+    ///  Assert that an input string whose value is not equal to
+    ///  another string when casing is ignored returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow(null, "test")]
+    [DataRow("test", null)]
+    [DataRow("tEsT", "DaTa")]
+    public void IgnCaseEquals_NotEqualStrings_ReturnsFalse(string? str, string? value)
+    {
+        bool actual = str.IgnCaseEquals(value);
+        Assert.IsFalse(actual);
+    }
+
+    /// <summary>
+    ///  Assert that a null input string compared to another null string returns true.
+    /// </summary>
+    [TestMethod]
+    public void IgnCaseEquals_NullStrings_ReturnsTrue()
+    {
+        string? str = null;
+        bool actual = str.IgnCaseEquals(null);
+
+        Assert.IsTrue(actual);
+    }
+
+    /// <summary>
     ///  Assert that a null input string returns true.
     /// </summary>
     [TestMethod]
@@ -176,48 +218,6 @@ public class ExtensionsTests
         bool actual = list.IsNullOrEmpty();
 
         Assert.IsFalse(actual, "Expected populated list to not be null or empty");
-    }
-
-    /// <summary>
-    ///  Assert that an input string whose value is equal to
-    ///  another string when casing is ignored returns true.
-    /// </summary>
-    [TestMethod]
-    [DataRow("", "")]
-    [DataRow("  ", "  ")]
-    [DataRow("test", "TEST")]
-    [DataRow("TEST", "test")]
-    [DataRow("tEsT", "TeSt")]
-    public void NoCaseEquals_EqualStrings_ReturnsTrue(string? str, string? value)
-    {
-        bool actual = str.NoCaseEquals(value);
-        Assert.IsTrue(actual);
-    }
-
-    /// <summary>
-    ///  Assert that an input string whose value is not equal to
-    ///  another string when casing is ignored returns false.
-    /// </summary>
-    [TestMethod]
-    [DataRow(null, "test")]
-    [DataRow("test", null)]
-    [DataRow("tEsT", "DaTa")]
-    public void NoCaseEquals_NotEqualStrings_ReturnsFalse(string? str, string? value)
-    {
-        bool actual = str.NoCaseEquals(value);
-        Assert.IsFalse(actual);
-    }
-
-    /// <summary>
-    ///  Assert that a null input string compared to another null string returns true.
-    /// </summary>
-    [TestMethod]
-    public void NoCaseEquals_NullStrings_ReturnsTrue()
-    {
-        string? str = null;
-        bool actual = str.NoCaseEquals(null);
-
-        Assert.IsTrue(actual);
     }
 
     /// <summary>

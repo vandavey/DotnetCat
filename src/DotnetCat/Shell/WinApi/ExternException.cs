@@ -15,9 +15,7 @@ internal class ExternException : Exception
     /// </summary>
     public ExternException([NotNull] string? externName) : base()
     {
-        ThrowIf.NullOrEmpty(externName);
-        Name = externName;
-
+        Name = ThrowIf.NullOrEmpty(externName);
         ErrorCode = WinInterop.GetLastError();
         Message = $"Error occurred in extern '{Name}': {ErrorCode}.";
     }

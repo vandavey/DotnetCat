@@ -5,7 +5,7 @@
 # DotnetCat
 
 <div align="left">
-    <img src="https://img.shields.io/badge/c%23-v13-9325ff" alt="csharp-13-badge" />
+    <img src="https://img.shields.io/badge/c%23-v14-9325ff" alt="csharp-14-badge" />
     <img src="https://img.shields.io/github/license/vandavey/DotnetCat" alt="license-badge" />
     <img src="https://img.shields.io/github/contributors/vandavey/DotnetCat?color=blue" alt="contributors-badge" />
     <img src="https://img.shields.io/github/issues-pr/vandavey/DotnetCat" alt="pull-requests-badge" />

@@ -42,9 +42,7 @@ internal static class Command
     /// </summary>
     public static ProcessStartInfo ExeStartInfo([NotNull] string? shell)
     {
-        ThrowIf.NullOrEmpty(shell);
-
-        ProcessStartInfo startInfo = new(shell)
+        ProcessStartInfo startInfo = new(ThrowIf.NullOrEmpty(shell))
         {
             CreateNoWindow = true,
             RedirectStandardError = true,

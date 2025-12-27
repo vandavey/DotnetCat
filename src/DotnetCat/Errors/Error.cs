@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using DotnetCat.IO;
 using DotnetCat.Network;
 using DotnetCat.Utils;
+using static DotnetCat.Utils.Constants;
 
 namespace DotnetCat.Errors;
 
@@ -72,7 +73,7 @@ internal static class Error
         }
 
         Console.WriteLine();
-        Environment.Exit(1);
+        Environment.Exit(ERROR_EXIT_CODE);
     }
 
     /// <summary>

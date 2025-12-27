@@ -9,6 +9,7 @@ using DotnetCat.IO;
 using DotnetCat.IO.Pipelines;
 using DotnetCat.Network;
 using DotnetCat.Shell;
+using static DotnetCat.Utils.Constants;
 using IndexedAlias = (int Index, string Alias);
 using IndexedArg = (int Index, string Arg);
 using IndexedFlag = (int Index, string Flag);
@@ -20,7 +21,7 @@ namespace DotnetCat.Utils;
 /// </summary>
 internal partial class Parser
 {
-    private static readonly string _title;         // Application title
+    private static readonly string _exeName;       // Application executable name
 
     private readonly List<int> _processedIndexes;  // Processed argument indexes
 
@@ -29,7 +30,7 @@ internal partial class Parser
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Parser() => _title = SysInfo.IsLinux() ? "dncat" : "dncat.exe";
+    static Parser() => _exeName = SysInfo.IsLinux() ? LINUX_EXE : WINDOWS_EXE;
 
     /// <summary>
     ///  Initialize the object.
@@ -48,14 +49,9 @@ internal partial class Parser
     public Parser(IEnumerable<string> args) : this() => Parse(args);
 
     /// <summary>
-    ///  Application repository URL.
-    /// </summary>
-    public static string Repo => "https://github.com/vandavey/DotnetCat";
-
-    /// <summary>
     ///  Application usage string.
     /// </summary>
-    public static string Usage => $"Usage: {_title} [OPTIONS] TARGET";
+    public static string Usage => $"Usage: {_exeName} [OPTIONS] TARGET";
 
     /// <summary>
     ///  Parsed command-line arguments.
@@ -70,7 +66,7 @@ internal partial class Parser
     public static void PrintHelp()
     {
         Console.WriteLine(GetHelpMessage());
-        Environment.Exit(0);
+        Environment.Exit(NO_ERROR_EXIT_CODE);
     }
 
     /// <summary>
@@ -169,10 +165,8 @@ internal partial class Parser
     /// </summary>
     private static string GetHelpMessage()
     {
-        string exampleShell = SysInfo.IsLinux() ? "bash" : "powershell.exe";
-
         string helpMessage = $"""
-            DotnetCat ({Repo})
+            DotnetCat ({REPO_URL})
             {Usage}{SysInfo.Eol}
             Remote command shell application{SysInfo.Eol}
             Positional Arguments:
@@ -189,9 +183,9 @@ internal partial class Parser
               -s PATH, --send PATH      Send local file or folder
               -t DATA, --text DATA      Send string to remote host{SysInfo.Eol}
             Usage Examples:
-              {_title} --listen --exec {exampleShell}
-              {_title} -v localhost -p 44444
-              {_title} -vs test.txt -p 2009 192.168.1.9{SysInfo.Eol}
+              {_exeName} --listen --exec {(SysInfo.IsLinux() ? "bash" : "powershell.exe")}
+              {_exeName} -v localhost -p 44444
+              {_exeName} -vs test.txt -p 2009 192.168.1.9{SysInfo.Eol}
             """;
         return helpMessage;
     }
@@ -531,12 +525,9 @@ internal partial class Parser
     /// <summary>
     ///  Mark the command-line argument at the given index as processed.
     /// </summary>
-    private void AddProcessedArg(IndexedArg idxArg, int indexOffset = 0)
+    private void AddProcessedArg(IndexedArg idxArg, int offset = 0)
     {
-        ThrowIf.Negative(idxArg.Index);
-        ThrowIf.Negative(indexOffset);
-
-        _processedIndexes.Add(idxArg.Index + indexOffset);
+        _processedIndexes.Add(ThrowIf.Negative(idxArg.Index) + ThrowIf.Negative(offset));
     }
 
     /// <summary>

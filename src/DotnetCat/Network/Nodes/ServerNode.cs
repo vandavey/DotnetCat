@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -39,21 +40,18 @@ internal class ServerNode : Node
 
         try  // Listen for an inbound connection
         {
-            _listener?.Listen(1);
+            _listener.Listen(1);
             Output.Log($"Listening for incoming connections on {Endpoint}...");
 
-            if (_listener is not null)
-            {
-                Client.Client = _listener.Accept();
-            }
-            NetStream = Client.GetStream();
+            Socket = _listener.Accept();
+            NetStream = new NetworkStream(Socket, ownsSocket: false);
 
             if (Args.UsingExe && !StartProcess(ExePath))
             {
                 PipeError(Except.ExeProcess, ExePath);
             }
 
-            remoteEndpoint.ParseEndpoint(Client.Client.RemoteEndPoint as IPEndPoint);
+            remoteEndpoint.ParseEndpoint(Socket.RemoteEndPoint as IPEndPoint);
             Output.Log($"Connected to {remoteEndpoint}");
 
             base.Connect();
@@ -62,11 +60,7 @@ internal class ServerNode : Node
             Console.WriteLine();
             Output.Log($"Connection to {remoteEndpoint} closed");
         }
-        catch (AggregateException ex)
-        {
-            PipeError(Net.GetExcept(ex), remoteEndpoint, ex);
-        }
-        catch (SocketException ex)
+        catch (Exception ex) when (ex is AggregateException or SocketException)
         {
             PipeError(Net.GetExcept(ex), remoteEndpoint, ex);
         }
@@ -74,8 +68,10 @@ internal class ServerNode : Node
         {
             PipeError(Except.ConnectionReset, remoteEndpoint, ex);
         }
-
-        Dispose();
+        finally
+        {
+            Dispose();
+        }
     }
 
     /// <summary>
@@ -97,15 +93,12 @@ internal class ServerNode : Node
     /// <summary>
     ///  Bind the underlying listener socket to the given IPv4 endpoint.
     /// </summary>
+    [MemberNotNull(nameof(_listener))]
     private void BindListener(IPEndPoint ep)
     {
-        ThrowIf.Null(ep);
+        _listener = Net.MakeSocket(ProtocolType.Tcp);
 
-        _listener = new Socket(AddressFamily.InterNetwork,
-                               SocketType.Stream,
-                               ProtocolType.Tcp);
-
-        try  // Bind the listener socket
+        try  // Bind listener socket to endpoint
         {
             _listener.Bind(ep);
         }
