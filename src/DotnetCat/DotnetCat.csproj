@@ -92,13 +92,13 @@
         </ContentWithTargetPath>
 
         <!-- Copy Linux scripts. -->
-        <ContentWithTargetPath Include="$(ProjectDir)../../tools/*.sh" Condition="'$(IsLinuxRid)'=='true'">
+        <ContentWithTargetPath Condition="'$(IsLinuxRid)'=='true'" Include="$(ProjectDir)../../tools/*.sh">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <TargetPath>%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
 
         <!-- Copy Windows scripts. -->
-        <ContentWithTargetPath Include="$(ProjectDir)../../tools/*.ps1" Condition="'$(IsWindowsRid)'=='true'">
+        <ContentWithTargetPath Condition="'$(IsWindowsRid)'=='true'" Include="$(ProjectDir)../../tools/*.ps1">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <TargetPath>%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
@@ -107,7 +107,7 @@
     <!--
      Cleanup previous publish output files before republishing.
     -->
-    <Target Name="CleanPublishOutput" BeforeTargets="BeforeBuild" Condition="'$(_IsPublishing)'=='true'">
+    <Target Name="CleanPublishOutput" Condition="'$(_IsPublishing)'=='true'" BeforeTargets="BeforeBuild">
         <Message Importance="high" Text="Executing 'CleanPublishOutput':" />
         <CallTarget Targets="Clean" />
         <Delete Files="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip" />
@@ -117,7 +117,7 @@
     <!--
      Create zip file containing published application files.
     -->
-    <Target Name="CreateZip" AfterTargets="Publish" Condition="'$(_IsPublishing)'=='true'">
+    <Target Name="CreateZip" Condition="'$(_IsPublishing)'=='true'" AfterTargets="Publish">
         <Message Importance="high" Text="Executing 'CreateZip':" />
         <ZipDirectory Overwrite="true"
                       SourceDirectory="$(ProjectDir)$(PublishDir)"

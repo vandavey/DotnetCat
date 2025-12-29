@@ -51,7 +51,7 @@ internal abstract class SocketPipe : IConnectable
     public bool Connected { get; protected set; }
 
     /// <summary>
-    ///  TCP client is connected.
+    ///  TCP socket is connected.
     /// </summary>
     protected static bool SocketConnected => Socket?.Connected ?? false;
 

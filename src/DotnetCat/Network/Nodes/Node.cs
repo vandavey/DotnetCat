@@ -210,7 +210,7 @@ internal abstract class Node : IConnectable
             if (Args.PipeVariant is PipeType.Status)
             {
                 // Combination: --listen, --zero-io
-                if (Program.SocketNode is ServerNode)
+                if (this is ServerNode)
                 {
                     Console.WriteLine(Parser.Usage);
                     PipeError(Except.ArgsCombo, "--listen, --zero-io");

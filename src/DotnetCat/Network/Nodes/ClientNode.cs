@@ -21,7 +21,6 @@ internal class ClientNode : Node
     /// </summary>
     public ClientNode(CmdLineArgs args) : base(args)
     {
-        Socket = Net.MakeSocket(ProtocolType.Tcp);
     }
 
     /// <summary>
@@ -39,8 +38,8 @@ internal class ClientNode : Node
     /// </summary>
     private async Task ConnectAsync()
     {
-        ThrowIf.Null(Socket);
         ValidateArgsCombinations();
+        Socket = Net.MakeSocket(ProtocolType.Tcp);
 
         try  // Connect to the remote endpoint
         {
