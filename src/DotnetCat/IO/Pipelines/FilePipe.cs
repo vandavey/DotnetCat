@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DotnetCat.Errors;
 using DotnetCat.Utils;
+using static DotnetCat.IO.Constants;
 
 namespace DotnetCat.IO.Pipelines;
 
