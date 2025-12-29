@@ -131,8 +131,8 @@ internal static class Extensions
     /// </summary>
     public static bool IsValueTuple(this Type type)
     {
-        string tupleTypePrefix = $"{typeof(ValueTuple).FullName}`";
-        return type.IsValueType && type.FullName!.StartsWith(tupleTypePrefix);
+        return type.IsValueType
+            && StartsWithValue(type.FullName, $"{typeof(ValueTuple).FullName}`");
     }
 
     /// <summary>

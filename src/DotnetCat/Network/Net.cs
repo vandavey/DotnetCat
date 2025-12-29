@@ -26,7 +26,7 @@ internal static class Net
     public static Except GetExcept<T>(T ex) where T : Exception
     {
         ThrowIf.TypeMismatch<T, (AggregateException, SocketException)>(ex);
-        Except except = Except.Unhandled;
+        Except except = default;
 
         if (ex is AggregateException aggregateEx)
         {

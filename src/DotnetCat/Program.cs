@@ -18,7 +18,7 @@ internal class Program
     /// <summary>
     ///  Network socket node.
     /// </summary>
-    public static Node? SockNode { get; private set; }
+    public static Node? SocketNode { get; private set; }
 
     /// <summary>
     ///  Application entry point.
@@ -33,8 +33,8 @@ internal class Program
             Parser.PrintHelp();
         }
 
-        SockNode = Node.Make(parser.CmdArgs);
-        SockNode.Connect();
+        SocketNode = Node.Make(parser.CmdArgs);
+        SocketNode.Connect();
 
         Console.WriteLine();
         return NO_ERROR_EXIT_CODE;

@@ -44,6 +44,11 @@ internal static partial class WinInterop
     ///  Get the error code returned by the last extern call.
     /// </summary>
     public static int GetLastError() => Marshal.GetLastWin32Error();
+
+    /// <summary>
+    ///  Get the HRESULT of the error code returned by the last extern call.
+    /// </summary>
+    public static int GetLastErrorHr() => Marshal.GetHRForLastWin32Error();
 }
 
 #endif // WINDOWS

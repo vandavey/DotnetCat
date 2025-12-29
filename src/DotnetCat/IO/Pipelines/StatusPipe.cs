@@ -34,7 +34,7 @@ internal class StatusPipe : TextPipe
         StringBuilder data = new(await ReadToEndAsync());
         await WriteAsync(data, token);
 
-        Output.Status($"Connection accepted by {Program.SockNode?.Endpoint}");
+        Output.Status($"Connection accepted by {Program.SocketNode?.Endpoint}");
 
         Disconnect();
         Dispose();

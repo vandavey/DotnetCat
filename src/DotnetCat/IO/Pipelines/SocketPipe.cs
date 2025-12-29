@@ -9,6 +9,7 @@ using DotnetCat.Errors;
 using DotnetCat.Network;
 using DotnetCat.Shell;
 using DotnetCat.Utils;
+using static DotnetCat.IO.Constants;
 
 namespace DotnetCat.IO.Pipelines;
 
@@ -18,9 +19,6 @@ namespace DotnetCat.IO.Pipelines;
 /// </summary>
 internal abstract class SocketPipe : IConnectable
 {
-    protected const int READ_BUFFER_SIZE = 1024;
-    protected const int WRITE_BUFFER_SIZE = READ_BUFFER_SIZE * 4;
-
     private bool _disposed;                      // Object disposed
 
     private CancellationTokenSource? _tokenSrc;  // Cancellation token source
@@ -53,14 +51,14 @@ internal abstract class SocketPipe : IConnectable
     public bool Connected { get; protected set; }
 
     /// <summary>
-    ///  TCP connection socket.
-    /// </summary>
-    protected static Socket? Socket => Program.SockNode?.Socket;
-
-    /// <summary>
     ///  TCP client is connected.
     /// </summary>
     protected static bool SocketConnected => Socket?.Connected ?? false;
+
+    /// <summary>
+    ///  TCP connection socket.
+    /// </summary>
+    protected static Socket? Socket => Program.SocketNode?.Socket;
 
     /// <summary>
     ///  Platform based EOL control sequence.
