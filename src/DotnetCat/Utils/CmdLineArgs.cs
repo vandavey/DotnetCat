@@ -7,7 +7,7 @@ namespace DotnetCat.Utils;
 /// <summary>
 ///  DotnetCat command-line arguments.
 /// </summary>
-internal class CmdLineArgs
+internal sealed class CmdLineArgs
 {
     /// <summary>
     ///  Initialize the object.

@@ -10,7 +10,7 @@ namespace DotnetCat.Network;
 /// <summary>
 ///  Socket timeout exception.
 /// </summary>
-internal class SocketTimeoutException : SocketException
+internal sealed class SocketTimeoutException : SocketException
 {
     /// <summary>
     ///  Initialize the object.

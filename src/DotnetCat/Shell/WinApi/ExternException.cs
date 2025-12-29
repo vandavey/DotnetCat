@@ -8,7 +8,7 @@ namespace DotnetCat.Shell.WinApi;
 /// <summary>
 ///  Windows API unmanaged function exception.
 /// </summary>
-internal class ExternException : ExternalException
+internal sealed class ExternException : ExternalException
 {
     /// <summary>
     ///  Initialize the object.

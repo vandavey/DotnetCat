@@ -12,7 +12,7 @@ namespace DotnetCat.Network.Nodes;
 /// <summary>
 ///  TCP network socket server node.
 /// </summary>
-internal class ServerNode : Node
+internal sealed class ServerNode : Node
 {
     private bool _disposed;     // Object disposed
 

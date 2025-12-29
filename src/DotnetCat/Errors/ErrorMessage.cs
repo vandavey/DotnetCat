@@ -5,7 +5,7 @@ namespace DotnetCat.Errors;
 /// <summary>
 ///  Custom error message specifically related to DotnetCat.
 /// </summary>
-internal class ErrorMessage
+internal sealed class ErrorMessage
 {
     private string? _message;  // Error message
 

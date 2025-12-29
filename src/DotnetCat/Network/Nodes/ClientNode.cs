@@ -14,7 +14,7 @@ namespace DotnetCat.Network.Nodes;
 /// <summary>
 ///  TCP network socket client node.
 /// </summary>
-internal class ClientNode : Node
+internal sealed class ClientNode : Node
 {
     /// <summary>
     ///  Initialize the object.
