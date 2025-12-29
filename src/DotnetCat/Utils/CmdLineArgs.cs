@@ -1,5 +1,6 @@
 using System.Net;
 using DotnetCat.IO.Pipelines;
+using static DotnetCat.Network.Constants;
 
 namespace DotnetCat.Utils;
 
@@ -17,7 +18,7 @@ internal class CmdLineArgs
 
         PipeVariant = PipeType.Stream;
         TransOpt = TransferOpt.None;
-        Port = 44444;
+        Port = DEFAULT_PORT;
 
         Address = IPAddress.Any;
     }

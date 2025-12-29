@@ -100,10 +100,9 @@ internal static class FileSys
     public static bool ExistsOnPath([NotNull] string? exe,
                                     [NotNullWhen(true)] out string? path)
     {
-        ThrowIf.NullOrEmpty(exe);
         path = null;
 
-        if (FileExists(exe))
+        if (FileExists(ThrowIf.NullOrEmpty(exe)))
         {
             path = ResolvePath(exe);
         }
@@ -157,8 +156,7 @@ internal static class FileSys
     /// </summary>
     private static string? FindExecutable([NotNull] string? exe)
     {
-        ThrowIf.NullOrEmpty(exe);
-        string exeName = Path.GetFileName(exe);
+        string exeName = Path.GetFileName(ThrowIf.NullOrEmpty(exe));
 
         IEnumerable<string> executables =
             from string dir in _envPaths

@@ -22,7 +22,7 @@
         <Optimize>true</Optimize>
         <OutputPath>bin/$(Configuration)</OutputPath>
         <OutputType>Exe</OutputType>
-        <PackageLicenseFile>$(SolutionDir)../LICENSE.md</PackageLicenseFile>
+        <PackageLicenseFile>$(ProjectDir)../../LICENSE.md</PackageLicenseFile>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <Platforms>AnyCPU</Platforms>
         <PublishReadyToRun>true</PublishReadyToRun>
@@ -56,15 +56,14 @@
         <IsLinuxRid Condition="$(RuntimeIdentifier.StartsWith('linux-'))">true</IsLinuxRid>
         <IsWindowsConfig Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Release'">true</IsWindowsConfig>
         <IsWindowsRid Condition="$(RuntimeIdentifier.StartsWith('win-'))">true</IsWindowsRid>
-        <Publishing Condition="'$(PublishProtocol)'!=''">true</Publishing>
     </PropertyGroup>
 
     <!--
      Compiler constants.
     -->
     <PropertyGroup>
-        <DefineConstants Condition="'$(IsLinuxConfig)'=='true'">LINUX</DefineConstants>
-        <DefineConstants Condition="'$(IsWindowsConfig)'=='true'">WINDOWS</DefineConstants>
+        <DefineConstants Condition="'$(IsLinuxConfig)'=='true'">$(DefineConstants); LINUX</DefineConstants>
+        <DefineConstants Condition="'$(IsWindowsConfig)'=='true'">$(DefineConstants); WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <!--
@@ -85,21 +84,21 @@
     <!--
      Copy utility files to output directory.
     -->
-    <ItemGroup Condition="'$(Publishing)'=='true'">
-        <!-- Copy license file. -->
-        <ContentWithTargetPath Include="$(SolutionDir)../*.md">
+    <ItemGroup Condition="'$(_IsPublishing)'=='true'">
+        <!-- Copy markdown files. -->
+        <ContentWithTargetPath Include="$(ProjectDir)../../*.md">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <TargetPath>%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
 
         <!-- Copy Linux scripts. -->
-        <ContentWithTargetPath Include="$(SolutionDir)../tools/**/*.sh" Condition="'$(IsLinuxRid)'=='true'">
+        <ContentWithTargetPath Condition="'$(IsLinuxRid)'=='true'" Include="$(ProjectDir)../../tools/*.sh">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <TargetPath>%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
 
         <!-- Copy Windows scripts. -->
-        <ContentWithTargetPath Include="$(SolutionDir)../tools/**/*.ps1" Condition="'$(IsWindowsRid)'=='true'">
+        <ContentWithTargetPath Condition="'$(IsWindowsRid)'=='true'" Include="$(ProjectDir)../../tools/*.ps1">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <TargetPath>%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
@@ -108,7 +107,7 @@
     <!--
      Cleanup previous publish output files before republishing.
     -->
-    <Target Name="CleanPublishOutput" BeforeTargets="BeforeBuild" Condition="'$(Publishing)'=='true'">
+    <Target Name="CleanPublishOutput" Condition="'$(_IsPublishing)'=='true'" BeforeTargets="BeforeBuild">
         <Message Importance="high" Text="Executing 'CleanPublishOutput':" />
         <CallTarget Targets="Clean" />
         <Delete Files="$(ProjectDir)bin/Zips/DotnetCat_$(RuntimeIdentifier).zip" />
@@ -118,7 +117,7 @@
     <!--
      Create zip file containing published application files.
     -->
-    <Target Name="CreateZip" AfterTargets="Publish" Condition="'$(Publishing)'=='true'">
+    <Target Name="CreateZip" Condition="'$(_IsPublishing)'=='true'" AfterTargets="Publish">
         <Message Importance="high" Text="Executing 'CreateZip':" />
         <ZipDirectory Overwrite="true"
                       SourceDirectory="$(ProjectDir)$(PublishDir)"

@@ -1,5 +1,6 @@
 #if WINDOWS
 using System.Runtime.InteropServices;
+using static DotnetCat.Shell.WinApi.Constants;
 
 namespace DotnetCat.Shell.WinApi;
 
@@ -8,8 +9,6 @@ namespace DotnetCat.Shell.WinApi;
 /// </summary>
 internal static partial class WinInterop
 {
-    private const string KERNEL32 = "kernel32.dll";
-
     /// <summary>
     ///  Close the given open object handle.
     /// </summary>
@@ -45,6 +44,11 @@ internal static partial class WinInterop
     ///  Get the error code returned by the last extern call.
     /// </summary>
     public static int GetLastError() => Marshal.GetLastWin32Error();
+
+    /// <summary>
+    ///  Get the HRESULT of the error code returned by the last extern call.
+    /// </summary>
+    public static int GetLastErrorHr() => Marshal.GetHRForLastWin32Error();
 }
 
 #endif // WINDOWS

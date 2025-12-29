@@ -22,9 +22,7 @@ internal class ErrorMessage
         get => _message ??= string.Empty;
         private set
         {
-            ThrowIf.NullOrEmpty(value);
-
-            if (MsgBuilt(value))
+            if (MsgBuilt(ThrowIf.NullOrEmpty(value)))
             {
                 throw new ArgumentException("Message already built.", nameof(value));
             }

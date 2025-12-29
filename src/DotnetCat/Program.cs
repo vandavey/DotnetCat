@@ -1,6 +1,7 @@
 using System;
 using DotnetCat.Network.Nodes;
 using DotnetCat.Utils;
+using static DotnetCat.Utils.Constants;
 
 namespace DotnetCat;
 
@@ -12,17 +13,17 @@ internal class Program
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Program() => Console.Title = $"DotnetCat ({Parser.Repo})";
+    static Program() => Console.Title = $"DotnetCat ({REPO_URL})";
 
     /// <summary>
     ///  Network socket node.
     /// </summary>
-    public static Node? SockNode { get; private set; }
+    public static Node? SocketNode { get; private set; }
 
     /// <summary>
     ///  Application entry point.
     /// </summary>
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         Parser parser = new(args);
 
@@ -32,10 +33,10 @@ internal class Program
             Parser.PrintHelp();
         }
 
-        SockNode = Node.New(parser.CmdArgs);
-        SockNode.Connect();
+        SocketNode = Node.Make(parser.CmdArgs);
+        SocketNode.Connect();
 
         Console.WriteLine();
-        Environment.Exit(0);
+        return NO_ERROR_EXIT_CODE;
     }
 }

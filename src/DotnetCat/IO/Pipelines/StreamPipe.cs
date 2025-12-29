@@ -19,11 +19,8 @@ internal class StreamPipe : SocketPipe
     /// </summary>
     public StreamPipe([NotNull] StreamReader? src, [NotNull] StreamWriter? dest) : base()
     {
-        ThrowIf.Null(src);
-        ThrowIf.Null(dest);
-
-        Source = src;
-        Dest = dest;
+        Source = ThrowIf.Null(src);
+        Dest = ThrowIf.Null(dest);
     }
 
     /// <summary>
@@ -41,39 +38,37 @@ internal class StreamPipe : SocketPipe
         int charsRead;
         Connected = true;
 
-        if (Client is not null)
+        while (Socket?.Connected ?? false)
         {
-            while (Client.Connected)
+            if (token.IsCancellationRequested)
             {
-                if (token.IsCancellationRequested)
-                {
-                    Disconnect();
-                    break;
-                }
-
-                charsRead = await ReadAsync(token);
-                data.Append(Buffer.ToArray(), 0, charsRead);
-
-                if (!Client.Connected || charsRead <= 0)
-                {
-                    Disconnect();
-                    break;
-                }
-                data = data.ReplaceLineEndings();
-
-                // Clear the console screen buffer
-                if (Command.IsClearCmd(data.ToString()))
-                {
-                    Sequence.ClearScreen();
-                    await WriteAsync(NewLine, token);
-                }
-                else  // Send the command
-                {
-                    await WriteAsync(data, token);
-                }
-                data.Clear();
+                Disconnect();
+                break;
             }
-            Dispose();
+
+            charsRead = await ReadAsync(token);
+            data.Append(Buffer.ToArray(), 0, charsRead);
+
+            if (!Socket.Connected || charsRead <= 0)
+            {
+                Disconnect();
+                break;
+            }
+            data = data.ReplaceLineEndings();
+
+            // Clear the console screen buffer
+            if (Command.IsClearCmd(data.ToString()))
+            {
+                Sequence.ClearScreen();
+                await WriteAsync(NewLine, token);
+            }
+            else  // Send the command
+            {
+                await WriteAsync(data, token);
+            }
+            data.Clear();
         }
+
+        Dispose();
     }
 }

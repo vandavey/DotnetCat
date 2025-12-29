@@ -9,6 +9,7 @@ using DotnetCat.Errors;
 using DotnetCat.Network;
 using DotnetCat.Shell;
 using DotnetCat.Utils;
+using static DotnetCat.IO.Constants;
 
 namespace DotnetCat.IO.Pipelines;
 
@@ -18,10 +19,9 @@ namespace DotnetCat.IO.Pipelines;
 /// </summary>
 internal abstract class SocketPipe : IConnectable
 {
-    protected const int READ_BUFFER_SIZE = 1024;
-    protected const int WRITE_BUFFER_SIZE = READ_BUFFER_SIZE * 4;
+    private bool _disposed;                      // Object disposed
 
-    private bool _disposed;  // Object disposed
+    private CancellationTokenSource? _tokenSrc;  // Cancellation token source
 
     /// <summary>
     ///  Initialize the object.
@@ -51,14 +51,14 @@ internal abstract class SocketPipe : IConnectable
     public bool Connected { get; protected set; }
 
     /// <summary>
-    ///  TCP socket client.
+    ///  TCP socket is connected.
     /// </summary>
-    protected static TcpClient? Client => Program.SockNode?.Client;
+    protected static bool SocketConnected => Socket?.Connected ?? false;
 
     /// <summary>
-    ///  TCP client is connected.
+    ///  TCP connection socket.
     /// </summary>
-    protected static bool ClientConnected => Client?.Connected ?? false;
+    protected static Socket? Socket => Program.SocketNode?.Socket;
 
     /// <summary>
     ///  Platform based EOL control sequence.
@@ -69,11 +69,6 @@ internal abstract class SocketPipe : IConnectable
     ///  Character memory buffer.
     /// </summary>
     protected Memory<char> Buffer { get; set; }
-
-    /// <summary>
-    ///  Pipeline cancellation token source.
-    /// </summary>
-    protected CancellationTokenSource? TokenSource { get; set; }
 
     /// <summary>
     ///  Command-line arguments.
@@ -103,10 +98,10 @@ internal abstract class SocketPipe : IConnectable
         ThrowIf.Null(Source);
         ThrowIf.Null(Dest);
 
+        _tokenSrc = new CancellationTokenSource();
         Buffer = new Memory<char>(new char[READ_BUFFER_SIZE]);
-        TokenSource = new CancellationTokenSource();
 
-        Worker = ConnectAsync(TokenSource.Token);
+        Worker = ConnectAsync(_tokenSrc.Token);
     }
 
     /// <summary>
@@ -146,10 +141,10 @@ internal abstract class SocketPipe : IConnectable
         {
             if (disposing)
             {
+                _tokenSrc?.Dispose();
                 Source?.Dispose();
                 Dest?.Dispose();
-                TokenSource?.Dispose();
-                Client?.Dispose();
+                Socket?.Dispose();
             }
             _disposed = true;
         }
@@ -161,7 +156,7 @@ internal abstract class SocketPipe : IConnectable
     protected void Disconnect()
     {
         Connected = false;
-        TokenSource?.Cancel();
+        _tokenSrc?.Cancel();
     }
 
     /// <summary>
@@ -177,7 +172,7 @@ internal abstract class SocketPipe : IConnectable
     {
         int bytesRead = -1;
 
-        if (Source is not null && ClientConnected)
+        if (Source is not null && SocketConnected)
         {
             bytesRead = await Source.ReadAsync(Buffer, token);
         }
@@ -192,7 +187,7 @@ internal abstract class SocketPipe : IConnectable
     {
         string buffer = string.Empty;
 
-        if (Source is not null && ClientConnected)
+        if (Source is not null && SocketConnected)
         {
             buffer = await Source.ReadToEndAsync();
         }
@@ -204,7 +199,7 @@ internal abstract class SocketPipe : IConnectable
     /// </summary>
     protected virtual async Task WriteAsync(StringBuilder data, CancellationToken token)
     {
-        if (Dest is not null && ClientConnected)
+        if (Dest is not null && SocketConnected)
         {
             await Dest.WriteAsync(data, token);
         }

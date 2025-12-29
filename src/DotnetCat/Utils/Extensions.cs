@@ -6,8 +6,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DotnetCat.Errors;
 using DotnetCat.Shell;
+using static DotnetCat.Utils.Constants;
 
 namespace DotnetCat.Utils;
 
@@ -21,8 +23,7 @@ internal static class Extensions
     /// </summary>
     public static void Add<T>([NotNull] this ICollection<T>? values, Func<T> func)
     {
-        ThrowIf.Null(values);
-        values.Add(func());
+        ThrowIf.Null(values).Add(func());
     }
 
     /// <summary>
@@ -31,8 +32,20 @@ internal static class Extensions
     public static void AddRange<T>([NotNull] this List<T>? values,
                                    Func<IEnumerable<T>> func)
     {
-        ThrowIf.Null(values);
-        values.AddRange(func());
+        ThrowIf.Null(values).AddRange(func());
+    }
+
+    /// <summary>
+    ///  Wait for an asynchronous task to complete execution.
+    /// </summary>
+    public static void AwaitResult(this Task task) => task.GetAwaiter().GetResult();
+
+    /// <summary>
+    ///  Free the underlying resources owned by each value in a collection.
+    /// </summary>
+    public static void Dispose(this IEnumerable<IDisposable> values)
+    {
+        values.ForEach(v => v?.Dispose());
     }
 
     /// <summary>
@@ -40,7 +53,13 @@ internal static class Extensions
     /// </summary>
     public static void ForEach<T>(this IEnumerable<T>? values, Action<T> action)
     {
-        values?.ToList().ForEach(action);
+        if (values is not null)
+        {
+            foreach (T value in values)
+            {
+                action(value);
+            }
+        }
     }
 
     /// <summary>
@@ -83,6 +102,15 @@ internal static class Extensions
     }
 
     /// <summary>
+    ///  Determine whether a string is equal to another
+    ///  string when all string casing is ignored.
+    /// </summary>
+    public static bool IgnCaseEquals(this string? str, string? value)
+    {
+        return string.Equals(str, value, IGNORE_CASE_CMP);
+    }
+
+    /// <summary>
     ///  Determine whether a string is null or empty.
     /// </summary>
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)
@@ -99,12 +127,12 @@ internal static class Extensions
     }
 
     /// <summary>
-    ///  Determine whether a string is equal to another
-    ///  string when all string casing is ignored.
+    ///  Determine whether a type is a value tuple.
     /// </summary>
-    public static bool NoCaseEquals(this string? str, string? value)
+    public static bool IsValueTuple(this Type type)
     {
-        return str?.ToLower() == value?.ToLower();
+        return type.IsValueType
+            && StartsWithValue(type.FullName, $"{typeof(ValueTuple).FullName}`");
     }
 
     /// <summary>
@@ -144,8 +172,7 @@ internal static class Extensions
     /// </summary>
     public static string Erase(this Regex regex, [NotNull] string? data)
     {
-        ThrowIf.NullOrEmpty(data);
-        return regex.Replace(data, string.Empty);
+        return regex.Replace(ThrowIf.NullOrEmpty(data), string.Empty);
     }
 
     /// <summary>
@@ -154,8 +181,7 @@ internal static class Extensions
     public static string Join<T>([NotNull] this IEnumerable<T>? values,
                                  string? delim = default)
     {
-        ThrowIf.NullOrEmpty(values);
-        return string.Join(delim, values);
+        return string.Join(delim, ThrowIf.NullOrEmpty(values));
     }
 
     /// <summary>

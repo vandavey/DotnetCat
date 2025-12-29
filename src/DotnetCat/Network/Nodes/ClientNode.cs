@@ -1,10 +1,13 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using DotnetCat.Errors;
 using DotnetCat.IO;
 using DotnetCat.IO.Pipelines;
 using DotnetCat.Utils;
+using static DotnetCat.Network.Constants;
 
 namespace DotnetCat.Network.Nodes;
 
@@ -28,17 +31,22 @@ internal class ClientNode : Node
     /// <summary>
     ///  Establish a socket connection to the underlying IPv4 endpoint.
     /// </summary>
-    public override void Connect()
+    public override void Connect() => ConnectAsync().AwaitResult();
+
+    /// <summary>
+    ///  Asynchronously establish a socket connection to the underlying IPv4 endpoint.
+    /// </summary>
+    private async Task ConnectAsync()
     {
         ValidateArgsCombinations();
+        Socket = Net.MakeSocket(ProtocolType.Tcp);
 
         try  // Connect to the remote endpoint
         {
-            if (!Client.ConnectAsync(Endpoint.IPv4Endpoint()).Wait(3500))
-            {
-                throw Net.MakeException(SocketError.TimedOut);
-            }
-            NetStream = Client.GetStream();
+            using CancellationTokenSource tokenSrc = new(CONNECT_TIMEOUT);
+            await Socket.ConnectAsync(Endpoint.IPv4Endpoint(), tokenSrc.Token);
+
+            NetStream = new NetworkStream(Socket, ownsSocket: false);
 
             // Start the executable process
             if (Args.UsingExe && !StartProcess(ExePath))
@@ -52,23 +60,25 @@ internal class ClientNode : Node
             }
 
             base.Connect();
-            WaitForExit();
+            await WaitForExitAsync();
 
             Output.Log($"Connection to {Endpoint} closed");
         }
-        catch (AggregateException ex)
+        catch (Exception ex) when (ex is AggregateException or SocketException)
         {
             PipeError(Net.GetExcept(ex), Endpoint, ex);
         }
-        catch (SocketException ex)
+        catch (OperationCanceledException)
         {
-            PipeError(Net.GetExcept(ex), Endpoint, ex);
+            PipeError(Except.TimedOut, Endpoint, new SocketTimeoutException());
         }
         catch (IOException ex)
         {
             PipeError(Except.ConnectionReset, Endpoint, ex);
         }
-
-        Dispose();
+        finally
+        {
+            Dispose();
+        }
     }
 }

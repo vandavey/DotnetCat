@@ -1,6 +1,6 @@
 #if WINDOWS
-using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using DotnetCat.Errors;
 
 namespace DotnetCat.Shell.WinApi;
@@ -8,29 +8,30 @@ namespace DotnetCat.Shell.WinApi;
 /// <summary>
 ///  Windows API unmanaged function exception.
 /// </summary>
-internal class ExternException : Exception
+internal class ExternException : ExternalException
 {
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ExternException([NotNull] string? externName) : base()
+    public ExternException([NotNull] string? externName)
+        : base(null, WinInterop.GetLastErrorHr())
     {
-        ThrowIf.NullOrEmpty(externName);
-        Name = externName;
-
-        ErrorCode = WinInterop.GetLastError();
-        Message = $"Error occurred in extern '{Name}': {ErrorCode}.";
+        Name = ThrowIf.NullOrEmpty(externName);
+        WinErrorCode = WinInterop.GetLastError();
     }
 
     /// <summary>
     ///  Windows API error code.
     /// </summary>
-    public int ErrorCode { get; }
+    public int WinErrorCode { get; }
 
     /// <summary>
     ///  Error message.
     /// </summary>
-    public override string Message { get; }
+    public override string Message
+    {
+        get => $"External error occurred in '{Name}': {WinErrorCode} ({ErrorCode}).";
+    }
 
     /// <summary>
     ///  Windows API function name.
