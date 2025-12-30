@@ -6,7 +6,7 @@ namespace DotnetCat.Shell.WinApi;
 /// <summary>
 ///  Windows API safe handle.
 /// </summary>
-internal class WinSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
+internal sealed class WinSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
 {
     private readonly bool _ownsHandle;  // Underlying handle owned
 

@@ -19,7 +19,7 @@ namespace DotnetCat.Utils;
 /// <summary>
 ///  Command-line argument parser and validator.
 /// </summary>
-internal partial class Parser
+internal sealed partial class Parser
 {
     private static readonly string _exeName;       // Application executable name
 

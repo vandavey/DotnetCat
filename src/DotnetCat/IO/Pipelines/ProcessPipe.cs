@@ -12,7 +12,7 @@ namespace DotnetCat.IO.Pipelines;
 /// <summary>
 ///  Unidirectional socket pipeline used to transfer executable process data.
 /// </summary>
-internal class ProcessPipe : SocketPipe
+internal sealed class ProcessPipe : SocketPipe
 {
     /// <summary>
     ///  Initialize the object.

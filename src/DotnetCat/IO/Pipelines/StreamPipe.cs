@@ -12,7 +12,7 @@ namespace DotnetCat.IO.Pipelines;
 /// <summary>
 ///  Unidirectional socket pipeline used to transfer standard console stream data.
 /// </summary>
-internal class StreamPipe : SocketPipe
+internal sealed class StreamPipe : SocketPipe
 {
     /// <summary>
     ///  Initialize the object.

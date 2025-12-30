@@ -12,7 +12,7 @@ namespace DotnetCat.IO.Pipelines;
 /// <summary>
 ///  Unidirectional socket pipeline used to transfer file data.
 /// </summary>
-internal class FilePipe : SocketPipe
+internal sealed class FilePipe : SocketPipe
 {
     private readonly TransferOpt _transfer;  // File transfer option
 
@@ -55,54 +55,6 @@ internal class FilePipe : SocketPipe
     }
 
     /// <summary>
-    ///  Create or overwrite a file at the given file path for writing.
-    /// </summary>
-    protected FileStream MakeFile(string path)
-    {
-        if (path.IsNullOrEmpty())
-        {
-            PipeError(Except.EmptyPath, "-o/--output");
-        }
-        string? parentPath = FileSys.ParentPath(path);
-
-        if (!FileSys.DirectoryExists(parentPath))
-        {
-            PipeError(Except.DirectoryPath, parentPath);
-        }
-
-        return new FileStream(path,
-                              FileMode.Create,
-                              FileAccess.Write,
-                              FileShare.Write,
-                              READ_BUFFER_SIZE,
-                              useAsync: true);
-    }
-
-    /// <summary>
-    ///  Open an existing file at the given file path for reading.
-    /// </summary>
-    protected FileStream OpenFile(string? path)
-    {
-        if (path.IsNullOrEmpty())
-        {
-            PipeError(Except.EmptyPath, "-s/--send");
-        }
-        FileInfo info = new(path ?? string.Empty);
-
-        if (!info.Exists)
-        {
-            PipeError(Except.FilePath, info.FullName);
-        }
-
-        return new FileStream(info.FullName,
-                              FileMode.Open,
-                              FileAccess.Read,
-                              FileShare.Read,
-                              WRITE_BUFFER_SIZE,
-                              useAsync: true);
-    }
-
-    /// <summary>
     ///  Asynchronously perform the file transfer between the underlying streams.
     /// </summary>
     protected override async Task ConnectAsync(CancellationToken token)
@@ -133,5 +85,53 @@ internal class FilePipe : SocketPipe
 
         Disconnect();
         Dispose();
+    }
+
+    /// <summary>
+    ///  Create or overwrite a file at the given file path for writing.
+    /// </summary>
+    private FileStream MakeFile(string path)
+    {
+        if (path.IsNullOrEmpty())
+        {
+            PipeError(Except.EmptyPath, "-o/--output");
+        }
+        string? parentPath = FileSys.ParentPath(path);
+
+        if (!FileSys.DirectoryExists(parentPath))
+        {
+            PipeError(Except.DirectoryPath, parentPath);
+        }
+
+        return new FileStream(path,
+                              FileMode.Create,
+                              FileAccess.Write,
+                              FileShare.Write,
+                              READ_BUFFER_SIZE,
+                              useAsync: true);
+    }
+
+    /// <summary>
+    ///  Open an existing file at the given file path for reading.
+    /// </summary>
+    private FileStream OpenFile(string? path)
+    {
+        if (path.IsNullOrEmpty())
+        {
+            PipeError(Except.EmptyPath, "-s/--send");
+        }
+        FileInfo info = new(path ?? string.Empty);
+
+        if (!info.Exists)
+        {
+            PipeError(Except.FilePath, info.FullName);
+        }
+
+        return new FileStream(info.FullName,
+                              FileMode.Open,
+                              FileAccess.Read,
+                              FileShare.Read,
+                              WRITE_BUFFER_SIZE,
+                              useAsync: true);
     }
 }
