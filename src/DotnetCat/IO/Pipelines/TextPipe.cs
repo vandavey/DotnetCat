@@ -51,7 +51,7 @@ internal class TextPipe : SocketPipe
     /// <summary>
     ///  Free the underlying resources.
     /// </summary>
-    protected override void Dispose(bool disposing)
+    protected sealed override void Dispose(bool disposing)
     {
         if (!_disposed)
         {

@@ -168,7 +168,7 @@ internal abstract class SocketPipe : IConnectable
     ///  Asynchronously read data from the underlying source stream
     ///  and write it to the underlying memory buffer.
     /// </summary>
-    protected virtual async ValueTask<int> ReadAsync(CancellationToken token)
+    protected async ValueTask<int> ReadAsync(CancellationToken token)
     {
         int bytesRead = -1;
 
@@ -183,7 +183,7 @@ internal abstract class SocketPipe : IConnectable
     ///  Asynchronously read all the data that is currently available
     ///  in the underlying source stream.
     /// </summary>
-    protected virtual async ValueTask<string> ReadToEndAsync()
+    protected async ValueTask<string> ReadToEndAsync()
     {
         string buffer = string.Empty;
 
@@ -197,7 +197,7 @@ internal abstract class SocketPipe : IConnectable
     /// <summary>
     ///  Asynchronously write all the given data to the underlying destination stream.
     /// </summary>
-    protected virtual async Task WriteAsync(StringBuilder data, CancellationToken token)
+    protected async Task WriteAsync(StringBuilder data, CancellationToken token)
     {
         if (Dest is not null && SocketConnected)
         {

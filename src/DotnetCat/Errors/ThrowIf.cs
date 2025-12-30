@@ -18,7 +18,7 @@ namespace DotnetCat.Errors;
 /// <summary>
 ///  Utility class for exception handling and validation.
 /// </summary>
-internal class ThrowIf
+internal static class ThrowIf
 {
     /// <summary>
     ///  Throw an exception if the given port number is invalid.

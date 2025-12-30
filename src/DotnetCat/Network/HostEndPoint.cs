@@ -8,7 +8,7 @@ namespace DotnetCat.Network;
 /// <summary>
 ///  IPv4 hostname socket endpoint.
 /// </summary>
-internal class HostEndPoint
+internal sealed class HostEndPoint
 {
     /// <summary>
     ///  Initialize the object.

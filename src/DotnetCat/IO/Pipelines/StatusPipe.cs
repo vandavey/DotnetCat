@@ -10,7 +10,7 @@ namespace DotnetCat.IO.Pipelines;
 /// <summary>
 ///  Unidirectional socket pipeline used to perform network connection testing.
 /// </summary>
-internal class StatusPipe : TextPipe
+internal sealed class StatusPipe : TextPipe
 {
     /// <summary>
     ///  Initialize the object.
