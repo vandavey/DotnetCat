@@ -21,7 +21,7 @@ internal static class Net
     public static bool ValidPort(int port) => port is >= MIN_PORT and <= MAX_PORT;
 
     /// <summary>
-    ///  Get the exception enum member associated with the given exception.
+    ///  Get the exception enumerator associated with the given exception.
     /// </summary>
     public static Except GetExcept<T>(T ex) where T : Exception
     {
@@ -40,7 +40,7 @@ internal static class Net
     }
 
     /// <summary>
-    ///  Get the exception enum member associated with the given aggregate exception.
+    ///  Get the exception enumerator associated with the given aggregate exception.
     /// </summary>
     public static Except GetExcept(AggregateException ex)
     {
@@ -48,7 +48,7 @@ internal static class Net
     }
 
     /// <summary>
-    ///  Get the exception enum member associated with the given socket exception.
+    ///  Get the exception enumerator associated with the given socket exception.
     /// </summary>
     public static Except GetExcept(SocketException? ex) => ex?.SocketErrorCode switch
     {
