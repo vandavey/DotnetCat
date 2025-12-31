@@ -293,7 +293,7 @@ internal abstract class Node : IConnectable
     {
         List<SocketPipe> pipelines = [];
 
-        switch (type)
+        switch (ThrowIf.Undefined(type))
         {
             case PipeType.Stream:
                 pipelines.AddRange(MakeStreamPipes);
@@ -343,14 +343,10 @@ internal abstract class Node : IConnectable
     /// </summary>
     private FilePipe MakeFilePipe()
     {
-        if (Args.TransOpt is TransferOpt.None)
-        {
-            throw new InvalidOperationException("No file transfer option set.");
-        }
         FilePipe filePipe;
 
         // Pipe data from socket to file
-        if (Args.TransOpt is TransferOpt.Collect)
+        if (ThrowIf.Default(Args.TransOpt) is TransferOpt.Collect)
         {
             filePipe = new FilePipe(Args, _netReader);
         }

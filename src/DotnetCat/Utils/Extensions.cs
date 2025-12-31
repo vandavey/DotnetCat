@@ -111,6 +111,14 @@ internal static class Extensions
     }
 
     /// <summary>
+    ///  Determine whether an object is equal to the default value of its type.
+    /// </summary>
+    public static bool IsDefault<T>(this T? obj)
+    {
+        return RuntimeHelpers.Equals(obj, default(T));
+    }
+
+    /// <summary>
     ///  Determine whether a string is null or empty.
     /// </summary>
     public static bool IsNullOrEmpty([NotNullWhen(false)] this string? str)

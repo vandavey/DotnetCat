@@ -86,23 +86,7 @@ internal static class ThrowIf
     }
 
     /// <summary>
-    ///  Throw an exception if the given argument is is equal to a specific enumerator.
-    /// </summary>
-    public static T EqualTo<T>(T arg,
-                               T value,
-                               [CallerArgumentExpression(nameof(arg))]
-                               string? name = default)
-        where T : struct, Enum
-    {
-        if (arg.Equals(value))
-        {
-            throw new ArgumentException($"Enumerator equal to '{value}'.", name);
-        }
-        return arg;
-    }
-
-    /// <summary>
-    ///  Throw an exception if the given enumerator is undefined.
+    ///  Throw an exception if the given argument is undefined.
     /// </summary>
     public static T Undefined<T>(T arg,
                                  [CallerArgumentExpression(nameof(arg))]
@@ -114,6 +98,18 @@ internal static class ThrowIf
             throw new ArgumentOutOfRangeException(name, arg, "Undefined enumerator.");
         }
         return arg;
+    }
+
+    /// <summary>
+    ///  Throw an exception if the given argument is undefined
+    ///  or is equal to the default value of its type.
+    /// </summary>
+    public static T UndefinedOrDefault<T>(T arg,
+                                          [CallerArgumentExpression(nameof(arg))]
+                                          string? name = default)
+        where T : struct, Enum
+    {
+        return Default(Undefined(arg, name), name);
     }
 
     /// <summary>
@@ -153,6 +149,21 @@ internal static class ThrowIf
         if (arg?.AddressFamily is not AddressFamily.InterNetwork)
         {
             throw new ArgumentException("IP address family is not IPv4.", name);
+        }
+        return arg;
+    }
+
+    /// <summary>
+    ///  Throw an exception if the given argument
+    ///  is equal to the default value of its type.
+    /// </summary>
+    public static T Default<T>(T arg,
+                               [CallerArgumentExpression(nameof(arg))]
+                               string? name = default)
+    {
+        if (arg.IsDefault())
+        {
+            throw new ArgumentException($"Default value specified: {arg}.", name);
         }
         return arg;
     }

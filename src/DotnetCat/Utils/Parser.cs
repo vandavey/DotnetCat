@@ -461,10 +461,7 @@ internal sealed partial class Parser
     /// </summary>
     private void ParseTransferPath(IndexedFlag idxFlag, TransferOpt transfer)
     {
-        if (transfer is TransferOpt.None)
-        {
-            throw new ArgumentException("No file transfer option set.", nameof(transfer));
-        }
+        ThrowIf.UndefinedOrDefault(transfer);
 
         // No corresponding argument value
         if (!ValidIndex(idxFlag.Index + 1))

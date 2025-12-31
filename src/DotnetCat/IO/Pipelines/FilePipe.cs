@@ -60,7 +60,7 @@ internal sealed class FilePipe : SocketPipe
         Connected = true;
         StringBuilder data = new();
 
-        if (_transfer is TransferOpt.Collect)
+        if (ThrowIf.UndefinedOrDefault(_transfer) is TransferOpt.Collect)
         {
             Output.Log($"Downloading file to '{FilePath}'...");
         }
@@ -90,6 +90,7 @@ internal sealed class FilePipe : SocketPipe
     /// </summary>
     private static int BufferSize(TransferOpt transfer)
     {
+        ThrowIf.UndefinedOrDefault(transfer);
         return transfer is TransferOpt.Transmit ? READ_BUFFER_SIZE : WRITE_BUFFER_SIZE;
     }
 
@@ -137,8 +138,6 @@ internal sealed class FilePipe : SocketPipe
                                   FileAccess access,
                                   FileShare share)
     {
-        ThrowIf.EqualTo(_transfer, TransferOpt.None);
-
         return new FileStream(path,
                               ThrowIf.Undefined(mode),
                               ThrowIf.Undefined(access),

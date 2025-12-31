@@ -1,4 +1,5 @@
 using System.Net;
+using DotnetCat.Errors;
 using DotnetCat.IO.Pipelines;
 using static DotnetCat.Network.Constants;
 
@@ -46,12 +47,20 @@ internal sealed class CmdLineArgs
     /// <summary>
     ///  Pipeline variant.
     /// </summary>
-    public PipeType PipeVariant { get; set; }
+    public PipeType PipeVariant
+    {
+        get;
+        set => field = ThrowIf.Undefined(value);
+    }
 
     /// <summary>
     ///  File transfer option.
     /// </summary>
-    public TransferOpt TransOpt { get; set; }
+    public TransferOpt TransOpt
+    {
+        get;
+        set => field = ThrowIf.Undefined(value);
+    }
 
     /// <summary>
     ///  Connection port number.

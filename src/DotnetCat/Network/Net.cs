@@ -62,7 +62,7 @@ internal static class Net
         SocketError.ConnectionRefused   => Except.ConnectionRefused,
         SocketError.HostUnreachable     => Except.HostUnreachable,
         SocketError.HostNotFound        => Except.HostNotFound,
-        SocketError.SocketError or _    => Except.SocketError
+        _                               => Except.SocketError
     };
 
     /// <summary>
