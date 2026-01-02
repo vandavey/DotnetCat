@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +18,10 @@ internal sealed class StreamPipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public StreamPipe([NotNull] StreamReader? src, [NotNull] StreamWriter? dest) : base()
+    public StreamPipe([NotNull] Socket? socket,
+                      [NotNull] StreamReader? src,
+                      [NotNull] StreamWriter? dest)
+        : base(socket)
     {
         Source = ThrowIf.Null(src);
         Dest = ThrowIf.Null(dest);

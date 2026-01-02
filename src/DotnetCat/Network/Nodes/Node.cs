@@ -184,60 +184,13 @@ internal abstract class Node : IConnectable
     {
         if (!_validArgsCombos)
         {
-            // Combination: --exec, --output/--send
-            if (UsingExe && Transfer)
+            ArgType[]? invalidCombo = Args.InvalidCombinations().FirstOrDefault();
+
+            if (invalidCombo is not null)
             {
                 Console.WriteLine(Parser.Usage);
-                PipeError(Except.ArgsCombo, "--exec, --output/--send");
+                PipeError(Except.ArgsCombo, CmdLineArgs.ArgNames(invalidCombo));
             }
-
-            bool isTextPipe = !Args.Payload.IsNullOrEmpty();
-
-            // Combination: --exec, --text
-            if (UsingExe && isTextPipe)
-            {
-                Console.WriteLine(Parser.Usage);
-                PipeError(Except.ArgsCombo, "--exec, --text");
-            }
-
-            // Combination: --text, --output/--send
-            if (isTextPipe && Transfer)
-            {
-                Console.WriteLine(Parser.Usage);
-                PipeError(Except.ArgsCombo, "--text, --output/--send");
-            }
-
-            if (Args.PipeVariant is PipeType.Status)
-            {
-                // Combination: --listen, --zero-io
-                if (this is ServerNode)
-                {
-                    Console.WriteLine(Parser.Usage);
-                    PipeError(Except.ArgsCombo, "--listen, --zero-io");
-                }
-
-                // Combination: --zero-io, --text
-                if (isTextPipe)
-                {
-                    Console.WriteLine(Parser.Usage);
-                    PipeError(Except.ArgsCombo, "--zero-io, --text");
-                }
-
-                // Combination: --zero-io, --output/--send
-                if (Transfer)
-                {
-                    Console.WriteLine(Parser.Usage);
-                    PipeError(Except.ArgsCombo, "--zero-io, --output/--send");
-                }
-
-                // Combination: --exec, --zero-io
-                if (UsingExe)
-                {
-                    Console.WriteLine(Parser.Usage);
-                    PipeError(Except.ArgsCombo, "--exec, --zero-io");
-                }
-            }
-
             _validArgsCombos = true;
         }
     }
@@ -293,7 +246,7 @@ internal abstract class Node : IConnectable
     {
         List<SocketPipe> pipelines = [];
 
-        switch (type)
+        switch (ThrowIf.Undefined(type))
         {
             case PipeType.Stream:
                 pipelines.AddRange(MakeStreamPipes);
@@ -305,10 +258,10 @@ internal abstract class Node : IConnectable
                 pipelines.AddRange(MakeProcessPipes);
                 break;
             case PipeType.Status:
-                pipelines.Add(new StatusPipe(Args, _netWriter));
+                pipelines.Add(new StatusPipe(Socket, Args, _netWriter, Endpoint));
                 break;
             case PipeType.Text:
-                pipelines.Add(new TextPipe(Args, _netWriter));
+                pipelines.Add(new TextPipe(Socket, Args, _netWriter));
                 break;
             default:
                 break;
@@ -321,11 +274,11 @@ internal abstract class Node : IConnectable
     /// </summary>
     private StreamPipe[] MakeStreamPipes() =>
     [
-        new StreamPipe(_netReader, new StreamWriter(Console.OpenStandardOutput())
+        new StreamPipe(Socket, _netReader, new StreamWriter(Console.OpenStandardOutput())
         {
             AutoFlush = true
         }),
-        new StreamPipe(new StreamReader(Console.OpenStandardInput()), _netWriter)
+        new StreamPipe(Socket, new StreamReader(Console.OpenStandardInput()), _netWriter)
     ];
 
     /// <summary>
@@ -333,9 +286,9 @@ internal abstract class Node : IConnectable
     /// </summary>
     private ProcessPipe[] MakeProcessPipes() =>
     [
-        new ProcessPipe(Args, _netReader, _process?.StandardInput),
-        new ProcessPipe(Args, _process?.StandardOutput, _netWriter),
-        new ProcessPipe(Args, _process?.StandardError, _netWriter)
+        new ProcessPipe(Socket, Args, _netReader, _process?.StandardInput),
+        new ProcessPipe(Socket, Args, _process?.StandardOutput, _netWriter),
+        new ProcessPipe(Socket, Args, _process?.StandardError, _netWriter)
     ];
 
     /// <summary>
@@ -343,20 +296,16 @@ internal abstract class Node : IConnectable
     /// </summary>
     private FilePipe MakeFilePipe()
     {
-        if (Args.TransOpt is TransferOpt.None)
-        {
-            throw new InvalidOperationException("No file transfer option set.");
-        }
         FilePipe filePipe;
 
         // Pipe data from socket to file
-        if (Args.TransOpt is TransferOpt.Collect)
+        if (ThrowIf.Default(Args.TransOpt) is TransferOpt.Collect)
         {
-            filePipe = new FilePipe(Args, _netReader);
+            filePipe = new FilePipe(Socket, Args, _netReader);
         }
         else  // Pipe data from file to socket
         {
-            filePipe = new FilePipe(Args, _netWriter);
+            filePipe = new FilePipe(Socket, Args, _netWriter);
         }
         return filePipe;
     }

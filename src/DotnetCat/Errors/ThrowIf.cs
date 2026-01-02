@@ -86,6 +86,33 @@ internal static class ThrowIf
     }
 
     /// <summary>
+    ///  Throw an exception if the given argument is undefined.
+    /// </summary>
+    public static T Undefined<T>(T arg,
+                                 [CallerArgumentExpression(nameof(arg))]
+                                 string? name = default)
+        where T : struct, Enum
+    {
+        if (!Enum.IsDefined(arg))
+        {
+            throw new ArgumentOutOfRangeException(name, arg, "Undefined enumerator.");
+        }
+        return arg;
+    }
+
+    /// <summary>
+    ///  Throw an exception if the given argument is undefined
+    ///  or is equal to the default value of its type.
+    /// </summary>
+    public static T UndefinedOrDefault<T>(T arg,
+                                          [CallerArgumentExpression(nameof(arg))]
+                                          string? name = default)
+        where T : struct, Enum
+    {
+        return Default(Undefined(arg, name), name);
+    }
+
+    /// <summary>
     ///  Throw an exception if the given argument is null or empty.
     /// </summary>
     public static string NullOrEmpty([NotNull] string? arg,
@@ -122,6 +149,21 @@ internal static class ThrowIf
         if (arg?.AddressFamily is not AddressFamily.InterNetwork)
         {
             throw new ArgumentException("IP address family is not IPv4.", name);
+        }
+        return arg;
+    }
+
+    /// <summary>
+    ///  Throw an exception if the given argument
+    ///  is equal to the default value of its type.
+    /// </summary>
+    public static T? Default<T>(T? arg,
+                                [CallerArgumentExpression(nameof(arg))]
+                                string? name = default)
+    {
+        if (arg.IsDefault())
+        {
+            throw new ArgumentException($"Default value specified: {arg}.", name);
         }
         return arg;
     }

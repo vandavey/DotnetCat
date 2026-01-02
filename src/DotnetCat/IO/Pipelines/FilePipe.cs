@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,25 +20,29 @@ internal sealed class FilePipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public FilePipe(CmdLineArgs args, [NotNull] StreamReader? src) : base(args)
+    public FilePipe([NotNull] Socket? socket,
+                    CmdLineArgs args,
+                    [NotNull] StreamWriter? dest)
+        : base(socket, args)
     {
-        ThrowIf.NullOrEmpty(args.FilePath);
-        _transfer = TransferOpt.Collect;
+        _transfer = TransferOpt.Transmit;
 
-        Source = ThrowIf.Null(src);
-        Dest = new StreamWriter(MakeFile(FilePath)) { AutoFlush = true };
+        Dest = ThrowIf.Null(dest);
+        Source = new StreamReader(OpenReadStream(FilePath));
     }
 
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public FilePipe(CmdLineArgs args, [NotNull] StreamWriter? dest) : base(args)
+    public FilePipe([NotNull] Socket? socket,
+                    CmdLineArgs args,
+                    [NotNull] StreamReader? src)
+        : base(socket, args)
     {
-        ThrowIf.NullOrEmpty(args.FilePath);
-        _transfer = TransferOpt.Transmit;
+        _transfer = TransferOpt.Collect;
 
-        Dest = ThrowIf.Null(dest);
-        Source = new StreamReader(OpenFile(FilePath));
+        Source = ThrowIf.Null(src);
+        Dest = new StreamWriter(OpenWriteStream(FilePath)) { AutoFlush = true };
     }
 
     /// <summary>
@@ -62,13 +67,13 @@ internal sealed class FilePipe : SocketPipe
         Connected = true;
         StringBuilder data = new();
 
-        if (_transfer is TransferOpt.Collect)
+        if (ThrowIf.UndefinedOrDefault(_transfer) is TransferOpt.Collect)
         {
-            Output.Log($"Downloading socket data to '{FilePath}'...");
+            Output.Log($"Downloading file to '{FilePath}'...");
         }
         else if (_transfer is TransferOpt.Transmit)
         {
-            Output.Log($"Transmitting '{FilePath}' data...");
+            Output.Log($"Transmitting file '{FilePath}'...");
         }
 
         data.Append(await ReadToEndAsync());
@@ -80,7 +85,7 @@ internal sealed class FilePipe : SocketPipe
         }
         else if (_transfer is TransferOpt.Transmit)
         {
-            Output.Status("File successfully transmitted");
+            Output.Status($"Successfully transmitted '{FilePath}'");
         }
 
         Disconnect();
@@ -88,9 +93,36 @@ internal sealed class FilePipe : SocketPipe
     }
 
     /// <summary>
-    ///  Create or overwrite a file at the given file path for writing.
+    ///  Get the file stream buffer size to use for the given transfer option.
     /// </summary>
-    private FileStream MakeFile(string path)
+    private static int BufferSize(TransferOpt transfer)
+    {
+        ThrowIf.UndefinedOrDefault(transfer);
+        return transfer is TransferOpt.Transmit ? READ_BUFFER_SIZE : WRITE_BUFFER_SIZE;
+    }
+
+    /// <summary>
+    ///  Open a stream to read a file at the given file path.
+    /// </summary>
+    private FileStream OpenReadStream([NotNull] string? path)
+    {
+        if (path.IsNullOrEmpty())
+        {
+            PipeError(Except.EmptyPath, "-s/--send");
+        }
+        FileInfo info = new(path);
+
+        if (!info.Exists)
+        {
+            PipeError(Except.FilePath, info.FullName);
+        }
+        return MakeStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+    }
+
+    /// <summary>
+    ///  Open a stream to create or overwrite a file at the given file path.
+    /// </summary>
+    private FileStream OpenWriteStream([NotNull] string? path)
     {
         if (path.IsNullOrEmpty())
         {
@@ -102,36 +134,22 @@ internal sealed class FilePipe : SocketPipe
         {
             PipeError(Except.DirectoryPath, parentPath);
         }
-
-        return new FileStream(path,
-                              FileMode.Create,
-                              FileAccess.Write,
-                              FileShare.Write,
-                              READ_BUFFER_SIZE,
-                              useAsync: true);
+        return MakeStream(path, FileMode.Create, FileAccess.Write, FileShare.Write);
     }
 
     /// <summary>
-    ///  Open an existing file at the given file path for reading.
+    ///  Open a file stream to read or write to a new or existing file.
     /// </summary>
-    private FileStream OpenFile(string? path)
+    private FileStream MakeStream(string path,
+                                  FileMode mode,
+                                  FileAccess access,
+                                  FileShare share)
     {
-        if (path.IsNullOrEmpty())
-        {
-            PipeError(Except.EmptyPath, "-s/--send");
-        }
-        FileInfo info = new(path ?? string.Empty);
-
-        if (!info.Exists)
-        {
-            PipeError(Except.FilePath, info.FullName);
-        }
-
-        return new FileStream(info.FullName,
-                              FileMode.Open,
-                              FileAccess.Read,
-                              FileShare.Read,
-                              WRITE_BUFFER_SIZE,
+        return new FileStream(path,
+                              ThrowIf.Undefined(mode),
+                              ThrowIf.Undefined(access),
+                              ThrowIf.Undefined(share),
+                              BufferSize(_transfer),
                               useAsync: true);
     }
 }

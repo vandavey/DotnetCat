@@ -26,19 +26,22 @@ internal abstract class SocketPipe : IConnectable
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    protected SocketPipe()
+    protected SocketPipe([NotNull] Socket? socket) : this(socket, new CmdLineArgs())
     {
-        _disposed = false;
-        Connected = false;
-
-        Args = new CmdLineArgs();
-        NewLine = new StringBuilder(SysInfo.Eol);
     }
 
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    protected SocketPipe(CmdLineArgs args) : this() => Args = args;
+    protected SocketPipe([NotNull] Socket? socket, CmdLineArgs args) : base()
+    {
+        _disposed = false;
+        Connected = false;
+
+        NewLine = new StringBuilder(SysInfo.Eol);
+        Args = args;
+        Socket = ThrowIf.Null(socket);
+    }
 
     /// <summary>
     ///  Finalize the object.
@@ -49,16 +52,6 @@ internal abstract class SocketPipe : IConnectable
     ///  Underlying streams are connected.
     /// </summary>
     public bool Connected { get; protected set; }
-
-    /// <summary>
-    ///  TCP socket is connected.
-    /// </summary>
-    protected static bool SocketConnected => Socket?.Connected ?? false;
-
-    /// <summary>
-    ///  TCP connection socket.
-    /// </summary>
-    protected static Socket? Socket => Program.SocketNode?.Socket;
 
     /// <summary>
     ///  Platform based EOL control sequence.
@@ -89,6 +82,11 @@ internal abstract class SocketPipe : IConnectable
     ///  Pipeline data transfer task.
     /// </summary>
     protected Task? Worker { get; set; }
+
+    /// <summary>
+    ///  TCP connection socket.
+    /// </summary>
+    protected Socket Socket { get; }
 
     /// <summary>
     ///  Activate communication between the underlying streams.
@@ -172,7 +170,7 @@ internal abstract class SocketPipe : IConnectable
     {
         int bytesRead = -1;
 
-        if (Source is not null && SocketConnected)
+        if (Source is not null && Socket.Connected)
         {
             bytesRead = await Source.ReadAsync(Buffer, token);
         }
@@ -187,7 +185,7 @@ internal abstract class SocketPipe : IConnectable
     {
         string buffer = string.Empty;
 
-        if (Source is not null && SocketConnected)
+        if (Source is not null && Socket.Connected)
         {
             buffer = await Source.ReadToEndAsync();
         }
@@ -199,7 +197,7 @@ internal abstract class SocketPipe : IConnectable
     /// </summary>
     protected async Task WriteAsync(StringBuilder data, CancellationToken token)
     {
-        if (Dest is not null && SocketConnected)
+        if (Dest is not null && Socket.Connected)
         {
             await Dest.WriteAsync(data, token);
         }

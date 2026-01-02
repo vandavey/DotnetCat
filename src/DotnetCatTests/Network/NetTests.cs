@@ -40,8 +40,8 @@ public class NetTests
     }
 
     /// <summary>
-    ///  Assert that an input <see cref="AggregateException"/> returns
-    ///  the expected <see cref="Except"/> enumeration type member.
+    ///  Assert that an input <see cref="AggregateException"/>
+    ///  returns the expected <see cref="Except"/> enumerator.
     /// </summary>
     [TestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
@@ -60,8 +60,8 @@ public class NetTests
     }
 
     /// <summary>
-    ///  Assert that an input <see cref="SocketException"/> returns
-    ///  the expected <see cref="Except"/> enumeration type member.
+    ///  Assert that an input <see cref="SocketException"/>
+    ///  returns the expected <see cref="Except"/> enumerator.
     /// </summary>
     [TestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
