@@ -157,9 +157,9 @@ internal static class ThrowIf
     ///  Throw an exception if the given argument
     ///  is equal to the default value of its type.
     /// </summary>
-    public static T Default<T>(T arg,
-                               [CallerArgumentExpression(nameof(arg))]
-                               string? name = default)
+    public static T? Default<T>(T? arg,
+                                [CallerArgumentExpression(nameof(arg))]
+                                string? name = default)
     {
         if (arg.IsDefault())
         {
