@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,10 +18,11 @@ internal sealed class ProcessPipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public ProcessPipe(CmdLineArgs args,
+    public ProcessPipe([NotNull] Socket? socket,
+                       CmdLineArgs args,
                        [NotNull] StreamReader? src,
                        [NotNull] StreamWriter? dest)
-        : base(args)
+        : base(socket, args)
     {
         Source = ThrowIf.Null(src);
         Dest = ThrowIf.Null(dest);

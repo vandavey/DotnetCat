@@ -247,13 +247,13 @@ internal sealed partial class Parser
                     case '-':
                         continue;
                     case 'l':
-                        CmdArgs.Listen = true;
+                        ParseListen();
                         break;
                     case 'v':
-                        CmdArgs.Verbose = Error.Verbose = true;
+                        ParseVerbose();
                         break;
                     case 'z':
-                        CmdArgs.PipeVariant = PipeType.Status;
+                        ParseZeroIo();
                         break;
                     case 'p':
                         ParsePort(idxAlias);
@@ -291,28 +291,28 @@ internal sealed partial class Parser
         {
             switch (idxFlag.Flag)
             {
-                case "--listen":
-                    CmdArgs.Listen = true;
+                case LISTEN_FLAG:
+                    ParseListen();
                     break;
-                case "--verbose":
-                    CmdArgs.Verbose = Error.Verbose = true;
+                case VERBOSE_FLAG:
+                    ParseVerbose();
                     break;
-                case "--zero-io":
-                    CmdArgs.PipeVariant = PipeType.Status;
+                case ZERO_IO_FLAG:
+                    ParseZeroIo();
                     break;
-                case "--port":
+                case PORT_FLAG:
                     ParsePort(idxFlag);
                     break;
-                case "--exec":
+                case EXEC_FLAG:
                     ParseExecutable(idxFlag);
                     break;
-                case "--text":
+                case TEXT_FLAG:
                     ParseTextPayload(idxFlag);
                     break;
-                case "--output":
+                case OUTPUT_FLAG:
                     ParseTransferPath(idxFlag, TransferOpt.Collect);
                     break;
-                case "--send":
+                case SEND_FLAG:
                     ParseTransferPath(idxFlag, TransferOpt.Transmit);
                     break;
                 default:
@@ -348,7 +348,7 @@ internal sealed partial class Parser
             {
                 if (!CmdArgs.Listen)
                 {
-                    Error.Handle(Except.RequiredArgs, "TARGET", true);
+                    Error.Handle(Except.RequiredArgs, TARGET_ARG, true);
                 }
                 break;
             }
@@ -411,6 +411,35 @@ internal sealed partial class Parser
     }
 
     /// <summary>
+    ///  Parse the listen flag or flag alias in the underlying command-line argument list.
+    /// </summary>
+    private void ParseListen()
+    {
+        CmdArgs.Listen = true;
+        CmdArgs.AddParsedType(ArgType.Listen);
+    }
+
+    /// <summary>
+    ///  Parse the verbose flag or flag alias in
+    ///  the underlying command-line argument list.
+    /// </summary>
+    private void ParseVerbose()
+    {
+        CmdArgs.Verbose = Error.Verbose = true;
+        CmdArgs.AddParsedType(ArgType.Verbose);
+    }
+
+    /// <summary>
+    ///  Parse the connection test (zero I/O) flag or flag
+    ///  alias in the underlying command-line argument list.
+    /// </summary>
+    private void ParseZeroIo()
+    {
+        CmdArgs.PipeVariant = PipeType.Status;
+        CmdArgs.AddParsedType(ArgType.ZeroIo);
+    }
+
+    /// <summary>
     ///  Parse and validate the network port number argument in the underlying
     ///  command-line argument list using the given flag or flag alias index.
     /// </summary>
@@ -427,8 +456,9 @@ internal sealed partial class Parser
             Console.WriteLine(Usage);
             Error.Handle(Except.InvalidPort, portStr);
         }
-
         CmdArgs.Port = port;
+
+        CmdArgs.AddParsedType(ArgType.Port);
         AddProcessedValueArg(idxFlag);
     }
 
@@ -452,6 +482,7 @@ internal sealed partial class Parser
         CmdArgs.ExePath = path;
         CmdArgs.PipeVariant = PipeType.Process;
 
+        CmdArgs.AddParsedType(ArgType.Exec);
         AddProcessedValueArg(idxFlag);
     }
 
@@ -461,10 +492,7 @@ internal sealed partial class Parser
     /// </summary>
     private void ParseTransferPath(IndexedFlag idxFlag, TransferOpt transfer)
     {
-        if (transfer is TransferOpt.None)
-        {
-            throw new ArgumentException("No file transfer option set.", nameof(transfer));
-        }
+        ThrowIf.UndefinedOrDefault(transfer);
 
         // No corresponding argument value
         if (!ValidIndex(idxFlag.Index + 1))
@@ -476,7 +504,7 @@ internal sealed partial class Parser
         // File path resolution failure
         if (path.IsNullOrEmpty())
         {
-            Error.Handle(Except.FilePath, path, true);
+            Error.Handle(Except.EmptyPath, idxFlag.Flag, true);
         }
         string? parentPath = FileSys.ParentPath(path);
 
@@ -494,8 +522,11 @@ internal sealed partial class Parser
 
         CmdArgs.FilePath = path;
         CmdArgs.PipeVariant = PipeType.File;
-        CmdArgs.TransOpt = transfer;
 
+        CmdArgs.TransOpt = transfer;
+        ArgType argType = transfer is TransferOpt.Collect ? ArgType.Output : ArgType.Send;
+
+        CmdArgs.AddParsedType(argType);
         AddProcessedValueArg(idxFlag);
     }
 
@@ -519,6 +550,7 @@ internal sealed partial class Parser
         CmdArgs.Payload = data;
         CmdArgs.PipeVariant = PipeType.Text;
 
+        CmdArgs.AddParsedType(ArgType.Text);
         AddProcessedValueArg(idxFlag);
     }
 

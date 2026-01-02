@@ -34,33 +34,35 @@ internal static class Output
     /// <summary>
     ///  Get the log message prefix symbol corresponding to the given logging level.
     /// </summary>
-    private static string LogPrefix(LogLevel level) => level switch
+    private static string LogPrefix(LogLevel level) => ThrowIf.Undefined(level) switch
     {
-        LogLevel.Info   => INFO_LOG_PREFIX,
         LogLevel.Status => STATUS_LOG_PREFIX,
         LogLevel.Warn   => WARNING_LOG_PREFIX,
         LogLevel.Error  => ERROR_LOG_PREFIX,
-        _ => throw new ArgumentException("Invalid logging level.", nameof(level))
+        _               => INFO_LOG_PREFIX
     };
 
     /// <summary>
     ///  Get the log message prefix symbol console color
     ///  corresponding to the given logging level.
     /// </summary>
-    private static ConsoleColor PrefixColor(LogLevel level) => level switch
+    private static ConsoleColor PrefixColor(LogLevel level)
     {
-        LogLevel.Info   => ConsoleColor.Cyan,
-        LogLevel.Status => ConsoleColor.Green,
-        LogLevel.Warn   => ConsoleColor.Yellow,
-        LogLevel.Error  => ConsoleColor.Red,
-        _ => throw new ArgumentException("Invalid logging level.", nameof(level))
-    };
+        return ThrowIf.Undefined(level) switch
+        {
+            LogLevel.Status => ConsoleColor.Green,
+            LogLevel.Warn   => ConsoleColor.Yellow,
+            LogLevel.Error  => ConsoleColor.Red,
+            _               => ConsoleColor.Cyan
+        };
+    }
 
     /// <summary>
     ///  Get the standard console stream corresponding to the given logging level.
     /// </summary>
     private static TextWriter ConsoleStream(LogLevel level)
     {
+        ThrowIf.Undefined(level);
         return level is LogLevel.Error or LogLevel.Warn ? Console.Error : Console.Out;
     }
 }

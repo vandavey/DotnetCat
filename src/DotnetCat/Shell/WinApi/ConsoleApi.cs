@@ -45,6 +45,9 @@ internal static class ConsoleApi
     /// </summary>
     private static void EnableVirtualTerm(InputMode inputMode, OutputMode outputMode)
     {
+        ThrowIf.UndefinedOrDefault(inputMode);
+        ThrowIf.UndefinedOrDefault(outputMode);
+
         if (!_virtualTermEnabled)
         {
             using WinSafeHandle stdInHandle = GetStdHandle(STD_INPUT_HANDLE);

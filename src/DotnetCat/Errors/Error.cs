@@ -42,7 +42,7 @@ internal static class Error
                               bool showUsage,
                               Exception? ex = default)
     {
-        ThrowIf.NullOrEmpty(arg);
+        ThrowIf.Undefined(exType);
 
         // Print application usage
         if (showUsage)
@@ -50,7 +50,7 @@ internal static class Error
             Console.WriteLine(Parser.Usage);
         }
 
-        ErrorMessage errorMsg = MakeErrorMessage(exType, arg);
+        ErrorMessage errorMsg = MakeErrorMessage(exType, ThrowIf.NullOrEmpty(arg));
         Output.Error(errorMsg.Message);
 
         // Print verbose error details
@@ -82,7 +82,7 @@ internal static class Error
     /// </summary>
     private static ErrorMessage MakeErrorMessage(Except exType, string? arg = default)
     {
-        ErrorMessage message = new(exType switch
+        ErrorMessage message = new(ThrowIf.Undefined(exType) switch
         {
             Except.AddressInUse       => "The endpoint is already in use: %",
             Except.ArgsCombo          => "Invalid argument combination: %",
@@ -108,7 +108,7 @@ internal static class Error
             Except.StringEol          => "Missing EOL in argument(s): %",
             Except.TimedOut           => "Socket timeout occurred: %",
             Except.UnknownArgs        => "One or more unknown arguments: %",
-            Except.Unhandled or _     => "Unhandled exception occurred: %"
+            _                         => "Unhandled exception occurred: %"
         });
 
         if (!arg.IsNullOrEmpty())
