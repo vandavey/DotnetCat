@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +20,10 @@ internal sealed class FilePipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public FilePipe(CmdLineArgs args, [NotNull] StreamWriter? dest) : base(args)
+    public FilePipe([NotNull] Socket? socket,
+                    CmdLineArgs args,
+                    [NotNull] StreamWriter? dest)
+        : base(socket, args)
     {
         _transfer = TransferOpt.Transmit;
 
@@ -30,7 +34,10 @@ internal sealed class FilePipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public FilePipe(CmdLineArgs args, [NotNull] StreamReader? src) : base(args)
+    public FilePipe([NotNull] Socket? socket,
+                    CmdLineArgs args,
+                    [NotNull] StreamReader? src)
+        : base(socket, args)
     {
         _transfer = TransferOpt.Collect;
 

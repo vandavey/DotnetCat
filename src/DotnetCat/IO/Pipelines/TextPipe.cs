@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +21,10 @@ internal class TextPipe : SocketPipe
     /// <summary>
     ///  Initialize the object.
     /// </summary>
-    public TextPipe(CmdLineArgs args, [NotNull] StreamWriter? dest) : base(args)
+    public TextPipe([NotNull] Socket? socket,
+                    CmdLineArgs args,
+                    [NotNull] StreamWriter? dest)
+        : base(socket, args)
     {
         _disposed = false;
         _memoryStream = new MemoryStream();

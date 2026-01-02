@@ -21,18 +21,18 @@ internal static class Extensions
     /// <summary>
     ///  Add the result of the given functor to a collection.
     /// </summary>
-    public static void Add<T>([NotNull] this ICollection<T>? values, Func<T> func)
+    public static void Add<T>([NotNull] this ICollection<T>? collection, Func<T> func)
     {
-        ThrowIf.Null(values).Add(func());
+        ThrowIf.Null(collection).Add(func());
     }
 
     /// <summary>
     ///  Add the results of the given functor to a collection.
     /// </summary>
-    public static void AddRange<T>([NotNull] this List<T>? values,
+    public static void AddRange<T>([NotNull] this List<T>? list,
                                    Func<IEnumerable<T>> func)
     {
-        ThrowIf.Null(values).AddRange(func());
+        ThrowIf.Null(list).AddRange(func());
     }
 
     /// <summary>
@@ -60,6 +60,21 @@ internal static class Extensions
                 action(value);
             }
         }
+    }
+
+    /// <summary>
+    ///  Determine whether a collection contains multiple specific values.
+    /// </summary>
+    public static bool Contains<T>([NotNullWhen(true)] this ICollection<T>? collection,
+                                   [NotNullWhen(true)] IEnumerable<T>? values)
+    {
+        bool allFound = false;
+
+        if (!collection.IsNullOrEmpty() && !values.IsNullOrEmpty())
+        {
+            allFound = values.All(collection.Contains);
+        }
+        return allFound;
     }
 
     /// <summary>

@@ -16,11 +16,6 @@ internal class Program
     static Program() => Console.Title = $"DotnetCat ({REPO_URL})";
 
     /// <summary>
-    ///  Network socket node.
-    /// </summary>
-    public static Node? SocketNode { get; private set; }
-
-    /// <summary>
     ///  Application entry point.
     /// </summary>
     public static int Main(string[] args)
@@ -33,8 +28,8 @@ internal class Program
             Parser.PrintHelp();
         }
 
-        SocketNode = Node.Make(parser.CmdArgs);
-        SocketNode.Connect();
+        using Node socketNode = Node.Make(parser.CmdArgs);
+        socketNode.Connect();
 
         Console.WriteLine();
         return NO_ERROR_EXIT_CODE;
