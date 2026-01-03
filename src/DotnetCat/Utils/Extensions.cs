@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -113,7 +112,7 @@ internal static class Extensions
     public static bool EqualsAny<T>([NotNullWhen(true)] this T? obj,
                                     params IEnumerable<T> values)
     {
-        return values.Any(v => RuntimeHelpers.Equals(v, obj));
+        return values.Any(v => EqualityComparer<T>.Default.Equals(v, obj));
     }
 
     /// <summary>
@@ -130,7 +129,7 @@ internal static class Extensions
     /// </summary>
     public static bool IsDefault<T>(this T? obj)
     {
-        return RuntimeHelpers.Equals(obj, default(T));
+        return EqualityComparer<T>.Default.Equals(obj, default);
     }
 
     /// <summary>

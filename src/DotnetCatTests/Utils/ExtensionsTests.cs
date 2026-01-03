@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotnetCat.Utils;
 
@@ -14,6 +15,50 @@ public class ExtensionsTests
 {
 #region MethodTests
     /// <summary>
+    ///  Assert that an input string ending with a single
+    ///  or double quotation mark character returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow("'")]
+    [DataRow(" '")]
+    [DataRow(" \"")]
+    [DataRow("test data'")]
+    [DataRow("test data\"")]
+    public void EndsWithQuote_Does_ReturnsTrue(string? str)
+    {
+        bool actual = str.EndsWithQuote();
+        Assert.IsTrue(actual, $"Expected '{str}' to end with quote.");
+    }
+
+    /// <summary>
+    ///  Assert that an input string not ending with a single
+    ///  or double quotation mark character returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow("")]
+    [DataRow("' ")]
+    [DataRow("\" ")]
+    [DataRow("test data")]
+    [DataRow("\"test data")]
+    public void EndsWithQuote_DoesNot_ReturnsFalse(string? str)
+    {
+        bool actual = str.EndsWithQuote();
+        Assert.IsFalse(actual, $"Expected '{str}' to not end with quote.");
+    }
+
+    /// <summary>
+    ///  Assert that a null input string returns false.
+    /// </summary>
+    [TestMethod]
+    public void EndsWithQuote_NullString_ReturnsFalse()
+    {
+        string? str = null;
+        bool actual = str.EndsWithQuote();
+
+        Assert.IsFalse(actual, "Null string should not end with quote.");
+    }
+
+    /// <summary>
     ///  Assert that an input string ending with a specific character returns true.
     /// </summary>
     [TestMethod]
@@ -24,7 +69,7 @@ public class ExtensionsTests
     public void EndsWithValue_CharDoes_ReturnsTrue(string? str, char value)
     {
         bool actual = str.EndsWithValue(value);
-        Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'");
+        Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'.");
     }
 
     /// <summary>
@@ -38,7 +83,7 @@ public class ExtensionsTests
     public void EndsWithValue_CharDoesNot_ReturnsFalse(string? str, char value)
     {
         bool actual = str.EndsWithValue(value);
-        Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'");
+        Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'.");
     }
 
     /// <summary>
@@ -51,7 +96,7 @@ public class ExtensionsTests
     public void EndsWithValue_StringDoes_ReturnsTrue(string? str, string? value)
     {
         bool actual = str.EndsWithValue(value);
-        Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'");
+        Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'.");
     }
 
     /// <summary>
@@ -64,7 +109,42 @@ public class ExtensionsTests
     public void EndsWithValue_StringDoesNot_ReturnsFalse(string? str, string? value)
     {
         bool actual = str.EndsWithValue(value);
-        Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'");
+        Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'.");
+    }
+
+    /// <summary>
+    ///  Assert that an input argument whose value is
+    ///  equal to any value in a collection returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow(0, new object[] { 0, 1 })]
+    [DataRow(32U, new object[] { 16U, 32U, 64U })]
+    [DataRow("", new object[] { "some", "", "data" })]
+    [DataRow(null, new object?[] { "some", null, "data" })]
+    [DataRow("data", new object?[] { null, "test", "data" })]
+    [DataRow(ArgType.Exec, new object[] { ArgType.Port, ArgType.Exec })]
+    public void EqualsAny_Does_ReturnsTrue(object? expected, IEnumerable<object?> values)
+    {
+        bool actual = expected.EqualsAny(values);
+        Assert.IsTrue(actual, $"No equal value found: '{expected}'.");
+    }
+
+    /// <summary>
+    ///  Assert that an input argument whose value is not
+    ///  equal to any value in a collection returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow(5, new object[] { 0, 1 })]
+    [DataRow(4U, new object[] { 16U, 32U, 64U })]
+    [DataRow("", new object[] { "some", "test", "data" })]
+    [DataRow(null, new object?[] { "more", "test", "data" })]
+    [DataRow("test", new object?[] { null, "more", "data" })]
+    [DataRow(ArgType.Help, new object[] { ArgType.Port, ArgType.Listen })]
+    public void EqualsAny_DoesNot_ReturnsFalse(object? expected,
+                                               IEnumerable<object?> values)
+    {
+        bool actual = expected.EqualsAny(values);
+        Assert.IsFalse(actual, $"Equal value found: '{expected}'.");
     }
 
     /// <summary>
@@ -80,7 +160,7 @@ public class ExtensionsTests
     public void IgnCaseEquals_EqualStrings_ReturnsTrue(string? str, string? value)
     {
         bool actual = str.IgnCaseEquals(value);
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, $"Expected '{str}' to equal '{value}'.");
     }
 
     /// <summary>
@@ -94,7 +174,7 @@ public class ExtensionsTests
     public void IgnCaseEquals_NotEqualStrings_ReturnsFalse(string? str, string? value)
     {
         bool actual = str.IgnCaseEquals(value);
-        Assert.IsFalse(actual);
+        Assert.IsFalse(actual, $"Expected '{str}' to not equal '{value}'.");
     }
 
     /// <summary>
@@ -106,7 +186,92 @@ public class ExtensionsTests
         string? str = null;
         bool actual = str.IgnCaseEquals(null);
 
-        Assert.IsTrue(actual);
+        Assert.IsTrue(actual, "Expected null to equal null.");
+    }
+
+    /// <summary>
+    ///  Assert that an input value type whose value is default returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof(bool))]
+    [DataRow(typeof(byte))]
+    [DataRow(typeof(int))]
+    [DataRow(typeof(uint))]
+    [DataRow(typeof(long))]
+    [DataRow(typeof(double))]
+    [DataRow(typeof(ArgType))]
+    public void IsDefault_ValueTypeIs_ReturnsTrue(Type type)
+    {
+        Type classType = typeof(Extensions);
+        MethodInfo? methodInfo = classType.GetMethod(nameof(Extensions.IsDefault));
+        MethodInfo isDefault = methodInfo!.MakeGenericMethod(type);
+
+        object? obj = Activator.CreateInstance(type);
+        bool actual = (bool)isDefault.Invoke(null, [obj])!;
+
+        Assert.IsTrue(actual, "Default value should return true.");
+    }
+
+    /// <summary>
+    ///  Assert that an input value type whose value is not default returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof(bool), true)]
+    [DataRow(typeof(byte), (byte)1)]
+    [DataRow(typeof(int), 2)]
+    [DataRow(typeof(uint), 4U)]
+    [DataRow(typeof(long), 8L)]
+    [DataRow(typeof(double), 16.0)]
+    [DataRow(typeof(ArgType), ArgType.Exec)]
+    public void IsDefault_ValueTypeIsNot_ReturnsFalse(Type type, object? obj)
+    {
+        Type classType = typeof(Extensions);
+        MethodInfo? methodInfo = classType.GetMethod(nameof(Extensions.IsDefault));
+        MethodInfo isDefault = methodInfo!.MakeGenericMethod(type);
+
+        bool actual = (bool)isDefault.Invoke(null, [obj])!;
+
+        Assert.IsFalse(actual, "Non-default value should return false.");
+    }
+
+    /// <summary>
+    ///  Assert that an input reference type whose value is default returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof(object))]
+    [DataRow(typeof(Exception))]
+    [DataRow(typeof(Parser))]
+    [DataRow(typeof(CmdLineArgs))]
+    public void IsDefault_RefTypeIs_ReturnsTrue(Type type)
+    {
+        Type classType = typeof(Extensions);
+        MethodInfo? methodInfo = classType.GetMethod(nameof(Extensions.IsDefault));
+        MethodInfo isDefault = methodInfo!.MakeGenericMethod(type);
+
+        object? value = null;
+        bool actual = (bool)isDefault.Invoke(null, [value])!;
+
+        Assert.IsTrue(actual, "Default value should return true.");
+    }
+
+    /// <summary>
+    ///  Assert that an input reference type whose value is not default returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof(object))]
+    [DataRow(typeof(Exception))]
+    [DataRow(typeof(Parser))]
+    [DataRow(typeof(CmdLineArgs))]
+    public void IsDefault_RefTypeIsNot_ReturnsFalse(Type type)
+    {
+        Type classType = typeof(Extensions);
+        MethodInfo? methodInfo = classType.GetMethod(nameof(Extensions.IsDefault));
+        MethodInfo isDefault = methodInfo!.MakeGenericMethod(type);
+
+        object? value = Activator.CreateInstance(type);
+        bool actual = (bool)isDefault.Invoke(null, [value])!;
+
+        Assert.IsFalse(actual, "Non-default value should return false.");
     }
 
     /// <summary>
@@ -118,7 +283,7 @@ public class ExtensionsTests
         string? str = null;
         bool actual = str.IsNullOrEmpty();
 
-        Assert.IsTrue(actual, "Expected null string to be null or empty");
+        Assert.IsTrue(actual, "Expected null string to be null or empty.");
     }
 
     /// <summary>
@@ -130,7 +295,7 @@ public class ExtensionsTests
     public void IsNullOrEmpty_EmptyOrBlankString_ReturnsTrue(string? str)
     {
         bool actual = str.IsNullOrEmpty();
-        Assert.IsTrue(actual, "Expected empty/blank string to be null or empty");
+        Assert.IsTrue(actual, "Expected empty/blank string to be null or empty.");
     }
 
     /// <summary>
@@ -143,7 +308,7 @@ public class ExtensionsTests
     public void IsNullOrEmpty_PopulatedString_ReturnsFalse(string? str)
     {
         bool actual = str.IsNullOrEmpty();
-        Assert.IsFalse(actual, "Expected populated string to not be null or empty");
+        Assert.IsFalse(actual, "Expected populated string to not be null or empty.");
     }
 
     /// <summary>
@@ -155,7 +320,7 @@ public class ExtensionsTests
         string[]? array = null;
         bool actual = array.IsNullOrEmpty();
 
-        Assert.IsTrue(actual, "Expected null array to be null or empty");
+        Assert.IsTrue(actual, "Expected null array to be null or empty.");
     }
 
     /// <summary>
@@ -167,7 +332,7 @@ public class ExtensionsTests
         string[] array = [];
         bool actual = array.IsNullOrEmpty();
 
-        Assert.IsTrue(actual, "Expected empty array to be null or empty");
+        Assert.IsTrue(actual, "Expected empty array to be null or empty.");
     }
 
     /// <summary>
@@ -179,7 +344,7 @@ public class ExtensionsTests
     public void IsNullOrEmpty_PopulatedArray_ReturnsFalse(params object[] array)
     {
         bool actual = array.IsNullOrEmpty();
-        Assert.IsFalse(actual, "Expected populated array to not be null or empty");
+        Assert.IsFalse(actual, "Expected populated array to not be null or empty.");
     }
 
     /// <summary>
@@ -191,7 +356,7 @@ public class ExtensionsTests
         List<string>? list = null;
         bool actual = list.IsNullOrEmpty();
 
-        Assert.IsTrue(actual, "Expected null list to be null or empty");
+        Assert.IsTrue(actual, "Expected null list to be null or empty.");
     }
 
     /// <summary>
@@ -203,7 +368,7 @@ public class ExtensionsTests
         List<object> list = [];
         bool actual = list.IsNullOrEmpty();
 
-        Assert.IsTrue(actual, "Expected empty list to be null or empty");
+        Assert.IsTrue(actual, "Expected empty list to be null or empty.");
     }
 
     /// <summary>
@@ -217,7 +382,7 @@ public class ExtensionsTests
         List<object> list = [.. array];
         bool actual = list.IsNullOrEmpty();
 
-        Assert.IsFalse(actual, "Expected populated list to not be null or empty");
+        Assert.IsFalse(actual, "Expected populated list to not be null or empty.");
     }
 
     /// <summary>
@@ -231,7 +396,7 @@ public class ExtensionsTests
     public void StartsWithValue_CharDoes_ReturnsTrue(string? str, char value)
     {
         bool actual = str.StartsWithValue(value);
-        Assert.IsTrue(actual, $"Expected '{str}' to start with '{value}'");
+        Assert.IsTrue(actual, $"Expected '{str}' to start with '{value}'.");
     }
 
     /// <summary>
@@ -245,7 +410,7 @@ public class ExtensionsTests
     public void StartsWithValue_CharDoesNot_ReturnsFalse(string? str, char value)
     {
         bool actual = str.StartsWithValue(value);
-        Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'");
+        Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'.");
     }
 
     /// <summary>
@@ -258,7 +423,7 @@ public class ExtensionsTests
     public void StartsWithValue_StringDoes_ReturnsTrue(string? str, string? value)
     {
         bool actual = str.StartsWithValue(value);
-        Assert.IsTrue(actual, $"Expected '{str}' to start with '{value}'");
+        Assert.IsTrue(actual, $"Expected '{str}' to start with '{value}'.");
     }
 
     /// <summary>
@@ -271,7 +436,7 @@ public class ExtensionsTests
     public void StartsWithValue_StringDoesNot_ReturnsFalse(string? str, string? value)
     {
         bool actual = str.StartsWithValue(value);
-        Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'");
+        Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'.");
     }
 
     /// <summary>
@@ -300,7 +465,7 @@ public class ExtensionsTests
         string expected = string.Join(delim, array);
         string actual = array.Join(delim);
 
-        Assert.AreEqual(expected, actual, $"Expected result string: '{expected}'");
+        Assert.AreEqual(expected, actual, $"Expected result string: '{expected}'.");
     }
 
     /// <summary>
@@ -328,7 +493,7 @@ public class ExtensionsTests
         (int, object)[] expected = [.. values.Select((v, i) => (i, v))];
         (int, object)[] actual = [.. values.Enumerate()];
 
-        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
+        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
     }
 
     /// <summary>
@@ -348,7 +513,7 @@ public class ExtensionsTests
         IEnumerable<(int, string)> actualEnumerable = values.Enumerate();
         (int, string)[] actual = [.. actualEnumerable];
 
-        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
+        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
     }
 
     /// <summary>
@@ -367,7 +532,7 @@ public class ExtensionsTests
         (int, string)[] expected = [];
         (int, string)[] actual = [.. values.Enumerate()];
 
-        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results");
+        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
     }
 #endregion // MethodTests
 }

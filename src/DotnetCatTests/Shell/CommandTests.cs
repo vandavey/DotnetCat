@@ -53,10 +53,7 @@ public class CommandTests
     public void EnvVariable_NullEnvVariableName_ThrowsArgumentNullException()
     {
         string? name = null;
-
-    #nullable disable
-        Func<string> func = () => Command.EnvVariable(name);
-    #nullable enable
+        Func<string> func = () => Command.EnvVariable(name!)!;
 
         Assert.Throws<ArgumentNullException>(func);
     }
