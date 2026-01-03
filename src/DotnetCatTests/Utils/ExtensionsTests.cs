@@ -123,10 +123,10 @@ public class ExtensionsTests
     [DataRow(null, new object?[] { "some", null, "data" })]
     [DataRow("data", new object?[] { null, "test", "data" })]
     [DataRow(ArgType.Exec, new object[] { ArgType.Port, ArgType.Exec })]
-    public void EqualsAny_Does_ReturnsTrue(object? expected, IEnumerable<object?> values)
+    public void EqualsAny_Does_ReturnsTrue(object? obj, IEnumerable<object?> values)
     {
-        bool actual = expected.EqualsAny(values);
-        Assert.IsTrue(actual, $"No equal value found: '{expected}'.");
+        bool actual = obj.EqualsAny(values);
+        Assert.IsTrue(actual, $"No equal value found: '{obj}'.");
     }
 
     /// <summary>
@@ -140,11 +140,10 @@ public class ExtensionsTests
     [DataRow(null, new object?[] { "more", "test", "data" })]
     [DataRow("test", new object?[] { null, "more", "data" })]
     [DataRow(ArgType.Help, new object[] { ArgType.Port, ArgType.Listen })]
-    public void EqualsAny_DoesNot_ReturnsFalse(object? expected,
-                                               IEnumerable<object?> values)
+    public void EqualsAny_DoesNot_ReturnsFalse(object? obj, IEnumerable<object?> values)
     {
-        bool actual = expected.EqualsAny(values);
-        Assert.IsFalse(actual, $"Equal value found: '{expected}'.");
+        bool actual = obj.EqualsAny(values);
+        Assert.IsFalse(actual, $"Equal value found: '{obj}'.");
     }
 
     /// <summary>
