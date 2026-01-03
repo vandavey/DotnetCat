@@ -62,10 +62,7 @@ public class ErrorMessageTests
     public void ErrorMessage_NullMessage_ThrowsArgumentNullException()
     {
         string? msg = null;
-
-    #nullable disable
-        Func<ErrorMessage> func = () => _ = new ErrorMessage(msg);
-    #nullable enable
+        Func<ErrorMessage> func = () => _ = new ErrorMessage(msg!);
 
         Assert.Throws<ArgumentNullException>(func);
     }
