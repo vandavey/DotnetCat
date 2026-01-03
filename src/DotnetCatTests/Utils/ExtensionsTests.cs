@@ -14,6 +14,50 @@ public class ExtensionsTests
 {
 #region MethodTests
     /// <summary>
+    ///  Assert that an input string ending with a single
+    ///  or double quotation mark character returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow("'")]
+    [DataRow(" '")]
+    [DataRow(" \"")]
+    [DataRow("test data'")]
+    [DataRow("test data\"")]
+    public void EndsWithQuote_Does_ReturnsTrue(string? str)
+    {
+        bool actual = str.EndsWithQuote();
+        Assert.IsTrue(actual, $"Expected '{str}' to end with quote.");
+    }
+
+    /// <summary>
+    ///  Assert that an input string not ending with a single
+    ///  or double quotation mark character returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow("")]
+    [DataRow("' ")]
+    [DataRow("\" ")]
+    [DataRow("test data")]
+    [DataRow("\"test data")]
+    public void EndsWithQuote_DoesNot_ReturnsFalse(string? str)
+    {
+        bool actual = str.EndsWithQuote();
+        Assert.IsFalse(actual, $"Expected '{str}' to not end with quote.");
+    }
+
+    /// <summary>
+    ///  Assert that a null input string returns false.
+    /// </summary>
+    [TestMethod]
+    public void EndsWithQuote_NullString_ReturnsFalse()
+    {
+        string? str = null;
+        bool actual = str.EndsWithQuote();
+
+        Assert.IsFalse(actual, "Null string should not end with quote.");
+    }
+
+    /// <summary>
     ///  Assert that an input string ending with a specific character returns true.
     /// </summary>
     [TestMethod]
@@ -95,7 +139,8 @@ public class ExtensionsTests
     [DataRow(null, new object?[] { "more", "test", "data" })]
     [DataRow("test", new object?[] { null, "more", "data" })]
     [DataRow(ArgType.Help, new object[] { ArgType.Port, ArgType.Listen })]
-    public void EqualsAny_DoesNot_ReturnsFalse(object? expected, IEnumerable<object?> values)
+    public void EqualsAny_DoesNot_ReturnsFalse(object? expected,
+                                               IEnumerable<object?> values)
     {
         bool actual = expected.EqualsAny(values);
         Assert.IsFalse(actual, $"Equal value found: '{expected}'.");
