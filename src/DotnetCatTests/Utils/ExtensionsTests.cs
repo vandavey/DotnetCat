@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotnetCat.Utils;
 
@@ -186,6 +187,91 @@ public class ExtensionsTests
         bool actual = str.IgnCaseEquals(null);
 
         Assert.IsTrue(actual, "Expected null to equal null.");
+    }
+
+    /// <summary>
+    ///  Assert that an input value type whose value is default returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof(bool))]
+    [DataRow(typeof(byte))]
+    [DataRow(typeof(int))]
+    [DataRow(typeof(uint))]
+    [DataRow(typeof(long))]
+    [DataRow(typeof(double))]
+    [DataRow(typeof(ArgType))]
+    public void IsDefault_ValueTypeIs_ReturnsTrue(Type type)
+    {
+        Type classType = typeof(Extensions);
+        MethodInfo? methodInfo = classType.GetMethod(nameof(Extensions.IsDefault));
+        MethodInfo isDefault = methodInfo!.MakeGenericMethod(type);
+
+        object? obj = Activator.CreateInstance(type);
+        bool actual = (bool)isDefault.Invoke(null, [obj])!;
+
+        Assert.IsTrue(actual, "Default value should return true.");
+    }
+
+    /// <summary>
+    ///  Assert that an input value type whose value is not default returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof(bool), true)]
+    [DataRow(typeof(byte), (byte)1)]
+    [DataRow(typeof(int), 2)]
+    [DataRow(typeof(uint), 4U)]
+    [DataRow(typeof(long), 8L)]
+    [DataRow(typeof(double), 16.0)]
+    [DataRow(typeof(ArgType), ArgType.Exec)]
+    public void IsDefault_ValueTypeIsNot_ReturnsFalse(Type type, object? obj)
+    {
+        Type classType = typeof(Extensions);
+        MethodInfo? methodInfo = classType.GetMethod(nameof(Extensions.IsDefault));
+        MethodInfo isDefault = methodInfo!.MakeGenericMethod(type);
+
+        bool actual = (bool)isDefault.Invoke(null, [obj])!;
+
+        Assert.IsFalse(actual, "Non-default value should return false.");
+    }
+
+    /// <summary>
+    ///  Assert that an input reference type whose value is default returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof(object))]
+    [DataRow(typeof(Exception))]
+    [DataRow(typeof(Parser))]
+    [DataRow(typeof(CmdLineArgs))]
+    public void IsDefault_RefTypeIs_ReturnsTrue(Type type)
+    {
+        Type classType = typeof(Extensions);
+        MethodInfo? methodInfo = classType.GetMethod(nameof(Extensions.IsDefault));
+        MethodInfo isDefault = methodInfo!.MakeGenericMethod(type);
+
+        object? value = null;
+        bool actual = (bool)isDefault.Invoke(null, [value])!;
+
+        Assert.IsTrue(actual, "Default value should return true.");
+    }
+
+    /// <summary>
+    ///  Assert that an input reference type whose value is not default returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof(object))]
+    [DataRow(typeof(Exception))]
+    [DataRow(typeof(Parser))]
+    [DataRow(typeof(CmdLineArgs))]
+    public void IsDefault_RefTypeIsNot_ReturnsFalse(Type type)
+    {
+        Type classType = typeof(Extensions);
+        MethodInfo? methodInfo = classType.GetMethod(nameof(Extensions.IsDefault));
+        MethodInfo isDefault = methodInfo!.MakeGenericMethod(type);
+
+        object? value = Activator.CreateInstance(type);
+        bool actual = (bool)isDefault.Invoke(null, [value])!;
+
+        Assert.IsFalse(actual, "Non-default value should return false.");
     }
 
     /// <summary>
