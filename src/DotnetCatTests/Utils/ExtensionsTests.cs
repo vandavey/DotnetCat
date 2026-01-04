@@ -15,6 +15,42 @@ public class ExtensionsTests
 {
 #region MethodTests
     /// <summary>
+    ///  Assert that an action is correctly executed
+    ///  against values in a non-null input collection.
+    /// </summary>
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow([])]
+    [DataRow(2U, 4U)]
+    [DataRow("this", "is", "test", "data")]
+    [DataRow(typeof(int), typeof(string), typeof(double))]
+    public void ForEach_NotNullCollection_CorrectAction(params object[] values)
+    {
+        string[] expected = [.. values.Select(v => $"TEST: {v}")];
+        List<string> actual = [];
+
+        Action<object> action = v => actual.Add($"TEST: {v}");
+        values.ForEach(action);
+
+        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
+    }
+
+    /// <summary>
+    ///  Assert that no action is executed against values in a null input collection.
+    /// </summary>
+    [TestMethod]
+    public void ForEach_NullCollection_NoAction()
+    {
+        object[]? values = null;
+        List<string> actual = [];
+
+        Action<object> action = v => actual.Add($"TEST: {v}");
+        values.ForEach(action);
+
+        Assert.IsEmpty(actual, "No actions should be executed.");
+    }
+
+    /// <summary>
     ///  Assert that an input collection containing at least
     ///  the same values as another collection returns true.
     /// </summary>
