@@ -412,6 +412,50 @@ public class ExtensionsTests
     }
 
     /// <summary>
+    ///  Assert that an input string starting with a single
+    ///  or double quotation mark character returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow("'")]
+    [DataRow("' ")]
+    [DataRow("\" ")]
+    [DataRow("'test data")]
+    [DataRow("\"test data")]
+    public void StartsWithQuote_Does_ReturnsTrue(string? str)
+    {
+        bool actual = str.StartsWithQuote();
+        Assert.IsTrue(actual, $"Expected '{str}' to start with quote.");
+    }
+
+    /// <summary>
+    ///  Assert that an input string not starting with a single
+    ///  or double quotation mark character returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow("")]
+    [DataRow(" '")]
+    [DataRow(" \"")]
+    [DataRow("test data")]
+    [DataRow("test data\"")]
+    public void StartsWithQuote_DoesNot_ReturnsFalse(string? str)
+    {
+        bool actual = str.StartsWithQuote();
+        Assert.IsFalse(actual, $"Expected '{str}' to not start with quote.");
+    }
+
+    /// <summary>
+    ///  Assert that a null input string returns false.
+    /// </summary>
+    [TestMethod]
+    public void StartsWithQuote_NullString_ReturnsFalse()
+    {
+        string? str = null;
+        bool actual = str.StartsWithQuote();
+
+        Assert.IsFalse(actual, "Null string should not start with quote.");
+    }
+
+    /// <summary>
     ///  Assert that an input string starting with a specific character returns true.
     /// </summary>
     [TestMethod]
