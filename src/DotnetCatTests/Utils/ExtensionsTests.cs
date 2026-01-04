@@ -385,6 +385,33 @@ public class ExtensionsTests
     }
 
     /// <summary>
+    ///  Assert that an input type that is a value tuple returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof((byte, uint)))]
+    [DataRow(typeof((long, double, string)))]
+    [DataRow(typeof((object, decimal, Exception, ArgType)))]
+    public void IsValueTuple_Is_ReturnsTrue(Type type)
+    {
+        bool actual = type.IsValueTuple();
+        Assert.IsTrue(actual, $"Expected '{type}' to be a value tuple.");
+    }
+
+    /// <summary>
+    ///  Assert that an input type that is not a value tuple returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof(int))]
+    [DataRow(typeof(string[]))]
+    [DataRow(typeof(List<double>))]
+    [DataRow(typeof(IEnumerable<object>))]
+    public void IsValueTuple_IsNot_ReturnsFalse(Type type)
+    {
+        bool actual = type.IsValueTuple();
+        Assert.IsFalse(actual, $"Expected '{type}' to not be a value tuple.");
+    }
+
+    /// <summary>
     ///  Assert that an input string starting with a specific character returns true.
     /// </summary>
     [TestMethod]
