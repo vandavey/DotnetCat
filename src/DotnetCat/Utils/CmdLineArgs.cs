@@ -142,7 +142,7 @@ internal sealed class CmdLineArgs
     /// </summary>
     public IEnumerable<ArgType[]> InvalidCombinations()
     {
-        return _invalidCombos.Where(_parsedTypes.Contains);
+        return _invalidCombos.Where(_parsedTypes.ContainsAll);
     }
 
     /// <summary>

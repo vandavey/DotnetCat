@@ -62,10 +62,11 @@ internal static class Extensions
     }
 
     /// <summary>
-    ///  Determine whether a collection contains multiple specific values.
+    ///  Determine whether a collection contains at
+    ///  least the same values as another collection.
     /// </summary>
-    public static bool Contains<T>([NotNullWhen(true)] this ICollection<T>? collection,
-                                   [NotNullWhen(true)] IEnumerable<T>? values)
+    public static bool ContainsAll<T>([NotNullWhen(true)] this ICollection<T>? collection,
+                                      [NotNullWhen(true)] IEnumerable<T>? values)
     {
         bool allFound = false;
 
