@@ -15,6 +15,79 @@ public class ExtensionsTests
 {
 #region MethodTests
     /// <summary>
+    ///  Assert that an action is correctly executed
+    ///  against values in a non-null input collection.
+    /// </summary>
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow([])]
+    [DataRow(2U, 4U)]
+    [DataRow("this", "is", "test", "data")]
+    [DataRow(typeof(int), typeof(string), typeof(double))]
+    public void ForEach_NotNullCollection_CorrectAction(params object[] values)
+    {
+        string[] expected = [.. values.Select(v => $"TEST: {v}")];
+        List<string> actual = [];
+
+        Action<object> action = v => actual.Add($"TEST: {v}");
+        values.ForEach(action);
+
+        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
+    }
+
+    /// <summary>
+    ///  Assert that no action is executed against values in a null input collection.
+    /// </summary>
+    [TestMethod]
+    public void ForEach_NullCollection_NoAction()
+    {
+        object[]? values = null;
+        List<string> actual = [];
+
+        Action<object> action = v => actual.Add($"TEST: {v}");
+        values.ForEach(action);
+
+        Assert.IsEmpty(actual, "No actions should be executed.");
+    }
+
+    /// <summary>
+    ///  Assert that an input collection containing at least
+    ///  the same values as another collection returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow(new object[] { 0 }, new object[] { 0 })]
+    [DataRow(new object[] { false, true }, new object[] { false })]
+    [DataRow(new object[] { 1L, 2L, 3L }, new object[] { 1L, 3L })]
+    [DataRow(new object[] { "test", "data" }, new object[] { "test" })]
+    [DataRow(new object[] { "test", "data" }, new object[] { "test", "data" })]
+    public void ContainsAll_Does_ReturnsTrue(ICollection<object>? collection,
+                                             IEnumerable<object>? values)
+    {
+        bool actual = collection.ContainsAll(values);
+        Assert.IsTrue(actual, "All values were not found in collection.");
+    }
+
+    /// <summary>
+    ///  Assert that an input collection not containing at least
+    ///  the same values as another collection returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow(null, new object[] { })]
+    [DataRow(new object[] { }, null)]
+    [DataRow(null, new object[] { 2U })]
+    [DataRow(new object[] { 64, 128 }, null)]
+    [DataRow(new object[] { }, new object[] { })]
+    [DataRow(new object[] { }, new object[] { 1L, 2L, 3L })]
+    [DataRow(new object[] { false, true }, new object[] { })]
+    [DataRow(new object[] { "test" }, new object[] { "test", "data" })]
+    public void ContainsAll_DoesNot_ReturnsFalse(ICollection<object>? collection,
+                                                 IEnumerable<object>? values)
+    {
+        bool actual = collection.ContainsAll(values);
+        Assert.IsFalse(actual, "All values were found in collection.");
+    }
+
+    /// <summary>
     ///  Assert that an input string ending with a single
     ///  or double quotation mark character returns true.
     /// </summary>
@@ -382,6 +455,77 @@ public class ExtensionsTests
         bool actual = list.IsNullOrEmpty();
 
         Assert.IsFalse(actual, "Expected populated list to not be null or empty.");
+    }
+
+    /// <summary>
+    ///  Assert that an input type that is a value tuple returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof((byte, uint)))]
+    [DataRow(typeof((long, double, string)))]
+    [DataRow(typeof((object, decimal, Exception, ArgType)))]
+    public void IsValueTuple_Is_ReturnsTrue(Type type)
+    {
+        bool actual = type.IsValueTuple();
+        Assert.IsTrue(actual, $"Expected '{type}' to be a value tuple.");
+    }
+
+    /// <summary>
+    ///  Assert that an input type that is not a value tuple returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow(typeof(int))]
+    [DataRow(typeof(string[]))]
+    [DataRow(typeof(List<double>))]
+    [DataRow(typeof(IEnumerable<object>))]
+    public void IsValueTuple_IsNot_ReturnsFalse(Type type)
+    {
+        bool actual = type.IsValueTuple();
+        Assert.IsFalse(actual, $"Expected '{type}' to not be a value tuple.");
+    }
+
+    /// <summary>
+    ///  Assert that an input string starting with a single
+    ///  or double quotation mark character returns true.
+    /// </summary>
+    [TestMethod]
+    [DataRow("'")]
+    [DataRow("' ")]
+    [DataRow("\" ")]
+    [DataRow("'test data")]
+    [DataRow("\"test data")]
+    public void StartsWithQuote_Does_ReturnsTrue(string? str)
+    {
+        bool actual = str.StartsWithQuote();
+        Assert.IsTrue(actual, $"Expected '{str}' to start with quote.");
+    }
+
+    /// <summary>
+    ///  Assert that an input string not starting with a single
+    ///  or double quotation mark character returns false.
+    /// </summary>
+    [TestMethod]
+    [DataRow("")]
+    [DataRow(" '")]
+    [DataRow(" \"")]
+    [DataRow("test data")]
+    [DataRow("test data\"")]
+    public void StartsWithQuote_DoesNot_ReturnsFalse(string? str)
+    {
+        bool actual = str.StartsWithQuote();
+        Assert.IsFalse(actual, $"Expected '{str}' to not start with quote.");
+    }
+
+    /// <summary>
+    ///  Assert that a null input string returns false.
+    /// </summary>
+    [TestMethod]
+    public void StartsWithQuote_NullString_ReturnsFalse()
+    {
+        string? str = null;
+        bool actual = str.StartsWithQuote();
+
+        Assert.IsFalse(actual, "Null string should not start with quote.");
     }
 
     /// <summary>
