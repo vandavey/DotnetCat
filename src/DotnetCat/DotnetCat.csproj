@@ -7,7 +7,7 @@
         <ApplicationIcon>Resources/Icon.ico</ApplicationIcon>
         <AssemblyName>dncat</AssemblyName>
         <Authors>vandavey</Authors>
-        <Configurations>Debug; Release; Linux; ARM64</Configurations>
+        <Configurations>Debug;Release;Linux;ARM64</Configurations>
         <Copyright>Copyright (c) 2026 vandavey</Copyright>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
@@ -24,7 +24,7 @@
         <OutputType>Exe</OutputType>
         <PackageLicenseFile>$(ProjectDir)../../LICENSE.md</PackageLicenseFile>
         <PlatformTarget>AnyCPU</PlatformTarget>
-        <Platforms>AnyCPU</Platforms>
+        <Platforms>AnyCPU;ARM64;x64;x86</Platforms>
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishRelease>true</PublishRelease>
         <PublishSelfContained>true</PublishSelfContained>
@@ -62,8 +62,8 @@
      Compiler constants.
     -->
     <PropertyGroup>
-        <DefineConstants Condition="'$(IsLinuxConfig)'=='true'">$(DefineConstants); LINUX</DefineConstants>
-        <DefineConstants Condition="'$(IsWindowsConfig)'=='true'">$(DefineConstants); WINDOWS</DefineConstants>
+        <DefineConstants Condition="'$(IsLinuxConfig)'=='true'">$(DefineConstants);LINUX</DefineConstants>
+        <DefineConstants Condition="'$(IsWindowsConfig)'=='true'">$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <!--

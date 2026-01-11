@@ -6,8 +6,8 @@
         <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
         <AssemblyName>DotnetCatTests</AssemblyName>
         <Authors>vandavey</Authors>
-        <Configurations>Debug; Release; Linux; ARM64</Configurations>
-        <Copyright>Copyright (c) 2024 vandavey</Copyright>
+        <Configurations>Debug;Release;Linux;ARM64</Configurations>
+        <Copyright>Copyright (c) 2026 vandavey</Copyright>
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
         <Description>DotnetCat unit tests</Description>
@@ -23,7 +23,7 @@
         <OutputType>Library</OutputType>
         <PackageLicenseFile>../DotnetCat/Resources/LICENSE.md</PackageLicenseFile>
         <PlatformTarget>AnyCPU</PlatformTarget>
-        <Platforms>AnyCPU</Platforms>
+        <Platforms>AnyCPU;ARM64;x64;x86</Platforms>
         <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
         <RootNamespace>DotnetCatTests</RootNamespace>
         <TargetFramework>net10.0</TargetFramework>
@@ -52,8 +52,8 @@
      Compiler constants.
     -->
     <PropertyGroup>
-        <DefineConstants Condition="'$(IsLinuxConfig)'=='true'">LINUX</DefineConstants>
-        <DefineConstants Condition="'$(IsWindowsConfig)'=='true'">WINDOWS</DefineConstants>
+        <DefineConstants Condition="'$(IsLinuxConfig)'=='true'">$(DefineConstants);LINUX</DefineConstants>
+        <DefineConstants Condition="'$(IsWindowsConfig)'=='true'">$(DefineConstants);WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <!--

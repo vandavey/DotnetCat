@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotnetCat.IO;
+using static DotnetCat.IO.Constants;
 using SpecialFolder = System.Environment.SpecialFolder;
 
 namespace DotnetCatTests.IO;
@@ -46,7 +47,7 @@ public class FileSysTests
     ///  path on Linux operating systems returns true.
     /// </summary>
     [TestMethod]
-    [DataRow("~")]
+    [DataRow(HOME_PATH_ALIAS)]
     [DataRow(@".\..")]
     [DataRow("/etc")]
     [DataRow(@"\dev\error")]
@@ -65,7 +66,7 @@ public class FileSysTests
     ///  path on Windows operating systems returns true.
     /// </summary>
     [TestMethod]
-    [DataRow("~")]
+    [DataRow(HOME_PATH_ALIAS)]
     [DataRow(@".\..")]
     [DataRow(@"C:\Users")]
     [DataRow("/Windows/System32/dism.exe")]
@@ -88,7 +89,7 @@ public class FileSysTests
 #if WINDOWS
     [DataRow("/Windows/Desktop")]
     [DataRow(@"C:\Windows\Files\explorer.exe")]
-#elif LINUX
+#elif LINUX // LINUX
     [DataRow("/usr/shared")]
     [DataRow(@"\bin\files\run")]
 #endif // WINDOWS
@@ -150,11 +151,11 @@ public class FileSysTests
     [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
-    [DataRow("~")]
+    [DataRow(HOME_PATH_ALIAS)]
 #if WINDOWS
     [DataRow("~/Documents")]
     [DataRow(@"C:\Windows\System32\explorer.exe")]
-#elif LINUX
+#elif LINUX // LINUX
     [DataRow("/dev/output")]
     [DataRow(@"\bin\sbin\sh")]
 #endif // WINDOWS
@@ -180,7 +181,7 @@ public class FileSysTests
     ///  Assert that a valid (existing) input directory path returns true.
     /// </summary>
     [TestMethod]
-    [DataRow("~")]
+    [DataRow(HOME_PATH_ALIAS)]
     [DataRow("/")]
     [DataRow(".")]
     [DataRow("..")]
@@ -200,7 +201,7 @@ public class FileSysTests
 #if WINDOWS
     [DataRow("~/Uploads")]
     [DataRow(@"\Windows\System32\explorer.exe")]
-#elif LINUX
+#elif LINUX // LINUX
     [DataRow("/bin/sh")]
     [DataRow(@"\dev\output")]
 #endif // WINDOWS

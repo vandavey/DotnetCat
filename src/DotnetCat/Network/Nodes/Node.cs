@@ -12,6 +12,7 @@ using DotnetCat.IO.Pipelines;
 using DotnetCat.Shell;
 using DotnetCat.Utils;
 using static DotnetCat.Network.Constants;
+using static DotnetCat.Utils.Constants;
 
 namespace DotnetCat.Network.Nodes;
 
@@ -188,7 +189,7 @@ internal abstract class Node : IConnectable
 
             if (invalidCombo is not null)
             {
-                Console.WriteLine(Parser.Usage);
+                Console.WriteLine(APP_USAGE);
                 PipeError(Except.ArgsCombo, CmdLineArgs.ArgNames(invalidCombo));
             }
             _validArgsCombos = true;
@@ -242,32 +243,14 @@ internal abstract class Node : IConnectable
     /// <summary>
     ///  Initialize a list of pipelines from the given pipeline type.
     /// </summary>
-    private List<SocketPipe> MakePipes(PipeType type)
+    private List<SocketPipe> MakePipes(PipeType type) => ThrowIf.Undefined(type) switch
     {
-        List<SocketPipe> pipelines = [];
-
-        switch (ThrowIf.Undefined(type))
-        {
-            case PipeType.Stream:
-                pipelines.AddRange(MakeStreamPipes);
-                break;
-            case PipeType.File:
-                pipelines.Add(MakeFilePipe);
-                break;
-            case PipeType.Process:
-                pipelines.AddRange(MakeProcessPipes);
-                break;
-            case PipeType.Status:
-                pipelines.Add(new StatusPipe(Socket, Args, _netWriter, Endpoint));
-                break;
-            case PipeType.Text:
-                pipelines.Add(new TextPipe(Socket, Args, _netWriter));
-                break;
-            default:
-                break;
-        }
-        return pipelines;
-    }
+        PipeType.File    => [MakeFilePipe()],
+        PipeType.Process => [.. MakeProcessPipes()],
+        PipeType.Status  => [new StatusPipe(Socket, Args, _netWriter, Endpoint)],
+        PipeType.Text    => [new TextPipe(Socket, Args, _netWriter)],
+        _                => [.. MakeStreamPipes()]
+    };
 
     /// <summary>
     ///  Initialize an array of console stream pipelines.
