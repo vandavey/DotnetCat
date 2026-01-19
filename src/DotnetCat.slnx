@@ -1,3 +1,6 @@
+<!--
+ DotnetCat application solution.
+-->
 <Solution>
     <Configurations>
         <BuildType Name="Debug" />
@@ -19,6 +22,7 @@
         <File Path="../tools/dncat-uninstall.ps1" />
         <File Path="../tools/dncat-uninstall.sh" />
         <File Path=".editorconfig" />
+        <File Path="repo.props" />
     </Folder>
     <Project Path="DotNetCat/DotnetCat.csproj">
         <Platform Solution="*|AnyCPU" Project="AnyCPU" />

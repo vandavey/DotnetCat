@@ -1,10 +1,8 @@
-using System;
-
 #if WINDOWS
+using System;
 using DotnetCat.Errors;
 using DotnetCat.Utils;
 using static DotnetCat.Shell.WinApi.Constants;
-#endif // WINDOWS
 
 namespace DotnetCat.Shell.WinApi;
 
@@ -29,16 +27,13 @@ internal static class ConsoleApi
     /// </summary>
     public static void EnableVirtualTerm()
     {
-    #if WINDOWS
         if (!_virtualTermEnabled)
         {
             EnableVirtualTerm(InputMode.ENABLE_VIRTUAL_TERMINAL_INPUT,
                               OutputMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
         }
-    #endif // WINDOWS
     }
 
-#if WINDOWS
     /// <summary>
     ///  Enable console virtual terminal sequence processing
     ///  using the given console input and output modes.
@@ -109,5 +104,6 @@ internal static class ConsoleApi
             throw new ExternException(nameof(WinInterop.SetConsoleMode));
         }
     }
-#endif // WINDOWS
 }
+
+#endif // WINDOWS
