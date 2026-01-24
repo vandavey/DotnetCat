@@ -6,6 +6,8 @@ using System.Linq;
 using DotnetCat.Errors;
 using DotnetCat.Shell;
 using DotnetCat.Utils;
+using static DotnetCat.IO.Constants;
+using static DotnetCat.Utils.Constants;
 using SpecialFolder = System.Environment.SpecialFolder;
 
 namespace DotnetCat.IO;
@@ -88,7 +90,7 @@ internal static class FileSys
             {
                 path += Path.DirectorySeparatorChar;
             }
-            fullPath = Path.GetFullPath(path.Replace("~", UserProfile));
+            fullPath = Path.GetFullPath(path.Replace(HOME_PATH_ALIAS, UserProfile));
         }
         return fullPath;
     }
@@ -118,7 +120,7 @@ internal static class FileSys
     /// </summary>
     private static string[] EnvironmentPaths()
     {
-        if (!Command.TryEnvVariable("PATH", out string? envPath))
+        if (!Command.TryEnvVariable(ENV_VAR_PATH, out string? envPath))
         {
             throw new InvalidOperationException("Failed to get local environment paths.");
         }
@@ -132,21 +134,18 @@ internal static class FileSys
     {
         string[] extensions;
 
-        if (SysInfo.IsWindows())
+    #if WINDOWS
+        if (Command.TryEnvVariable(ENV_VAR_PATH_EXT, out string? pathExt))
         {
-            if (Command.TryEnvVariable("PATHEXT", out string? pathExt))
-            {
-                extensions = pathExt.Split(Path.PathSeparator);
-            }
-            else  // Use common Windows extensions
-            {
-                extensions = [".exe", ".bat", ".cmd", ".ps1", ".py"];
-            }
+            extensions = pathExt.Split(Path.PathSeparator);
         }
-        else  // Use Linux extensions
+        else  // Use common Windows extensions
         {
-            extensions = [".sh", ".py", ".bin", ".run", ".elf"];
+            extensions = [".exe", ".bat", ".cmd", ".ps1", ".py"];
         }
+    #elif LINUX // LINUX
+        extensions = [".sh", ".py", ".bin", ".run", ".elf"];
+    #endif // WINDOWS
 
         return [.. extensions.Select(e => e.ToLower())];
     }

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotnetCat.Shell;
+using static DotnetCat.Utils.Constants;
 
 namespace DotnetCatTests.Shell;
 
@@ -17,11 +18,11 @@ public class CommandTests
     ///  value of the corresponding variable in the local system.
     /// </summary>
     [TestMethod]
-    [DataRow("PATH")]
+    [DataRow(ENV_VAR_PATH)]
 #if WINDOWS
     [DataRow("USERNAME")]
     [DataRow("USERPROFILE")]
-#elif LINUX
+#elif LINUX // LINUX
     [DataRow("HOME")]
     [DataRow("USER")]
 #endif // WINDOWS

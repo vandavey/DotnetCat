@@ -1,9 +1,16 @@
+<!--
+ DotnetCat application solution.
+-->
 <Solution>
     <Configurations>
-        <BuildType Name="ARM64" />
         <BuildType Name="Debug" />
-        <BuildType Name="Linux" />
         <BuildType Name="Release" />
+        <BuildType Name="Linux" />
+        <BuildType Name="ARM64" />
+        <Platform Name="AnyCPU" />
+        <Platform Name="ARM64" />
+        <Platform Name="x64" />
+        <Platform Name="x86" />
     </Configurations>
     <Folder Name="/Solution Items/">
         <File Path="../.gitattributes" />
@@ -15,7 +22,18 @@
         <File Path="../tools/dncat-uninstall.ps1" />
         <File Path="../tools/dncat-uninstall.sh" />
         <File Path=".editorconfig" />
+        <File Path="repo.props" />
     </Folder>
-    <Project Path="DotNetCat/DotnetCat.csproj" />
-    <Project Path="DotnetCatTests/DotnetCatTests.csproj" />
+    <Project Path="DotNetCat/DotnetCat.csproj">
+        <Platform Solution="*|AnyCPU" Project="AnyCPU" />
+        <Platform Solution="*|ARM64" Project="ARM64" />
+        <Platform Solution="*|x64" Project="x64" />
+        <Platform Solution="*|x86" Project="x86" />
+    </Project>
+    <Project Path="DotnetCatTests/DotnetCatTests.csproj">
+        <Platform Solution="*|AnyCPU" Project="AnyCPU" />
+        <Platform Solution="*|ARM64" Project="ARM64" />
+        <Platform Solution="*|x64" Project="x64" />
+        <Platform Solution="*|x86" Project="x86" />
+    </Project>
 </Solution>

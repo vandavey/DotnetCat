@@ -623,16 +623,14 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that a populated input array returns the expected tuple enumerable.
+    ///  Assert that a populated input collection returns the expected tuple enumerable.
     /// </summary>
     [TestMethod]
     [DataRow(0, 1, 2, 3)]
     [DataRow("test", "data")]
     [DataRow('t', 'e', 's', 't')]
-    public void Enumerate_PopulatedArray_ReturnsExpected(params object[] array)
+    public void Enumerate_PopulatedCollection_ReturnsExpected(params object[] values)
     {
-        IEnumerable<object>? values = array;
-
         (int, object)[] expected = [.. values.Select((v, i) => (i, v))];
         (int, object)[] actual = [.. values.Enumerate()];
 
@@ -640,15 +638,10 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that an empty input array returns an empty tuple enumerable.
+    ///  Assert that an empty input collection returns an empty tuple enumerable.
     /// </summary>
-    /// <remarks>
-    ///  Array of type <see cref="ValueTuple{T1, T2}"/> is used in place of
-    ///  <see cref="IEnumerable{T}"/> for compatibility with
-    ///  <see cref="CollectionAssert.AreEquivalent"/> assertions.
-    /// </remarks>
     [TestMethod]
-    public void Enumerate_EmptyArray_ReturnsEmpty()
+    public void Enumerate_EmptyCollection_ReturnsEmpty()
     {
         IEnumerable<string>? values = [];
         (int, string)[] expected = [];
@@ -660,20 +653,67 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that a null input enumerable returns an empty tuple enumerable.
+    ///  Assert that a null input collection returns an empty tuple enumerable.
     /// </summary>
-    /// <remarks>
-    ///  Array of type <see cref="ValueTuple{T1, T2}"/> is used in place of
-    ///  <see cref="IEnumerable{T}"/> for compatibility with
-    ///  <see cref="CollectionAssert.AreEquivalent"/> assertions.
-    /// </remarks>
     [TestMethod]
-    public void Enumerate_NullEnumerable_ReturnsEmpty()
+    public void Enumerate_NullCollection_ReturnsEmpty()
     {
         IEnumerable<string>? values = null;
 
         (int, string)[] expected = [];
         (int, string)[] actual = [.. values.Enumerate()];
+
+        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
+    }
+
+    /// <summary>
+    ///  Assert that a populated input collection returns
+    ///  the expected tuple enumerable when filtered.
+    /// </summary>
+    [TestMethod]
+    [DataRow(0, 1, 2, 3, 4, 5, 6)]
+    [DataRow(1, 2, 4, 8, 16, 32, 64)]
+    [DataRow(1, 3, 9, 27, 81, 243, 729)]
+    [DataRow(0.0, 0.5, 1, 1.5, 2, 2.5, 3)]
+    public void Enumerate_PopulatedFiltered_ReturnsExpected(params double[] values)
+    {
+        Func<(int, double Value), bool> filter = t => t.Value % 2.0 == 0.0;
+        IEnumerable<(int, double)> enumeratedValues = values.Select((v, i) => (i, v));
+
+        (int, double)[] expected = [.. enumeratedValues.Where(filter)];
+        (int, double)[] actual = [.. values.Enumerate(filter)];
+
+        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
+    }
+
+    /// <summary>
+    ///  Assert that an empty input collection returns
+    ///  an empty tuple enumerable when filtered.
+    /// </summary>
+    [TestMethod]
+    public void Enumerate_EmptyFiltered_ReturnsEmpty()
+    {
+        IEnumerable<double>? values = [];
+        Func<(int, double Value), bool> filter = t => t.Value % 2.0 == 0.0;
+
+        (int, double)[] expected = [];
+        (int, double)[] actual = [.. values.Enumerate(filter)];
+
+        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
+    }
+
+    /// <summary>
+    ///  Assert that a null input collection returns
+    ///  an empty tuple enumerable when filtered.
+    /// </summary>
+    [TestMethod]
+    public void Enumerate_NullFiltered_ReturnsEmpty()
+    {
+        IEnumerable<double>? values = null;
+        Func<(int, double Value), bool> filter = t => t.Value % 2.0 == 0.0;
+
+        (int, double)[] expected = [];
+        (int, double)[] actual = [.. values.Enumerate(filter)];
 
         CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
     }

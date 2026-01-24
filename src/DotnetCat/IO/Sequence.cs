@@ -2,7 +2,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 using DotnetCat.Errors;
+#if WINDOWS
 using DotnetCat.Shell.WinApi;
+#endif // WINDOWS
 using DotnetCat.Utils;
 using static DotnetCat.IO.Constants;
 
@@ -13,10 +15,12 @@ namespace DotnetCat.IO;
 /// </summary>
 internal static partial class Sequence
 {
+#if WINDOWS
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
     static Sequence() => ConsoleApi.EnableVirtualTerm();
+#endif // WINDOWS
 
     /// <summary>
     ///  Clear the current console screen buffer.

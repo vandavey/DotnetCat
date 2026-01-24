@@ -13,7 +13,7 @@ internal class Program
     /// <summary>
     ///  Initialize the static class members.
     /// </summary>
-    static Program() => Console.Title = $"DotnetCat ({REPO_URL})";
+    static Program() => Console.Title = $"DotnetCat ({APP_REPO_URL})";
 
     /// <summary>
     ///  Application entry point.

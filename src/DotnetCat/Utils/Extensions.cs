@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,23 +19,6 @@ namespace DotnetCat.Utils;
 internal static class Extensions
 {
     /// <summary>
-    ///  Add the result of the given functor to a collection.
-    /// </summary>
-    public static void Add<T>([NotNull] this ICollection<T>? collection, Func<T> func)
-    {
-        ThrowIf.Null(collection).Add(func());
-    }
-
-    /// <summary>
-    ///  Add the results of the given functor to a collection.
-    /// </summary>
-    public static void AddRange<T>([NotNull] this List<T>? list,
-                                   Func<IEnumerable<T>> func)
-    {
-        ThrowIf.Null(list).AddRange(func());
-    }
-
-    /// <summary>
     ///  Wait for an asynchronous task to complete execution.
     /// </summary>
     public static void AwaitResult(this Task task) => task.GetAwaiter().GetResult();
@@ -44,7 +28,7 @@ internal static class Extensions
     /// </summary>
     public static void Dispose(this IEnumerable<IDisposable> values)
     {
-        values.ForEach(v => v?.Dispose());
+        ForEach(values, v => v?.Dispose());
     }
 
     /// <summary>
@@ -62,6 +46,25 @@ internal static class Extensions
     }
 
     /// <summary>
+    ///  Write a line to a text writer if a condition is true.
+    /// </summary>
+    public static void WriteLineIf(this TextWriter writer, bool condition)
+    {
+        WriteLineIf<object>(writer, condition, default);
+    }
+
+    /// <summary>
+    ///  Write an object line to a text writer if a condition is true.
+    /// </summary>
+    public static void WriteLineIf<T>(this TextWriter writer, bool condition, T? obj)
+    {
+        if (condition)
+        {
+            writer.WriteLine(obj);
+        }
+    }
+
+    /// <summary>
     ///  Determine whether a collection contains at
     ///  least the same values as another collection.
     /// </summary>
@@ -70,7 +73,7 @@ internal static class Extensions
     {
         bool allFound = false;
 
-        if (!collection.IsNullOrEmpty() && !values.IsNullOrEmpty())
+        if (!IsNullOrEmpty(collection) && !IsNullOrEmpty(values))
         {
             allFound = values.All(collection.Contains);
         }
@@ -82,7 +85,7 @@ internal static class Extensions
     /// </summary>
     public static bool EndsWithQuote([NotNullWhen(true)] this string? str)
     {
-        return str.EndsWithValue('"') || str.EndsWithValue('\'');
+        return EndsWithValue(str, '"') || EndsWithValue(str, '\'');
     }
 
     /// <summary>
@@ -164,7 +167,7 @@ internal static class Extensions
     /// </summary>
     public static bool StartsWithQuote([NotNullWhen(true)] this string? str)
     {
-        return str.StartsWithValue('"') || str.StartsWithValue('\'');
+        return StartsWithValue(str, '"') || StartsWithValue(str, '\'');
     }
 
     /// <summary>
