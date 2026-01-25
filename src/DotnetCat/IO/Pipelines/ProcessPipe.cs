@@ -65,10 +65,7 @@ internal sealed class ProcessPipe : SocketPipe
             data.Clear();
         }
 
-        if (!Args.UsingExe)
-        {
-            Console.WriteLine();
-        }
+        Console.Out.WriteLineIf(!Args.UsingExe);
         Dispose();
     }
 }

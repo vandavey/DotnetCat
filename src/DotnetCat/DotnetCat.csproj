@@ -1,4 +1,9 @@
+<!--
+ DotnetCat console application.
+-->
 <Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="../repo.props" />
+
     <!--
      DotnetCat project properties.
     -->
@@ -6,64 +11,26 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ApplicationIcon>Resources/Icon.ico</ApplicationIcon>
         <AssemblyName>dncat</AssemblyName>
-        <Authors>vandavey</Authors>
-        <Configurations>Debug; Release; Linux; ARM64</Configurations>
-        <Copyright>Copyright (c) 2026 vandavey</Copyright>
-        <DebugSymbols>false</DebugSymbols>
-        <DebugType>None</DebugType>
         <Description>DotnetCat</Description>
-        <ErrorReport>None</ErrorReport>
-        <GenerateDocumentationFile>false</GenerateDocumentationFile>
-        <ImplicitUsings>Disable</ImplicitUsings>
         <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-        <IntermediateOutputPath>obj/$(Configuration)</IntermediateOutputPath>
-        <IsPackable>false</IsPackable>
-        <Nullable>Enable</Nullable>
         <Optimize>true</Optimize>
-        <OutputPath>bin/$(Configuration)</OutputPath>
         <OutputType>Exe</OutputType>
-        <PackageLicenseFile>$(ProjectDir)../../LICENSE.md</PackageLicenseFile>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <Platforms>AnyCPU</Platforms>
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishRelease>true</PublishRelease>
         <PublishSelfContained>true</PublishSelfContained>
         <PublishSingleFile>true</PublishSingleFile>
         <PublishTrimmed>true</PublishTrimmed>
-        <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
         <RootNamespace>DotnetCat</RootNamespace>
         <SelfContained>true</SelfContained>
         <StartupObject>DotnetCat.Program</StartupObject>
-        <TargetFramework>net10.0</TargetFramework>
-        <WarningLevel>7</WarningLevel>
     </PropertyGroup>
 
     <!--
      Debug configuration properties.
     -->
     <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>Portable</DebugType>
         <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
         <Optimize>false</Optimize>
-    </PropertyGroup>
-
-    <!--
-     Helper and utility properties.
-    -->
-    <PropertyGroup>
-        <IsLinuxConfig Condition="'$(Configuration)'=='ARM64' OR '$(Configuration)'=='Linux'">true</IsLinuxConfig>
-        <IsLinuxRid Condition="$(RuntimeIdentifier.StartsWith('linux-'))">true</IsLinuxRid>
-        <IsWindowsConfig Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Release'">true</IsWindowsConfig>
-        <IsWindowsRid Condition="$(RuntimeIdentifier.StartsWith('win-'))">true</IsWindowsRid>
-    </PropertyGroup>
-
-    <!--
-     Compiler constants.
-    -->
-    <PropertyGroup>
-        <DefineConstants Condition="'$(IsLinuxConfig)'=='true'">$(DefineConstants); LINUX</DefineConstants>
-        <DefineConstants Condition="'$(IsWindowsConfig)'=='true'">$(DefineConstants); WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <!--

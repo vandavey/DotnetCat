@@ -1,0 +1,54 @@
+<!--
+ DotnetCat shared properties.
+-->
+<Project>
+    <!--
+     Shared project properties.
+    -->
+    <PropertyGroup>
+        <Authors>vandavey</Authors>
+        <Configurations>Debug;Release;Linux;ARM64</Configurations>
+        <Copyright>Copyright (c) 2026 vandavey</Copyright>
+        <DebugSymbols>false</DebugSymbols>
+        <DebugType>None</DebugType>
+        <ErrorReport>None</ErrorReport>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <ImplicitUsings>Disable</ImplicitUsings>
+        <IntermediateOutputPath>obj/$(Configuration)</IntermediateOutputPath>
+        <IsPackable>false</IsPackable>
+        <Nullable>Enable</Nullable>
+        <OutputPath>bin/$(Configuration)</OutputPath>
+        <PackageLicenseFile>$(ProjectDir)../../LICENSE.md</PackageLicenseFile>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <Platforms>AnyCPU;ARM64;x64;x86</Platforms>
+        <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
+        <TargetFramework>net10.0</TargetFramework>
+        <WarningLevel>7</WarningLevel>
+    </PropertyGroup>
+
+    <!--
+     Shared debug configuration properties.
+    -->
+    <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>Portable</DebugType>
+    </PropertyGroup>
+
+    <!--
+     Shared helper and utility properties.
+    -->
+    <PropertyGroup>
+        <IsLinuxConfig Condition="'$(Configuration)'=='ARM64' OR '$(Configuration)'=='Linux'">true</IsLinuxConfig>
+        <IsLinuxRid Condition="$(RuntimeIdentifier.StartsWith('linux-'))">true</IsLinuxRid>
+        <IsWindowsConfig Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Release'">true</IsWindowsConfig>
+        <IsWindowsRid Condition="$(RuntimeIdentifier.StartsWith('win-'))">true</IsWindowsRid>
+    </PropertyGroup>
+
+    <!--
+     Shared compiler constants.
+    -->
+    <PropertyGroup>
+        <DefineConstants Condition="'$(IsLinuxConfig)'=='true'">$(DefineConstants);LINUX</DefineConstants>
+        <DefineConstants Condition="'$(IsWindowsConfig)'=='true'">$(DefineConstants);WINDOWS</DefineConstants>
+    </PropertyGroup>
+</Project>

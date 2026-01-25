@@ -1,59 +1,20 @@
+<!--
+ DotnetCat unit tests.
+-->
 <Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="../repo.props" />
+
     <!--
      DotnetCatTests project properties
     -->
     <PropertyGroup>
         <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
         <AssemblyName>DotnetCatTests</AssemblyName>
-        <Authors>vandavey</Authors>
-        <Configurations>Debug; Release; Linux; ARM64</Configurations>
-        <Copyright>Copyright (c) 2024 vandavey</Copyright>
-        <DebugSymbols>false</DebugSymbols>
-        <DebugType>None</DebugType>
         <Description>DotnetCat unit tests</Description>
-        <ErrorReport>None</ErrorReport>
-        <GenerateDocumentationFile>false</GenerateDocumentationFile>
-        <ImplicitUsings>Disable</ImplicitUsings>
         <IncludeNativeLibrariesForSelfExtract>false</IncludeNativeLibrariesForSelfExtract>
-        <IntermediateOutputPath>obj/$(Configuration)</IntermediateOutputPath>
-        <IsPackable>false</IsPackable>
-        <Nullable>Enable</Nullable>
         <Optimize>false</Optimize>
-        <OutputPath>bin/$(Configuration)</OutputPath>
         <OutputType>Library</OutputType>
-        <PackageLicenseFile>../DotnetCat/Resources/LICENSE.md</PackageLicenseFile>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <Platforms>AnyCPU</Platforms>
-        <RepositoryUrl>https://github.com/vandavey/DotnetCat</RepositoryUrl>
         <RootNamespace>DotnetCatTests</RootNamespace>
-        <TargetFramework>net10.0</TargetFramework>
-        <WarningLevel>7</WarningLevel>
-    </PropertyGroup>
-
-    <!--
-     Debug configuration properties.
-    -->
-    <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>Portable</DebugType>
-    </PropertyGroup>
-
-    <!--
-     Helper and utility properties.
-    -->
-    <PropertyGroup>
-        <IsLinuxConfig Condition="'$(Configuration)'=='ARM64' OR '$(Configuration)'=='Linux'">true</IsLinuxConfig>
-        <IsLinuxRid Condition="$(RuntimeIdentifier.StartsWith('linux-'))">true</IsLinuxRid>
-        <IsWindowsConfig Condition="'$(Configuration)'=='Debug' OR '$(Configuration)'=='Release'">true</IsWindowsConfig>
-        <IsWindowsRid Condition="$(RuntimeIdentifier.StartsWith('win-'))">true</IsWindowsRid>
-    </PropertyGroup>
-
-    <!--
-     Compiler constants.
-    -->
-    <PropertyGroup>
-        <DefineConstants Condition="'$(IsLinuxConfig)'=='true'">LINUX</DefineConstants>
-        <DefineConstants Condition="'$(IsWindowsConfig)'=='true'">WINDOWS</DefineConstants>
     </PropertyGroup>
 
     <!--

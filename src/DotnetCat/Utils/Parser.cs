@@ -21,16 +21,9 @@ namespace DotnetCat.Utils;
 /// </summary>
 internal sealed partial class Parser
 {
-    private static readonly string _exeName;       // Application executable name
-
     private readonly List<int> _processedIndexes;  // Processed argument indexes
 
     private List<string> _argsList;                // Command-line argument list
-
-    /// <summary>
-    ///  Initialize the static class members.
-    /// </summary>
-    static Parser() => _exeName = SysInfo.IsLinux() ? LINUX_EXE : WINDOWS_EXE;
 
     /// <summary>
     ///  Initialize the object.
@@ -47,11 +40,6 @@ internal sealed partial class Parser
     ///  Initialize the object.
     /// </summary>
     public Parser(IEnumerable<string> args) : this() => Parse(args);
-
-    /// <summary>
-    ///  Application usage string.
-    /// </summary>
-    public static string Usage => $"Usage: {_exeName} [OPTIONS] TARGET";
 
     /// <summary>
     ///  Parsed command-line arguments.
@@ -166,8 +154,8 @@ internal sealed partial class Parser
     private static string GetHelpMessage()
     {
         string helpMessage = $"""
-            DotnetCat ({REPO_URL})
-            {Usage}{SysInfo.Eol}
+            DotnetCat ({APP_REPO_URL})
+            {APP_USAGE}{SysInfo.Eol}
             Remote command shell application{SysInfo.Eol}
             Positional Arguments:
               TARGET                    Remote or local IPv4 address{SysInfo.Eol}
@@ -183,9 +171,9 @@ internal sealed partial class Parser
               -s PATH, --send PATH      Send local file or folder
               -t DATA, --text DATA      Send string to remote host{SysInfo.Eol}
             Usage Examples:
-              {_exeName} --listen --exec {(SysInfo.IsLinux() ? "bash" : "powershell.exe")}
-              {_exeName} -v localhost -p 44444
-              {_exeName} -vs test.txt -p 2009 192.168.1.9{SysInfo.Eol}
+              {EXE_NAME} --listen --exec {(SysInfo.IsLinux() ? "bash" : "powershell.exe")}
+              {EXE_NAME} -v localhost -p 44444
+              {EXE_NAME} -vs test.txt -p 2009 192.168.1.9{SysInfo.Eol}
             """;
         return helpMessage;
     }
@@ -453,7 +441,7 @@ internal sealed partial class Parser
 
         if (!int.TryParse(portStr, out int port) || !Net.ValidPort(port))
         {
-            Console.WriteLine(Usage);
+            Console.WriteLine(APP_USAGE);
             Error.Handle(Except.InvalidPort, portStr);
         }
         CmdArgs.Port = port;

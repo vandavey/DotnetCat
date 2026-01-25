@@ -12,6 +12,7 @@ internal static class Constants
     public const string CSI = $"{ESC}[";
     public const string ERROR_LOG_PREFIX = "[x]";
     public const string ESC = "\e";
+    public const string HOME_PATH_ALIAS = "~";
     public const string INFO_LOG_PREFIX = "[*]";
     public const string RESET = $"{CSI}0m";
     public const string STATUS_LOG_PREFIX = "[+]";

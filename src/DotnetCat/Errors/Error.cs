@@ -43,12 +43,7 @@ internal static class Error
                               Exception? ex = default)
     {
         ThrowIf.Undefined(exType);
-
-        // Print application usage
-        if (showUsage)
-        {
-            Console.WriteLine(Parser.Usage);
-        }
+        Console.Out.WriteLineIf(showUsage, APP_USAGE);
 
         ErrorMessage errorMsg = MakeErrorMessage(exType, ThrowIf.NullOrEmpty(arg));
         Output.Error(errorMsg.Message);
