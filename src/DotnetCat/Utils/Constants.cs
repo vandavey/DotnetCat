@@ -7,6 +7,17 @@ namespace DotnetCat.Utils;
 /// </summary>
 internal static class Constants
 {
+    public const char EXEC_FLAG_ALIAS = 'e';
+    public const char HELP_FLAG_ALIAS = 'h';
+    public const char LISTEN_FLAG_ALIAS = 'l';
+    public const char OPT_ARG_PREFIX = '-';
+    public const char OUTPUT_FLAG_ALIAS = 'o';
+    public const char PORT_FLAG_ALIAS = 'p';
+    public const char SEND_FLAG_ALIAS = 's';
+    public const char TEXT_FLAG_ALIAS = 't';
+    public const char VERBOSE_FLAG_ALIAS = 'v';
+    public const char ZERO_IO_FLAG_ALIAS = 'z';
+
     public const int ERROR_EXIT_CODE = 1;
     public const int NO_ERROR_EXIT_CODE = 0;
 
@@ -22,7 +33,9 @@ internal static class Constants
     public const string ENV_VAR_PATH = "PATH";
     public const string EXE_NAME = "dncat";
 #endif // WINDOWS
+    public const string ALIAS_PREFIX = "-";
     public const string EXEC_FLAG = "--exec";
+    public const string FLAG_PREFIX = "--";
     public const string HELP_FLAG = "--help";
     public const string LISTEN_FLAG = "--listen";
     public const string OUTPUT_FLAG = "--output";

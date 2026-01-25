@@ -232,34 +232,34 @@ internal sealed partial class Parser
             {
                 switch (ch)
                 {
-                    case '-':
+                    case OPT_ARG_PREFIX:
                         continue;
-                    case 'l':
+                    case LISTEN_FLAG_ALIAS:
                         ParseListen();
                         break;
-                    case 'v':
+                    case VERBOSE_FLAG_ALIAS:
                         ParseVerbose();
                         break;
-                    case 'z':
+                    case ZERO_IO_FLAG_ALIAS:
                         ParseZeroIo();
                         break;
-                    case 'p':
+                    case PORT_FLAG_ALIAS:
                         ParsePort(idxAlias);
                         break;
-                    case 'e':
+                    case EXEC_FLAG_ALIAS:
                         ParseExecutable(idxAlias);
                         break;
-                    case 't':
+                    case TEXT_FLAG_ALIAS:
                         ParseTextPayload(idxAlias);
                         break;
-                    case 'o':
+                    case OUTPUT_FLAG_ALIAS:
                         ParseTransferPath(idxAlias, TransferOpt.Collect);
                         break;
-                    case 's':
+                    case SEND_FLAG_ALIAS:
                         ParseTransferPath(idxAlias, TransferOpt.Transmit);
                         break;
                     default:
-                        Error.Handle(Except.UnknownArgs, $"-{ch}", true);
+                        Error.Handle(Except.UnknownArgs, ALIAS_PREFIX + ch, true);
                         break;
                 }
             }
@@ -342,7 +342,7 @@ internal sealed partial class Parser
             }
             case 1:   // Validate TARGET
             {
-                if (_argsList[0].StartsWith('-'))
+                if (_argsList[0].StartsWith(OPT_ARG_PREFIX))
                 {
                     Error.Handle(Except.UnknownArgs, _argsList[0], true);
                 }
@@ -369,7 +369,7 @@ internal sealed partial class Parser
             {
                 string argsStr = _argsList.Join(", ");
 
-                if (_argsList[0].StartsWithValue('-'))
+                if (_argsList[0].StartsWithValue(OPT_ARG_PREFIX))
                 {
                     Error.Handle(Except.UnknownArgs, argsStr, true);
                 }
@@ -441,8 +441,7 @@ internal sealed partial class Parser
 
         if (!int.TryParse(portStr, out int port) || !Net.ValidPort(port))
         {
-            Console.WriteLine(APP_USAGE);
-            Error.Handle(Except.InvalidPort, portStr);
+            Error.Handle(Except.InvalidPort, portStr, true);
         }
         CmdArgs.Port = port;
 
