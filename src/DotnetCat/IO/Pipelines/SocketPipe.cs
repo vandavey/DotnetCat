@@ -163,8 +163,8 @@ internal abstract class SocketPipe : IConnectable
     protected abstract Task ConnectAsync(CancellationToken token);
 
     /// <summary>
-    ///  Asynchronously read data from the underlying source stream
-    ///  and write it to the underlying memory buffer.
+    ///  Asynchronously read data from the underlying source
+    ///  stream and write it to the underlying memory buffer.
     /// </summary>
     protected async ValueTask<int> ReadAsync(CancellationToken token)
     {
@@ -178,16 +178,16 @@ internal abstract class SocketPipe : IConnectable
     }
 
     /// <summary>
-    ///  Asynchronously read all the data that is currently available
-    ///  in the underlying source stream.
+    ///  Asynchronously read all the data that is currently
+    ///  available in the underlying source stream.
     /// </summary>
-    protected async ValueTask<string> ReadToEndAsync()
+    protected async ValueTask<string> ReadToEndAsync(CancellationToken token)
     {
         string buffer = string.Empty;
 
         if (Source is not null && Socket.Connected)
         {
-            buffer = await Source.ReadToEndAsync();
+            buffer = await Source.ReadToEndAsync(token);
         }
         return buffer;
     }
