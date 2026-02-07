@@ -23,7 +23,7 @@ internal static class Error
     public static bool Verbose { get; set; }
 
     /// <summary>
-    ///  Handle user-defined exceptions related to DotnetCat and exit.
+    ///  Handle a DotnetCat error and exit.
     /// </summary>
     [DoesNotReturn]
     public static void Handle(Except exType,
@@ -34,7 +34,7 @@ internal static class Error
     }
 
     /// <summary>
-    ///  Handle user-defined exceptions related to DotnetCat and exit.
+    ///  Handle a DotnetCat error and exit.
     /// </summary>
     [DoesNotReturn]
     public static void Handle(Except exType,
@@ -72,8 +72,23 @@ internal static class Error
     }
 
     /// <summary>
-    ///  Get a new error message that corresponds to the given
-    ///  exception enumeration type.
+    ///  Handle a DotnetCat error and exit if a specific condition is true.
+    /// </summary>
+    public static void HandleIf([DoesNotReturnIf(true)] bool condition,
+                                Except exType,
+                                [NotNull] string? arg,
+                                bool showUsage,
+                                Exception? ex = default)
+    {
+        if (condition)
+        {
+            Handle(exType, arg, showUsage, ex);
+        }
+        ThrowIf.NullOrEmpty(arg);
+    }
+
+    /// <summary>
+    ///  Get a new error message that corresponds to the given exception enumeration type.
     /// </summary>
     private static ErrorMessage MakeErrorMessage(Except exType, string? arg = default)
     {

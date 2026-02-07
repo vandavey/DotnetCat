@@ -70,7 +70,7 @@ internal sealed class ServerNode : Node
         }
         finally
         {
-            Dispose();
+            Shutdown();
         }
     }
 

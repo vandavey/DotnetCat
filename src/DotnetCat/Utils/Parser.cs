@@ -179,6 +179,48 @@ internal sealed partial class Parser
     }
 
     /// <summary>
+    ///  Handle a parsing or validation error and exit.
+    /// </summary>
+    [DoesNotReturn]
+    private static void HandleError(Except exType, [NotNull] string? arg)
+    {
+        Error.Handle(exType, arg, true);
+    }
+
+    /// <summary>
+    ///  Handle a parsing or validation error and exit.
+    /// </summary>
+    [DoesNotReturn]
+    private static void HandleError(Except exType, [NotNull] IEnumerable<string>? args)
+    {
+        HandleError(exType, args.Join(", "));
+    }
+
+    /// <summary>
+    ///  Handle a parsing or validation error and
+    ///  exit if a specific condition is true.
+    /// </summary>
+    private static void HandleErrorIf([DoesNotReturnIf(true)] bool condition,
+                                      Except exType,
+                                      [NotNull] string? arg,
+                                      Exception? ex = default)
+    {
+        Error.HandleIf(condition, exType, arg, true, ex);
+    }
+
+    /// <summary>
+    ///  Handle a parsing or validation error and
+    ///  exit if a specific condition is true.
+    /// </summary>
+    private static void HandleErrorIf([DoesNotReturnIf(true)] bool condition,
+                                      Except exType,
+                                      [NotNull] IEnumerable<string>? args,
+                                      Exception? ex = default)
+    {
+        HandleErrorIf(condition, exType, args.Join(", "), ex);
+    }
+
+    /// <summary>
     ///  Command-line flag alias argument regular expression.
     /// </summary>
     [GeneratedRegex(@"^-[?\w]+$")]
@@ -210,14 +252,8 @@ internal sealed partial class Parser
     /// </summary>
     private void HandleMalformedArgs()
     {
-        if (_argsList.Contains("-"))
-        {
-            Error.Handle(Except.InvalidArgs, "-", true);
-        }
-        else if (_argsList.Contains("--"))
-        {
-            Error.Handle(Except.InvalidArgs, "--", true);
-        }
+        HandleErrorIf(_argsList.Contains(ALIAS_PREFIX), Except.InvalidArgs, ALIAS_PREFIX);
+        HandleErrorIf(_argsList.Contains(FLAG_PREFIX), Except.InvalidArgs, FLAG_PREFIX);
     }
 
     /// <summary>
@@ -259,7 +295,7 @@ internal sealed partial class Parser
                         ParseTransferPath(idxAlias, TransferOpt.Transmit);
                         break;
                     default:
-                        Error.Handle(Except.UnknownArgs, ALIAS_PREFIX + ch, true);
+                        HandleError(Except.UnknownArgs, ALIAS_PREFIX + ch);
                         break;
                 }
             }
@@ -304,7 +340,7 @@ internal sealed partial class Parser
                     ParseTransferPath(idxFlag, TransferOpt.Transmit);
                     break;
                 default:
-                    Error.Handle(Except.UnknownArgs, idxFlag.Flag, true);
+                    HandleError(Except.UnknownArgs, idxFlag.Flag);
                     break;
             }
             AddProcessedArg(idxFlag);
@@ -319,7 +355,6 @@ internal sealed partial class Parser
     private void RemoveProcessedArgs()
     {
         int delta = 0;
-
         _processedIndexes.Order().ForEach(i => _argsList.RemoveAt(i - delta++));
         _processedIndexes.Clear();
     }
@@ -332,20 +367,17 @@ internal sealed partial class Parser
     {
         switch (_argsList.Count)
         {
-            case 0:   // Missing TARGET
-            {
-                if (!CmdArgs.Listen)
-                {
-                    Error.Handle(Except.RequiredArgs, TARGET_ARG, true);
-                }
+            // Missing TARGET argument
+            case 0:
+                HandleErrorIf(!CmdArgs.Listen, Except.RequiredArgs, TARGET_ARG);
                 break;
-            }
-            case 1:   // Validate TARGET
-            {
-                if (_argsList[0].StartsWith(OPT_ARG_PREFIX))
-                {
-                    Error.Handle(Except.UnknownArgs, _argsList[0], true);
-                }
+
+            // Validate TARGET argument
+            case 1:
+                HandleErrorIf(_argsList[0].StartsWith(OPT_ARG_PREFIX),
+                              Except.UnknownArgs,
+                              _argsList[0]);
+
                 Exception? ex = null;
 
                 // Parse the connection IPv4 address
@@ -359,23 +391,20 @@ internal sealed partial class Parser
                 }
                 CmdArgs.HostName = _argsList[0];
 
-                if (CmdArgs.Address.Equals(IPAddress.None))
-                {
-                    Error.Handle(Except.HostNotFound, _argsList[0], true, ex);
-                }
+                HandleErrorIf(CmdArgs.Address.Equals(IPAddress.None),
+                              Except.HostNotFound,
+                              _argsList[0],
+                              ex);
                 break;
-            }
-            default:  // Unexpected arguments
-            {
-                string argsStr = _argsList.Join(", ");
 
-                if (_argsList[0].StartsWithValue(OPT_ARG_PREFIX))
-                {
-                    Error.Handle(Except.UnknownArgs, argsStr, true);
-                }
-                Error.Handle(Except.InvalidArgs, argsStr, true);
+            // Unexpected arguments parsed
+            default:
+                HandleErrorIf(_argsList[0].StartsWithValue(OPT_ARG_PREFIX),
+                              Except.UnknownArgs,
+                              _argsList);
+
+                HandleError(Except.InvalidArgs, _argsList);
                 break;
-            }
         }
     }
 
@@ -384,19 +413,6 @@ internal sealed partial class Parser
     ///  argument in the underlying command-line argument list.
     /// </summary>
     private bool ValidIndex(int index) => index >= 0 && index < _argsList.Count;
-
-    /// <summary>
-    ///  Get the value of the argument located at the given
-    ///  index in the underlying command-line argument list.
-    /// </summary>
-    private string ArgsValueAt(int index)
-    {
-        if (!ValidIndex(index))
-        {
-            Error.Handle(Except.NamedArgs, _argsList[index - 1], true);
-        }
-        return _argsList[index];
-    }
 
     /// <summary>
     ///  Parse the listen flag or flag alias in the underlying command-line argument list.
@@ -433,15 +449,11 @@ internal sealed partial class Parser
     /// </summary>
     private void ParsePort(IndexedFlag idxFlag)
     {
-        if (!ValidIndex(idxFlag.Index + 1))
-        {
-            Error.Handle(Except.NamedArgs, idxFlag.Flag, true);
-        }
-        string portStr = ArgsValueAt(idxFlag.Index + 1);
+        string portStr = NamedArgValue(idxFlag);
 
         if (!int.TryParse(portStr, out int port) || !Net.ValidPort(port))
         {
-            Error.Handle(Except.InvalidPort, portStr, true);
+            HandleError(Except.InvalidPort, portStr);
         }
         CmdArgs.Port = port;
 
@@ -455,16 +467,8 @@ internal sealed partial class Parser
     /// </summary>
     private void ParseExecutable(IndexedFlag idxFlag)
     {
-        if (!ValidIndex(idxFlag.Index + 1))
-        {
-            Error.Handle(Except.NamedArgs, idxFlag.Flag, true);
-        }
-        string exe = ArgsValueAt(idxFlag.Index + 1);
-
-        if (!FileSys.ExistsOnPath(exe, out string? path))
-        {
-            Error.Handle(Except.ExePath, exe, true);
-        }
+        string exe = NamedArgValue(idxFlag);
+        HandleErrorIf(!FileSys.ExistsOnPath(exe, out string? path), Except.ExePath, exe);
 
         CmdArgs.ExePath = path;
         CmdArgs.PipeVariant = PipeType.Process;
@@ -481,30 +485,21 @@ internal sealed partial class Parser
     {
         ThrowIf.UndefinedOrDefault(transfer);
 
-        // No corresponding argument value
-        if (!ValidIndex(idxFlag.Index + 1))
-        {
-            Error.Handle(Except.NamedArgs, idxFlag.Flag, true);
-        }
-        string? path = FileSys.ResolvePath(ArgsValueAt(idxFlag.Index + 1));
+        string? path = FileSys.ResolvePath(NamedArgValue(idxFlag));
+        HandleErrorIf(path.IsNullOrEmpty(), Except.EmptyPath, idxFlag.Flag);
 
-        // File path resolution failure
-        if (path.IsNullOrEmpty())
-        {
-            Error.Handle(Except.EmptyPath, idxFlag.Flag, true);
-        }
         string? parentPath = FileSys.ParentPath(path);
 
         // Parent path must exist for both collection and transmission
         if (parentPath.IsNullOrEmpty() || !FileSys.DirectoryExists(parentPath))
         {
-            Error.Handle(Except.DirectoryPath, parentPath, true);
+            HandleError(Except.DirectoryPath, parentPath);
         }
 
         // File must exist to be transmitted
         if (!FileSys.FileExists(path) && transfer is TransferOpt.Transmit)
         {
-            Error.Handle(Except.FilePath, path, true);
+            HandleError(Except.FilePath, path);
         }
 
         CmdArgs.FilePath = path;
@@ -523,22 +518,24 @@ internal sealed partial class Parser
     /// </summary>
     private void ParseTextPayload(IndexedFlag idxFlag)
     {
-        if (!ValidIndex(idxFlag.Index + 1))
-        {
-            Error.Handle(Except.NamedArgs, idxFlag.Flag, true);
-        }
-        string data = ArgsValueAt(idxFlag.Index + 1);
-
-        if (data.IsNullOrEmpty())
-        {
-            Error.Handle(Except.Payload, idxFlag.Flag, true);
-        }
+        string data = NamedArgValue(idxFlag);
+        HandleErrorIf(data.IsNullOrEmpty(), Except.Payload, idxFlag.Flag);
 
         CmdArgs.Payload = data;
         CmdArgs.PipeVariant = PipeType.Text;
 
         CmdArgs.AddParsedType(ArgType.Text);
         AddProcessedValueArg(idxFlag);
+    }
+
+    /// <summary>
+    ///  Get the value of a named argument from the underlying command-line
+    ///  argument list using the given flag or flag alias index.
+    /// </summary>
+    private string NamedArgValue(IndexedFlag idxFlag)
+    {
+        HandleErrorIf(!ValidIndex(idxFlag.Index + 1), Except.NamedArgs, idxFlag.Flag);
+        return _argsList[idxFlag.Index + 1];
     }
 
     /// <summary>

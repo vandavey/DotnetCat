@@ -241,6 +241,15 @@ internal abstract class Node : IConnectable
     }
 
     /// <summary>
+    ///  Free the underlying resources and prepare for application exit.
+    /// </summary>
+    protected void Shutdown()
+    {
+        Dispose();
+        Console.WriteLine();
+    }
+
+    /// <summary>
     ///  Initialize a list of pipelines from the given pipeline type.
     /// </summary>
     private List<SocketPipe> MakePipes(PipeType type) => ThrowIf.Undefined(type) switch
