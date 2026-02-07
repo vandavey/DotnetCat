@@ -163,6 +163,19 @@ internal abstract class SocketPipe : IConnectable
     protected abstract Task ConnectAsync(CancellationToken token);
 
     /// <summary>
+    ///  Cancel communication between the underlying streams if
+    ///  cancellation was requested on the given cancellation token.
+    /// </summary>
+    protected bool DisconnectIfCancelled(CancellationToken token)
+    {
+        if (token.IsCancellationRequested)
+        {
+            Disconnect();
+        }
+        return token.IsCancellationRequested;
+    }
+
+    /// <summary>
     ///  Asynchronously read data from the underlying source
     ///  stream and write it to the underlying memory buffer.
     /// </summary>
@@ -170,7 +183,7 @@ internal abstract class SocketPipe : IConnectable
     {
         int bytesRead = -1;
 
-        if (Source is not null && Socket.Connected)
+        if (Source is not null && Socket.Connected && !token.IsCancellationRequested)
         {
             bytesRead = await Source.ReadAsync(Buffer, token);
         }
@@ -185,7 +198,7 @@ internal abstract class SocketPipe : IConnectable
     {
         string buffer = string.Empty;
 
-        if (Source is not null && Socket.Connected)
+        if (Source is not null && Socket.Connected && !token.IsCancellationRequested)
         {
             buffer = await Source.ReadToEndAsync(token);
         }
@@ -197,7 +210,7 @@ internal abstract class SocketPipe : IConnectable
     /// </summary>
     protected async Task WriteAsync(StringBuilder data, CancellationToken token)
     {
-        if (Dest is not null && Socket.Connected)
+        if (Dest is not null && Socket.Connected && !token.IsCancellationRequested)
         {
             await Dest.WriteAsync(data, token);
         }

@@ -34,8 +34,8 @@ internal sealed class ProcessPipe : SocketPipe
     ~ProcessPipe() => Dispose(false);
 
     /// <summary>
-    ///  Asynchronously transfer the executable process data
-    ///  between the underlying streams.
+    ///  Asynchronously transfer the executable
+    ///  process data between the underlying streams.
     /// </summary>
     protected override async Task ConnectAsync(CancellationToken token)
     {
@@ -46,9 +46,8 @@ internal sealed class ProcessPipe : SocketPipe
 
         while (Socket?.Connected ?? false)
         {
-            if (token.IsCancellationRequested)
+            if (DisconnectIfCancelled(token))
             {
-                Disconnect();
                 break;
             }
 

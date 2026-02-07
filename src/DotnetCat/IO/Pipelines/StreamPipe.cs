@@ -44,9 +44,8 @@ internal sealed class StreamPipe : SocketPipe
 
         while (Socket?.Connected ?? false)
         {
-            if (token.IsCancellationRequested)
+            if (DisconnectIfCancelled(token))
             {
-                Disconnect();
                 break;
             }
 
