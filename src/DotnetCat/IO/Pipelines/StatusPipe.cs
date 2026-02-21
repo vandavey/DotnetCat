@@ -40,7 +40,7 @@ internal sealed class StatusPipe : TextPipe
     {
         Connected = true;
 
-        StringBuilder data = new(await ReadToEndAsync());
+        StringBuilder data = new(await ReadToEndAsync(token));
         await WriteAsync(data, token);
 
         Output.Status($"Connection accepted by {_target}");

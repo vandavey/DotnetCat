@@ -78,7 +78,7 @@ internal sealed class ClientNode : Node
         }
         finally
         {
-            Dispose();
+            Shutdown();
         }
     }
 }

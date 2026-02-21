@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using DotnetCat.IO;
 using DotnetCat.Network;
 using DotnetCat.Utils;
+using static DotnetCat.Errors.Constants;
 using static DotnetCat.Utils.Constants;
 
 namespace DotnetCat.Errors;
@@ -23,7 +24,7 @@ internal static class Error
     public static bool Verbose { get; set; }
 
     /// <summary>
-    ///  Handle user-defined exceptions related to DotnetCat and exit.
+    ///  Handle a DotnetCat error and exit.
     /// </summary>
     [DoesNotReturn]
     public static void Handle(Except exType,
@@ -34,7 +35,7 @@ internal static class Error
     }
 
     /// <summary>
-    ///  Handle user-defined exceptions related to DotnetCat and exit.
+    ///  Handle a DotnetCat error and exit.
     /// </summary>
     [DoesNotReturn]
     public static void Handle(Except exType,
@@ -42,11 +43,8 @@ internal static class Error
                               bool showUsage,
                               Exception? ex = default)
     {
-        ThrowIf.Undefined(exType);
         Console.Out.WriteLineIf(showUsage, APP_USAGE);
-
-        ErrorMessage errorMsg = MakeErrorMessage(exType, ThrowIf.NullOrEmpty(arg));
-        Output.Error(errorMsg.Message);
+        Output.Error(MakeErrorMsg(exType, arg));
 
         // Print verbose error details
         if (Verbose && ex is not null)
@@ -72,44 +70,55 @@ internal static class Error
     }
 
     /// <summary>
-    ///  Get a new error message that corresponds to the given
-    ///  exception enumeration type.
+    ///  Handle a DotnetCat error and exit if a specific condition is true.
     /// </summary>
-    private static ErrorMessage MakeErrorMessage(Except exType, string? arg = default)
+    public static void HandleIf([DoesNotReturnIf(true)] bool condition,
+                                Except exType,
+                                [NotNull] string? arg,
+                                bool showUsage,
+                                Exception? ex = default)
     {
-        ErrorMessage message = new(ThrowIf.Undefined(exType) switch
+        if (condition)
         {
-            Except.AddressInUse       => "The endpoint is already in use: %",
-            Except.ArgsCombo          => "Invalid argument combination: %",
-            Except.ConnectionAborted  => "Local software aborted connection to %",
-            Except.ConnectionRefused  => "Connection was actively refused by %",
-            Except.ConnectionReset    => "Connection was reset by %",
-            Except.DirectoryPath      => "Unable to locate parent directory: '%'",
-            Except.EmptyPath          => "A value is required for option(s): %",
-            Except.ExePath            => "Unable to locate executable file: '%'",
-            Except.ExeProcess         => "Unable to launch executable process: %",
-            Except.FilePath           => "Unable to locate file: '%'",
-            Except.HostNotFound       => "Unable to resolve hostname: '%'",
-            Except.HostUnreachable    => "Unable to reach host %",
-            Except.InvalidArgs        => "Unable to validate argument(s): %",
-            Except.InvalidPort        => "'%' is not a valid port number",
-            Except.NamedArgs          => "Missing value for named argument(s): %",
-            Except.NetworkDown        => "The network is down: %",
-            Except.NetworkReset       => "Connection to % was lost in network reset",
-            Except.NetworkUnreachable => "The network is unreachable: %",
-            Except.Payload            => "Invalid payload data: %",
-            Except.RequiredArgs       => "Missing required argument(s): %",
-            Except.SocketError        => "Unspecified socket error occurred: %",
-            Except.StringEol          => "Missing EOL in argument(s): %",
-            Except.TimedOut           => "Socket timeout occurred: %",
-            Except.UnknownArgs        => "One or more unknown arguments: %",
-            _                         => "Unhandled exception occurred: %"
-        });
-
-        if (!arg.IsNullOrEmpty())
-        {
-            message.Build(arg);
+            Handle(exType, arg, showUsage, ex);
         }
-        return message;
+        ThrowIf.NullOrEmpty(arg);
+    }
+
+    /// <summary>
+    ///  Create an error message by interpolating the given argument
+    ///  in the message corresponding to the given exception type.
+    /// </summary>
+    private static string MakeErrorMsg(Except exType, [NotNull] string? arg)
+    {
+        string errorMsg = ThrowIf.Undefined(exType) switch
+        {
+            Except.AddressInUse       => ADDRESS_IN_USE_ERROR,
+            Except.ArgsCombo          => ARGS_COMBO_ERROR,
+            Except.ConnectionAborted  => CONNECT_ABORTED_ERROR,
+            Except.ConnectionRefused  => CONNECT_REFUSED_ERROR,
+            Except.ConnectionReset    => CONNECT_RESET_ERROR,
+            Except.DirectoryPath      => DIRECTORY_PATH_ERROR,
+            Except.EmptyPath          => EMPTY_PATH_ERROR,
+            Except.ExePath            => EXE_PATH_ERROR,
+            Except.ExeProcess         => EXE_PROCESS_ERROR,
+            Except.FilePath           => FILE_PATH_ERROR,
+            Except.HostNotFound       => HOST_NOT_FOUND_ERROR,
+            Except.HostUnreachable    => HOST_UNREACHABLE_ERROR,
+            Except.InvalidArgs        => INVALID_ARGS_ERROR,
+            Except.InvalidPort        => INVALID_PORT_ERROR,
+            Except.NamedArgs          => NAMED_ARGS_ERROR,
+            Except.NetworkDown        => NETWORK_DOWN_ERROR,
+            Except.NetworkReset       => NETWORK_RESET_ERROR,
+            Except.NetworkUnreachable => NETWORK_UNREACHABLE_ERROR,
+            Except.Payload            => PAYLOAD_ERROR,
+            Except.RequiredArgs       => REQUIRED_ARGS_ERROR,
+            Except.SocketError        => SOCKET_ERROR_ERROR,
+            Except.StringEol          => STRING_EOL_ERROR,
+            Except.TimedOut           => TIMED_OUT_ERROR,
+            Except.UnknownArgs        => UNKNOWN_ARGS_ERROR,
+            _                         => UNHANDLED_ERROR
+        };
+        return errorMsg.Replace("%", ThrowIf.NullOrEmpty(arg));
     }
 }
