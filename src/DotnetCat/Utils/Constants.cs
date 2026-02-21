@@ -23,6 +23,7 @@ internal static class Constants
 
     public const StringComparison IGNORE_CASE_CMP = StringComparison.OrdinalIgnoreCase;
 
+    public const string ALIAS_PREFIX = "-";
     public const string APP_REPO_URL = "https://github.com/vandavey/DotnetCat";
     public const string APP_USAGE = $"Usage: {EXE_NAME} [OPTIONS] {TARGET_ARG}";
 #if WINDOWS
@@ -33,16 +34,15 @@ internal static class Constants
     public const string ENV_VAR_PATH = "PATH";
     public const string EXE_NAME = "dncat";
 #endif // WINDOWS
-    public const string ALIAS_PREFIX = "-";
-    public const string EXEC_FLAG = "--exec";
+    public const string EXEC_FLAG = $"{FLAG_PREFIX}exec";
     public const string FLAG_PREFIX = "--";
-    public const string HELP_FLAG = "--help";
-    public const string LISTEN_FLAG = "--listen";
-    public const string OUTPUT_FLAG = "--output";
-    public const string PORT_FLAG = "--port";
-    public const string SEND_FLAG = "--send";
+    public const string HELP_FLAG = $"{FLAG_PREFIX}help";
+    public const string LISTEN_FLAG = $"{FLAG_PREFIX}listen";
+    public const string OUTPUT_FLAG = $"{FLAG_PREFIX}output";
+    public const string PORT_FLAG = $"{FLAG_PREFIX}port";
+    public const string SEND_FLAG = $"{FLAG_PREFIX}send";
     public const string TARGET_ARG = "TARGET";
-    public const string TEXT_FLAG = "--text";
-    public const string VERBOSE_FLAG = "--verbose";
-    public const string ZERO_IO_FLAG = "--zero-io";
+    public const string TEXT_FLAG = $"{FLAG_PREFIX}text";
+    public const string VERBOSE_FLAG = $"{FLAG_PREFIX}verbose";
+    public const string ZERO_IO_FLAG = $"{FLAG_PREFIX}zero-io";
 }

@@ -42,7 +42,7 @@ internal sealed class StreamPipe : SocketPipe
         int charsRead;
         Connected = true;
 
-        while (Socket?.Connected ?? false)
+        while (Socket.Connected)
         {
             if (DisconnectIfCancelled(token))
             {

@@ -53,7 +53,7 @@ internal sealed partial class Parser
     [DoesNotReturn]
     public static void PrintHelp()
     {
-        Console.WriteLine(GetHelpMessage());
+        Console.WriteLine(GetHelpMsg());
         Environment.Exit(NO_ERROR_EXIT_CODE);
     }
 
@@ -151,9 +151,9 @@ internal sealed partial class Parser
     /// <summary>
     ///  Get the extended application usage information message.
     /// </summary>
-    private static string GetHelpMessage()
+    private static string GetHelpMsg()
     {
-        string helpMessage = $"""
+        string helpMsg = $"""
             DotnetCat ({APP_REPO_URL})
             {APP_USAGE}{SysInfo.Eol}
             Remote command shell application{SysInfo.Eol}
@@ -175,7 +175,7 @@ internal sealed partial class Parser
               {EXE_NAME} -v localhost -p 44444
               {EXE_NAME} -vs test.txt -p 2009 192.168.1.9{SysInfo.Eol}
             """;
-        return helpMessage;
+        return helpMsg;
     }
 
     /// <summary>

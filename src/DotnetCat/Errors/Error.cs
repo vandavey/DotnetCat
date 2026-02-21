@@ -42,11 +42,8 @@ internal static class Error
                               bool showUsage,
                               Exception? ex = default)
     {
-        ThrowIf.Undefined(exType);
         Console.Out.WriteLineIf(showUsage, APP_USAGE);
-
-        ErrorMessage errorMsg = MakeErrorMessage(exType, ThrowIf.NullOrEmpty(arg));
-        Output.Error(errorMsg.Message);
+        Output.Error(MakeErrorMsg(exType, arg));
 
         // Print verbose error details
         if (Verbose && ex is not null)
@@ -88,11 +85,12 @@ internal static class Error
     }
 
     /// <summary>
-    ///  Get a new error message that corresponds to the given exception enumeration type.
+    ///  Create an error message by interpolating the given argument
+    ///  in the message corresponding to the given exception type.
     /// </summary>
-    private static ErrorMessage MakeErrorMessage(Except exType, string? arg = default)
+    private static string MakeErrorMsg(Except exType, [NotNull] string? arg)
     {
-        ErrorMessage message = new(ThrowIf.Undefined(exType) switch
+        string errorMsg = ThrowIf.Undefined(exType) switch
         {
             Except.AddressInUse       => "The endpoint is already in use: %",
             Except.ArgsCombo          => "Invalid argument combination: %",
@@ -119,12 +117,7 @@ internal static class Error
             Except.TimedOut           => "Socket timeout occurred: %",
             Except.UnknownArgs        => "One or more unknown arguments: %",
             _                         => "Unhandled exception occurred: %"
-        });
-
-        if (!arg.IsNullOrEmpty())
-        {
-            message.Build(arg);
-        }
-        return message;
+        };
+        return errorMsg.Replace("%", ThrowIf.NullOrEmpty(arg));
     }
 }
