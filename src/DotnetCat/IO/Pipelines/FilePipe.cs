@@ -76,7 +76,7 @@ internal sealed class FilePipe : SocketPipe
             Output.Log($"Transmitting file '{FilePath}'...");
         }
 
-        data.Append(await ReadToEndAsync());
+        data.Append(await ReadToEndAsync(token));
         await WriteAsync(data, token);
 
         if (_transfer is TransferOpt.Collect)

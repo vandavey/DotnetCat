@@ -75,7 +75,7 @@ internal class TextPipe : SocketPipe
     protected override async Task ConnectAsync(CancellationToken token)
     {
         Connected = true;
-        StringBuilder data = new(await ReadToEndAsync());
+        StringBuilder data = new(await ReadToEndAsync(token));
 
         await WriteAsync(data, token);
         Output.Status("Payload successfully transmitted");

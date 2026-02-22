@@ -57,7 +57,6 @@ internal sealed class ServerNode : Node
             base.Connect();
             WaitForExit();
 
-            Console.WriteLine();
             Output.Log($"Connection to {remoteEndpoint} closed");
         }
         catch (Exception ex) when (ex is AggregateException or SocketException)
@@ -70,7 +69,7 @@ internal sealed class ServerNode : Node
         }
         finally
         {
-            Dispose();
+            Shutdown();
         }
     }
 

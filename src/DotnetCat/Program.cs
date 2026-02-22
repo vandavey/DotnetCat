@@ -31,7 +31,6 @@ internal class Program
         using Node socketNode = Node.Make(parser.CmdArgs);
         socketNode.Connect();
 
-        Console.WriteLine();
         return NO_ERROR_EXIT_CODE;
     }
 }

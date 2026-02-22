@@ -163,14 +163,27 @@ internal abstract class SocketPipe : IConnectable
     protected abstract Task ConnectAsync(CancellationToken token);
 
     /// <summary>
-    ///  Asynchronously read data from the underlying source stream
-    ///  and write it to the underlying memory buffer.
+    ///  Cancel communication between the underlying streams if
+    ///  cancellation was requested on the given cancellation token.
+    /// </summary>
+    protected bool DisconnectIfCancelled(CancellationToken token)
+    {
+        if (token.IsCancellationRequested)
+        {
+            Disconnect();
+        }
+        return token.IsCancellationRequested;
+    }
+
+    /// <summary>
+    ///  Asynchronously read data from the underlying source
+    ///  stream and write it to the underlying memory buffer.
     /// </summary>
     protected async ValueTask<int> ReadAsync(CancellationToken token)
     {
         int bytesRead = -1;
 
-        if (Source is not null && Socket.Connected)
+        if (Source is not null && Socket.Connected && !token.IsCancellationRequested)
         {
             bytesRead = await Source.ReadAsync(Buffer, token);
         }
@@ -178,16 +191,16 @@ internal abstract class SocketPipe : IConnectable
     }
 
     /// <summary>
-    ///  Asynchronously read all the data that is currently available
-    ///  in the underlying source stream.
+    ///  Asynchronously read all the data that is currently
+    ///  available in the underlying source stream.
     /// </summary>
-    protected async ValueTask<string> ReadToEndAsync()
+    protected async ValueTask<string> ReadToEndAsync(CancellationToken token)
     {
         string buffer = string.Empty;
 
-        if (Source is not null && Socket.Connected)
+        if (Source is not null && Socket.Connected && !token.IsCancellationRequested)
         {
-            buffer = await Source.ReadToEndAsync();
+            buffer = await Source.ReadToEndAsync(token);
         }
         return buffer;
     }
@@ -197,7 +210,7 @@ internal abstract class SocketPipe : IConnectable
     /// </summary>
     protected async Task WriteAsync(StringBuilder data, CancellationToken token)
     {
-        if (Dest is not null && Socket.Connected)
+        if (Dest is not null && Socket.Connected && !token.IsCancellationRequested)
         {
             await Dest.WriteAsync(data, token);
         }
