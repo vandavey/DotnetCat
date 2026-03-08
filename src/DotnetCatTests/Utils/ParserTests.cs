@@ -32,7 +32,7 @@ public class ParserTests
         CmdLineArgs cmdArgs = parser.Parse(args);
         bool actual = cmdArgs.Help;
 
-        Assert.IsTrue(actual, "Failed to parse help flag or flag alias");
+        Assert.IsTrue(actual, "Failed to parse help flag or flag alias.");
     }
 
     /// <summary>
@@ -48,7 +48,7 @@ public class ParserTests
         CmdLineArgs cmdArgs = parser.Parse(args);
         bool actual = cmdArgs.Help;
 
-        Assert.IsTrue(actual, "Help should be true when no arguments are provided");
+        Assert.IsTrue(actual, "Help should be true when no arguments are provided.");
     }
 
     /// <summary>
@@ -67,7 +67,7 @@ public class ParserTests
         CmdLineArgs cmdArgs = parser.Parse(args);
         bool actual = cmdArgs.Help;
 
-        Assert.IsFalse(actual, "Unexpectedly parsed help flag or flag alias");
+        Assert.IsFalse(actual, "Unexpectedly parsed help flag or flag alias.");
     }
 #endregion // MethodTests
 }
