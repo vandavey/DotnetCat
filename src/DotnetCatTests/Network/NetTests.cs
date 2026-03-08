@@ -16,33 +16,42 @@ public class NetTests
     /// <summary>
     ///  Assert that a valid input network port number returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.ValidPort(int)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(80)]
     [DataRow(443)]
     [DataRow(8443)]
-    public void ValidPort_ValidPort_ReturnsTrue(int port)
+    public void ValidPort_Is_ReturnsTrue(int port)
     {
         bool actual = Net.ValidPort(port);
-        Assert.IsTrue(actual, $"Port '{port}' should be considered valid");
+        Assert.IsTrue(actual, $"Port '{port}' should be considered valid.");
     }
 
     /// <summary>
     ///  Assert that an invalid input network port number returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.ValidPort(int)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(-80)]
     [DataRow(0)]
     [DataRow(65536)]
-    public void ValidPort_InvalidPort_ReturnsFalse(int port)
+    public void ValidPort_IsNot_ReturnsFalse(int port)
     {
         bool actual = Net.ValidPort(port);
-        Assert.IsFalse(actual, $"Port '{port}' should be considered invalid");
+        Assert.IsFalse(actual, $"Port '{port}' should be considered invalid.");
     }
 
     /// <summary>
     ///  Assert that an input <see cref="AggregateException"/>
     ///  returns the expected <see cref="Except"/> enumerator.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.GetExcept(AggregateException)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
     [DataRow(SocketError.ConnectionRefused, (byte)Except.ConnectionRefused)]
@@ -56,13 +65,16 @@ public class NetTests
         Except expected = (Except)expectedByte;
         Except actual = Net.GetExcept(aggregateEx);
 
-        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'");
+        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'.");
     }
 
     /// <summary>
     ///  Assert that an input <see cref="SocketException"/>
     ///  returns the expected <see cref="Except"/> enumerator.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.GetExcept(SocketException?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
     [DataRow(SocketError.ConnectionRefused, (byte)Except.ConnectionRefused)]
@@ -75,13 +87,16 @@ public class NetTests
         Except expected = (Except)expectedByte;
         Except actual = Net.GetExcept(socketEx);
 
-        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'");
+        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'.");
     }
 
     /// <summary>
     ///  Assert that an input socket error returns a <see cref="SocketException"/>
     ///  that was constructed with the correct socket error.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.MakeException(SocketError)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(SocketError.HostDown)]
     [DataRow(SocketError.NetworkUnreachable)]
@@ -91,13 +106,16 @@ public class NetTests
         SocketException socketEx = Net.MakeException(expected);
         SocketError actual = socketEx.SocketErrorCode;
 
-        Assert.AreEqual(expected, actual, $"Expected error code: '{expected}'");
+        Assert.AreEqual(expected, actual, $"Expected error code: '{expected}'.");
     }
 
     /// <summary>
     ///  Assert that an input <see cref="AggregateException"/> with an inner
     ///  <see cref="SocketException"/> returns the inner <see cref="SocketException"/>.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.SocketException(AggregateException)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(SocketError.SocketError)]
     [DataRow(SocketError.ConnectionRefused)]
@@ -109,20 +127,23 @@ public class NetTests
 
         SocketException? actual = Net.SocketException(aggregateEx);
 
-        Assert.AreEqual(expected, actual, "Failure extracting socket exception");
+        Assert.AreEqual(expected, actual, "Failure extracting socket exception.");
     }
 
     /// <summary>
     ///  Assert that an input <see cref="AggregateException"/> without
     ///  an inner <see cref="SocketException"/> returns null.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.SocketException(AggregateException)"/>.
+    /// </remarks>
     [TestMethod]
     public void SocketException_NoInnerException_ReturnsNull()
     {
         AggregateException aggregateEx = new();
         SocketException? actual = Net.SocketException(aggregateEx);
 
-        Assert.IsNull(actual, "Resulting socket exception should be null");
+        Assert.IsNull(actual, "Resulting socket exception should be null.");
     }
 #endregion // MethodTests
 }
