@@ -48,15 +48,15 @@ public class CommandTests
 
     /// <summary>
     ///  Assert that a null input environment variable name causes
-    ///  an <see cref="ArgumentNullException"/> to be thrown.
+    ///  an <see cref="ArgumentNullException"/> error to be thrown.
     /// </summary>
     [TestMethod]
     public void EnvVariable_NullEnvVariableName_ThrowsArgumentNullException()
     {
         string? name = null;
-        Func<string> func = () => Command.EnvVariable(name!)!;
+        Func<string> testFunc = () => Command.EnvVariable(name!)!;
 
-        Assert.Throws<ArgumentNullException>(func);
+        Assert.Throws<ArgumentNullException>(testFunc);
     }
 
     /// <summary>
@@ -74,15 +74,15 @@ public class CommandTests
 
     /// <summary>
     ///  Assert that a null input shell name causes an
-    ///  <see cref="ArgumentNullException"/> to be thrown.
+    ///  <see cref="ArgumentNullException"/> error to be thrown.
     /// </summary>
     [TestMethod]
     public void ExeStartInfo_NullShell_ThrowsArgumentNullException()
     {
         string? shell = null;
-        Func<ProcessStartInfo> func = () => Command.ExeStartInfo(shell);
+        Func<ProcessStartInfo> testFunc = () => Command.ExeStartInfo(shell);
 
-        Assert.Throws<ArgumentNullException>(func);
+        Assert.Throws<ArgumentNullException>(testFunc);
     }
 
     /// <summary>

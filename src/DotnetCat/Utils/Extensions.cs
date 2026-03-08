@@ -207,7 +207,7 @@ internal static class Extensions
     public static string Join<T>([NotNull] this IEnumerable<T>? values,
                                  string? delim = default)
     {
-        return string.Join(delim, ThrowIf.NullOrEmpty(values));
+        return string.Join(delim, ThrowIf.Null(values));
     }
 
     /// <summary>

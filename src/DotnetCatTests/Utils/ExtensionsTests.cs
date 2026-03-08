@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotnetCat.Shell;
 using DotnetCat.Utils;
 
 namespace DotnetCatTests.Utils;
@@ -26,13 +29,13 @@ public class ExtensionsTests
     [DataRow(typeof(int), typeof(string), typeof(double))]
     public void ForEach_NotNullCollection_CorrectAction(params object[] values)
     {
-        string[] expected = [.. values.Select(v => $"TEST: {v}")];
+        string[] expected = [.. values.Select(v => $"Test value: {v}")];
         List<string> actual = [];
 
-        Action<object> action = v => actual.Add($"TEST: {v}");
+        Action<object> action = v => actual.Add($"Test value: {v}");
         values.ForEach(action);
 
-        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
+        CollectionAssert.AreEquivalent(expected, actual, "Unexpected results.");
     }
 
     /// <summary>
@@ -44,10 +47,94 @@ public class ExtensionsTests
         object[]? values = null;
         List<string> actual = [];
 
-        Action<object> action = v => actual.Add($"TEST: {v}");
+        Action<object> action = v => actual.Add($"Test value: {v}");
         values.ForEach(action);
 
         Assert.IsEmpty(actual, "No actions should be executed.");
+    }
+
+    /// <summary>
+    ///  Assert that a line is written when an input condition is true.
+    /// </summary>
+    [TestMethod]
+    public void WriteLineIf_ConditionTrue_DoesWrite()
+    {
+        bool condition = true;
+        StringBuilder data = new();
+
+        using TextWriter writer = new StringWriter(data);
+        writer.WriteLineIf(condition);
+
+        string expected = SysInfo.Eol;
+        string actual = data.ToString();
+
+        Assert.AreEqual(expected, actual, $"Expected result: '{expected}'.");
+    }
+
+    /// <summary>
+    ///  Assert that a line is not written when an input condition is false.
+    /// </summary>
+    [TestMethod]
+    public void WriteLineIf_ConditionFalse_DoesNotWrite()
+    {
+        bool condition = false;
+        StringBuilder data = new();
+
+        using TextWriter writer = new StringWriter(data);
+        writer.WriteLineIf(condition);
+
+        string expected = string.Empty;
+        string actual = data.ToString();
+
+        Assert.AreEqual(expected, actual, "Expected empty string result.");
+    }
+
+    /// <summary>
+    ///  Assert that a line is written when an input condition is true.
+    /// </summary>
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(null)]
+    [DataRow(16.0)]
+    [DataRow(0x0010U)]
+    [DataRow("testing")]
+    [DataRow(["test", "data"])]
+    public void WriteLineIf_ConditionTrue_DoesWrite(object? obj)
+    {
+        bool condition = true;
+        StringBuilder data = new();
+
+        using TextWriter writer = new StringWriter(data);
+        writer.WriteLineIf(condition, obj);
+
+        string expected = $"{obj}{SysInfo.Eol}";
+        string actual = data.ToString();
+
+        Assert.AreEqual(expected, actual, $"Expected result '{expected}'.");
+    }
+
+    /// <summary>
+    ///  Assert that a line is not written when an input condition is false.
+    /// </summary>
+    [TestMethod]
+    [DataRow(0)]
+    [DataRow(null)]
+    [DataRow(16.0)]
+    [DataRow(0x0010U)]
+    [DataRow("testing")]
+    [DataRow(["test", "data"])]
+    public void WriteLineIf_ConditionFalse_DoesNotWrite(object? obj)
+    {
+        bool condition = false;
+        StringBuilder data = new();
+
+        using TextWriter writer = new StringWriter(data);
+        writer.WriteLineIf(condition, obj);
+
+        string expected = string.Empty;
+        string actual = data.ToString();
+
+        Assert.AreEqual(expected, actual, "Expected empty string result.");
     }
 
     /// <summary>
@@ -120,10 +207,11 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that a null input string returns false.
+    ///  Assert that an input string not ending with a single
+    ///  or double quotation mark character returns false.
     /// </summary>
     [TestMethod]
-    public void EndsWithQuote_NullString_ReturnsFalse()
+    public void EndsWithQuote_DoesNot_ReturnsFalse()
     {
         string? str = null;
         bool actual = str.EndsWithQuote();
@@ -139,7 +227,7 @@ public class ExtensionsTests
     [DataRow(" test data ", ' ')]
     [DataRow("test data 1", '1')]
     [DataRow("test data\0", '\0')]
-    public void EndsWithValue_CharDoes_ReturnsTrue(string? str, char value)
+    public void EndsWithValue_Does_ReturnsTrue(string? str, char value)
     {
         bool actual = str.EndsWithValue(value);
         Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'.");
@@ -153,7 +241,7 @@ public class ExtensionsTests
     [DataRow(" test data", ' ')]
     [DataRow("test data", 't')]
     [DataRow("\0test data", '\0')]
-    public void EndsWithValue_CharDoesNot_ReturnsFalse(string? str, char value)
+    public void EndsWithValue_DoesNot_ReturnsFalse(string? str, char value)
     {
         bool actual = str.EndsWithValue(value);
         Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'.");
@@ -166,7 +254,7 @@ public class ExtensionsTests
     [DataRow("test data", " data")]
     [DataRow("test data ", "data ")]
     [DataRow("test data", "test data")]
-    public void EndsWithValue_StringDoes_ReturnsTrue(string? str, string? value)
+    public void EndsWithValue_Does_ReturnsTrue(string? str, string? value)
     {
         bool actual = str.EndsWithValue(value);
         Assert.IsTrue(actual, $"Expected '{str}' to end with '{value}'.");
@@ -179,7 +267,7 @@ public class ExtensionsTests
     [DataRow(null, "test data")]
     [DataRow("test data", null)]
     [DataRow("test data", " data ")]
-    public void EndsWithValue_StringDoesNot_ReturnsFalse(string? str, string? value)
+    public void EndsWithValue_DoesNot_ReturnsFalse(string? str, string? value)
     {
         bool actual = str.EndsWithValue(value);
         Assert.IsFalse(actual, $"Expected '{str}' to not end with '{value}'.");
@@ -229,10 +317,23 @@ public class ExtensionsTests
     [DataRow("test", "TEST")]
     [DataRow("TEST", "test")]
     [DataRow("tEsT", "TeSt")]
-    public void IgnCaseEquals_EqualStrings_ReturnsTrue(string? str, string? value)
+    public void IgnCaseEquals_Does_ReturnsTrue(string? str, string? value)
     {
         bool actual = str.IgnCaseEquals(value);
         Assert.IsTrue(actual, $"Expected '{str}' to equal '{value}'.");
+    }
+
+    /// <summary>
+    ///  Assert that an input string whose value is equal to
+    ///  another string when casing is ignored returns true.
+    /// </summary>
+    [TestMethod]
+    public void IgnCaseEquals_Does_ReturnsTrue()
+    {
+        string? str = null;
+        bool actual = str.IgnCaseEquals(null);
+
+        Assert.IsTrue(actual, "Expected null to equal null.");
     }
 
     /// <summary>
@@ -243,22 +344,10 @@ public class ExtensionsTests
     [DataRow(null, "test")]
     [DataRow("test", null)]
     [DataRow("tEsT", "DaTa")]
-    public void IgnCaseEquals_NotEqualStrings_ReturnsFalse(string? str, string? value)
+    public void IgnCaseEquals_DoesNot_ReturnsFalse(string? str, string? value)
     {
         bool actual = str.IgnCaseEquals(value);
         Assert.IsFalse(actual, $"Expected '{str}' to not equal '{value}'.");
-    }
-
-    /// <summary>
-    ///  Assert that a null input string compared to another null string returns true.
-    /// </summary>
-    [TestMethod]
-    public void IgnCaseEquals_NullStrings_ReturnsTrue()
-    {
-        string? str = null;
-        bool actual = str.IgnCaseEquals(null);
-
-        Assert.IsTrue(actual, "Expected null to equal null.");
     }
 
     /// <summary>
@@ -350,7 +439,7 @@ public class ExtensionsTests
     ///  Assert that a null input string returns true.
     /// </summary>
     [TestMethod]
-    public void IsNullOrEmpty_NullString_ReturnsTrue()
+    public void IsNullOrEmpty_StringIs_ReturnsTrue()
     {
         string? str = null;
         bool actual = str.IsNullOrEmpty();
@@ -364,7 +453,7 @@ public class ExtensionsTests
     [TestMethod]
     [DataRow("")]
     [DataRow("    ")]
-    public void IsNullOrEmpty_EmptyOrBlankString_ReturnsTrue(string? str)
+    public void IsNullOrEmpty_StringIs_ReturnsTrue(string? str)
     {
         bool actual = str.IsNullOrEmpty();
         Assert.IsTrue(actual, "Expected empty/blank string to be null or empty.");
@@ -377,84 +466,48 @@ public class ExtensionsTests
     [DataRow("testing")]
     [DataRow("  testing")]
     [DataRow("testing  ")]
-    public void IsNullOrEmpty_PopulatedString_ReturnsFalse(string? str)
+    public void IsNullOrEmpty_StringIsNot_ReturnsFalse(string? str)
     {
         bool actual = str.IsNullOrEmpty();
         Assert.IsFalse(actual, "Expected populated string to not be null or empty.");
     }
 
     /// <summary>
-    ///  Assert that a null input array returns true.
+    ///  Assert that a null input collection returns true.
     /// </summary>
     [TestMethod]
-    public void IsNullOrEmpty_NullArray_ReturnsTrue()
+    public void IsNullOrEmpty_CollectionIs_ReturnsTrue()
     {
-        string[]? array = null;
-        bool actual = array.IsNullOrEmpty();
+        List<string>? values = null;
+        bool actual = values.IsNullOrEmpty();
 
-        Assert.IsTrue(actual, "Expected null array to be null or empty.");
+        Assert.IsTrue(actual, "Expected null collection to be null or empty.");
     }
 
     /// <summary>
-    ///  Assert that an empty input array returns true.
+    ///  Assert that an empty input collection returns true.
     /// </summary>
     [TestMethod]
-    public void IsNullOrEmpty_EmptyArray_ReturnsTrue()
+    [DataRow(new object[0])]
+    public void IsNullOrEmpty_CollectionIs_ReturnsTrue(object[]? values)
     {
-        string[] array = [];
-        bool actual = array.IsNullOrEmpty();
-
-        Assert.IsTrue(actual, "Expected empty array to be null or empty.");
+        bool actual = values.IsNullOrEmpty();
+        Assert.IsTrue(actual, "Expected empty collection to be null or empty.");
     }
 
     /// <summary>
-    ///  Assert that a populated input array returns false.
+    ///  Assert that a populated input collection returns false.
     /// </summary>
     [TestMethod]
     [DataRow(1, 2, 3)]
     [DataRow("test", "data")]
-    public void IsNullOrEmpty_PopulatedArray_ReturnsFalse(params object[] array)
+    [DataRow(1U, 2U, 4U, 16U, 32U, 64U)]
+    public void IsNullOrEmpty_CollectionIsNot_ReturnsFalse(params object[] array)
     {
-        bool actual = array.IsNullOrEmpty();
-        Assert.IsFalse(actual, "Expected populated array to not be null or empty.");
-    }
+        List<object>? values = [.. array];
+        bool actual = values.IsNullOrEmpty();
 
-    /// <summary>
-    ///  Assert that a null generic input list returns true.
-    /// </summary>
-    [TestMethod]
-    public void IsNullOrEmpty_NullList_ReturnsTrue()
-    {
-        List<string>? list = null;
-        bool actual = list.IsNullOrEmpty();
-
-        Assert.IsTrue(actual, "Expected null list to be null or empty.");
-    }
-
-    /// <summary>
-    ///  Assert that an empty generic input list returns true.
-    /// </summary>
-    [TestMethod]
-    public void IsNullOrEmpty_EmptyList_ReturnsTrue()
-    {
-        List<object> list = [];
-        bool actual = list.IsNullOrEmpty();
-
-        Assert.IsTrue(actual, "Expected empty list to be null or empty.");
-    }
-
-    /// <summary>
-    ///  Assert that a populated generic input list returns false.
-    /// </summary>
-    [TestMethod]
-    [DataRow(1, 2, 3)]
-    [DataRow("test", "data")]
-    public void IsNullOrEmpty_PopulatedList_ReturnsFalse(params object[] array)
-    {
-        List<object> list = [.. array];
-        bool actual = list.IsNullOrEmpty();
-
-        Assert.IsFalse(actual, "Expected populated list to not be null or empty.");
+        Assert.IsFalse(actual, "Expected populated collection to not be null or empty.");
     }
 
     /// <summary>
@@ -517,10 +570,11 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that a null input string returns false.
+    ///  Assert that an input string not starting with a single
+    ///  or double quotation mark character returns false.
     /// </summary>
     [TestMethod]
-    public void StartsWithQuote_NullString_ReturnsFalse()
+    public void StartsWithQuote_DoesNot_ReturnsFalse()
     {
         string? str = null;
         bool actual = str.StartsWithQuote();
@@ -536,7 +590,7 @@ public class ExtensionsTests
     [DataRow(" test data ", ' ')]
     [DataRow("1 test data", '1')]
     [DataRow("\0test data", '\0')]
-    public void StartsWithValue_CharDoes_ReturnsTrue(string? str, char value)
+    public void StartsWithValue_Does_ReturnsTrue(string? str, char value)
     {
         bool actual = str.StartsWithValue(value);
         Assert.IsTrue(actual, $"Expected '{str}' to start with '{value}'.");
@@ -550,7 +604,7 @@ public class ExtensionsTests
     [DataRow(" test data ", 't')]
     [DataRow("test data ", ' ')]
     [DataRow("test data\0", '\0')]
-    public void StartsWithValue_CharDoesNot_ReturnsFalse(string? str, char value)
+    public void StartsWithValue_DoesNot_ReturnsFalse(string? str, char value)
     {
         bool actual = str.StartsWithValue(value);
         Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'.");
@@ -563,7 +617,7 @@ public class ExtensionsTests
     [DataRow("test data", "test ")]
     [DataRow(" test data ", " test d")]
     [DataRow("test data", "test data")]
-    public void StartsWithValue_StringDoes_ReturnsTrue(string? str, string? value)
+    public void StartsWithValue_Does_ReturnsTrue(string? str, string? value)
     {
         bool actual = str.StartsWithValue(value);
         Assert.IsTrue(actual, $"Expected '{str}' to start with '{value}'.");
@@ -576,80 +630,82 @@ public class ExtensionsTests
     [DataRow(null, "test data")]
     [DataRow("test data", null)]
     [DataRow("test data", " test ")]
-    public void StartsWithValue_StringDoesNot_ReturnsFalse(string? str, string? value)
+    public void StartsWithValue_DoesNot_ReturnsFalse(string? str, string? value)
     {
         bool actual = str.StartsWithValue(value);
         Assert.IsFalse(actual, $"Expected '{str}' to not start with '{value}'.");
     }
 
     /// <summary>
-    ///  Assert that an <see cref="ArgumentNullException"/>
-    ///  is thrown when the input array is null.
+    ///  Assert that a joined input collection returns the expected result string.
     /// </summary>
     [TestMethod]
-    [DataRow("")]
-    [DataRow("|")]
-    public void Join_NullArray_ThrowsArgumentNullException(string delim)
-    {
-        string[]? array = null;
-        Func<string> func = () => array.Join(delim);
-
-        Assert.Throws<ArgumentNullException>(func);
-    }
-
-    /// <summary>
-    ///  Assert that the joined output string is equal to the expected result.
-    /// </summary>
-    [TestMethod]
+    [DataRow(new object[0], "|")]
     [DataRow(new object[] { 1, 2, 3 }, "|")]
     [DataRow(new string[] { "test", "data" }, null)]
-    public void Join_NonNullArray_EqualsExpected(object[] array, string? delim)
+    public void Join_NotNullCollection_ReturnsExpected(object[]? values, string? delim)
     {
-        string expected = string.Join(delim, array);
-        string actual = array.Join(delim);
+        string expected = string.Join(delim, values!);
+        string actual = values.Join(delim);
 
         Assert.AreEqual(expected, actual, $"Expected result string: '{expected}'.");
     }
 
     /// <summary>
-    ///  Assert that an <see cref="ArgumentNullException"/>
-    ///  is thrown when the input array is null.
+    ///  Assert that a null input collection causes an
+    ///  <see cref="ArgumentNullException"/> error to be thrown.
     /// </summary>
     [TestMethod]
-    public void JoinLines_NullArray_ThrowsArgumentNullException()
+    [DataRow("")]
+    [DataRow("|")]
+    public void Join_NullCollection_ThrowsArgumentNullException(string? delim)
     {
-        string[]? array = null;
-        Assert.Throws<ArgumentNullException>(array.JoinLines);
+        string[]? values = null;
+        Func<string> testFunc = () => values.Join(delim);
+
+        Assert.Throws<ArgumentNullException>(testFunc);
     }
 
     /// <summary>
-    ///  Assert that a populated input collection returns the expected tuple enumerable.
+    ///  Assert that a joined input collection returns the expected result string.
     /// </summary>
     [TestMethod]
-    [DataRow(0, 1, 2, 3)]
-    [DataRow("test", "data")]
-    [DataRow('t', 'e', 's', 't')]
-    public void Enumerate_PopulatedCollection_ReturnsExpected(params object[] values)
+    [DataRow(new object[0])]
+    [DataRow([1, 2, 3])]
+    [DataRow(["test", "data"])]
+    public void JoinLines_NotNullCollection_ReturnsExpected(object[]? values)
     {
-        (int, object)[] expected = [.. values.Select((v, i) => (i, v))];
+        string expected = string.Join(SysInfo.Eol, values!);
+        string actual = values.JoinLines();
+
+        Assert.AreEqual(expected, actual, $"Expected result string: '{expected}'.");
+    }
+
+    /// <summary>
+    ///  Assert that a null input collection causes an
+    ///  <see cref="ArgumentNullException"/> error to be thrown.
+    /// </summary>
+    [TestMethod]
+    public void JoinLines_NullCollection_ThrowsArgumentNullException()
+    {
+        string[]? values = null;
+        Assert.Throws<ArgumentNullException>(values.JoinLines);
+    }
+
+    /// <summary>
+    ///  Assert that a non-null input collection returns the expected tuple enumerable.
+    /// </summary>
+    [TestMethod]
+    [DataRow(new object[0])]
+    [DataRow([0, 1, 2, 3])]
+    [DataRow(["test", "data"])]
+    [DataRow(['t', 'e', 's', 't'])]
+    public void Enumerate_NotNullCollection_ReturnsExpected(object[]? values)
+    {
+        (int, object)[] expected = [.. values!.Select((v, i) => (i, v))];
         (int, object)[] actual = [.. values.Enumerate()];
 
-        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
-    }
-
-    /// <summary>
-    ///  Assert that an empty input collection returns an empty tuple enumerable.
-    /// </summary>
-    [TestMethod]
-    public void Enumerate_EmptyCollection_ReturnsEmpty()
-    {
-        IEnumerable<string>? values = [];
-        (int, string)[] expected = [];
-
-        IEnumerable<(int, string)> actualEnumerable = values.Enumerate();
-        (int, string)[] actual = [.. actualEnumerable];
-
-        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
+        CollectionAssert.AreEquivalent(expected, actual, "Unexpected results.");
     }
 
     /// <summary>
@@ -663,43 +719,28 @@ public class ExtensionsTests
         (int, string)[] expected = [];
         (int, string)[] actual = [.. values.Enumerate()];
 
-        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
+        CollectionAssert.AreEquivalent(expected, actual, "Unexpected results.");
     }
 
     /// <summary>
-    ///  Assert that a populated input collection returns
+    ///  Assert that a non-null input collection returns
     ///  the expected tuple enumerable when filtered.
     /// </summary>
     [TestMethod]
-    [DataRow(0, 1, 2, 3, 4, 5, 6)]
-    [DataRow(1, 2, 4, 8, 16, 32, 64)]
-    [DataRow(1, 3, 9, 27, 81, 243, 729)]
-    [DataRow(0.0, 0.5, 1, 1.5, 2, 2.5, 3)]
-    public void Enumerate_PopulatedFiltered_ReturnsExpected(params double[] values)
+    [DataRow(new double[0])]
+    [DataRow(new double[] { 0, 1, 2, 3, 4, 5, 6 })]
+    [DataRow(new double[] { 1, 2, 4, 8, 16, 32, 64 })]
+    [DataRow(new double[] { 1, 3, 9, 27, 81, 243, 729 })]
+    [DataRow(new double[] { 0.0, 0.5, 1, 1.5, 2, 2.5, 3 })]
+    public void Enumerate_FilteredNotNullCollection_ReturnsExpected(double[]? values)
     {
         Func<(int, double Value), bool> filter = t => t.Value % 2.0 == 0.0;
-        IEnumerable<(int, double)> enumeratedValues = values.Select((v, i) => (i, v));
+        IEnumerable<(int, double)> enumeratedValues = values!.Select((v, i) => (i, v));
 
         (int, double)[] expected = [.. enumeratedValues.Where(filter)];
         (int, double)[] actual = [.. values.Enumerate(filter)];
 
-        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
-    }
-
-    /// <summary>
-    ///  Assert that an empty input collection returns
-    ///  an empty tuple enumerable when filtered.
-    /// </summary>
-    [TestMethod]
-    public void Enumerate_EmptyFiltered_ReturnsEmpty()
-    {
-        IEnumerable<double>? values = [];
-        Func<(int, double Value), bool> filter = t => t.Value % 2.0 == 0.0;
-
-        (int, double)[] expected = [];
-        (int, double)[] actual = [.. values.Enumerate(filter)];
-
-        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
+        CollectionAssert.AreEquivalent(expected, actual, "Unexpected results.");
     }
 
     /// <summary>
@@ -707,7 +748,7 @@ public class ExtensionsTests
     ///  an empty tuple enumerable when filtered.
     /// </summary>
     [TestMethod]
-    public void Enumerate_NullFiltered_ReturnsEmpty()
+    public void Enumerate_FilteredNullCollection_ReturnsEmpty()
     {
         IEnumerable<double>? values = null;
         Func<(int, double Value), bool> filter = t => t.Value % 2.0 == 0.0;
@@ -715,7 +756,7 @@ public class ExtensionsTests
         (int, double)[] expected = [];
         (int, double)[] actual = [.. values.Enumerate(filter)];
 
-        CollectionAssert.AreEquivalent(actual, expected, "Unexpected results.");
+        CollectionAssert.AreEquivalent(expected, actual, "Unexpected results.");
     }
 #endregion // MethodTests
 }
