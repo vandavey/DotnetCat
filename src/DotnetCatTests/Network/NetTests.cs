@@ -20,10 +20,10 @@ public class NetTests
     [DataRow(80)]
     [DataRow(443)]
     [DataRow(8443)]
-    public void ValidPort_ValidPort_ReturnsTrue(int port)
+    public void ValidPort_Is_ReturnsTrue(int port)
     {
         bool actual = Net.ValidPort(port);
-        Assert.IsTrue(actual, $"Port '{port}' should be considered valid");
+        Assert.IsTrue(actual, $"Port '{port}' should be considered valid.");
     }
 
     /// <summary>
@@ -33,10 +33,10 @@ public class NetTests
     [DataRow(-80)]
     [DataRow(0)]
     [DataRow(65536)]
-    public void ValidPort_InvalidPort_ReturnsFalse(int port)
+    public void ValidPort_IsNot_ReturnsFalse(int port)
     {
         bool actual = Net.ValidPort(port);
-        Assert.IsFalse(actual, $"Port '{port}' should be considered invalid");
+        Assert.IsFalse(actual, $"Port '{port}' should be considered invalid.");
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public class NetTests
         Except expected = (Except)expectedByte;
         Except actual = Net.GetExcept(aggregateEx);
 
-        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'");
+        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'.");
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public class NetTests
         Except expected = (Except)expectedByte;
         Except actual = Net.GetExcept(socketEx);
 
-        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'");
+        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'.");
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public class NetTests
         SocketException socketEx = Net.MakeException(expected);
         SocketError actual = socketEx.SocketErrorCode;
 
-        Assert.AreEqual(expected, actual, $"Expected error code: '{expected}'");
+        Assert.AreEqual(expected, actual, $"Expected error code: '{expected}'.");
     }
 
     /// <summary>
@@ -109,7 +109,7 @@ public class NetTests
 
         SocketException? actual = Net.SocketException(aggregateEx);
 
-        Assert.AreEqual(expected, actual, "Failure extracting socket exception");
+        Assert.AreEqual(expected, actual, "Failure extracting socket exception.");
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ public class NetTests
         AggregateException aggregateEx = new();
         SocketException? actual = Net.SocketException(aggregateEx);
 
-        Assert.IsNull(actual, "Resulting socket exception should be null");
+        Assert.IsNull(actual, "Resulting socket exception should be null.");
     }
 #endregion // MethodTests
 }
