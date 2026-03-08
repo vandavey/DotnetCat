@@ -17,6 +17,9 @@ public class FileSysTests
     /// <summary>
     ///  Assert that the home directory path of the current user is returned.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.UserProfile"/>.
+    /// </remarks>
     [TestMethod]
     public void UserProfile_Get_ReturnsHomePath()
     {
@@ -31,6 +34,9 @@ public class FileSysTests
     /// <summary>
     ///  Assert that the home directory path of the current user exists.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.UserProfile"/>.
+    /// </remarks>
     [TestMethod]
     public void UserProfile_Get_HomePathExists()
     {
@@ -45,6 +51,9 @@ public class FileSysTests
     /// <summary>
     ///  Assert that an existing input file or directory path returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.Exists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(HOME_PATH_ALIAS)]
     [DataRow(".")]
@@ -67,6 +76,9 @@ public class FileSysTests
     /// <summary>
     ///  Assert that a nonexistent input file or directory path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.Exists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
@@ -86,6 +98,9 @@ public class FileSysTests
     /// <summary>
     ///  Assert that a nonexistent input file or directory path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.Exists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     public void Exists_DoesNot_ReturnsFalse()
     {
@@ -98,6 +113,9 @@ public class FileSysTests
     /// <summary>
     ///  Assert that an existing input file path returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.FileExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
 #if WINDOWS
     [DataRow("/Windows/explorer.exe")]
@@ -117,6 +135,9 @@ public class FileSysTests
     /// <summary>
     ///  Assert that a nonexistent input file path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.FileExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
@@ -137,6 +158,9 @@ public class FileSysTests
     /// <summary>
     ///  Assert that a nonexistent input file path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.FileExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     public void FileExists_DoesNot_ReturnsFalse()
     {
@@ -149,6 +173,9 @@ public class FileSysTests
     /// <summary>
     ///  Assert that an existing input directory path returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.DirectoryExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(HOME_PATH_ALIAS)]
     [DataRow("/")]
@@ -164,6 +191,9 @@ public class FileSysTests
     /// <summary>
     ///  Assert that a nonexistent input directory path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.DirectoryExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
@@ -183,6 +213,9 @@ public class FileSysTests
     /// <summary>
     ///  Assert that a nonexistent input directory path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.DirectoryExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     public void DirectoryExists_DoesNot_ReturnsFalse()
     {

@@ -21,6 +21,9 @@ public class ExtensionsTests
     ///  Assert that an action is correctly executed
     ///  against values in a non-null input collection.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.ForEach{T}(IEnumerable{T}?, Action{T})"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(0)]
     [DataRow([])]
@@ -41,6 +44,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that no action is executed against values in a null input collection.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.ForEach{T}(IEnumerable{T}?, Action{T})"/>.
+    /// </remarks>
     [TestMethod]
     public void ForEach_NullCollection_NoAction()
     {
@@ -56,6 +62,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a line is written when an input condition is true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.WriteLineIf(TextWriter, bool)"/>.
+    /// </remarks>
     [TestMethod]
     public void WriteLineIf_ConditionTrue_DoesWrite()
     {
@@ -74,6 +83,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a line is not written when an input condition is false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.WriteLineIf(TextWriter, bool)"/>.
+    /// </remarks>
     [TestMethod]
     public void WriteLineIf_ConditionFalse_DoesNotWrite()
     {
@@ -92,6 +104,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a line is written when an input condition is true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.WriteLineIf{T}(TextWriter, bool, T?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(0)]
     [DataRow(null)]
@@ -116,6 +131,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a line is not written when an input condition is false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.WriteLineIf{T}(TextWriter, bool, T?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(0)]
     [DataRow(null)]
@@ -141,6 +159,9 @@ public class ExtensionsTests
     ///  Assert that an input collection containing at least
     ///  the same values as another collection returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.ContainsAll{T}(ICollection{T}?, IEnumerable{T}?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(new object[] { 0 }, new object[] { 0 })]
     [DataRow(new object[] { false, true }, new object[] { false })]
@@ -158,6 +179,9 @@ public class ExtensionsTests
     ///  Assert that an input collection not containing at least
     ///  the same values as another collection returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.ContainsAll{T}(ICollection{T}?, IEnumerable{T}?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(null, new object[] { })]
     [DataRow(new object[] { }, null)]
@@ -178,6 +202,9 @@ public class ExtensionsTests
     ///  Assert that an input string ending with a single
     ///  or double quotation mark character returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.EndsWithQuote(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("'")]
     [DataRow(" '")]
@@ -194,6 +221,9 @@ public class ExtensionsTests
     ///  Assert that an input string not ending with a single
     ///  or double quotation mark character returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.EndsWithQuote(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("")]
     [DataRow("' ")]
@@ -210,6 +240,9 @@ public class ExtensionsTests
     ///  Assert that an input string not ending with a single
     ///  or double quotation mark character returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.EndsWithQuote(string?)"/>.
+    /// </remarks>
     [TestMethod]
     public void EndsWithQuote_DoesNot_ReturnsFalse()
     {
@@ -222,6 +255,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string ending with a specific character returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.EndsWithValue(string?, char)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("test data", 'a')]
     [DataRow(" test data ", ' ')]
@@ -236,6 +272,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string not ending with a specific character returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.EndsWithValue(string?, char)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(null, 't')]
     [DataRow(" test data", ' ')]
@@ -250,6 +289,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string ending with a specific substring returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.EndsWithValue(string?, string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("test data", " data")]
     [DataRow("test data ", "data ")]
@@ -263,6 +305,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string not ending with a specific substring returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.EndsWithValue(string?, string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(null, "test data")]
     [DataRow("test data", null)]
@@ -277,6 +322,9 @@ public class ExtensionsTests
     ///  Assert that an input argument whose value is
     ///  equal to any value in a collection returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.EqualsAny{T}(T?, IEnumerable{T})"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(0, new object[] { 0, 1 })]
     [DataRow(32U, new object[] { 16U, 32U, 64U })]
@@ -294,6 +342,9 @@ public class ExtensionsTests
     ///  Assert that an input argument whose value is not
     ///  equal to any value in a collection returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.EqualsAny{T}(T?, IEnumerable{T})"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(5, new object[] { 0, 1 })]
     [DataRow(4U, new object[] { 16U, 32U, 64U })]
@@ -311,6 +362,9 @@ public class ExtensionsTests
     ///  Assert that an input string whose value is equal to
     ///  another string when casing is ignored returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IgnCaseEquals(string?, string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("", "")]
     [DataRow("  ", "  ")]
@@ -327,6 +381,9 @@ public class ExtensionsTests
     ///  Assert that an input string whose value is equal to
     ///  another string when casing is ignored returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IgnCaseEquals(string?, string?)"/>.
+    /// </remarks>
     [TestMethod]
     public void IgnCaseEquals_Does_ReturnsTrue()
     {
@@ -340,6 +397,9 @@ public class ExtensionsTests
     ///  Assert that an input string whose value is not equal to
     ///  another string when casing is ignored returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IgnCaseEquals(string?, string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(null, "test")]
     [DataRow("test", null)]
@@ -353,6 +413,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input value type whose value is default returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsDefault{T}(T?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(typeof(bool))]
     [DataRow(typeof(byte))]
@@ -376,6 +439,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input value type whose value is not default returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsDefault{T}(T?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(typeof(bool), true)]
     [DataRow(typeof(byte), (byte)1)]
@@ -398,6 +464,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input reference type whose value is default returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsDefault{T}(T?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(typeof(object))]
     [DataRow(typeof(Exception))]
@@ -418,6 +487,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input reference type whose value is not default returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsDefault{T}(T?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(typeof(object))]
     [DataRow(typeof(Exception))]
@@ -438,6 +510,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a null input string returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsNullOrEmpty(string?)"/>.
+    /// </remarks>
     [TestMethod]
     public void IsNullOrEmpty_StringIs_ReturnsTrue()
     {
@@ -450,6 +525,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an empty or blank input string returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsNullOrEmpty(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("")]
     [DataRow("    ")]
@@ -462,6 +540,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a populated input string returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsNullOrEmpty(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("testing")]
     [DataRow("  testing")]
@@ -475,6 +556,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a null input collection returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsNullOrEmpty{T}(IEnumerable{T}?)"/>.
+    /// </remarks>
     [TestMethod]
     public void IsNullOrEmpty_CollectionIs_ReturnsTrue()
     {
@@ -487,6 +571,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an empty input collection returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsNullOrEmpty{T}(IEnumerable{T}?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(new object[0])]
     public void IsNullOrEmpty_CollectionIs_ReturnsTrue(object[]? values)
@@ -498,6 +585,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a populated input collection returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsNullOrEmpty{T}(IEnumerable{T}?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(1, 2, 3)]
     [DataRow("test", "data")]
@@ -513,6 +603,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input type that is a value tuple returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsValueTuple(Type)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(typeof((byte, uint)))]
     [DataRow(typeof((long, double, string)))]
@@ -526,6 +619,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input type that is not a value tuple returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsValueTuple(Type)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(typeof(int))]
     [DataRow(typeof(string[]))]
@@ -541,6 +637,9 @@ public class ExtensionsTests
     ///  Assert that an input string starting with a single
     ///  or double quotation mark character returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.StartsWithQuote(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("'")]
     [DataRow("' ")]
@@ -557,6 +656,9 @@ public class ExtensionsTests
     ///  Assert that an input string not starting with a single
     ///  or double quotation mark character returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.StartsWithQuote(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("")]
     [DataRow(" '")]
@@ -573,6 +675,9 @@ public class ExtensionsTests
     ///  Assert that an input string not starting with a single
     ///  or double quotation mark character returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.StartsWithQuote(string?)"/>.
+    /// </remarks>
     [TestMethod]
     public void StartsWithQuote_DoesNot_ReturnsFalse()
     {
@@ -585,6 +690,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string starting with a specific character returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.StartsWithValue(string?, char)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("test data", 't')]
     [DataRow(" test data ", ' ')]
@@ -599,6 +707,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string not starting with a specific character returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.StartsWithValue(string?, char)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(null, 't')]
     [DataRow(" test data ", 't')]
@@ -613,6 +724,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string starting with a specific substring returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.StartsWithValue(string?, string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("test data", "test ")]
     [DataRow(" test data ", " test d")]
@@ -626,6 +740,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that an input string not starting with a specific substring returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.StartsWithValue(string?, string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(null, "test data")]
     [DataRow("test data", null)]
@@ -639,6 +756,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a joined input collection returns the expected result string.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.Join{T}(IEnumerable{T}?, string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(new object[0], "|")]
     [DataRow(new object[] { 1, 2, 3 }, "|")]
@@ -655,6 +775,9 @@ public class ExtensionsTests
     ///  Assert that a null input collection causes an
     ///  <see cref="ArgumentNullException"/> error to be thrown.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.Join{T}(IEnumerable{T}?, string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("")]
     [DataRow("|")]
@@ -669,6 +792,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a joined input collection returns the expected result string.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.JoinLines{T}(IEnumerable{T}?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(new object[0])]
     [DataRow([1, 2, 3])]
@@ -685,6 +811,9 @@ public class ExtensionsTests
     ///  Assert that a null input collection causes an
     ///  <see cref="ArgumentNullException"/> error to be thrown.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.JoinLines{T}(IEnumerable{T}?)"/>.
+    /// </remarks>
     [TestMethod]
     public void JoinLines_NullCollection_ThrowsArgumentNullException()
     {
@@ -695,6 +824,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a non-null input collection returns the expected tuple enumerable.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.Enumerate{T}(IEnumerable{T}?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(new object[0])]
     [DataRow([0, 1, 2, 3])]
@@ -711,6 +843,9 @@ public class ExtensionsTests
     /// <summary>
     ///  Assert that a null input collection returns an empty tuple enumerable.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.Enumerate{T}(IEnumerable{T}?)"/>.
+    /// </remarks>
     [TestMethod]
     public void Enumerate_NullCollection_ReturnsEmpty()
     {
@@ -726,6 +861,11 @@ public class ExtensionsTests
     ///  Assert that a non-null input collection returns
     ///  the expected tuple enumerable when filtered.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="
+    ///      Extensions.Enumerate{T}(IEnumerable{T}?, Func{ValueTuple{int, T}, bool})
+    ///  "/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(new double[0])]
     [DataRow(new double[] { 0, 1, 2, 3, 4, 5, 6 })]
@@ -747,6 +887,11 @@ public class ExtensionsTests
     ///  Assert that a null input collection returns
     ///  an empty tuple enumerable when filtered.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="
+    ///      Extensions.Enumerate{T}(IEnumerable{T}?, Func{ValueTuple{int, T}, bool})
+    ///  "/>.
+    /// </remarks>
     [TestMethod]
     public void Enumerate_FilteredNullCollection_ReturnsEmpty()
     {

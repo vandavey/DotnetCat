@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotnetCat.Utils;
 
@@ -15,6 +16,9 @@ public class ParserTests
     ///  help flag or flag alias (<c>-?</c>, <c>-h</c>, <c>--help</c>)
     ///  sets the <see cref="CmdLineArgs.Help"/> property to true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Parser.Parse(IEnumerable{string})"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("-?")]
     [DataRow("-h")]
@@ -39,6 +43,9 @@ public class ParserTests
     ///  Assert that an input command-line argument array not containing any
     ///  values sets the <see cref="CmdLineArgs.Help"/> property to true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Parser.Parse(IEnumerable{string})"/>.
+    /// </remarks>
     [TestMethod]
     public void Parse_NoArguments_HelpPropertyTrue()
     {
@@ -56,6 +63,9 @@ public class ParserTests
     ///  a help flag or flag alias (<c>-?</c>, <c>-h</c>, <c>--help</c>)
     ///  sets the <see cref="CmdLineArgs.Help"/> property to false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Parser.Parse(IEnumerable{string})"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("-vp", "22", "-e", "pwsh.exe", "192.168.1.100")]
     [DataRow("--verbose", "--send", "~/test.txt", "localhost")]

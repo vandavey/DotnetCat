@@ -17,6 +17,9 @@ public class CommandTests
     ///  Assert that an input environment variable name returns the
     ///  value of the corresponding variable in the local system.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Command.EnvVariable(string)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(ENV_VAR_PATH, false)]
     [DataRow("DotnetCatTest_Test", true)]
@@ -40,6 +43,9 @@ public class CommandTests
     ///  Assert that a null input environment variable name causes
     ///  an <see cref="ArgumentNullException"/> error to be thrown.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Command.EnvVariable(string)"/>.
+    /// </remarks>
     [TestMethod]
     public void EnvVariable_NullName_ThrowsArgumentNullException()
     {
@@ -53,6 +59,9 @@ public class CommandTests
     ///  Assert that a non-null input shell name returns
     ///  a new <see cref="ProcessStartInfo"/> object.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Command.ExeStartInfo(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("test")]
     [DataRow("data.exe")]
@@ -66,6 +75,9 @@ public class CommandTests
     ///  Assert that a null input shell name causes an
     ///  <see cref="ArgumentNullException"/> error to be thrown.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Command.ExeStartInfo(string?)"/>.
+    /// </remarks>
     [TestMethod]
     public void ExeStartInfo_NullShell_ThrowsArgumentNullException()
     {
@@ -78,6 +90,9 @@ public class CommandTests
     /// <summary>
     ///  Assert that a valid input clear-screen command name returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Command.IsClearCmd(string)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("clear")]
     [DataRow("cls\n")]
@@ -91,6 +106,9 @@ public class CommandTests
     /// <summary>
     ///  Assert that an invalid input clear-screen command name returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Command.IsClearCmd(string)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("sudo")]
     [DataRow("cat\n")]

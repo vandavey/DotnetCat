@@ -16,6 +16,9 @@ public class NetTests
     /// <summary>
     ///  Assert that a valid input network port number returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.ValidPort(int)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(80)]
     [DataRow(443)]
@@ -29,6 +32,9 @@ public class NetTests
     /// <summary>
     ///  Assert that an invalid input network port number returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.ValidPort(int)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(-80)]
     [DataRow(0)]
@@ -43,6 +49,9 @@ public class NetTests
     ///  Assert that an input <see cref="AggregateException"/>
     ///  returns the expected <see cref="Except"/> enumerator.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.GetExcept(AggregateException)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
     [DataRow(SocketError.ConnectionRefused, (byte)Except.ConnectionRefused)]
@@ -63,6 +72,9 @@ public class NetTests
     ///  Assert that an input <see cref="SocketException"/>
     ///  returns the expected <see cref="Except"/> enumerator.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.GetExcept(SocketException?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(SocketError.SocketError, (byte)Except.SocketError)]
     [DataRow(SocketError.ConnectionRefused, (byte)Except.ConnectionRefused)]
@@ -82,6 +94,9 @@ public class NetTests
     ///  Assert that an input socket error returns a <see cref="SocketException"/>
     ///  that was constructed with the correct socket error.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.MakeException(SocketError)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(SocketError.HostDown)]
     [DataRow(SocketError.NetworkUnreachable)]
@@ -98,6 +113,9 @@ public class NetTests
     ///  Assert that an input <see cref="AggregateException"/> with an inner
     ///  <see cref="SocketException"/> returns the inner <see cref="SocketException"/>.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.SocketException(AggregateException)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(SocketError.SocketError)]
     [DataRow(SocketError.ConnectionRefused)]
@@ -116,6 +134,9 @@ public class NetTests
     ///  Assert that an input <see cref="AggregateException"/> without
     ///  an inner <see cref="SocketException"/> returns null.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Net.SocketException(AggregateException)"/>.
+    /// </remarks>
     [TestMethod]
     public void SocketException_NoInnerException_ReturnsNull()
     {
