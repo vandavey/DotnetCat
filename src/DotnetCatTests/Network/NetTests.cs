@@ -65,7 +65,7 @@ public class NetTests
         Except expected = (Except)expectedByte;
         Except actual = Net.GetExcept(aggregateEx);
 
-        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'.");
+        Assert.AreEqual(expected, actual, $"Expected enumerator '{expected}'.");
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public class NetTests
         Except expected = (Except)expectedByte;
         Except actual = Net.GetExcept(socketEx);
 
-        Assert.AreEqual(expected, actual, $"Enum result should be '{expected}'.");
+        Assert.AreEqual(expected, actual, $"Expected enumerator '{expected}'.");
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ public class NetTests
         SocketException socketEx = Net.MakeException(expected);
         SocketError actual = socketEx.SocketErrorCode;
 
-        Assert.AreEqual(expected, actual, $"Expected error code: '{expected}'.");
+        Assert.AreEqual(expected, actual, $"Expected enumerator: '{expected}'.");
     }
 
     /// <summary>

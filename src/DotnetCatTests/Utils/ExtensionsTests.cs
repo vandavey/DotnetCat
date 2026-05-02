@@ -508,21 +508,6 @@ public class ExtensionsTests
     }
 
     /// <summary>
-    ///  Assert that a null input string returns true.
-    /// </summary>
-    /// <remarks>
-    ///  Tests <see cref="Extensions.IsNullOrEmpty(string?)"/>.
-    /// </remarks>
-    [TestMethod]
-    public void IsNullOrEmpty_StringIs_ReturnsTrue()
-    {
-        string? str = null;
-        bool actual = str.IsNullOrEmpty();
-
-        Assert.IsTrue(actual, "Expected null string to be null or empty.");
-    }
-
-    /// <summary>
     ///  Assert that an empty or blank input string returns true.
     /// </summary>
     /// <remarks>
@@ -535,6 +520,21 @@ public class ExtensionsTests
     {
         bool actual = str.IsNullOrEmpty();
         Assert.IsTrue(actual, "Expected empty/blank string to be null or empty.");
+    }
+
+    /// <summary>
+    ///  Assert that a null input string returns true.
+    /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsNullOrEmpty(string?)"/>.
+    /// </remarks>
+    [TestMethod]
+    public void IsNullOrEmpty_StringIs_ReturnsTrue()
+    {
+        string? str = null;
+        bool actual = str.IsNullOrEmpty();
+
+        Assert.IsTrue(actual, "Expected null string to be null or empty.");
     }
 
     /// <summary>
@@ -554,6 +554,20 @@ public class ExtensionsTests
     }
 
     /// <summary>
+    ///  Assert that an empty input collection returns true.
+    /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="Extensions.IsNullOrEmpty{T}(IEnumerable{T}?)"/>.
+    /// </remarks>
+    [TestMethod]
+    [DataRow(new object[0])]
+    public void IsNullOrEmpty_CollectionIs_ReturnsTrue(object[]? values)
+    {
+        bool actual = values.IsNullOrEmpty();
+        Assert.IsTrue(actual, "Expected empty collection to be null or empty.");
+    }
+
+    /// <summary>
     ///  Assert that a null input collection returns true.
     /// </summary>
     /// <remarks>
@@ -566,20 +580,6 @@ public class ExtensionsTests
         bool actual = values.IsNullOrEmpty();
 
         Assert.IsTrue(actual, "Expected null collection to be null or empty.");
-    }
-
-    /// <summary>
-    ///  Assert that an empty input collection returns true.
-    /// </summary>
-    /// <remarks>
-    ///  Tests <see cref="Extensions.IsNullOrEmpty{T}(IEnumerable{T}?)"/>.
-    /// </remarks>
-    [TestMethod]
-    [DataRow(new object[0])]
-    public void IsNullOrEmpty_CollectionIs_ReturnsTrue(object[]? values)
-    {
-        bool actual = values.IsNullOrEmpty();
-        Assert.IsTrue(actual, "Expected empty collection to be null or empty.");
     }
 
     /// <summary>

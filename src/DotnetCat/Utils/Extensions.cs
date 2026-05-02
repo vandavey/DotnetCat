@@ -26,7 +26,7 @@ internal static class Extensions
     /// <summary>
     ///  Free the underlying resources owned by each value in a collection.
     /// </summary>
-    public static void Dispose(this IEnumerable<IDisposable> values)
+    public static void Dispose<T>(this IEnumerable<T?>? values) where T : IDisposable
     {
         ForEach(values, v => v?.Dispose());
     }
