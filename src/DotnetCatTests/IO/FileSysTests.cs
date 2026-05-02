@@ -15,74 +15,70 @@ public class FileSysTests
 {
 #region PropertyTests
     /// <summary>
-    ///  Assert that the current user's home directory path is returned.
+    ///  Assert that the home directory path of the current user is returned.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.UserProfile"/>.
+    /// </remarks>
     [TestMethod]
-    public void UserProfile_Getter_ReturnsHomePath()
+    public void UserProfile_Get_ReturnsHomePath()
     {
         SpecialFolder folder = SpecialFolder.UserProfile;
 
         string expected = Environment.GetFolderPath(folder);
         string actual = FileSys.UserProfile;
 
-        Assert.AreEqual(expected, actual, $"Expected home path: '{expected}'");
+        Assert.AreEqual(expected, actual, $"Expected home path: '{expected}'.");
     }
 
     /// <summary>
-    ///  Assert that the resulting user home directory path exists.
+    ///  Assert that the home directory path of the current user exists.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.UserProfile"/>.
+    /// </remarks>
     [TestMethod]
-    public void UserProfile_Getter_HomePathExists()
+    public void UserProfile_Get_HomePathExists()
     {
         string homePath = FileSys.UserProfile;
         bool actual = Directory.Exists(homePath);
 
-        Assert.IsTrue(actual, $"User home path '{homePath}' does not exist");
+        Assert.IsTrue(actual, $"User home path '{homePath}' does not exist.");
     }
 #endregion // PropertyTests
 
 #region MethodTests
     /// <summary>
-    ///  Assert that a valid (existing) input file or directory
-    ///  path on Linux operating systems returns true.
+    ///  Assert that an existing input file or directory path returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.Exists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(HOME_PATH_ALIAS)]
+    [DataRow(".")]
     [DataRow(@".\..")]
-    [DataRow("/etc")]
-    [DataRow(@"\dev\error")]
-    [DataRow("/dev/stdout")]
-    public void Exists_ValidLinuxPath_ReturnsTrue(string? path)
-    {
-        if (OperatingSystem.IsLinux())
-        {
-            bool actual = FileSys.Exists(path);
-            Assert.IsTrue(actual, $"Expected path '{path}' to exist");
-        }
-    }
-
-    /// <summary>
-    ///  Assert that a valid (existing) input file or directory
-    ///  path on Windows operating systems returns true.
-    /// </summary>
-    [TestMethod]
-    [DataRow(HOME_PATH_ALIAS)]
-    [DataRow(@".\..")]
+#if WINDOWS
     [DataRow(@"C:\Users")]
     [DataRow("/Windows/System32/dism.exe")]
     [DataRow(@"C:\Windows/System32\sfc.exe")]
-    public void Exists_ValidWindowsPath_ReturnsTrue(string? path)
+#elif LINUX // LINUX
+    [DataRow("/etc")]
+    [DataRow(@"\dev\error")]
+    [DataRow("/dev/stdout")]
+#endif // WINDOWS
+    public void Exists_Does_ReturnsTrue(string? path)
     {
-        if (OperatingSystem.IsWindows())
-        {
-            bool actual = FileSys.Exists(path);
-            Assert.IsTrue(actual, $"Expected path '{path}' to exist");
-        }
+        bool actual = FileSys.Exists(path);
+        Assert.IsTrue(actual, $"Expected path '{path}' to exist.");
     }
 
     /// <summary>
-    ///  Assert that an invalid (nonexistent) input file or directory path returns false.
+    ///  Assert that a nonexistent input file or directory path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.Exists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
@@ -93,61 +89,55 @@ public class FileSysTests
     [DataRow("/usr/shared")]
     [DataRow(@"\bin\files\run")]
 #endif // WINDOWS
-    public void Exists_InvalidPath_ReturnsFalse(string? path)
+    public void Exists_DoesNot_ReturnsFalse(string? path)
     {
         bool actual = FileSys.Exists(path);
-        Assert.IsFalse(actual, $"Expected path '{path}' to not exist");
+        Assert.IsFalse(actual, $"Expected path '{path}' to not exist.");
     }
 
     /// <summary>
-    ///  Assert that a null input file or directory path returns false.
+    ///  Assert that a nonexistent input file or directory path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.Exists(string?)"/>.
+    /// </remarks>
     [TestMethod]
-    public void Exists_NullPath_ReturnsFalse()
+    public void Exists_DoesNot_ReturnsFalse()
     {
         string? path = null;
         bool actual = FileSys.Exists(path);
 
-        Assert.IsFalse(actual, "Expected null path to not exist");
+        Assert.IsFalse(actual, "Expected null path to not exist.");
     }
 
     /// <summary>
-    ///  Assert that a valid (existing) input file
-    ///  path on Linux operating systems returns true.
+    ///  Assert that an existing input file path returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.FileExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
-    [DataRow("/etc/hosts")]
-    [DataRow(@"/bin\sh")]
-    [DataRow(@"\dev\stdout")]
-    public void FileExists_ValidLinuxPath_ReturnsTrue(string? path)
-    {
-        if (OperatingSystem.IsLinux())
-        {
-            bool actual = FileSys.FileExists(path);
-            Assert.IsTrue(actual, $"Expected file path '{path}' to exist");
-        }
-    }
-
-    /// <summary>
-    ///  Assert that a valid (existing) input file path
-    ///  on Windows operating systems returns true.
-    /// </summary>
-    [TestMethod]
+#if WINDOWS
     [DataRow("/Windows/explorer.exe")]
     [DataRow(@"C:\Windows/System32\sfc.exe")]
     [DataRow(@"\Windows\System32\dism.exe")]
-    public void FileExists_ValidWindowsPath_ReturnsTrue(string? path)
+#elif LINUX // LINUX
+    [DataRow("/etc/hosts")]
+    [DataRow(@"/bin\sh")]
+    [DataRow(@"\dev\stdout")]
+#endif // WINDOWS
+    public void FileExists_Does_ReturnsTrue(string? path)
     {
-        if (OperatingSystem.IsWindows())
-        {
-            bool actual = FileSys.FileExists(path);
-            Assert.IsTrue(actual, $"Expected file path '{path}' to exist");
-        }
+        bool actual = FileSys.FileExists(path);
+        Assert.IsTrue(actual, $"Expected file path '{path}' to exist.");
     }
 
     /// <summary>
-    ///  Assert that an invalid (nonexistent) input file path returns false.
+    ///  Assert that a nonexistent input file path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.FileExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
@@ -159,42 +149,51 @@ public class FileSysTests
     [DataRow("/dev/output")]
     [DataRow(@"\bin\sbin\sh")]
 #endif // WINDOWS
-    public void FileExists_InvalidPath_ReturnsFalse(string? path)
+    public void FileExists_DoesNot_ReturnsFalse(string? path)
     {
         bool actual = FileSys.FileExists(path);
-        Assert.IsFalse(actual, $"Expected file path '{path}' to not exist");
+        Assert.IsFalse(actual, $"Expected file path '{path}' to not exist.");
     }
 
     /// <summary>
-    ///  Assert that a null input file path returns false.
+    ///  Assert that a nonexistent input file path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.FileExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
-    public void FileExists_NullPath_ReturnsFalse()
+    public void FileExists_DoesNot_ReturnsFalse()
     {
         string? path = null;
         bool actual = FileSys.FileExists(path);
 
-        Assert.IsFalse(actual, "Expected null file path to not exist");
+        Assert.IsFalse(actual, "Expected null file path to not exist.");
     }
 
     /// <summary>
-    ///  Assert that a valid (existing) input directory path returns true.
+    ///  Assert that an existing input directory path returns true.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.DirectoryExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow(HOME_PATH_ALIAS)]
     [DataRow("/")]
     [DataRow(".")]
     [DataRow("..")]
     [DataRow(@"..\..")]
-    public void DirectoryExists_ValidPath_ReturnsTrue(string? path)
+    public void DirectoryExists_Does_ReturnsTrue(string? path)
     {
         bool actual = FileSys.DirectoryExists(path);
-        Assert.IsTrue(actual, $"Expected directory path '{path}' to exist");
+        Assert.IsTrue(actual, $"Expected directory path '{path}' to exist.");
     }
 
     /// <summary>
-    ///  Assert that an invalid (nonexistent) input directory path returns false.
+    ///  Assert that a nonexistent input directory path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.DirectoryExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
     [DataRow("")]
     [DataRow("  ")]
@@ -205,22 +204,25 @@ public class FileSysTests
     [DataRow("/bin/sh")]
     [DataRow(@"\dev\output")]
 #endif // WINDOWS
-    public void DirectoryExists_InvalidPath_ReturnsFalse(string? path)
+    public void DirectoryExists_DoesNot_ReturnsFalse(string? path)
     {
         bool actual = FileSys.DirectoryExists(path);
-        Assert.IsFalse(actual, $"Expected directory path '{path}' to not exist");
+        Assert.IsFalse(actual, $"Expected directory path '{path}' to not exist.");
     }
 
     /// <summary>
-    ///  Assert that a null input directory path returns false.
+    ///  Assert that a nonexistent input directory path returns false.
     /// </summary>
+    /// <remarks>
+    ///  Tests <see cref="FileSys.DirectoryExists(string?)"/>.
+    /// </remarks>
     [TestMethod]
-    public void DirectoryExists_NullPath_ReturnsFalse()
+    public void DirectoryExists_DoesNot_ReturnsFalse()
     {
         string? path = null;
         bool actual = FileSys.DirectoryExists(path);
 
-        Assert.IsFalse(actual, "Expected null directory path to not exist");
+        Assert.IsFalse(actual, "Expected null directory path to not exist.");
     }
 #endregion // MethodTests
 }
